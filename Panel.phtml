@@ -1,0 +1,59 @@
+<?php
+
+/**
+ * This file is part of the Nella Framework.
+ *
+ * Copyright (c) 2006, 2010 Patrik Votoček (http://patrik.votocek.cz)
+ *
+ * This source file is subject to the GNU Lesser General Public License. For more information please see http://nellacms.com
+ */
+
+?>
+<style>
+#nette-debug-doctrine table {
+	width: 100%;
+}
+#nette-debug #nette-debug-doctrine a {
+	color: #333;
+	background: transparent;
+}
+#nette-debug-doctrine pre.nette-dump span {
+	color: #c16549;
+}
+#nette-debug-doctrine td.doctrine-sql {
+	background: #fff;
+}
+#nette-debug-doctrine .nette-alt td.doctrine2-sql {
+	background: #f5f5f5;
+}
+</style>
+
+<h1>Queries: <?php echo count($data) ?>, time: <?php echo $time ?> ms</h1>
+
+<div class="nette-inner">
+	<table>
+		<tr>
+			<th colspan="2">Connection Platform</th>
+			<th colspan="2">Service Name</th>
+		</tr>
+		<tr>
+			<td colspan="2"><?php echo $platform ?></td>
+			<td colspan="2"><?php echo $service ?></td>
+		</tr>
+		<tr>
+			<th>Time</th>
+			<th>SQL Statement</th>
+			<th>Params</th>
+			<th>Types</th>
+		</tr>
+		<?php foreach ($data as $query): ?>
+		<tr<?php if ($i % 2 == 0): ?> class="nette-alt"<?php endif ?>>
+			<td><?php echo $query->time ?>ms</td>
+			<td class="doctrine-sql"><code><?php echo $dump($query->sql) ?></code></td>
+			<td><?php \Nette\Debug::dump($query->params) ?></td>
+			<td><?php \Nette\Debug::dump($query->types) ?></td>
+		</tr>
+		<?php $i++ ?>
+		<?php endforeach ?>
+	</table>
+</div>
