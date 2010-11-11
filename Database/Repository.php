@@ -2,6 +2,9 @@
 
 namespace Kdyby\Database;
 
+use Nette;
+use Kdyby;
+
 
 
 /**
@@ -9,45 +12,72 @@ namespace Kdyby\Database;
  *
  * @author Filip Procházka <hosiplan@kdyby.org>
  */
-abstract class Repository extends \Nette\Object implements \ArrayAccess
+abstract class Repository extends Nette\Object implements \ArrayAccess
 {
-	private $Mapper;
 
-	
+	/** @var \Kdyby\Database\DtM */
+	private $DtM;
 
-	public function __construct(EntityMapper $mapper)
+	/** @var array */
+	private $entities = array();
+
+
+
+	/**
+	 * @param \Kdyby\Database\DtM $DtM
+	 */
+	public function __construct(DtM $DtM)
 	{
-		$this->Mapper = $mapper;
+		$this->DtM = $DtM;
 	}
 
-	abstract public function create();
 
-	abstract public function save();
 
-	abstract public function find();
-
-	abstract public function delete();
-
-	abstract public function getDataSource();
-
-	abstract public function walkResults($callback, $where = NULL);
-//	{
-//		$where = func_get_args();
-//		$callback = array_shift($where);
-//		$results = array();
-//		foreach ($this->mapper->find('%ex', $where) as $id => $row) {
-//			$result = $callback->invokeArg($this, $row);
-//			if ($result) {
-//				$results[$id] = $result;
-//			}
-//		}
-//
-//		return $result;
-//	}
-
-	final public function getMapper()
+	/**
+	 * @return \Kdyby\Database\DtM
+	 */
+	final public function getDtM()
 	{
-		
+		return $this->DtM;
+	}
+
+
+
+	/********************* interface \ArrayAccess *********************/
+
+
+
+	public function offsetSet($id, $entity)
+	{
+		if ($entity->id == $id && $entity instanceof IEntity) {
+			$this->entities[(int)$id] = $entity;
+		}
+	}
+
+
+
+	public function offsetGet($id)
+	{
+		if (!isset($this->entities[(int)$id])) {
+			$this->entities[(int)$id] = $this->getById($id);
+		}
+
+		return $this->entities[(int)$id];
+	}
+
+
+
+	public function offsetExists($id)
+	{
+		return ($this[$id] !== NULL);
+	}
+
+
+
+	public function offsetUnset($id)
+	{
+		$this->delete($this[$id]);
+		unset($this->entities[(int)$id]);
 	}
 
 }

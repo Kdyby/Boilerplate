@@ -2,6 +2,9 @@
 
 namespace Kdyby\Database;
 
+use dibi;
+use Nette;
+use Kdyby;
 
 
 
@@ -10,44 +13,15 @@ namespace Kdyby\Database;
  *
  * @author Filip Procházka <hosiplan@kdyby.org>
  */
-class ConnectedObject extends \Nette\Object
+class ConnectedObject extends Nette\Object
 {
-
-	/** @var \Kdyby\Database\EntityRepository */
-	private $db;
-
-
 
 	/**
 	 * @return \DibiConnection
 	 */
 	public function getConnection()
 	{
-		return \dibi::getConnection();
-	}
-
-
-
-	/**
-	 * @return \Kdyby\Database\EntityBin
-	 */
-	public function getDb()
-	{
-		if ($this->db === NULL) {
-			$this->db = \Nette\Environment::getService("EntityRepository");
-		}
-
-		return $this->db;
-	}
-
-
-
-	/**
-	 * @return \Kdyby\Database\EntityBin
-	 */
-	public function getEntityRepository()
-	{
-		return $this->getDb();
+		return dibi::getConnection();
 	}
 
 }

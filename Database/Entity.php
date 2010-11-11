@@ -12,7 +12,7 @@ abstract class Entity extends \Nette\Object
 {
 
 	const REVISIONS = TRUE;
-	
+
 
 	/** @var \Kdyby\Database\Repository */
 	private $Repository;
@@ -50,10 +50,10 @@ abstract class Entity extends \Nette\Object
 
 	abstract function refresh();
 
-	abstract function validate();
+//	abstract function validate();
 
 	abstract function getPropertiesMap();
 
-	abstract function applyChanges(array $values);
+//	abstract function applyChanges(array $values);
 
 }
