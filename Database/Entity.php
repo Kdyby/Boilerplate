@@ -7,6 +7,8 @@ namespace Kdyby\Database;
  * Description of Entity
  *
  * @author Filip Procházka <hosiplan@kdyby.org>
+ *
+ * @property-read \Kdyby\Database\Repository $repository
  */
 abstract class Entity extends \Nette\Object
 {
@@ -19,16 +21,29 @@ abstract class Entity extends \Nette\Object
 
 
 
+	/**
+	 * @param \Kdyby\Database\Repository $repository
+	 */
 	public function __construct(Repository $repository)
 	{
 		$this->Repository = $repository;
 	}
 
 
+	/**
+	 * @return \Kdyby\Database\Repository
+	 */
 	public function getRepository()
 	{
 		return $this->Repository;
 	}
+
+
+//     idea: properties private!
+//     public function __get()
+//     public function __set()
+//     všechny properties jako private a přistupovat přes magi
+
 
 
 
@@ -36,6 +51,9 @@ abstract class Entity extends \Nette\Object
 
 
 
+	/**
+	 * @return \Kdyby\Database\IEntity
+	 */
 	public function save()
 	{
 		if ($this->repository === NULL) {
@@ -44,16 +62,9 @@ abstract class Entity extends \Nette\Object
 
 		return $this->repository->save($this);
 	}
+	
+//     abstract function revert();
 
-
-	abstract function update(array $values);
-
-	abstract function refresh();
-
-//	abstract function validate();
-
-	abstract function getPropertiesMap();
-
-//	abstract function applyChanges(array $values);
+//     abstract function isValid();
 
 }

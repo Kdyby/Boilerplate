@@ -8,7 +8,7 @@ use Kdyby;
 
 
 /**
- * Description of EntityRepository
+ * Description of Repository
  *
  * @author Filip Procházka <hosiplan@kdyby.org>
  */
