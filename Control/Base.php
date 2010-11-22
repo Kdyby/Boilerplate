@@ -66,7 +66,7 @@ class Base extends Nette\Application\Control
 		$module = String::lower(substr($action, 0, strpos($action, ':')));
 		$theme = Environment::getConfig("theme")->{$module};
 
-		$template->theme = Environment::getVariable('baseUri') . 'theme_' . $theme;
+		$template->theme = $template->basePath . '/theme_' . $theme;
 		$template->user = $this->getUser();
 
 		return $template;

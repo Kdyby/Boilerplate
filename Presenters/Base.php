@@ -233,7 +233,7 @@ abstract class Base extends Nette\Application\Presenter
 		$module = String::lower(substr($action, 0, strpos($action, ':')));
 		$theme = Environment::getConfig("theme")->{$module};
 
-		$template->theme = Environment::getVariable('baseUri') . 'theme_' . $theme;
+		$template->theme = $template->basePath . '/theme_' . $theme;
 		$template->global = APP_DIR . '/templates';
 
 		$relative = ltrim($this->getAction(TRUE), ':');
