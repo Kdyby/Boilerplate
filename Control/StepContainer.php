@@ -48,20 +48,6 @@ class StepContainer extends Lookout
 		if (!$parent instanceof Nette\ComponentContainer) {
 			throw new InvalidStateException("StepContainer must be attached to component tree by constructor");
 		}
-
-		if (!$this->token) {
-			$this->resetToken();
-		}
-
-		$session = $this->getSession($parent->reflection->name . '.' . $this->reflection->name);
-		$this->data = $session[$this->token];
-	}
-
-
-
-	public function resetToken()
-	{
-		$this->token = substr(md5(uniqid()), 0, 6);
 	}
 
 
@@ -149,10 +135,24 @@ class StepContainer extends Lookout
 			$this->step = reset($this->steps);
 		}
 
+		if (!$this->token) {
+			$this->resetToken();
+		}
+
+		$session = $this->getSession($parent->reflection->name . '.' . $this->reflection->name);
+		$this->data = $session[$this->token];
+
 		$this[$this->step]->attachEvents($this['form']);
 		$this['form']->onSubmit = array(callback($this, 'fireEvents'));
 
 		parent::attached($presenter);
+	}
+
+
+
+	public function resetToken()
+	{
+		$this->token = substr(md5(uniqid()), 0, 6);
 	}
 
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Kdyby\Mapper\dibi;
+namespace Kdyby\Security;
 
 
 /**
@@ -8,7 +8,7 @@ namespace Kdyby\Mapper\dibi;
  *
  * @author Filip Procházka <hosiplan@kdyby.org>
  */
-class User extends Kdyby\Database\EntityMapper
+class UserCouchdbMapper extends Kdyby\Database\EntityMapper
 {
 	
 }

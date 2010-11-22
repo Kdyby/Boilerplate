@@ -1,16 +1,17 @@
 <?php
 
-namespace Kdyby\Model;
+namespace Kdyby\Security;
 
-use Nette\Object;
+use Nette;
 use Nette\Security\Identity;
 use Nette\Security\AuthenticationException;
+use Kdyby;
 
 
 /**
  * Users authenticator.
  */
-final class Authenticator extends \Kdyby\Database\ConnectedObject implements \Nette\Security\IAuthenticator
+final class Authenticator extends Nette\Object implements Nette\Security\IAuthenticator
 {
 
 	/**
@@ -27,7 +28,7 @@ final class Authenticator extends \Kdyby\Database\ConnectedObject implements \Ne
 		return new Identity($username, array('registered', 'admin'), array('username'=>$username));
 
 
-		$row = dibi::fetch('SELECT * FROM users WHERE login=%s', $username);
+		//$row = dibi::fetch('SELECT * FROM users WHERE login=%s', $username);
 
 		if (!$row) {
 			throw new AuthenticationException("User '$username' not found.", self::IDENTITY_NOT_FOUND);
@@ -38,7 +39,7 @@ final class Authenticator extends \Kdyby\Database\ConnectedObject implements \Ne
 		}
 
 		unset($row->password);
-		return new Nette\Security\Identity($row->id, $row->role, $row);
+		return new Identity($row->id, $row->role, $row);
 	}
 
 }

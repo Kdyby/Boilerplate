@@ -1,6 +1,6 @@
 <?php
 
-namespace Kdyby\Repository;
+namespace Kdyby\Security;
 
 use Nette;
 use Kdyby;

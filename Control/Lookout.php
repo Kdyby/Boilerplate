@@ -15,6 +15,9 @@ class Lookout extends Base
 	/** @var array */
 	private $renderParams = array();
 
+	/** @var array */
+	private static $methods = array();
+
 
 
 	/**
@@ -26,6 +29,7 @@ class Lookout extends Base
 	}
 
 
+
 	/**
 	 * @return string
 	 */
@@ -35,23 +39,6 @@ class Lookout extends Base
 	}
 
 
-	/**
-	 * @param array $params
-	 */
-	protected function beforeRender($params)
-	{
-
-	}
-
-
-	/**
-	 * @param array $params
-	 */
-	protected function afterRender($params)
-	{
-
-	}
-
 
 	/**
 	 * @param string $type
@@ -60,15 +47,35 @@ class Lookout extends Base
 	 */
 	final public function render($type = NULL, $param = NULL)
 	{
+		$class = get_class($this);
+		if (!isset(self::$methods[$class])) {
+			self::$methods[$class] = get_class_methods($this);
+		}
+
 		$this->view = $this->view ?: 'default';
 		$this->renderParams = $this->renderParams ?: func_get_args();
 
 		$viewMethod = 'view' . ucfirst($this->view);
 
-		$this->beforeRender($this->renderParams);
+		if (in_array('beforeRender', self::$methods[$class])) {
+			call_user_func_array(array($this, 'beforeRender'), $this->renderParams);
+		}
 
 		$dir = dirname($this->reflection->fileName);
-		$this->template->setFile($dir . '/' . $this->view . '.phtml');
+		$view = lcfirst($this->view);
+		$templates = array(
+				$dir . '/' . $view . '.latte',
+				$dir . '/' . $view . '.phtml'
+			);
+		foreach ($templates as $file){
+			if (file_exists($file)) {
+				$this->template->setFile($file);
+			}
+		}
+
+		if (!file_exists($file)) {
+			throw new \FileNotFoundException("Template '".reset($templates)."' is missing.");
+		}
 
 		ob_start();
 		call_user_func_array(array($this, $viewMethod), $this->renderParams);
@@ -81,11 +88,14 @@ class Lookout extends Base
 			echo $output;
 		}
 
-		$this->afterRender($this->renderParams);
+		if (in_array('afterRender', self::$methods[$class])) {
+			call_user_func_array(array($this, 'afterRender'), $this->renderParams);
+		}
 
 		$this->view = NULL;
 		$this->renderParams = array();
 	}
+
 
 
 	/**
@@ -97,7 +107,7 @@ class Lookout extends Base
 	public function __call($method, $args)
 	{
 		if (String::startsWith($method, 'render')) {
-			$this->view = String::lower(substr($method, 6));
+			$this->view = substr($method, 6);
 			$this->renderParams = $args;
 
 			return call_user_func(array($this, 'render'));
@@ -105,4 +115,5 @@ class Lookout extends Base
 
 		return parent::__call($method, $args);
 	}
+
 }

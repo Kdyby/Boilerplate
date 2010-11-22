@@ -10,16 +10,45 @@ use Nette\String;
 
 
 /**
- * Description of Base
- *
  * @author Filip Procházka <hosiplan@kdyby.org>
  */
 class Base extends Nette\Application\Control
 {
 
+	/** @var Nette\ITranslator */
+	private $translator;
+
+
+
+	/**
+	 * @return Nette\Web\IUser
+	 */
 	public function getUser()
 	{
 		return Nette\Environment::getUser();
+	}
+
+
+
+	/**
+	 * @return Nette\ITranslator
+	 */
+	public function getTranslator()
+	{
+		if ($this->translator === NULL) {
+			$this->translator = Environment::getService("Nette\\ITranslator");
+		}
+
+		return $this->translator;
+	}
+
+
+	/**
+	 * @param Nette\ITranslator $translator
+	 */
+	public function setTranslator(Nette\ITranslator $translator)
+	{
+		$this->translator = $translator;
 	}
 
 
@@ -31,13 +60,14 @@ class Base extends Nette\Application\Control
 	protected function createTemplate()
 	{
 		$template = parent::createTemplate();
-		$template->setTranslator(Environment::getService('Nette\ITranslator'));
+		$template->setTranslator($this->getTranslator());
 
 		$action = ltrim($this->presenter->getAction(TRUE), ':');
 		$module = String::lower(substr($action, 0, strpos($action, ':')));
 		$theme = Environment::getConfig("theme")->{$module};
 
 		$template->theme = Environment::getVariable('baseUri') . 'theme_' . $theme;
+		$template->user = $this->getUser();
 
 		return $template;
 	}
@@ -46,6 +76,18 @@ class Base extends Nette\Application\Control
 	public function templatePrepareFilters($template)
 	{
 		$this->presenter->templatePrepareFilters($template);
+	}
+
+
+
+	/*=========================== Components magic =============================*/
+
+
+
+	public function createComponent($name)
+	{
+		$component = parent::createComponent($name);
+		return Kdyby\Component\Helpers::createComponent($this, $component, $name);
 	}
 
 }
