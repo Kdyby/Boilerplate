@@ -14,8 +14,8 @@ class KdybyLoader extends Nette\Loaders\AutoLoader
 
 	/** @var array */
 	public $list = array(
-		'kdyby\configurator' => '/Application/Configurator.php',
-		'kdyby\fileservice' => '/Tools/FileService.php',
+		'kdyby\configurator' => '/Environment/Configurator.php',
+		'kdyby\filesystem' => '/Tools/FileSystem.php',
 		'kdyby\logicdelegator' => '/Tools/LogicDelegator.php',
 		'kdyby\security\applicationlock' => '/Security/ApplicationLock.php'
 	);
