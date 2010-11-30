@@ -76,7 +76,7 @@ class Factory extends \Nette\Object
 		$config->setQueryCacheImpl($cache);
 
 		// Metadata
-		$config->setMetadataDriverImpl($config->newDefaultAnnotationDriver(array(NELLA_DIR, APP_DIR)));
+		$config->setMetadataDriverImpl($config->newDefaultAnnotationDriver(array(APP_DIR)));
 
 		// Proxies
 		$config->setProxyDir(Environment::getVariable('proxyDir', APP_DIR . "/proxies"));
@@ -96,19 +96,12 @@ class Factory extends \Nette\Object
 	}
 
 	/**
-	 * @return Nella\Core\Page\Models\ItemEvent
-	 */
-	protected static function createItemEvent()
-	{
-		return new Nella\Core\Page\Models\ItemEvent;
-	}
-
-	/**
 	 * @param string
 	 * @return Doctrine\ORM\EntityManager
 	 */
 	public static function createEntityManager()
 	{
+		$context = Environment::getApplication()->context;
 		$serviceName = 'Doctrine\ORM\EntityManager';
 		$database = (array) Environment::getConfig('database');
 
@@ -116,8 +109,6 @@ class Factory extends \Nette\Object
 		$config = self::createConfiguration($database, $serviceName);
 
 		$event = static::createEventManager();
-		// Special event for Page items - dynamic CLASS_TABLE_INHERITANCE discriminator list
-		//$event->addEventListener(\Doctrine\ORM\Events::loadClassMetadata, static::createItemEvent());
 		// Special event for MySQL
 		if (isset($database['driver']) && $database['driver'] == "pdo_mysql" && isset($database['charset'])) {
 			$event->addEventSubscriber(self::createMysqlSessionListener(

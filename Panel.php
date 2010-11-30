@@ -143,7 +143,7 @@ class Panel extends \Nette\Object implements \Nette\IDebugPanel, \Doctrine\DBAL\
 
 	public function stopQuery()
 	{
-		$this->data[$this->i]->time = number_format(Debug::timer($this->getId() . '-watch-' . $this->i), 3, '.', ' ');
+		$this->data[$this->i]->time = number_format(Debug::timer($this->getId() . '-watch-' . $this->i) * 1000, 3, '.', ' ');
 	}
 
 	/**
