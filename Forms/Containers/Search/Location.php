@@ -24,7 +24,7 @@ class LocationSearch extends Nette\Forms\FormContainer
 			'great-britain' => "Velká Británie",
 		));
 
-		$this->addCheckboxList('');
+		//$this->addCheckboxList('');
 	}
 
 }

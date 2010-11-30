@@ -20,6 +20,12 @@ class ApplicationLock extends Nette\Object
 	/** @var Nette\Web\HttpRequest */
 	private $httpRequest;
 
+	/** @var string */
+	public $message = "Access denied";
+
+	/** @var string */
+	public $realm = "test";
+
 
 
 	public function __construct()
@@ -29,6 +35,10 @@ class ApplicationLock extends Nette\Object
 
 
 
+	/**
+	 * @param string $name
+	 * @param string $pass 
+	 */
 	public function addUser($name, $pass)
 	{
 		$this->users[$name] = $pass;
@@ -36,6 +46,9 @@ class ApplicationLock extends Nette\Object
 
 
 
+	/**
+	 * @return Kdyby\Security\ApplicationLock
+	 */
 	public function authorize()
 	{
 		$uri = $this->httpRequest->getUri();
@@ -61,12 +74,16 @@ class ApplicationLock extends Nette\Object
 	{
 		header('Content-Type: text/plain; charset=utf-8');
 		header('HTTP/1.1 401 Unauthorized');
-		header('WWW-Authenticate: Basic realm="Unired beta"');
-		die('Access denied');
+		header('WWW-Authenticate: Basic realm="'.(string)$this->realm.'"');
+		die((string)$this->message);
 	}
 
 
 
+	/**
+	 * @param array $options
+	 * @return Kdyby\Security\ApplicationLock
+	 */
 	public static function createApplicationLock($options)
 	{
 		$lock = new self;
@@ -75,6 +92,9 @@ class ApplicationLock extends Nette\Object
 			//list($name, $pass) = explode('=', $user);
 			$lock->addUser($name, $pass);
 		}
+
+		$lock->message = isset($options['message']) ? $options['message'] : $lock->message;
+		$lock->realm = isset($options['realm']) ? $options['realm'] : $lock->realm;
 
 		return $lock->authorize();
 	}

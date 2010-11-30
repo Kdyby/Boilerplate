@@ -1,11 +1,9 @@
 <?php
 
-namespace Kdyby\Security;
+namespace Kdyby;
 
 use Nette;
 use Kdyby;
-use Kdyby\Database\IRepository;
-use Kdyby\Entity\User;
 
 
 /**

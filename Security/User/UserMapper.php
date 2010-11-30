@@ -1,6 +1,10 @@
 <?php
 
-namespace Kdyby\Security;
+namespace Kdyby;
+
+use Nette;
+use Kdyby;
+use Kdyby\ORM\Mapping\MySQLMapper;
 
 
 /**
@@ -8,7 +12,19 @@ namespace Kdyby\Security;
  *
  * @author Filip Procházka <hosiplan@kdyby.org>
  */
-class UserCouchdbMapper extends Kdyby\Database\EntityMapper
+class UserMySQLMapper extends MySQLMapper
 {
-	
+
+	protected function createEntityMap()
+	{
+		$map = new Entity\PersonMap('Kdyby\Entity\User', $session);
+
+		$map->addProperty('id');
+		$map->addProperty('username');
+		$map->addProperty('passwordHash');
+		$map->addDateTime('registeredAt');
+
+		return $map;
+	}
+
 }
