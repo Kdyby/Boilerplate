@@ -1,0 +1,3 @@
+[submodule "Doctrine"]
+	path = Doctrine
+	url = git@github.com:HosipLan/Doctrine.git
