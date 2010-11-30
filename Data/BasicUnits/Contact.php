@@ -27,7 +27,7 @@ class Contact extends Kdyby\Database\Entity implements IEntity
 	/** @var string */
 	public $email;
 
-	/** @var Address */
+	/** @OneToOne('addressId', Kdyby\Entity\Address) */
 	public $address;
 
 }

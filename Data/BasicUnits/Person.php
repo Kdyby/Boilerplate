@@ -4,18 +4,13 @@ namespace Kdyby\Entity;
 
 use Nette;
 use Kdyby;
-use Kdyby\Database\IRepository;
-use Kdyby\Database\IEntity;
-
 
 
 
 /**
- * Description of Person
- *
  * @author Filip Procházka <hosiplan@kdyby.org>
  */
-class Person extends Kdyby\Database\Entity implements IEntity
+class Person extends Nette\Object
 {
 
 	/** @var string */
@@ -27,7 +22,7 @@ class Person extends Kdyby\Database\Entity implements IEntity
 	/** @var string */
 	public $salutation;
 
-	/** @var Contact */
+	/** @OneToOne('contactId', Kdyby\Entity\Contact) */
 	public $contact;
 
 	/** @var string */
