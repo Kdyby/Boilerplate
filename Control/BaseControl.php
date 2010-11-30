@@ -12,7 +12,7 @@ use Nette\String;
 /**
  * @author Filip Procházka <hosiplan@kdyby.org>
  */
-class Base extends Nette\Application\Control
+class BaseControl extends Nette\Application\Control
 {
 
 	/** @var Nette\ITranslator */

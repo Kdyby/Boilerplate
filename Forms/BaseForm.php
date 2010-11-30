@@ -13,7 +13,7 @@ use Nette\Environment;
  *
  * @author Filip Procházka <hosiplan@kdyby.org>
  */
-class Base extends AppForm
+class BaseForm extends AppForm
 {
 
 	public $onSuccess = array();

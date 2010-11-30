@@ -13,28 +13,6 @@ use Kdyby;
 class Configurator extends Nette\Object
 {
 
-	private static $mappers = array(
-		'Kdyby\Security' => "",
-	);
-
-	private static $repositories = array();
-
-
-
-	public static function createDtM($options)
-	{
-		$mappers = &$options['mappers'];
-		$repositories = &$options['repositories'];
-
-		$mappers += self::$mappers;
-		$repositories += self::$repositories;
-
-		$session = Kdyby\ORM\Configurator::createSession($options);
-
-		return $session;
-	}
-
-
 
 	/**
 	 * @return Nette\Web\IUser
