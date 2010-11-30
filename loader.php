@@ -17,8 +17,6 @@ define('KDYBY_DIR', __DIR__);
 // 1a) Load Nette Framework
 require LIBS_DIR . '/Nette/loader.php';
 
-require LIBS_DIR . '/dibi/dibi.php';
-
 
 // Step 2: Configure environment
 // 2a) enable Nette\Debug for better exception and error visualisation
