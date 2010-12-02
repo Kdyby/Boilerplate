@@ -10,7 +10,10 @@
 
 namespace Kdyby\Doctrine;
 
+use Doctrine;
 use Nette\Environment;
+
+
 
 /**
  * Factories for doctrine
@@ -41,7 +44,7 @@ class Factory extends \Nette\Object
 	 */
 	protected static function createEventManager()
 	{
-		return new \Doctrine\Common\EventManager;
+		return new Doctrine\Common\EventManager;
 	}
 
 	/**
@@ -59,7 +62,7 @@ class Factory extends \Nette\Object
 	 */
 	protected static function createMysqlSessionListener($charset = 'utf8', $collation = FALSE)
 	{
-		return new \Doctrine\DBAL\Event\Listeners\MysqlSessionInit($charset, $collation);
+		return new Doctrine\DBAL\Event\Listeners\MysqlSessionInit($charset, $collation);
 
 	}
 
@@ -68,7 +71,7 @@ class Factory extends \Nette\Object
 	 */
 	protected static function createConfiguration(array $database, $serviceName = 'Doctrine\ORM\EntityManager')
 	{
-		$config = new \Doctrine\ORM\Configuration;
+		$config = new Doctrine\ORM\Configuration;
 
 		// Cache
 		$cache = static::createCache();
@@ -118,6 +121,6 @@ class Factory extends \Nette\Object
 		}
 
 		// Entity manager
-		return \Doctrine\ORM\EntityManager::create($database, $config, $event);
+		return Doctrine\ORM\EntityManager::create($database, $config, $event);
 	}
 }

@@ -2,14 +2,17 @@
 
 namespace Kdyby\Application;
 
+Use Doctrine;
 use Doctrine\ORM\EntityManager;
-use PandaWeb\Entities\BaseEntity;
+use Nette\Environment;
+use Kdyby\Entities\BaseEntity;
+
 
 
 /**
  * @property-read \Doctrine\ORM\EntityManager $entityManager
  * @property-read \Doctrine\ORM\EntityRepository $page
- * @property-read \PandaWeb\Repositories\UserRepository $user
+ * @property-read \Kdyby\Repositories\UserRepository $user
  * ...
  *
  * @method void clear() clear()
@@ -24,37 +27,38 @@ use PandaWeb\Entities\BaseEntity;
  */
 class DatabaseManager
 {
-        /** @var EntityManager */
-        protected $entityManager;
+	/** @var EntityManager */
+	protected $entityManager;
 
 
-        public function __construct()
-        {
-                $this->entityManager = \Nette\Environment::getService('Doctrine\ORM\EntityManager');
-        }
+	public function __construct()
+	{
+		$this->entityManager = Environment::getService('Doctrine\ORM\EntityManager');
+	}
 
-        public function __get($name)
-        {
-                if ($name == 'entityManager') {
-                        return $this->entityManager;
-                } else {
-                        return $this->entityManager->getRepository('PandaWeb\\Entities\\' . ucfirst($name));
-                }
-        }
+	public function __get($name)
+	{
+		if ($name == 'entityManager') {
+			return $this->entityManager;
 
-        public function __call($name, $arguments)
-        {
-                return \call_user_func_array(array($this->entityManager, $name), $arguments);
-        }
+		} else {
+			return $this->entityManager->getRepository('Kdyby\\Entities\\' . ucfirst($name));
+		}
+	}
+
+	public function __call($name, $arguments)
+	{
+		return call_user_func_array(array($this->entityManager, $name), $arguments);
+	}
 
 
-        public function persist($entity)
-        {
-                $this->entityManager->persist($entity);
-        }
+	public function persist($entity)
+	{
+		$this->entityManager->persist($entity);
+	}
 
-        public function lock($entity, $version)
-        {
-                $this->entityManager->lock($entity, \Doctrine\DBAL\LockMode::OPTIMISTIC, $version);
-        }
+	public function lock($entity, $version)
+	{
+		$this->entityManager->lock($entity, Doctrine\DBAL\LockMode::OPTIMISTIC, $version);
+	}
 }

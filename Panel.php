@@ -13,6 +13,8 @@ namespace Nella\Doctrine;
 use Nette\Debug,
 	Nette\String;
 
+
+
 /**
  * Doctrine SQL logger for Nette\Debug panel
  *
