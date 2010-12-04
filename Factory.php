@@ -23,6 +23,7 @@ use Nette\Environment;
  */
 class Factory extends \Nette\Object
 {
+
 	/**
 	 * @throws InvalidStateException
 	 */
@@ -31,13 +32,15 @@ class Factory extends \Nette\Object
 		throw new \InvalidStateException("Cannot instantiate static class " . get_called_class());
 	}
 
+
 	/**
-	 * @return Cache
+	 * @return Kdyby\Doctrine\Cache
 	 */
 	protected  static function createCache()
 	{
 		return new Cache(Environment::getCache('Doctrine'));
 	}
+
 
 	/**
 	 * @return Doctrine\Common\EventManager
@@ -47,6 +50,7 @@ class Factory extends \Nette\Object
 		return new Doctrine\Common\EventManager;
 	}
 
+
 	/**
 	 * @return Nella\Doctrine\Panel
 	 */
@@ -54,6 +58,7 @@ class Factory extends \Nette\Object
 	{
 		return \Nella\Doctrine\Panel::createAndRegister($serviceName);
 	}
+
 
 	/**
 	 * @param string
@@ -66,10 +71,11 @@ class Factory extends \Nette\Object
 
 	}
 
+
 	/**
 	 * @return Doctrine\ORM\Configuration
 	 */
-	protected static function createConfiguration(array $database, $serviceName = 'Doctrine\ORM\EntityManager')
+	protected static function createConfiguration(array $database, array $options, $serviceName = 'Doctrine\ORM\EntityManager')
 	{
 		$config = new Doctrine\ORM\Configuration;
 
@@ -79,13 +85,15 @@ class Factory extends \Nette\Object
 		$config->setQueryCacheImpl($cache);
 
 		// Metadata
-		$config->setMetadataDriverImpl($config->newDefaultAnnotationDriver(array(APP_DIR . '/models')));
+		$config->setMetadataDriverImpl($config->newDefaultAnnotationDriver((array)$options['entityDir']));
 
 		// Proxies
-		$config->setProxyDir(Environment::getVariable('proxyDir', APP_DIR . "/proxies"));
+		$proxyDir = isset($options['proxyDir']) ? $options['proxyDir'] : APP_DIR . '/proxies';
+		$config->setProxyDir(Environment::getVariable('proxyDir', $proxyDir));
 		$config->setProxyNamespace('Kdyby\Models\Proxies');
 		if (Environment::isProduction()) {
 			$config->setAutoGenerateProxyClasses(FALSE);
+
 		} else {
 			$config->setAutoGenerateProxyClasses(TRUE);
 		}
@@ -98,18 +106,19 @@ class Factory extends \Nette\Object
 		return $config;
 	}
 
+
 	/**
 	 * @param string
 	 * @return Doctrine\ORM\EntityManager
 	 */
-	public static function createEntityManager()
+	public static function createEntityManager($options)
 	{
-		$context = Environment::getApplication()->context;
+		$context = Environment::getApplication()->getContext();
 		$serviceName = 'Doctrine\ORM\EntityManager';
 		$database = (array) Environment::getConfig('database');
 
 		// Load config
-		$config = self::createConfiguration($database, $serviceName);
+		$config = self::createConfiguration($database, $options, $serviceName);
 
 		$event = static::createEventManager();
 		// Special event for MySQL

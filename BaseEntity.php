@@ -2,7 +2,7 @@
 
 namespace Kdyby\Entities;
 
-use Nette\Object;
+use Nette;
 use Nette\Environment;
 use Nette\Caching\Cache;
 
@@ -15,7 +15,7 @@ use Nette\Caching\Cache;
  * @property-read int $id
  * @author Jan Smitka
  */
-abstract class BaseEntity extends Object
+abstract class BaseEntity extends Nette\Object
 {
 
 	/**
@@ -29,6 +29,11 @@ abstract class BaseEntity extends Object
 
 	/** @var Doctrine\ORM\EntityRepository */
 	private $repository;
+
+
+
+	public function __construct() { }
+
 
 
 	public function getId()
