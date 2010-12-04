@@ -79,11 +79,11 @@ class Factory extends \Nette\Object
 		$config->setQueryCacheImpl($cache);
 
 		// Metadata
-		$config->setMetadataDriverImpl($config->newDefaultAnnotationDriver(array(APP_DIR)));
+		$config->setMetadataDriverImpl($config->newDefaultAnnotationDriver(array(APP_DIR . '/models')));
 
 		// Proxies
 		$config->setProxyDir(Environment::getVariable('proxyDir', APP_DIR . "/proxies"));
-		$config->setProxyNamespace('App\Models\Proxies');
+		$config->setProxyNamespace('Kdyby\Models\Proxies');
 		if (Environment::isProduction()) {
 			$config->setAutoGenerateProxyClasses(FALSE);
 		} else {
