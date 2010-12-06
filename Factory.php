@@ -88,8 +88,7 @@ class Factory extends \Nette\Object
 		$config->setMetadataDriverImpl($config->newDefaultAnnotationDriver((array)$options['entityDir']));
 
 		// Proxies
-		$proxyDir = isset($options['proxyDir']) ? $options['proxyDir'] : APP_DIR . '/proxies';
-		$config->setProxyDir(Environment::getVariable('proxyDir', $proxyDir));
+		$config->setProxyDir(Environment::getVariable('proxyDir', $options['proxyDir']));
 		$config->setProxyNamespace('Kdyby\Models\Proxies');
 		if (Environment::isProduction()) {
 			$config->setAutoGenerateProxyClasses(FALSE);
