@@ -59,8 +59,8 @@ class Cache extends \Doctrine\Common\Cache\AbstractCache
 	}
 
 	/**
-	* {@inheritdoc}
-	*/
+	 * {@inheritdoc}
+	 */
 	protected function _doSave($id, $data, $lifeTime = 0)
 	{
 		if ($lifeTime != 0) {
