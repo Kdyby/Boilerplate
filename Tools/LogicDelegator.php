@@ -1,6 +1,6 @@
 <?php
 
-namespace Kdyby;
+namespace Kdyby\Tools;
 
 use Nette;
 use Kdyby;
