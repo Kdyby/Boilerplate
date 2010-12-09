@@ -1,8 +1,5 @@
 <?php
 
-namespace Kdyby;
-
-use Kdyby;
 use Nette\Debug;
 use Nette\Environment;
 
@@ -35,10 +32,19 @@ $session->setExpiration("+ 365 days");
 $session->start();
 
 
+// register kdyby loader
 require_once KDYBY_DIR . '/Loaders/KdybyLoader.php';
-
 Kdyby\Loaders\KdybyLoader::getInstance()->register();
+
+// register symfony loader
+require_once KDYBY_DIR . '/loader-symfony.php';
+
+// register zend loader
+require_once KDYBY_DIR . '/loader-zend.php';
 
 
 // 2b) load configuration from config.ini file
 Environment::loadConfig();
+
+Environment::setServiceAlias('Doctrine\\ORM\\EntityManager', 'EntityManager');
+Environment::setServiceAlias('Kdyby\\Application\\DatabaseManager', 'DatabaseManager');
