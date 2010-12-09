@@ -60,9 +60,9 @@ class LogicDelegator extends Nette\FreezableObject
 	 * @param string $property
 	 * @return mixed
 	 */
-	public function __get($property)
+	public function &__get($name)
 	{
-		return $this->callbacks[$property]($this->delegate);
+		return $this->callbacks[$name]($this->delegate);
 	}
 
 
