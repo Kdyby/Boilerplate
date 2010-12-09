@@ -34,7 +34,7 @@ class Configurator extends Nette\Object
 		$context = new Nette\Context;
 		$context->addService('Nette\\Caching\\ICacheJournal', callback('Nette\Configurator::createCacheJournal'));
 
-		$dir = FileSystem::prepareWritableDir(Nette\Environment::expand('%tempDir%/cache'));
+		$dir = FileSystem::prepareWritableDir('%tempDir%/cache');
 
 		return new Kdyby\FileStorage($dir, $context);
 	}
@@ -63,7 +63,7 @@ class Configurator extends Nette\Object
 		/*if (Nette\Caching\SqliteJournal::isAvailable()) {
 			return new Nette\Caching\SqliteJournal(Environment::getVariable('tempDir') . '/cachejournal.db');
 		} else*/ {
-			$dir = FileSystem::prepareWritableDir(Nette\Environment::expand('%tempDir%/memcache'));
+			$dir = FileSystem::prepareWritableDir('%tempDir%/memcache');
 			return new Nette\Caching\FileJournal($dir);
 		}
 	}

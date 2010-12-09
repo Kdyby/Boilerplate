@@ -19,6 +19,8 @@ class FileSystem extends Nette\Object
 	 */
 	public static function prepareWritableDir($dir)
 	{
+		$dir = Nette\Environment::expand($dir);
+
 		umask(0000);
 		@mkdir($dir, 0755); // @ - directory may exists
 
