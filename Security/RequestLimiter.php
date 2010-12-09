@@ -1,5 +1,8 @@
 <?php
 
+namespace Kdyby\Security;
+
+
 
 /**
  * Služba na omezení počtu requestů za určitý časový interval

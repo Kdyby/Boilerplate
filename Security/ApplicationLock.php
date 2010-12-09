@@ -96,7 +96,12 @@ class ApplicationLock extends Nette\Object
 		$lock->message = isset($options['message']) ? $options['message'] : $lock->message;
 		$lock->realm = isset($options['realm']) ? $options['realm'] : $lock->realm;
 
-		return $lock->authorize();
+		if (!Nette\Environment::isConsole()) {
+			return $lock->authorize();
+
+		} else {
+			return $lock;
+		}
 	}
 
 }
