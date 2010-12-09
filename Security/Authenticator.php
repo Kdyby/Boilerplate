@@ -27,7 +27,7 @@ final class Authenticator extends Nette\Object implements Nette\Security\IAuthen
 		$password = $credentials[self::PASSWORD];
 
 		$identity = new Kdyby\Identity($username, $password);
-		$indetity->addRoles(array('registered', 'admin'));
+		$identity->addRoles(array('registered', 'admin'));
 		return $identity;
 
 
