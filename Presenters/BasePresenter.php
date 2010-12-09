@@ -13,8 +13,9 @@ use Kdyby;
 
 /**
  * Base class for all application presenters.
+ * @property-read Kdyby\Application\DatabaseManager $dtm
  */
-abstract class Base extends Nette\Application\Presenter
+abstract class BasePresenter extends Nette\Application\Presenter
 {
 
 	/** @persistent */
@@ -23,8 +24,8 @@ abstract class Base extends Nette\Application\Presenter
 	/** @persistent */
 	public $backlink;
 
-	/** @var \Kdyby\Database\DtM */
-	private $DtM;
+	/** @var Kdyby\Application\DatabaseManager */
+	private $databaseManager;
 
 	/** @var bool (experimental) */
 	public $oldLayoutMode = FALSE;
@@ -37,27 +38,27 @@ abstract class Base extends Nette\Application\Presenter
 
 
 
-//	/**
-//	 * @return \Kdyby\Database\DtM
-//	 */
-//	public function getDtM()
-//	{
-//		if ($this->DtM === NULL) {
-//			$this->DtM = Environment::getService("Kdyby\\Database\\DtM");
-//		}
-//
-//		return $this->DtM;
-//	}
-//
-//
-//
-//	/**
-//	 * @return \Kdyby\Database\DtM
-//	 */
-//	public function getDatabaseManager()
-//	{
-//		return $this->getDtM();
-//	}
+	/**
+	 * @return Kdyby\Application\DatabaseManager
+	 */
+	public function getDtm()
+	{
+		return $this->getDatabaseManager();
+	}
+
+
+
+	/**
+	 * @return Kdyby\Application\DatabaseManager
+	 */
+	public function getDatabaseManager()
+	{
+		if ($this->databaseManager === NULL) {
+			$this->databaseManager = Environment::getService('Kdyby\Application\DatabaseManager');
+		}
+
+		return $this->databaseManager;
+	}
 
 
 

@@ -12,7 +12,7 @@ use Kdyby;
  *
  * @author Filip Procházka <hosiplan@kdyby.org>
  */
-class Auth extends Base
+class AuthPresenter extends BasePresenter
 {
 
 	public function actionLogout()
