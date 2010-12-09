@@ -7,7 +7,7 @@ use Nette\String;
 
 
 
-class Lookout extends BaseControl
+class LookoutControl extends BaseControl
 {
 	/** @var string */
 	private $view;
@@ -70,23 +70,19 @@ class Lookout extends BaseControl
 		foreach ($templates as $file){
 			if (file_exists($file)) {
 				$this->template->setFile($file);
+				break;
 			}
-		}
-
-		if (!file_exists($file)) {
-			throw new \FileNotFoundException("Template '".reset($templates)."' is missing.");
 		}
 
 		ob_start();
 		call_user_func_array(array($this, $viewMethod), $this->renderParams);
 		$output = ob_get_clean();
 
-		if (!$output) {
-			$this->template->render();
-
-		} else {
-			echo $output;
+		if (!$output && file_exists($file)) { // raw output from function
+			$output = (string)$this->template;
 		}
+
+		echo $output;
 
 		if (in_array('afterRender', self::$methods[$class])) {
 			call_user_func_array(array($this, 'afterRender'), $this->renderParams);

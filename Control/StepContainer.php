@@ -15,7 +15,7 @@ use Kdyby;
  *
  * @author Filip Procházka <hosiplan@kdyby.org>
  */
-class StepContainer extends Lookout
+abstract class StepContainer extends LookoutControl
 {
 
 	const STEPS = ':steps';
@@ -157,7 +157,7 @@ class StepContainer extends Lookout
 
 
 
-	abstract protected function setupSteps() { }
+	abstract protected function setupSteps();
 
 
 
@@ -165,10 +165,10 @@ class StepContainer extends Lookout
 	 * @param string $name
 	 * @return \Nette\Application\AppForm
 	 */
-	abstract protected function createComponentForm($name)
-	{
-		return $form = new Nette\Application\AppForm($this, $name);
-	}
+	abstract protected function createComponentForm($name);
+//	{
+//		return $form = new Nette\Application\AppForm($this, $name);
+//	}
 
 
 
