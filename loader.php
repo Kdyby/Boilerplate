@@ -17,11 +17,7 @@ require LIBS_DIR . '/Nette/loader.php';
 
 // Step 2: Configure environment
 // 2a) enable Nette\Debug for better exception and error visualisation
-<<<<<<< HEAD
-Debug::enable('127.0.0.1');
-=======
-Debug::enable(Debug::DEVELOPMENT, TEMP_DIR . '/log'); //'127.0.0.1', '77.240.176.168'
->>>>>>> 1957ee3... Added log directory
+Debug::enable(Debug::DEVELOPMENT, TEMP_DIR . '/log');
 Debug::$strictMode = TRUE;
 //Debug::$maxDepth = 10;
 //Debug::$maxLen = 2024;
