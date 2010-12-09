@@ -1,0 +1,17 @@
+{block #branch}
+<ul{attr class($classes)}>
+{foreach $tree as $branch}
+{if is_array($branch)}
+	{include #branch, 'tree' => $branch, 'classes' => NULL}</li>
+{else}
+	{if !$iterator->isFirst()}</li>{/if}
+	{if !isset($branch->classes)}{? $branch->classes = array(); }{/if}
+	<li{attr class($branch->classes)}>
+		<a href="{plink $branch->link}" n:tag-if="isset($branch->link) && !isset($branch->args)">
+		<a href="{plink $branch->link, (expand) $branch->args}" n:tag-if="isset($branch->link) && isset($branch->args)">
+		<span>{if $branch->title instanceof Html}{!$branch->title}{else}{$branch->title}{/if}</span></a></a>
+	{if $iterator->isLast()}</li>{/if}
+{/if}
+{/foreach}
+</ul>
+{/block}
