@@ -38,7 +38,7 @@ class Identity extends Kdyby\Person implements IIdentity
 	{
 		parent::__construct();
 
-		$this->roles = ArrayCollection();
+		$this->roles = new ArrayCollection();
 		$this->username = $username;
 		$this->passwordHash = $this->cryptPassword($password);
 	}
@@ -51,6 +51,7 @@ class Identity extends Kdyby\Person implements IIdentity
 
 	public function getRoles() { return $this->roles; }
 	public function addRole(Role $role) { $this->roles->add($role); }
+	public function addRoles($roles) { foreach ($roles as $role) { $this->addRole($role); } }
 	public function removeRole(Role $role) { $this->roles->removeElement($role); }
 
 
