@@ -36,7 +36,7 @@ class Configurator extends Nette\Object
 
 		$dir = FileSystem::prepareWritableDir(Nette\Environment::expand('%tempDir%/cache'));
 
-		return new Nette\Caching\FileStorage($dir, $context);
+		return new Kdyby\FileStorage($dir, $context);
 	}
 
 

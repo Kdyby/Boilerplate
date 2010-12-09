@@ -19,6 +19,7 @@ class KdybyLoader extends Nette\Loaders\AutoLoader
 	public $list = array(
 		'kdyby\configurator' => '/Environment/Configurator.php',
 		'kdyby\filesystem' => '/Tools/FileSystem.php',
+		'kdyby\filestorage' => '/Caching/FileStorage.php',
 		'kdyby\logicdelegator' => '/Tools/LogicDelegator.php',
 		'kdyby\presenter\base' => '/Presenters/Base.php',
 		'kdyby\presenterinfo' => '/Tools/PresenterTree/PresenterInfo.php',
