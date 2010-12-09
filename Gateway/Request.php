@@ -26,12 +26,12 @@ abstract class Request extends Nette\Object
 
 
 	/**
-	 * @param array $option
+	 * @param array $name
 	 * @return mixed
 	 */
-	public function __get($option)
+	public function &__get($name)
 	{
-		return $this->getOption($option);
+		return $this->getOption($name);
 	}
 
 

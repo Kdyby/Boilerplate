@@ -2,6 +2,8 @@
 
 namespace Kdyby\Gateway;
 
+use Kdyby;
+
 
 
 interface ISecuredRequest extends IRequest

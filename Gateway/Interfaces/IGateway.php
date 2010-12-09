@@ -2,16 +2,18 @@
 
 namespace Kdyby\Gateway;
 
+use Kdyby;
+
 
 
 interface IGateway
 {
 
-	public function __construct(Protocol\IProtocol $protocol);
+	public function __construct(Kdyby\Gateway\Protocol\IProtocol $protocol);
 
     function createRequest();
 
-	function openRequest();
+	function openRequest(Kdyby\Gateway\IRequest $request);
 
 	function createResponse($result);
 

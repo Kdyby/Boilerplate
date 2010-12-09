@@ -2,6 +2,7 @@
 
 namespace Kdyby\Gateway;
 
+use Kdyby;
 use Nette;
 
 

@@ -2,6 +2,9 @@
 
 namespace Kdyby\Gateway;
 
+use Kdyby;
+
+
 
 interface ISecuredGateway extends IGateway
 {
