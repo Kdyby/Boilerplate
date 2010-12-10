@@ -10,7 +10,7 @@ use Kdyby;
 /**
  * @author Filip Procházka <hosiplan@kdyby.org>
  */
-class Currency extends Kdyby\Entities\BaseEntity
+class Currency extends Kdyby\Entities\BaseIdentifiedEntity
 {
 	
 }

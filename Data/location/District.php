@@ -12,7 +12,7 @@ use Kdyby;
  * @author Filip Procházka <hosiplan@kdyby.org>
  * @Entity @Table(name="location_districts")
  */
-class District extends Kdyby\Entities\BaseEntity
+class District extends Kdyby\Entities\BaseIdentifiedEntity
 {
 
 	/** @Column(type="string") */

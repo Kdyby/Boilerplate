@@ -11,7 +11,7 @@ use Kdyby;
  * @author Filip Procházka <hosiplan@kdyby.org>
  * @Entity @Table(name="location_addresses")
  */
-class Address extends Kdyby\Entities\BaseEntity
+class Address extends Kdyby\Entities\BaseIdentifiedEntity
 {
 	/** @Column(type="string", length=100, nullable=TRUE) */
 	private $street;

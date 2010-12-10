@@ -11,7 +11,7 @@ use Kdyby;
  * @author Filip Procházka <hosiplan@kdyby.org>
  * @Entity @Table(name="location_cities")
  */
-class City extends Kdyby\Entities\BaseEntity
+class City extends Kdyby\Entities\BaseIdentifiedEntity
 {
 	/** @Column(type="string", length=100) */
 	private $name;

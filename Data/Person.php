@@ -11,7 +11,7 @@ use Kdyby;
  * @author Filip Procházka <hosiplan@kdyby.org>
  * @property-read string $fullname
  */
-abstract class Person extends Kdyby\Entities\BaseEntity
+abstract class Person extends Kdyby\Entities\BaseIdentifiedEntity
 {
 
 	/** @Column(type="string", length=15) */

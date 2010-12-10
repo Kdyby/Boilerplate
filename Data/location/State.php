@@ -12,7 +12,7 @@ use Kdyby;
  * @author Filip Procházka <hosiplan@kdyby.org>
  * @Entity @Table(name="location_states")
  */
-class State extends Kdyby\Entities\BaseEntity
+class State extends Kdyby\Entities\BaseIdentifiedEntity
 {
 	/** @Column(type="string", unique=TRUE) */
 	private $name;
