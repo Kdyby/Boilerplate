@@ -68,4 +68,28 @@ class Configurator extends Nette\Object
 		}
 	}
 
+
+
+	public static function createSymfony2Loader()
+	{
+		require_once LIBS_DIR . '/Symfony/Component/HttpFoundation/UniversalClassLoader.php';
+
+		$loader = new \Symfony\Component\HttpFoundation\UniversalClassLoader();
+		$loader->registerNamespaces(array(
+			'Symfony' => LIBS_DIR,
+		));
+		$loader->register();
+
+		return $loader;
+	}
+
+
+
+	public static function createZendFramework2Loader()
+	{
+		require_once LIBS_DIR . '/Zend/Loader/StandardAutoloader.php';
+
+		return $zendLoader = new \Zend\Loader\StandardAutoloader();
+	}
+
 }

@@ -32,13 +32,6 @@ $session->start();
 require_once KDYBY_DIR . '/Loaders/KdybyLoader.php';
 Kdyby\Loaders\KdybyLoader::getInstance()->register();
 
-// register symfony loader
-require_once KDYBY_DIR . '/loader-symfony.php';
-
-// register zend loader
-require_once KDYBY_DIR . '/loader-zend.php';
-
-
 // 2b) load configuration from config.ini file
 Environment::loadConfig();
 
