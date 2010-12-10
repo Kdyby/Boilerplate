@@ -5,7 +5,7 @@ namespace Kdyby\Application;
 Use Doctrine;
 use Doctrine\ORM\EntityManager;
 use Nette\Environment;
-use Kdyby\Entities\BaseEntity;
+use Kdyby\Entities\BaseIdentifiedEntity;
 
 
 

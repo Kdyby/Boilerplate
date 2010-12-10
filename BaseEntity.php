@@ -18,15 +18,6 @@ use Nette\Caching\Cache;
 abstract class BaseEntity extends Nette\Object
 {
 
-	/**
-	 * @Id
-	 * @Column(type = "integer")
-	 * @GeneratedValue
-	 * @var int
-	 */
-	protected $id;
-
-
 	/** @var Doctrine\ORM\EntityRepository */
 	private $repository;
 
@@ -34,12 +25,6 @@ abstract class BaseEntity extends Nette\Object
 
 	public function __construct() { }
 
-
-
-	public function getId()
-	{
-		return $this->id;
-	}
 
 
 	public function persist()
