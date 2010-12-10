@@ -63,6 +63,7 @@ class KdybyLoader extends Nette\Loaders\AutoLoader
 		'kdyby\doctrine\cache' => '/Doctrine/Cache.php',
 		'kdyby\doctrine\factory' => '/Doctrine/Factory.php',
 		'kdyby\entities\baseentity' => '/Doctrine/BaseEntity.php',
+		'kdyby\entities\baseidentifiedentity' => '/Doctrine/BaseIdentifiedEntity.php',
 		'nella\doctrine\panel' => '/Doctrine/Panel.php'
 	);
 
