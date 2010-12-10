@@ -13,15 +13,36 @@ use Kdyby;
 class Configurator extends Nette\Object
 {
 
+	/** @var array */
+	private static $configHooks = array(
+		"Nette-Security-IIdentity" => "Kdyby\\Identity"
+	);
+
+
 
 	/**
 	 * @return Nette\Web\IUser
 	 */
 	public static function createIUser()
 	{
-//		$dtm = Nette\Environment::getService("Kdyby\\Database\\DtM");
-
 		return $user = new Kdyby\Security\User;
+	}
+
+
+
+	/**
+	 * @return Kdyby\ConfigHooks
+	 */
+	public static function createConfigHooks()
+	{
+		$hooks = self::$configHooks;
+
+		$kdybyConfig = Nette\Environment::getConfig('kdyby');
+		if (isset($kdybyConfig['core'])) {
+			$hooks = $kdybyConfig['core']->toArray() + $hooks;
+		}
+
+		return $configHooks = new Kdyby\ConfigHooks($hooks);
 	}
 
 
@@ -70,6 +91,9 @@ class Configurator extends Nette\Object
 
 
 
+	/**
+	 * @return \Symfony\Component\HttpFoundation\UniversalClassLoader
+	 */
 	public static function createSymfony2Loader()
 	{
 		require_once LIBS_DIR . '/Symfony/Component/HttpFoundation/UniversalClassLoader.php';
@@ -85,6 +109,9 @@ class Configurator extends Nette\Object
 
 
 
+	/**
+	 * @return Zend\Loader\StandardAutoloader
+	 */
 	public static function createZendFramework2Loader()
 	{
 		require_once LIBS_DIR . '/Zend/Loader/StandardAutoloader.php';
