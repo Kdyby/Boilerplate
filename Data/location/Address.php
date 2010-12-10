@@ -13,13 +13,13 @@ use Kdyby;
  */
 class Address extends Kdyby\Entities\BaseEntity
 {
-	/** @Column(type="string", length=100) */
+	/** @Column(type="string", length=100, nullable=TRUE) */
 	private $street;
 
-	/** @Column(type="integer", length=20) */
+	/** @Column(type="integer", length=20, nullable=TRUE) */
 	private $number;
 
-	/** @Column(type="integer", length=20) */
+	/** @Column(type="integer", length=20, nullable=TRUE) */
 	private $orientationNumber;
 
 	/**
@@ -27,6 +27,9 @@ class Address extends Kdyby\Entities\BaseEntity
      * @JoinColumn(name="city_id", referencedColumnName="id")
 	 */
 	private $city;
+
+	/** @Column(type="string", nullable=TRUE) */
+	private $citypart;
 
 	/**
 	 * @OneToOne(targetEntity="Kdyby\Location\District")
@@ -40,8 +43,33 @@ class Address extends Kdyby\Entities\BaseEntity
 	 */
 	private $state;
 
-	/** @Column(type="integer", length=7) */
+	/** @Column(type="integer", length=7, nullable=TRUE) */
 	private $zip;
+
+	/**
+	 * Územně identifikační registr adres - oficialni seznam všech existujících adress v ČR
+	 * UIR lokality
+	 * @Column(type="string", nullable=TRUE)
+	 */
+	private $uir;
+
+	/**
+	 * UIR-level lokality
+	 * @Column(type="string", nullable=TRUE)
+	 */
+	private $uirLevel;
+
+	/**
+	 * Zeměpisná šířka
+	 * @Column(type="string", nullable=TRUE)
+	 */
+	private $latitude;
+
+	/**
+	 * Zeměpisná délka
+	 * @Column(type="string", nullable=TRUE)
+	 */
+	private $longitude;
 
 
 
@@ -57,6 +85,9 @@ class Address extends Kdyby\Entities\BaseEntity
 	public function getCity() { return $this->city; }
 	public function setCity(City $city) { $this->city = $city; }
 
+	public function getCitypart() { return $this->citypart; }
+	public function setCitypart($citypart) { $this->citypart = $citypart; }
+
 	public function getDistrict() { return $this->district; }
 	public function setDistrict(District $district) { $this->district = $district; }
 
@@ -65,5 +96,17 @@ class Address extends Kdyby\Entities\BaseEntity
 
 	public function getZip() { return $this->zip; }
 	public function setZip($zip) { $this->zip = $zip; }
+
+	public function getUir() { return $this->uir; }	
+	public function setUir($uir) { $this->uir = $uir; }
+
+	public function getUirLevel() { return $this->uirLevel; }
+	public function setUirLevel($uirLevel) { $this->uirLevel = $uirLevel; }
+
+	public function getLatitude() { return $this->latitude; }
+	public function setLatitude($latitude) { $this->latitude = $latitude; }
+
+	public function getLongtitude() { return $this->longitude; }
+	public function setLongtitude($longtitude) { $this->longitude = $longtitude; }
 
 }
