@@ -28,21 +28,7 @@ require_once KDYBY_DIR . '/Loaders/KdybyLoader.php';
 Kdyby\Loaders\KdybyLoader::getInstance()->register();
 
 
-// setup session
-$session = Environment::getSession();
-if (!$session->isStarted()) {
-	$domain = Kdyby\Web\HttpHelpers::getDomain()->domain;
-	$session->setCookieParams('/', '.'.$domain);
-	$session->setExpiration(Nette\Tools::YEAR);
-
-	if (!$session->exists()) {
-		$session->start();
-	}
-}
-
-
-// 2b) load configuration from config.ini file
-Environment::loadConfig();
-
+// configure environment
+Kdyby\Configurator::setupSession(Environment::getSession());
 Environment::setServiceAlias('Doctrine\\ORM\\EntityManager', 'EntityManager');
 Environment::setServiceAlias('Kdyby\\Application\\DatabaseManager', 'DatabaseManager');

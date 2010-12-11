@@ -10,13 +10,32 @@ use Kdyby;
 /**
  * @author Filip Procházka <hosiplan@kdyby.org>
  */
-class Configurator extends Nette\Object
+class Configurator extends Nette\Configurator
 {
 
 	/** @var array */
 	private static $configHooks = array(
 		"Nette-Security-IIdentity" => "Kdyby\\Identity"
 	);
+
+
+
+	/**
+	 * @param Nette\Web\Session $session
+	 */
+	public static function setupSession(Nette\Web\Session $session)
+	{
+		// setup session
+		if (!$session->isStarted()) {
+			$domain = Kdyby\Web\HttpHelpers::getDomain()->domain;
+			$session->setCookieParams('/', '.'.$domain);
+			$session->setExpiration(Nette\Tools::YEAR);
+
+			if (!$session->exists()) {
+				$session->start();
+			}
+		}
+	}
 
 
 
