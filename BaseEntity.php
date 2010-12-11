@@ -33,18 +33,24 @@ abstract class BaseEntity extends Nette\Object
 	}
 
 
+
 	public function remove()
 	{
 		Environment::getDatabaseManager()->remove($this);
 	}
 
 
+
+	/**
+	 * @param array $data
+	 */
 	public function setValues(array $data)
 	{
 		foreach ($data as $key => $value) {
 			$this->__set($key, $value);
 		}
 	}
+
 
 
 	/**
@@ -59,18 +65,34 @@ abstract class BaseEntity extends Nette\Object
 	}
 
 
+
 	public function free()
 	{
 		$this->repository = NULL;
 	}
 
 
+
+	/**
+	 * @return array
+	 */
 	public function __sleep()
 	{
 		$this->free();
+
+		$reflection = new \ReflectionClass($this);
+		$properties = array_map(function($property) { return $property->name; }, $reflection->getProperties());
+
+		return array_diff($properties, array(
+				'repository', '_entityPersister', '_identifier', '__isInitialized__'
+			));
 	}
 
 
+
+	/**
+	 * @return array
+	 */
 	public function getCacheTags()
 	{
 		$tags = array();
@@ -79,6 +101,7 @@ abstract class BaseEntity extends Nette\Object
 		}
 		return $tags;
 	}
+
 
 
 	/**
