@@ -54,6 +54,7 @@ class KdybyLoader extends Nette\Loaders\AutoLoader
 		'kdyby\tools\logicdelegator' => '/Kdyby/Tools/LogicDelegator.php',
 		'kdyby\tools\presentergenerator' => '/Kdyby/Tools/PresenterGenerator.php',
 		'kdyby\tools\modeltools' => '/Kdyby/Tools/ModelTools.php',
+		'kdyby\web\httphelpers' => '/Web/HttpHelpers.php',
 
 		//components
 		'kdyby\component\headjs' => "/Components/Headjs/Headjs.php",
