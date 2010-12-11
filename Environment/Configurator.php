@@ -37,9 +37,9 @@ class Configurator extends Nette\Object
 	{
 		$hooks = self::$configHooks;
 
-		$kdybyConfig = Nette\Environment::getConfig('kdyby');
-		if (isset($kdybyConfig['core'])) {
-			$hooks = $kdybyConfig['core']->toArray() + $hooks;
+		$kdybyConfig = Nette\Environment::getConfig('Kdyby');
+		if (isset($kdybyConfig['Core'])) {
+			$hooks = $kdybyConfig['Core']->toArray() + $hooks;
 		}
 
 		return $configHooks = new Kdyby\ConfigHooks($hooks);
