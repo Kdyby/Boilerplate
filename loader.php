@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * This file is part of the Framework - Content Managing System (F-CMS) Kdyby.
+ *
+ * Copyright (c) 2008, 2010 Filip Procházka (http://hosiplan.kdyby.org)
+ *
+ * This source file is subject to the "Kdyby license", and/or
+ * GPL license. For more information please see http://www.kdyby.org
+ *
+ * @package F-CMS Kdyby-Common
+ */
+
+
 use Nette\Debug;
 use Nette\Environment;
 
