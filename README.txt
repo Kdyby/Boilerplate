@@ -1,4 +1,4 @@
-<strike>Nella\Doctine</strike> Kdyby\Doctrine is a classes collection for the integration Doctrine to Nette Framework (c) Patrik Votoček 2010 (http://patrik.votocek.cz)
+<strike>Nella\Doctine</strike> Kdyby\Doctrine is a classes collection for the integration Doctrine to Nette Framework (c) Patrik Votoček 2010 (http://patrik.votocek.cz) and to F-CMS Kdyby
 
 Requirements
 ------------

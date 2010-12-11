@@ -7,6 +7,13 @@
  *
  * This source file is subject to the GNU Lesser General Public License. For more information please see http://nellacms.com
  */
+/**
+ * This file is part of the Framework - Content Managing System (F-CMS) Kdyby.
+ *
+ * For more information please see http://www.kdyby.org
+ *
+ * @package F-CMS Kdyby-Common
+ */
 
 namespace Kdyby\Doctrine;
 

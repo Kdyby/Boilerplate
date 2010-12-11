@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * This file is part of the Framework - Content Managing System (F-CMS) Kdyby.
+ *
+ * For more information please see http://www.kdyby.org
+ *
+ * @package F-CMS Kdyby-Common
+ */
+
+
 namespace Kdyby\Application;
 
 Use Doctrine;
