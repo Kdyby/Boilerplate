@@ -12,17 +12,12 @@
 namespace Kdyby\Application;
 
 Use Doctrine;
-use Doctrine\ORM\EntityManager;
-use Nette\Environment;
-use Kdyby\Entities\BaseIdentifiedEntity;
+use Nette;
 
 
 
 /**
  * @property-read \Doctrine\ORM\EntityManager $entityManager
- * @property-read \Doctrine\ORM\EntityRepository $page
- * @property-read \Kdyby\Repositories\UserRepository $user
- * ...
  *
  * @method void clear() clear()
  * @method void flush() flush()
@@ -34,26 +29,30 @@ use Kdyby\Entities\BaseIdentifiedEntity;
  *
  * @author Jan Smitka
  */
-class DatabaseManager
+class DatabaseManager extends Nette\Object implements \ArrayAccess
 {
-	/** @var EntityManager */
+
+	/** @var Doctrine\ORM\EntityManager */
 	protected $entityManager;
+
 
 
 	public function __construct()
 	{
-		$this->entityManager = Environment::getService('Doctrine\ORM\EntityManager');
+		$this->entityManager = Nette\Environment::getService('Doctrine\ORM\EntityManager');
 	}
 
-	public function __get($name)
+
+
+	/**
+	 * @return Doctrine\ORM\EntityManager
+	 */
+	public function getEntityManager()
 	{
-		if ($name == 'entityManager') {
-			return $this->entityManager;
-
-		} else {
-			return $this->entityManager->getRepository('Kdyby\\Entities\\' . ucfirst($name));
-		}
+		return $this->entityManager;
 	}
+
+
 
 	public function __call($name, $arguments)
 	{
@@ -61,13 +60,75 @@ class DatabaseManager
 	}
 
 
+
+	/**
+	 * @param object $entity
+	 */
 	public function persist($entity)
 	{
 		$this->entityManager->persist($entity);
 	}
 
+
+
+	/**
+	 * @param object $entity
+	 * @param mixed $version
+	 */
 	public function lock($entity, $version)
 	{
 		$this->entityManager->lock($entity, Doctrine\DBAL\LockMode::OPTIMISTIC, $version);
+	}
+
+
+
+
+
+	/********************* \ArrayAccess *********************/
+
+
+
+	/**
+	 * @param string $offset
+	 * @param string $value
+	 * @throws NotSupportedException
+	 */
+	public function offsetSet($offset, $value)
+	{
+		throw new \NotSupportedException();
+	}
+
+
+
+	/**
+	 * @param string $offset
+	 * @throws NotSupportedException
+	 */
+	public function offsetUnset($offset)
+	{
+		throw new \NotSupportedException();
+	}
+
+
+
+	/**
+	 * @param string $offset
+	 * @return string
+	 */
+	public function offsetGet($offset)
+	{
+		return $this->entityManager->getRepository($offset);
+	}
+
+
+
+	/**
+	 * @param string $offset
+	 * @return boolean
+	 * @throws NotSupportedException
+	 */
+	public function offsetExists($offset)
+	{
+		throw new \NotSupportedException();
 	}
 }
