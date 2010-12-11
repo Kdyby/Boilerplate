@@ -7,20 +7,22 @@ use Kdyby;
 use Kdyby\Security\Acl\Role;
 use Nette;
 use Nette\Security\IIdentity;
+use Nette\Security\IRole;
 
 
 
 /**
+ * @MappedSuperclass
+ *
  * @author Filip Procházka <hosiplan@kdyby.org>
- * @Entity @Table(name="users")
  *
  * @property-read int $id
  * @property string $username
  */
-class Identity extends Kdyby\Person implements IIdentity
+class Identity extends Kdyby\Person implements IIdentity, IRole
 {
 
-    /** @Column(type="string", length=50) */
+    /** @Column(type="string", length=50, unique=TRUE) */
     private $username;
 
 	/** @Column(type="string", length=32) */
@@ -49,7 +51,6 @@ class Identity extends Kdyby\Person implements IIdentity
 	public function &getRegisteredAt() { return $this->registeredAt; }
 	public function setRegisteredAt(\DateTime $date) { $this->registeredAt = $date; }
 
-	public function getRoles() { return $this->roles; }
 	public function addRole(Role $role) { $this->roles->add($role); }
 	public function addRoles($roles) { foreach ($roles as $role) { $this->addRole($role); } }
 	public function removeRole(Role $role) { $this->roles->removeElement($role); }
@@ -64,6 +65,28 @@ class Identity extends Kdyby\Person implements IIdentity
 	public function cryptPassword($password)
 	{
 		return sha1($password);
+	}
+
+
+
+	/************************* Nette\Security\IIdentity *************************/
+
+
+
+	public function getRoles()
+	{
+		return $this->roles;
+	}
+
+
+
+	/************************* Nette\Security\IRole *************************/
+
+
+
+	public function getRoleId()
+	{
+		return $this->id;
 	}
 
 }
