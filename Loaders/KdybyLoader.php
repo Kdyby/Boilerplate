@@ -56,7 +56,6 @@ class KdybyLoader extends Nette\Loaders\AutoLoader
 		'kdyby\gateway\securedgateway' => '/Gateway/SecuredGateway.php',
 		'kdyby\gateway\service' => '/Gateway/Service.php',
 		'kdyby\identity' => '/Security/Identity.php',
-		'kdyby\logicdelegator' => '/Tools/LogicDelegator.php',
 		'kdyby\presenter\base' => '/Presenters/Base.php',
 		'kdyby\presenterinfo' => '/Tools/PresenterTree/PresenterInfo.php',
 		'kdyby\presentertree' => '/Tools/PresenterTree/PresenterTree.php',
