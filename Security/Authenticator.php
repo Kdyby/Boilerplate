@@ -3,7 +3,6 @@
 namespace Kdyby\Security;
 
 use Nette;
-use Nette\Security\Identity;
 use Nette\Security\AuthenticationException;
 use Kdyby;
 
@@ -26,8 +25,14 @@ final class Authenticator extends Nette\Object implements Nette\Security\IAuthen
 		$username = $credentials[self::USERNAME];
 		$password = $credentials[self::PASSWORD];
 
-		$identity = new Kdyby\Identity($username, $password);
-		$identity->addRoles(array('registered', 'admin'));
+		$configHooks = $this->context->getService("Kdyby\\ConfigHooks");
+
+		$identity = new $configHooks['Nette\Security\IIdentity']($username, $password);
+		$identity->addRoles(array(
+				new Kdyby\Security\Acl\Role('registered'),
+				new Kdyby\Security\Acl\Role('admin')
+			));
+
 		return $identity;
 
 
@@ -43,6 +48,13 @@ final class Authenticator extends Nette\Object implements Nette\Security\IAuthen
 //
 //		unset($row->password);
 //		return new Identity($row->id, $row->role, $row);
+	}
+
+
+
+	public function getContext()
+	{
+		return Nette\Environment::getApplication()->getContext();
 	}
 
 }
