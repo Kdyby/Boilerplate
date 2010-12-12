@@ -62,9 +62,10 @@ class KdybyLoader extends Nette\Loaders\AutoLoader
 		'kdyby\security\applicationlock' => '/Security/ApplicationLock.php',
 		'kdyby\security\authenticator' => '/Security/Authenticator.php',
 		'kdyby\security\user' => '/Security/User.php',
-		'kdyby\tools\logicdelegator' => '/Kdyby/Tools/LogicDelegator.php',
-		'kdyby\tools\presentergenerator' => '/Kdyby/Tools/PresenterGenerator.php',
-		'kdyby\tools\modeltools' => '/Kdyby/Tools/ModelTools.php',
+		'kdyby\tools\logicdelegator' => '/Tools/LogicDelegator.php',
+		'kdyby\tools\presentergenerator' => '/Tools/PresenterGenerator.php',
+		'kdyby\tools\modeltools' => '/Tools/ModelTools.php',
+		'kdyby\type\json' => '/Types/Json.php',
 		'kdyby\web\httphelpers' => '/Web/HttpHelpers.php',
 
 		//components
