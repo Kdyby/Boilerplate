@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * This file is part of the Framework - Content Managing System (F-CMS) Kdyby.
+ *
+ * Copyright (c) 2008, 2010 Filip Procházka (http://hosiplan.kdyby.org)
+ *
+ * For more information please see http://www.kdyby.org
+ *
+ * @package F-CMS Kdyby-Common
+ */
+
 namespace Kdyby\Type;
 
 use Nette;
@@ -12,15 +22,15 @@ use Kdyby;
  * (can be used for packing huge repetitive data and lower change for misstakes)
  *
  * <code>
- * "__extend" : {"key1":{"key2":[{"key":"value"}]}}
+ * "__import" : {"key1":{"key2":[{"key":"value"}]}}
  * <code>
  * goes throught structure using keys, when used array,
  * the first item in list is condition to look for
  *
  * TODO:
  * <code>
- * "__extend" : {"key1":{"key2":[{"key":"value"}, {"key3":[{"key":"value"}]}]}}
- * "__extend" : {"key1":{"key2":[{"key":"value"}, [{"key":"value"}, [{"key":"value"}]]]}}
+ * "__import" : {"key1":{"key2":[{"key":"value"}, {"key3":[{"key":"value"}]}]}}
+ * "__import" : {"key1":{"key2":[{"key":"value"}, [{"key":"value"}, [{"key":"value"}]]]}}
  * <code>,
  * the second item in list is the continuing map, that applies for found object
  * it shouldn't matter whether the second item is object or array
@@ -29,6 +39,9 @@ use Kdyby;
  */
 class Json extends Nette\Object
 {
+
+	const IMPORT_KEY = '__import';
+
 
 	/** @var object */
 	private $structure;
@@ -81,9 +94,9 @@ class Json extends Nette\Object
 			}
 
 		} elseif (is_object($branch)) {
-			if (isset($branch->__extend)) {
-				$branch = $this->merge($this->find($branch->__extend), $branch);
-				unset($branch->__extend);
+			if (isset($branch->{self::IMPORT_KEY})) {
+				$branch = $this->merge($this->find($branch->{self::IMPORT_KEY}), $branch);
+				unset($branch->{self::IMPORT_KEY});
 			}
 
 			foreach ($branch as $key => $item) {
