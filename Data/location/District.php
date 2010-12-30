@@ -23,13 +23,13 @@ use Kdyby;
  * @author Filip Procházka <hosiplan@kdyby.org>
  * @Entity @Table(name="location_districts")
  */
-class District extends Kdyby\Entities\BaseIdentifiedEntity
+class District extends Kdyby\Doctrine\BaseIdentifiedEntity
 {
 
 	/** @Column(type="string") */
 	private $name;
 
-	/** @OneToMany(targetEntity="Kdyby\Location\City", mappedBy="state") */
+	/** @OneToMany(targetEntity="Kdyby\Location\City", mappedBy="district") */
 	private $cities;
 
 	/**

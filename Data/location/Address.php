@@ -21,8 +21,16 @@ use Kdyby;
 /**
  * @author Filip Procházka <hosiplan@kdyby.org>
  * @Entity @Table(name="location_addresses")
+ * @InheritanceType("SINGLE_TABLE")
+ * @DiscriminatorColumn(name="_type", type="integer")
+ * @DiscriminatorMap({
+ *		1 = "Kdyby\Location\Address",
+ *		2 = "Kdyby\Location\PreciseAddress",
+ *		3 = "Kdyby\Location\BillingAddress",
+ *		4 = "Kdyby\Location\ContactAddress"
+ *	})
  */
-class Address extends Kdyby\Entities\BaseIdentifiedEntity
+class Address extends Kdyby\Doctrine\BaseIdentifiedEntity
 {
 	/** @Column(type="string", length=100, nullable=TRUE) */
 	private $street;
@@ -57,31 +65,6 @@ class Address extends Kdyby\Entities\BaseIdentifiedEntity
 	/** @Column(type="integer", length=7, nullable=TRUE) */
 	private $zip;
 
-	/**
-	 * Územně identifikační registr adres - oficialni seznam všech existujících adress v ČR
-	 * UIR lokality
-	 * @Column(type="string", nullable=TRUE)
-	 */
-	private $uir;
-
-	/**
-	 * UIR-level lokality
-	 * @Column(type="string", nullable=TRUE)
-	 */
-	private $uirLevel;
-
-	/**
-	 * Zeměpisná šířka
-	 * @Column(type="string", nullable=TRUE)
-	 */
-	private $latitude;
-
-	/**
-	 * Zeměpisná délka
-	 * @Column(type="string", nullable=TRUE)
-	 */
-	private $longitude;
-
 
 
 	public function getStreet() { return $this->street; }
@@ -107,17 +90,5 @@ class Address extends Kdyby\Entities\BaseIdentifiedEntity
 
 	public function getZip() { return $this->zip; }
 	public function setZip($zip) { $this->zip = $zip; }
-
-	public function getUir() { return $this->uir; }	
-	public function setUir($uir) { $this->uir = $uir; }
-
-	public function getUirLevel() { return $this->uirLevel; }
-	public function setUirLevel($uirLevel) { $this->uirLevel = $uirLevel; }
-
-	public function getLatitude() { return $this->latitude; }
-	public function setLatitude($latitude) { $this->latitude = $latitude; }
-
-	public function getLongtitude() { return $this->longitude; }
-	public function setLongtitude($longtitude) { $this->longitude = $longtitude; }
 
 }

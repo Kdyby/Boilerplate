@@ -19,9 +19,17 @@ use Kdyby;
 
 
 /**
+ * 1 CZK, 2 USD, 3 EUR
+ *
  * @author Filip Procházka <hosiplan@kdyby.org>
+ * @Entity @Table(name="l18n_currencies")
  */
-class Currency extends Kdyby\Entities\BaseIdentifiedEntity
+class Currency extends Kdyby\Doctrine\BaseIdentifiedEntity
 {
 	
+	/**
+	 * @Column(type="string")
+	 */
+	private $code;
+
 }

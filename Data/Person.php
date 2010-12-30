@@ -11,7 +11,7 @@
  */
 
 
-namespace Kdyby;
+namespace Kdyby\Data;
 
 use Nette;
 use Kdyby;
@@ -21,8 +21,9 @@ use Kdyby;
 /**
  * @author Filip Procházka <hosiplan@kdyby.org>
  * @property-read string $fullname
+ * @MapperSuperClass
  */
-abstract class Person extends Kdyby\Entities\BaseIdentifiedEntity
+abstract class Person extends Kdyby\Doctrine\BaseIdentifiedEntity
 {
 
 	/** @Column(type="string", length=15) */
