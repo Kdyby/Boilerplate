@@ -18,7 +18,8 @@
 namespace Kdyby\Doctrine;
 
 use Doctrine;
-use Nette\Environment;
+use Nette;
+use Kdyby;
 
 
 
@@ -28,7 +29,7 @@ use Nette\Environment;
  * @author	Patrik Votoček
  * @package	Nella\Doctrine
  */
-class Factory extends \Nette\Object
+class Factory extends Nette\Object
 {
 
 	/**
@@ -45,7 +46,8 @@ class Factory extends \Nette\Object
 	 */
 	protected  static function createCache()
 	{
-		return new Cache(Environment::getCache('Doctrine'));
+		$dataStorage = Nette\Environment::getApplication()->getService('Nette\\Caching\\ICacheStorage');
+		return new Cache(new Nette\Caching\Cache($dataStorage, 'Doctrine'));
 	}
 
 
@@ -92,17 +94,14 @@ class Factory extends \Nette\Object
 		$config->setQueryCacheImpl($cache);
 
 		// Metadata
-		$config->setMetadataDriverImpl($config->newDefaultAnnotationDriver((array)$options['entityDir']));
+		$metadataDriver = self::newDefaultAnnotationDriver((array)$options['entityDir']);
+		$config->setMetadataDriverImpl($metadataDriver);
 
 		// Proxies
-		$config->setProxyDir(Environment::getVariable('proxyDir', $options['proxyDir']));
+		$config->setProxyDir(Nette\Environment::getVariable('proxyDir', $options['proxyDir']));
 		$config->setProxyNamespace('Kdyby\Models\Proxies');
-		if (Environment::isProduction()) {
-			$config->setAutoGenerateProxyClasses(FALSE);
 
-		} else {
-			$config->setAutoGenerateProxyClasses(TRUE);
-		}
+		$config->setAutoGenerateProxyClasses(!Nette\Environment::isProduction());
 
 		// Profiler
 		if (isset($database['profiler']) && $database['profiler']) {
@@ -113,15 +112,33 @@ class Factory extends \Nette\Object
 	}
 
 
+
+    /**
+     * Add a new default annotation driver with a correctly configured annotation reader.
+     *
+     * @param array $paths
+     * @return Mapping\Driver\AnnotationDriver
+     */
+	public static function newDefaultAnnotationDriver($paths = array())
+    {
+        $reader = new \Doctrine\Common\Annotations\AnnotationReader();
+        $reader->setDefaultAnnotationNamespace('Doctrine\ORM\Mapping\\');
+		$reader->setAnnotationNamespaceAlias('Kdyby\Doctrine\Mapping\\', 'Kdyby');
+
+        return new \Doctrine\ORM\Mapping\Driver\AnnotationDriver($reader, (array)$paths);
+    }
+
+
+
 	/**
 	 * @param string
 	 * @return Doctrine\ORM\EntityManager
 	 */
 	public static function createEntityManager($options)
 	{
-		$context = Environment::getApplication()->getContext();
+		$context = Nette\Environment::getApplication()->getContext();
 		$serviceName = 'Doctrine\ORM\EntityManager';
-		$database = (array) Environment::getConfig('database');
+		$database = (array) Nette\Environment::getConfig('database');
 
 		// Load config
 		$config = self::createConfiguration($database, $options, $serviceName);
