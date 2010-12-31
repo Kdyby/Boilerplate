@@ -29,17 +29,39 @@ use Nette;
  *
  * @author Jan Smitka
  */
-class DatabaseManager extends Nette\Object implements \ArrayAccess
+class DatabaseManager extends Nette\Context
 {
 
 	/** @var Doctrine\ORM\EntityManager */
-	protected $entityManager;
+	private $entityManager;
+
+	/** @var array */
+	private $services = array();
 
 
 
-	public function __construct()
+	/**
+	 * Adds the specified service to the service container.
+	 * @param  string service name
+	 * @param  mixed  object, class name or factory callback
+	 * @param  bool   is singleton?
+	 * @param  array  factory options
+	 * @return void
+	 */
+	public function addService($name, $service, $singleton = TRUE, array $options = NULL)
 	{
-		$this->entityManager = Nette\Environment::getService('Doctrine\ORM\EntityManager');
+		parent::addService($name, $service, $singleton, $options);
+		$this->services[] = $name;
+	}
+
+
+
+	/**
+	 * @return array
+	 */
+	public function getRegisteredServices()
+	{
+		return $this->services;
 	}
 
 
@@ -54,9 +76,12 @@ class DatabaseManager extends Nette\Object implements \ArrayAccess
 
 
 
-	public function __call($name, $arguments)
+	/**
+	 * @param Doctrine\ORM\EntityManager $entityManager
+	 */
+	public function setEntityManager(Doctrine\ORM\EntityManager $entityManager)
 	{
-		return call_user_func_array(array($this->entityManager, $name), $arguments);
+		$this->entityManager = $entityManager;
 	}
 
 
@@ -66,7 +91,7 @@ class DatabaseManager extends Nette\Object implements \ArrayAccess
 	 */
 	public function persist($entity)
 	{
-		$this->entityManager->persist($entity);
+		$this->getEntityManager()->persist($entity);
 	}
 
 
@@ -77,58 +102,14 @@ class DatabaseManager extends Nette\Object implements \ArrayAccess
 	 */
 	public function lock($entity, $version)
 	{
-		$this->entityManager->lock($entity, Doctrine\DBAL\LockMode::OPTIMISTIC, $version);
+		$this->getEntityManager()->lock($entity, Doctrine\DBAL\LockMode::OPTIMISTIC, $version);
 	}
 
 
 
-
-
-	/********************* \ArrayAccess *********************/
-
-
-
-	/**
-	 * @param string $offset
-	 * @param string $value
-	 * @throws NotSupportedException
-	 */
-	public function offsetSet($offset, $value)
+	public function __call($name, $arguments)
 	{
-		throw new \NotSupportedException();
+		return call_user_func_array(array($this->getEntityManager(), $name), $arguments);
 	}
 
-
-
-	/**
-	 * @param string $offset
-	 * @throws NotSupportedException
-	 */
-	public function offsetUnset($offset)
-	{
-		throw new \NotSupportedException();
-	}
-
-
-
-	/**
-	 * @param string $offset
-	 * @return string
-	 */
-	public function offsetGet($offset)
-	{
-		return $this->entityManager->getRepository($offset);
-	}
-
-
-
-	/**
-	 * @param string $offset
-	 * @return boolean
-	 * @throws NotSupportedException
-	 */
-	public function offsetExists($offset)
-	{
-		throw new \NotSupportedException();
-	}
 }
