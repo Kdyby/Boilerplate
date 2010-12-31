@@ -18,8 +18,9 @@ use Nette\String;
 
 
 
-class LookoutControl extends BaseControl
+abstract class LookoutControl extends BaseControl
 {
+
 	/** @var string */
 	private $view;
 

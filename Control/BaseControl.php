@@ -20,9 +20,6 @@ use Nette\String;
 
 
 
-/**
- * @author Filip Procházka <hosiplan@kdyby.org>
- */
 class BaseControl extends Nette\Application\Control
 {
 
@@ -73,6 +70,7 @@ class BaseControl extends Nette\Application\Control
 		$template = parent::createTemplate();
 		$template->setTranslator($this->getTranslator());
 
+		// TODO: themes, think harder dude!
 		$action = ltrim($this->presenter->getAction(TRUE), ':');
 		$module = String::lower(substr($action, 0, strpos($action, ':')));
 		$theme = Environment::getConfig("theme")->{$module};
