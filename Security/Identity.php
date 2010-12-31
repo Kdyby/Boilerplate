@@ -30,7 +30,7 @@ use Nette\Security\IRole;
  * @property-read int $id
  * @property string $username
  */
-class Identity extends Kdyby\Person implements IIdentity, IRole
+class Identity extends Kdyby\Data\Person implements IIdentity, IRole
 {
 
     /** @Column(type="string", length=50, unique=TRUE) */

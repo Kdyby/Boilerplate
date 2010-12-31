@@ -24,7 +24,7 @@ use Kdyby;
  * @author Filip Procházka <hosiplan@kdyby.org>
  * @Entity @Table(name="l18n_currencies")
  */
-class Currency extends Kdyby\Doctrine\BaseIdentifiedEntity
+class Currency extends Kdyby\Doctrine\IdentifiedEntity
 {
 	
 	/**

@@ -23,7 +23,7 @@ use Kdyby;
  * @property-read string $fullname
  * @MapperSuperClass
  */
-abstract class Person extends Kdyby\Doctrine\BaseIdentifiedEntity
+abstract class Person extends Kdyby\Doctrine\IdentifiedEntity
 {
 
 	/** @Column(type="string", length=15) */

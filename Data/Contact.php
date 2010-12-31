@@ -12,7 +12,7 @@ use Kdyby;
  * @author Filip Procházka <hosiplan@kdyby.org>
  * @Entity @Table(name="contacts")
  */
-class Contact extends Kdyby\Doctrine\BaseIdentifiedEntity
+class Contact extends Kdyby\Doctrine\IdentifiedEntity
 {
 
 	/** @Column(type="array") */
