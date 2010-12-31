@@ -25,4 +25,19 @@ final class Kdyby extends Nette\Application\Application
 	public $errorPresenter = 'Error';
 
 
+
+	/**
+	 * @return Kdyby\Application\Kdyby
+	 */
+	public function registerPanels()
+	{
+		//NetteTranslator\Panel::register(Environment::getService('Nette\ITranslator'), \NetteTranslator\Panel::LAYOUT_VERTICAL);
+
+		//Panel\UserPanel::register()
+		//	->addCredentials('HosipLan', 'reddwarf')
+		//	->setNameColumn('name');
+
+		return $this;
+	}
+
 }
