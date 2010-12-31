@@ -23,7 +23,7 @@ use Kdyby;
  * 
  * @author Filip Procházka <hosiplan@kdyby.org>
  */
-abstract class BaseIdentifiedEntity extends BaseEntity
+abstract class IdentifiedEntity extends BaseEntity
 {
 
 	/** @Id @Column(type="integer") @GeneratedValue */
