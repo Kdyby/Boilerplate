@@ -31,10 +31,12 @@ class KdybyLoader extends Nette\Loaders\AutoLoader
 		//core
 		'kdyby\configurator' => '/Environment/Configurator.php',
 		'kdyby\confighooks' => '/Environment/ConfigHooks.php',
+		'kdyby\config\configadapterneon' => '/Config/ConfigAdapterNeon.php',
 		'kdyby\component\helpers' => "/Components/Helpers.php",
 		'kdyby\control\basecontrol' => '/Control/BaseControl.php',
 		'kdyby\control\lookoutcontrol' => '/Control/LookoutControl.php',
-		'kdyby\filestorage' => '/Caching/FileStorage.php',
+		'kdyby\caching\cache' => '/Caching/Cache.php',
+		'kdyby\caching\filestorage' => '/Caching/FileStorage.php',
 		'kdyby\filesystem' => '/Tools/FileSystem.php',
 		'kdyby\form\baseform' => '/Forms/BaseForm.php',
 		'kdyby\form\control\checkboxlist' => '/Forms/Controls/CheckboxList.php',
@@ -76,9 +78,13 @@ class KdybyLoader extends Nette\Loaders\AutoLoader
 		'kdyby\application\databasemanager' => '/Doctrine/DatabaseManager.php',
 		'kdyby\doctrine\cache' => '/Doctrine/Cache.php',
 		'kdyby\doctrine\factory' => '/Doctrine/Factory.php',
-		'kdyby\entities\baseentity' => '/Doctrine/BaseEntity.php',
-		'kdyby\entities\baseidentifiedentity' => '/Doctrine/BaseIdentifiedEntity.php',
-		'nella\doctrine\panel' => '/Doctrine/Panel.php'
+		'kdyby\doctrine\baseentity' => '/Doctrine/Entities/BaseEntity.php',
+		'kdyby\doctrine\IdentifiedEntity' => '/Doctrine/Entities/IdentifiedEntity.php',
+		'kdyby\doctrine\NamedEntity' => '/Doctrine/Entities/NamedEntityy.php',
+		'kdyby\doctrine\service' => '/Doctrine/Services/Service.php',
+		'kdyby\doctrine\entityservice' => '/Doctrine/Services/EntityService.php',
+		'kdyby\doctrine\serviceexception' => '/Doctrine/Services/ServiceException.php',
+		'nella\doctrine\panel' => '/Doctrine/NellaPanel/Panel.php'
 	);
 
 
