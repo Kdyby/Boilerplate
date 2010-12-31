@@ -332,7 +332,8 @@ class PresenterTree extends Nette\Object
 	private function getCache()
 	{
 		if ($this->cache === NULL) {
-			$this->cache = Nette\Environment::getCache("Kdyby.Presenter.Tree");
+			$dataStorage = Nette\Environment::getApplication()->getService('Kdyby\\Caching\\IDataCacheStorage');
+			$this->cache = new Nette\Caching\Cache($dataStorage, 'Kdyby.Presenter.Tree');
 		}
 
 		return $this->cache;
