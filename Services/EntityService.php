@@ -18,7 +18,7 @@ use Kdyby;
  *
  * @author Filip Procházka <hosiplan@kdyby.org>
  */
-abstract class SingleEntityService extends Service
+class EntityService extends Service
 {
 
 	/** @var string */
