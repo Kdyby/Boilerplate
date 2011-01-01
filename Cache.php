@@ -49,7 +49,7 @@ class Cache extends Doctrine\Common\Cache\AbstractCache
 	public function  __construct(NCache $cache)
 	{
 		$this->data = $cache;
-		$this->keys = $cache->derive('.Keys');
+		$this->keys = $cache->derive('Keys.List');
 	}
 
 
