@@ -64,27 +64,10 @@ class BaseControl extends Nette\Application\Control
 	/*=========================== Templates =============================*/
 
 
-
-	protected function createTemplate()
+	protected function createTemplate($class = NULL)
 	{
-		$template = parent::createTemplate();
-		$template->setTranslator($this->getTranslator());
-
-		// TODO: themes, think harder dude!
-		$action = ltrim($this->presenter->getAction(TRUE), ':');
-		$module = String::lower(substr($action, 0, strpos($action, ':')));
-		$theme = Environment::getConfig("theme")->{$module};
-
-		$template->theme = $template->basePath . '/theme_' . $theme;
-		$template->user = $this->getUser();
-
-		return $template;
-	}
-
-
-	public function templatePrepareFilters($template)
-	{
-		$this->presenter->templatePrepareFilters($template);
+		$templateFactory = new Kdyby\Template\TemplateFactory($this);
+		return $templateFactory->createTemplate($class);
 	}
 
 
