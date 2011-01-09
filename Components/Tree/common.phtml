@@ -6,10 +6,9 @@
 {else}
 	{if !$iterator->isFirst()}</li>{/if}
 	{if !isset($branch->classes)}{? $branch->classes = array(); }{/if}
-	<li{attr class($branch->classes)}>
-		<a href="{plink $branch->link}" n:tag-if="isset($branch->link) && !isset($branch->args)">
-		<a href="{plink $branch->link, (expand) $branch->args}" n:tag-if="isset($branch->link) && isset($branch->args)">
-		<span>{if $branch->title instanceof Html}{!$branch->title}{else}{$branch->title}{/if}</span></a></a>
+	<li n:class="isset($branch->listclass) ? $branch->listclass">
+		<a href="{$branch->link}" n:tag-if="isset($branch->link)" n:class="isset($branch->class) ? $branch->class">
+			<span>{if $branch->title instanceof Html}{!$branch->title}{else}{$branch->title}{/if}</span></a>
 	{if $iterator->isLast()}</li>{/if}
 {/if}
 {/foreach}
