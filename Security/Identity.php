@@ -59,6 +59,12 @@ class Identity extends Kdyby\Data\Person implements IIdentity, IRole
 	public function getUsername() { return $this->username; }
 	public function setUsername($username) { $this->username = $username; }
 
+
+	public function getFullname()
+	{
+		return parent::getFullname() ?: $this->getUsername();
+	}
+
 	public function &getRegisteredAt() { return $this->registeredAt; }
 	public function setRegisteredAt(\DateTime $date) { $this->registeredAt = $date; }
 
@@ -86,7 +92,7 @@ class Identity extends Kdyby\Data\Person implements IIdentity, IRole
 
 	public function getRoles()
 	{
-		return $this->roles;
+		return (array)$this->roles;
 	}
 
 
