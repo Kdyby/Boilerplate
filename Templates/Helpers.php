@@ -3,6 +3,7 @@
 namespace Kdyby\Template;
 
 use Nette;
+use Nette\String;
 use Kdyby;
 
 
