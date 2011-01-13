@@ -65,7 +65,7 @@ abstract class RepetitiveForm extends LookoutControl
 		$this[$name] = $this->createForm($id, $defaults);
 
 		// tady je trošku magie, možná to bude chtít poladit, aby to generovalo správný tvar
-		$fullname = $this->lookupPath(get_class($this));
+		$fullname = $this->getUniqueId();
 		$this[$name]->action->setParam($fullname . self::NAME_SEPARATOR . 'fId', $id);
 
 		return $this[$name];
