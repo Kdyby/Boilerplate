@@ -139,12 +139,12 @@ class Cache extends Doctrine\Common\Cache\AbstractCache
 	protected function _doSave($id, $data, $lifeTime = 0)
 	{
 		if ($lifeTime != 0) {
-			$this->addCacheKey($id, time() + $lifeTime);
 			$this->data->save($id, $data, array('expire' => time() + $lifeTime, 'tags' => array("doctrine")));
+			$this->addCacheKey($id, time() + $lifeTime);
 
 		} else {
-			$this->addCacheKey($id);
 			$this->data->save($id, $data, array('tags' => array("doctrine")));
+			$this->addCacheKey($id);
 		}
 
 		return TRUE;
@@ -157,8 +157,8 @@ class Cache extends Doctrine\Common\Cache\AbstractCache
 	 */
 	protected function _doDelete($id)
 	{
-		$this->removeCacheKey($id);
 		unset($this->data[$id]);
+		$this->removeCacheKey($id);
 		return TRUE;
 	}
 
