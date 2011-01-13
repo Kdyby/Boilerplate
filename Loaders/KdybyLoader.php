@@ -29,9 +29,11 @@ class KdybyLoader extends Nette\Loaders\AutoLoader
 	/** @var array */
 	public $list = array(
 		//core
+		'kdyby\application\badrequestexception' => '/Application/BadRequestException.php',
 		'kdyby\configurator' => '/Environment/Configurator.php',
 		'kdyby\confighooks' => '/Environment/ConfigHooks.php',
 		'kdyby\config\configadapterneon' => '/Config/ConfigAdapterNeon.php',
+		'kdyby\component\gridito\simplemodel' => "/Components/Gridito/SimpleModel.php",
 		'kdyby\component\helpers' => "/Components/Helpers.php",
 		'kdyby\control\basecontrol' => '/Control/BaseControl.php',
 		'kdyby\control\lookoutcontrol' => '/Control/LookoutControl.php',
