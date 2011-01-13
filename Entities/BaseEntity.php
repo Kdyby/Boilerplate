@@ -27,11 +27,6 @@ use Nette\Caching\Cache AS NCache;
 abstract class BaseEntity extends Nette\Object
 {
 
-	/** @var Doctrine\ORM\EntityRepository */
-	private $repository;
-
-
-
 	public function __construct() { }
 
 
@@ -44,43 +39,6 @@ abstract class BaseEntity extends Nette\Object
 		foreach ($data as $key => $value) {
 			$this->__set($key, $value);
 		}
-	}
-
-
-
-	/**
-	 * @return Doctrine\ORM\EntityRepository
-	 */
-	public function getRepository()
-	{
-		if ($this->repository === NULL) {
-			$this->repository = Environment::getEntityManager()->getRepository(get_class($this));
-		}
-		return $this->repository;
-	}
-
-
-
-	public function free()
-	{
-		$this->repository = NULL;
-	}
-
-
-
-	/**
-	 * @return array
-	 */
-	public function __sleep()
-	{
-		$this->free();
-
-		$reflection = new \ReflectionClass($this);
-		$properties = array_map(function($property) { return $property->name; }, $reflection->getProperties());
-
-		return array_diff($properties, array(
-				'repository', '_entityPersister', '_identifier', '__isInitialized__'
-			));
 	}
 
 
