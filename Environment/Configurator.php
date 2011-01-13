@@ -38,6 +38,7 @@ class Configurator extends Nette\Configurator
 	public function __construct()
 	{
 		Nette\Config\Config::registerExtension('neon', 'Kdyby\Config\ConfigAdapterNeon');
+		Kdyby\Template\KdybyMacros::register();
 	}
 
 
