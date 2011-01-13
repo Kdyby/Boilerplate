@@ -31,7 +31,7 @@ class TemplateFactory extends Nette\Object
 	 */
 	public function createTemplate($class = NULL)
 	{
-		$class = $class ?: 'Nette\Templates\FileTemplate';
+		$class = $class ?: 'Kdyby\Template\FileTemplate';
 		$template = new $class;
 
 		if ($this->component) {
