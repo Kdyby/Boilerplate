@@ -20,11 +20,18 @@ use Nette\String;
 
 
 
+/**
+ * @property Kdyby\Template\FileTemplate $template
+ * @method Kdyby\Template\FileTemplate getTemplate
+ */
 class BaseControl extends Nette\Application\Control
 {
 
 	/** @var Nette\ITranslator */
 	private $translator;
+
+	/** @var Kdyby\Application\DatabaseManager */
+	private $databaseManager;
 
 
 
@@ -34,6 +41,20 @@ class BaseControl extends Nette\Application\Control
 	public function getUser()
 	{
 		return Nette\Environment::getUser();
+	}
+
+
+
+	/**
+	 * @return Kdyby\Application\DatabaseManager
+	 */
+	public function getDatabaseManager()
+	{
+		if ($this->databaseManager === NULL) {
+			$this->databaseManager = Environment::getService('Kdyby\Application\DatabaseManager');
+		}
+
+		return $this->databaseManager;
 	}
 
 
