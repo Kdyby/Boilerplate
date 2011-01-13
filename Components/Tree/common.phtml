@@ -1,16 +1,16 @@
 {block #branch}
 <ul{attr class($classes)}>
+{var $last = NULL}
 {foreach $tree as $branch}
 {if is_array($branch)}
-	{include #branch, 'tree' => $branch, 'classes' => NULL}</li>
+	{include #branch, 'tree' => $branch, 'classes' => NULL}{!$last->endTag()}
 {else}
-	{if !$iterator->isFirst()}</li>{/if}
+	{if !$iterator->isFirst()}{!$last->endTag()}{/if}
 	{if !isset($branch->classes)}{? $branch->classes = array(); }{/if}
-	<li n:class="isset($branch->listclass) ? $branch->listclass">
-		<a href="{$branch->link}" n:tag-if="isset($branch->link)" n:class="isset($branch->class) ? $branch->class">
-			<span>{if $branch->title instanceof Html}{!$branch->title}{else}{$branch->title}{/if}</span></a>
-	{if $iterator->isLast()}</li>{/if}
+		{!$branch->startTag()}{!$branch->getHtml()}
+	{if $iterator->isLast()}{!$last->endTag()}{/if}
 {/if}
+{if is_object($branch)}{var $last = $branch}{/if}
 {/foreach}
 </ul>
 {/block}
