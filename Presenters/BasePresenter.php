@@ -25,6 +25,8 @@ use Kdyby;
 /**
  * Base class for all application presenters.
  * @property-read Kdyby\Application\DatabaseManager $dtm
+ * @property Kdyby\Template\FileTemplate $template
+ * @method Kdyby\Template\FileTemplate getTemplate
  */
 abstract class BasePresenter extends Nette\Application\Presenter
 {
@@ -147,6 +149,10 @@ abstract class BasePresenter extends Nette\Application\Presenter
 
 	protected function setLayoutFile($file)
 	{
+		if (!file_exists($file)) {
+			$file = $this->searchTemplate($file);
+		}
+
 		if (!file_exists($file)) {
 			throw new \FileNotFoundException("Requested template '".$file."' is missing.");
 		}
