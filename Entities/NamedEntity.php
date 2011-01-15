@@ -18,7 +18,7 @@ use Nette\Caching\Cache AS NCache;
 
 
 /**
- * @MappedSuperclass
+ * @MappedSuperClass
  *
  * @property int $id
  * @property string $name

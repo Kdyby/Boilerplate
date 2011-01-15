@@ -17,7 +17,7 @@ use Kdyby;
 
 
 /**
- * @MappedSuperclass
+ * @MappedSuperClass
  *
  * @property-read int $id
  * 
