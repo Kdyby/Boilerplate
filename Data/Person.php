@@ -21,7 +21,7 @@ use Kdyby;
 /**
  * @author Filip Procházka <hosiplan@kdyby.org>
  * @property-read string $fullname
- * @MapperSuperClass
+ * @MappedSuperClass
  */
 abstract class Person extends Kdyby\Doctrine\IdentifiedEntity
 {
