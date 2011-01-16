@@ -8,13 +8,13 @@
  * This source file is subject to the GNU Lesser General Public License. For more information please see http://nellacms.com
  */
 /**
- * This file is part of the Framework - Content Managing System (F-CMS) Kdyby.
+ * This file is part of the Framework - Content Managing System (CMF) Kdyby.
  *
  * Copyright (c) 2008, 2010 Filip Procházka (http://hosiplan.kdyby.org)
  *
  * For more information please see http://www.kdyby.org
  *
- * @package F-CMS Kdyby-Common
+ * @package CMF Kdyby-Common
  */
 
 
