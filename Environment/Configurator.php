@@ -11,7 +11,7 @@
  */
 
 
-namespace Kdyby;
+namespace Kdyby\Environment;
 
 use Nette;
 use Nette\Environment;
@@ -26,7 +26,10 @@ class Configurator extends Nette\Configurator
 {
 
 	/** @var string */
-	private static $defaultServicesFile = "%appDir%/services.neon";
+	private static $defaultServicesFile = "%kdybyDir%/services.database.neon";
+
+	/** @var string */
+	private static $kdybyConfigFile = "%kdybyDir%/config.kdyby.ini";
 
 	/** @var array */
 	private static $configHooks = array(
@@ -37,8 +40,63 @@ class Configurator extends Nette\Configurator
 
 	public function __construct()
 	{
+		// session setup
+		$this->setupSession(Environment::getSession());
+
+		// config extension
 		Nette\Config\Config::registerExtension('neon', 'Kdyby\Config\ConfigAdapterNeon');
-		Kdyby\Template\KdybyMacros::register();
+
+		// templates
+		Kdyby\Templates\KdybyMacros::register();
+	}
+
+
+
+	/**
+	 * @return Nette\Application\Application
+	 */
+	public static function createApplication(array $options = NULL)
+	{
+		$options['class'] = "Kdyby\Application\Kdyby";
+
+		$application = parent::createApplication($options);
+		$context = $application->getContext();
+
+		$context->addService('Nette\\Application\\IRouter', array(__CLASS__, 'createRoutes'));
+		
+		return $application;
+	}
+
+
+
+	public static function createRoutes()
+	{
+		$router = new Nette\Application\MultiRouter;
+		$router[] = new Kdyby\Application\AdminRouter;
+
+		return $router;
+	}
+
+
+
+	// Nette\\Application\\IPresenterLoader
+
+
+
+	public function loadConfig($file)
+	{
+		$name = Environment::getName();
+
+		$kdybyConfigFile = Nette\Environment::expand(self::$kdybyConfigFile);
+		$appConfigFile = Nette\Environment::expand($file ?: $this->defaultConfigFile);
+
+		$kdybyConfig = Nette\Config\Config::fromFile($kdybyConfigFile, $name);
+		$appConfig = Nette\Config\Config::fromFile($appConfigFile, $name);
+
+		$mergedConfig = array_replace_recursive($kdybyConfig->toArray(), $appConfig->toArray());
+		$config = new Nette\Config\Config($mergedConfig);
+
+		return parent::loadConfig($config);
 	}
 
 
@@ -158,7 +216,7 @@ class Configurator extends Nette\Configurator
 	/**
 	 * @param Nette\Web\Session $session
 	 */
-	public static function setupSession(Nette\Web\Session $session)
+	protected function setupSession(Nette\Web\Session $session)
 	{
 		// setup session
 		if (!$session->isStarted()) {
@@ -207,7 +265,7 @@ class Configurator extends Nette\Configurator
 	 */
 	public static function createCacheStorage()
 	{
-		$dir = FileSystem::prepareWritableDir('%varDir%/cache');
+		$dir = Kdyby\Tools\FileSystem::prepareWritableDir('%varDir%/cache');
 
 		$journal = Environment::getService('Nette\\Caching\\ICacheJournal');
 		return new Kdyby\Caching\FileStorage($dir, $journal);
@@ -236,7 +294,7 @@ class Configurator extends Nette\Configurator
 		/*if (Nette\Caching\SqliteJournal::isAvailable()) {
 			return new Nette\Caching\SqliteJournal(Environment::getVariable('tempDir') . '/cachejournal.db');
 		} else*/ {
-			$dir = FileSystem::prepareWritableDir('%tempDir%/memcache');
+			$dir = Kdyby\Tools\FileSystem::prepareWritableDir('%tempDir%/memcache');
 			return new Nette\Caching\FileJournal($dir);
 		}
 	}

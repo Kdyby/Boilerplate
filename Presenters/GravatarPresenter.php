@@ -11,7 +11,7 @@
  */
 
 
-namespace Kdyby\Presenter;
+namespace Kdyby\Presenters;
 
 use Nette\Image;
 use Kdyby\Application\Response\GravatarResponse;

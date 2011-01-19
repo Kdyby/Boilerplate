@@ -1,6 +1,6 @@
 <?php
 
-namespace Kdyby\Form;
+namespace Kdyby\Forms;
 
 use Nette;
 use Kdyby;
@@ -20,6 +20,9 @@ class EntityForm extends BaseForm
 	/** @var Kdyby\Doctrine\BaseEntity */
 	private $entity;
 
+	/** @var array */
+	private $entityData;
+
 	/** @var Doctrine\ORM\EntityManager */
 	private $entityManager;
 
@@ -30,15 +33,14 @@ class EntityForm extends BaseForm
 
 	/**
 	 * @param Kdyby\Doctrine\BaseEntity $entity
-	 * @param Nette\IComponentContainer $parent
-	 * @param string $name
 	 */
-	public function __construct($entity, Nette\IComponentContainer $parent = NULL, $name = NULL)
+	public function __construct($entity)
 	{
-		parent::__construct($parent, $name);
+		parent::__construct(NULL, NULL);
 
 		$this->entity = $entity;
 		$this->onSubmit = array(callback($this, 'updateEntity'));
+		$this->onValidate = array(callback($this, 'isFormCorresponding'));
 	}
 
 
@@ -83,7 +85,7 @@ class EntityForm extends BaseForm
 	public function setValidator(\Kdyby\Validation\IValidator $validator)
 	{
 		$this->validator = $validator;
-		$this->onValidate = array(callback($this, 'validateEntity'));
+		$this->onValidate[] = callback($this, 'validateEntity');
 	}
 
 
@@ -99,7 +101,7 @@ class EntityForm extends BaseForm
 
 
 	/**
-	 * @param Kdyby\Form\EntityForm $form
+	 * @param Kdyby\Forms\EntityForm $form
 	 */
 	public function validateEntity(self $form)
 	{
@@ -113,7 +115,7 @@ class EntityForm extends BaseForm
 
 
 	/**
-	 * @param Kdyby\Form\EntityForm $form
+	 * @param Kdyby\Forms\EntityForm $form
 	 */
 	public function updateEntity(self $form)
 	{
@@ -125,25 +127,23 @@ class EntityForm extends BaseForm
 	/**
 	 * @return bool
 	 */
-	public function isFormCorresponding()
+	public function isFormCorresponding(self $form)
 	{
 		$check = function ($entity, $formContainer) use (&$check) {
 			foreach ($this as $name => $control) {
-				if (method_exists($entity, $name)) {
-					return FALSE;
+				if (!property_exists($entity, $name)) {
+					throw FormException::entityPropertyNotExists($entity, $this->getUniqueId(), $name);
 				}
 
 				if ($control instanceof Nette\Forms\FormContainer) {
-					if (!$check($control)) {
-						return FALSE;
-					}
+					$check($entity->{$name}, $control);
 				}
 			}
 
 			return TRUE;
 		};
 
-		return $check($this->entity, $this);
+		$check($form->getEntity(), $form);
 	}
 
 
@@ -156,7 +156,11 @@ class EntityForm extends BaseForm
 	{
 		$presenter = $this->getPresenter();
 		if (!$presenter->isSignalReceiver($this, 'submit')) {
-			return $this->getMapper()->toArray($this->entity);
+			if ($this->entityData === NULL) {
+				$this->entityData = $this->getMapper()->toArray($this->entity);
+			}
+
+			return $this->entityData;
 		}
 
 		return parent::receiveHttpData();
@@ -167,7 +171,7 @@ class EntityForm extends BaseForm
 	/**
 	 * @param Doctrine\ORM\EntityManager $entityManager
 	 */
-	public function bindModel(Doctrine\ORM\EntityManager $entityManager)
+	public function setEntityManager(Doctrine\ORM\EntityManager $entityManager)
 	{
 		$this->entityManager = $entityManager;
 	}

@@ -9,7 +9,7 @@
  * @package    Nette\Extras
  */
 
-namespace Kdyby\Form\Control;
+namespace Kdyby\Forms\Controls;
 
 use Nette;
 use Kdyby;

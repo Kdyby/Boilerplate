@@ -28,56 +28,6 @@ class KdybyLoader extends Nette\Loaders\AutoLoader
 
 	/** @var array */
 	public $list = array(
-		//core
-		'kdyby\application\badrequestexception' => '/Application/BadRequestException.php',
-		'kdyby\configurator' => '/Environment/Configurator.php',
-		'kdyby\confighooks' => '/Environment/ConfigHooks.php',
-		'kdyby\config\configadapterneon' => '/Config/ConfigAdapterNeon.php',
-		'kdyby\component\gridito\simplemodel' => "/Components/Gridito/SimpleModel.php",
-		'kdyby\component\helpers' => "/Components/Helpers.php",
-		'kdyby\control\basecontrol' => '/Control/BaseControl.php',
-		'kdyby\control\lookoutcontrol' => '/Control/LookoutControl.php',
-		'kdyby\caching\cache' => '/Caching/Cache.php',
-		'kdyby\caching\filestorage' => '/Caching/FileStorage.php',
-		'kdyby\filesystem' => '/Tools/FileSystem.php',
-		'kdyby\form\baseform' => '/Forms/BaseForm.php',
-		'kdyby\form\control\checkboxlist' => '/Forms/Controls/CheckboxList.php',
-		'kdyby\gateway\gateway' => '/Gateway/Gateway.php',
-		'kdyby\gateway\iadapter' => '/Gateway/Interfaces/IAdapter.php',
-		'kdyby\gateway\igateway' => '/Gateway/Interfaces/IGateway.php',
-		'kdyby\gateway\igatewayauthenticator' => '/Gateway/Interfaces/IGatewayAuthenticator.php',
-		'kdyby\gateway\igateways' => '/Gateway/Interfaces/IGateways.php',
-		'kdyby\gateway\irequest' => '/Gateway/Interfaces/IRequest.php',
-		'kdyby\gateway\iresponse' => '/Gateway/Interfaces/IResponse.php',
-		'kdyby\gateway\isecuredgateway' => '/Gateway/Interfaces/ISecuredGateway.php',
-		'kdyby\gateway\isecuredrequest' => '/Gateway/Interfaces/ISecuredRequest.php',
-		'kdyby\gateway\iservice' => '/Gateway/Interfaces/IService.php',
-		'kdyby\gateway\notauthenticatedexception' => '/Gateway/NotAuthenticatedException.php',
-		'kdyby\gateway\protocol\soap' => '/Gateway/Protocols/Soap.php',
-		'kdyby\gateway\protocol\iprotocol' => '/Gateway/Interfaces/IProtocol.php',
-		'kdyby\gateway\request' => '/Gateway/Request.php',
-		'kdyby\gateway\response' => '/Gateway/Response.php',
-		'kdyby\gateway\securedgateway' => '/Gateway/SecuredGateway.php',
-		'kdyby\gateway\service' => '/Gateway/Service.php',
-		'kdyby\identity' => '/Security/Identity.php',
-		'kdyby\presenter\base' => '/Presenters/Base.php',
-		'kdyby\presenterinfo' => '/Tools/PresenterTree/PresenterInfo.php',
-		'kdyby\presentertree' => '/Tools/PresenterTree/PresenterTree.php',
-		'kdyby\security\applicationlock' => '/Security/ApplicationLock.php',
-		'kdyby\security\authenticator' => '/Security/Authenticator.php',
-		'kdyby\security\user' => '/Security/User.php',
-		'kdyby\template\helpers' => '/Templates/Helpers.php',
-		'kdyby\template\kdybymacros' => '/Templates/KdybyMacros.php',
-		'kdyby\template\templatefactory' => '/Templates/TemplateFactory.php',
-		'kdyby\tools\logicdelegator' => '/Tools/LogicDelegator.php',
-		'kdyby\tools\presentergenerator' => '/Tools/PresenterGenerator.php',
-		'kdyby\tools\modeltools' => '/Tools/ModelTools.php',
-		'kdyby\type\json' => '/Types/Json.php',
-		'kdyby\web\httphelpers' => '/Web/HttpHelpers.php',
-
-		//components
-		'kdyby\component\headjs' => "/Components/Headjs/Headjs.php",
-		'kdyby\component\tree' => "/Components/Tree/Tree.php",
 
 		// doctrine
 		'kdyby\application\databasemanager' => '/Doctrine/DatabaseManager.php',
@@ -89,7 +39,7 @@ class KdybyLoader extends Nette\Loaders\AutoLoader
 		'kdyby\doctrine\service' => '/Doctrine/Services/Service.php',
 		'kdyby\doctrine\entityservice' => '/Doctrine/Services/EntityService.php',
 		'kdyby\doctrine\serviceexception' => '/Doctrine/Services/ServiceException.php',
-		'nella\doctrine\panel' => '/Doctrine/NellaPanel/Panel.php'
+		'nella\doctrine\panel' => '/Doctrine/NellaPanel/Panel.php',
 	);
 
 
@@ -115,10 +65,28 @@ class KdybyLoader extends Nette\Loaders\AutoLoader
 	 */
 	public function tryLoad($type)
 	{
-		$type = ltrim(strtolower($type), '\\');
-		if (isset($this->list[$type])) {
-			LimitedScope::load(KDYBY_DIR . $this->list[$type]);
-			self::$count++;
+		if ('\\' === $type[0]) {
+			$type = substr($type, 1);
+		}
+
+		// indexed class
+		$typeLower = strtolower($type);
+		if (isset($this->list[$typeLower])) {
+			LimitedScope::load(KDYBY_DIR . $this->list[$typeLower]);
+			return self::$count++;
+		}
+
+		// standartized namespaced class name
+		if (FALSE !== ($pos = strripos($type, '\\')) && strtolower(substr($type, 0, 5)) === 'kdyby') {
+			$namespace = substr($type, 0, $pos);
+			$class = substr($type, $pos + 1);
+
+			$file = KDYBY_LIBS_DIR . '/' . str_replace('\\', '/', $namespace) . '/' . $class . '.php';
+
+			if (file_exists($file)) {
+				LimitedScope::load($file);
+				return self::$count++;
+			}
 		}
 	}
 

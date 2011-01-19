@@ -16,9 +16,7 @@ use Nette\Debug;
 use Nette\Environment;
 
 
-@header('X-Generated-By: Kdyby CMF ;url=www.kdyby.org'); // @ - headers may be sent
-
-define('KDYBY_DIR', __DIR__);
+define('KDYBY_LIBS_DIR', __DIR__);
 
 // Step 1: Load libraries
 // this allows load Nette Framework classes automatically so that
@@ -36,7 +34,7 @@ Debug::$strictMode = TRUE;
 
 
 // register kdyby loader
-require_once KDYBY_DIR . '/Loaders/KdybyLoader.php';
+require_once KDYBY_LIBS_DIR . '/Loaders/KdybyLoader.php';
 Kdyby\Loaders\KdybyLoader::getInstance()->register();
 
 

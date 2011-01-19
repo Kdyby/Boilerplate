@@ -11,7 +11,7 @@
  */
 
 
-namespace Kdyby\Form;
+namespace Kdyby\Forms;
 
 use Nette;
 use Nette\Application\AppForm;
@@ -66,6 +66,39 @@ class BaseForm extends AppForm
 		return $this->presenter->user;
 	}
 
+
+
+	/**
+	 * Returns a fully-qualified name that uniquely identifies the component
+	 * within the presenter hierarchy.
+	 * @return string
+	 */
+	public function getUniqueId()
+	{
+		return $this->lookupPath('Nette\Application\Presenter', TRUE);
+	}
+
+
+
+//	public function render() // wtf?
+//	{
+//		$args = func_get_args();
+//
+//		if( !empty($this->templateFile) AND empty($args) ){
+//			$template = $this->getTemplate();
+//			$template->setFile($this->templateFile);
+//
+//			$template->form = $this;
+//			$template->render();
+//
+//		} elseif( PHP_VERSION_ID >= 50300 ){
+//			return call_user_func_array(array('parent', 'render'), $args);
+//
+//		} else {
+//			return call_user_func_array(array($this, 'parent::render'), $args);
+//		}
+//	}
+
 }
 
-Nette\Forms\FormContainer::extensionMethod('addCheckboxList', array('Kdyby\Form\Control\CheckboxList', 'addCheckboxList'));
+Nette\Forms\FormContainer::extensionMethod('addCheckboxList', array('Kdyby\Forms\Controls\CheckboxList', 'addCheckboxList'));

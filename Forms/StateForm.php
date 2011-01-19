@@ -11,7 +11,7 @@
  */
 
 
-namespace Kdyby\Form;
+namespace Kdyby\Forms;
 
 use Nette;
 
@@ -45,7 +45,7 @@ class StateForm extends BaseForm
 
 	/**
 	 * @param array $post
-	 * @return Kdyby\Form\StateForm
+	 * @return Kdyby\Forms\StateForm
 	 */
 	public function recieve(array $post)
 	{

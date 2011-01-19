@@ -8,7 +8,7 @@ use Doctrine;
 
 
 
-class ErrorsException extends Nette\Object
+class ValidationErrorsException extends \RuntimeException
 {
 
 	/** @var array */

@@ -11,7 +11,7 @@
  */
 
 
-namespace Kdyby\Control;
+namespace Kdyby\Controls;
 
 use Kdyby;
 use Nette;
@@ -21,8 +21,8 @@ use Nette\String;
 
 
 /**
- * @property Kdyby\Template\FileTemplate $template
- * @method Kdyby\Template\FileTemplate getTemplate
+ * @property Kdyby\Templates\FileTemplate $template
+ * @method Kdyby\Templates\FileTemplate getTemplate
  */
 class BaseControl extends Nette\Application\Control
 {
@@ -87,7 +87,7 @@ class BaseControl extends Nette\Application\Control
 
 	protected function createTemplate($class = NULL)
 	{
-		$templateFactory = new Kdyby\Template\TemplateFactory($this);
+		$templateFactory = new Kdyby\Templates\TemplateFactory($this);
 		return $templateFactory->createTemplate($class);
 	}
 

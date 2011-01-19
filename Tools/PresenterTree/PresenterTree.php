@@ -11,7 +11,7 @@
  */
 
 
-namespace Kdyby;
+namespace Kdyby\Tools\PresenterTree;
 
 use Nette;
 use Nette\Caching\Cache;
@@ -362,7 +362,7 @@ class PresenterTree extends Nette\Object
 
 
 	/**
-	 * @return Kdyby\PresenterTree
+	 * @return Kdyby\Tools\PresenterTree\PresenterTree
 	 */
 	public static function createPresenterTree()
 	{

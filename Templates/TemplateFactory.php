@@ -1,6 +1,6 @@
 <?php
 
-namespace Kdyby\Template;
+namespace Kdyby\Templates;
 
 use Nette;
 use Kdyby;
@@ -31,7 +31,7 @@ class TemplateFactory extends Nette\Object
 	 */
 	public function createTemplate($class = NULL)
 	{
-		$class = $class ?: 'Kdyby\Template\FileTemplate';
+		$class = $class ?: 'Kdyby\Templates\FileTemplate';
 		$template = new $class;
 
 		if ($this->component) {

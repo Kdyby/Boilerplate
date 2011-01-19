@@ -10,7 +10,7 @@
  * @package CMF Kdyby-Common
  */
 
-namespace Kdyby\Type;
+namespace Kdyby\Types;
 
 use Nette;
 use Kdyby;
@@ -67,7 +67,7 @@ class Json extends Nette\Object
 	/**
 	 * @param string $file
 	 * @throws IOException
-	 * @return Kdyby\Type\Json
+	 * @return Kdyby\Types\Json
 	 */
 	public static function fromFile($file)
 	{

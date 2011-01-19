@@ -11,7 +11,7 @@
  */
 
 
-namespace Kdyby\Form\Container;
+namespace Kdyby\Forms\Container;
 
 use Nette;
 use Kdyby;

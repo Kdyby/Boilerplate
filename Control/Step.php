@@ -11,7 +11,7 @@
  */
 
 
-namespace Kdyby\Control;
+namespace Kdyby\Controls;
 
 use Kdyby;
 use Nette;
@@ -116,7 +116,7 @@ class Step extends Nette\Application\Control
 	public function onValid($method, $class = NULL)
 	{
 		if ($class === NULL) {
-			$class = $this->lookup('Kdyby\Control\StepContainer');
+			$class = $this->lookup('Kdyby\Controls\StepContainer');
 		}
 
 		$this->onValid[] = array($class, $method);
@@ -131,7 +131,7 @@ class Step extends Nette\Application\Control
 	public function onInvalid($method, $class = NULL)
 	{
 		if ($class === NULL) {
-			$class = $this->lookup('Kdyby\Control\StepContainer');
+			$class = $this->lookup('Kdyby\Controls\StepContainer');
 		}
 
 		$this->onInvalid[] = array($class, $method);

@@ -11,7 +11,7 @@
  */
 
 
-namespace Kdyby;
+namespace Kdyby\Tools\PresenterTree;
 
 use Nette;
 use Nette\Reflection\ClassReflection;
@@ -36,7 +36,7 @@ class PresenterInfo extends Nette\Object
 	/** @var array */
 	private $actions;
 
-	/** @var Kdyby\PresenterTree */
+	/** @var Kdyby\Tools\PresenterTree\PresenterTree */
 	private $tree;
 
 
@@ -128,7 +128,7 @@ class PresenterInfo extends Nette\Object
 
 
 	/**
-	 * @return Kdyby\PresenterTree
+	 * @return Kdyby\Tools\PresenterTree\PresenterTree
 	 */
 	private function getTree()
 	{

@@ -1,6 +1,6 @@
 <?php
 
-namespace Kdyby\Template;
+namespace Kdyby\Templates;
 
 use Nette;
 use Nette\String;

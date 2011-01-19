@@ -23,7 +23,7 @@ use Nette\Security\IRole;
 
 
 /**
- * @MappedSuperclass
+ * @MappedSuperClass
  *
  * @author Filip Procházka <hosiplan@kdyby.org>
  *

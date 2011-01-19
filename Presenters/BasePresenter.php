@@ -11,7 +11,7 @@
  */
 
 
-namespace Kdyby\Presenter;
+namespace Kdyby\Presenters;
 
 use Nette;
 use Nette\Environment;
@@ -25,8 +25,8 @@ use Kdyby;
 /**
  * Base class for all application presenters.
  * @property-read Kdyby\Application\DatabaseManager $dtm
- * @property Kdyby\Template\FileTemplate $template
- * @method Kdyby\Template\FileTemplate getTemplate
+ * @property Kdyby\Templates\FileTemplate $template
+ * @method Kdyby\Templates\FileTemplate getTemplate
  */
 abstract class BasePresenter extends Nette\Application\Presenter
 {
@@ -170,7 +170,7 @@ abstract class BasePresenter extends Nette\Application\Presenter
 	 */
 	public function searchTemplate($search)
 	{
-		return Kdyby\Template\Helpers::searchTemplate($this, $search);
+		return Kdyby\Templates\Helpers::searchTemplate($this, $search);
 	}
 
 
@@ -180,7 +180,7 @@ abstract class BasePresenter extends Nette\Application\Presenter
 	 */
 	protected function createTemplate($class = NULL)
 	{
-		$templateFactory = new Kdyby\Template\TemplateFactory($this);
+		$templateFactory = new Kdyby\Templates\TemplateFactory($this);
 		return $templateFactory->createTemplate($class);
 	}
 
@@ -195,7 +195,7 @@ abstract class BasePresenter extends Nette\Application\Presenter
 		static $themes = array();
 
 		if (!isset($themes[$switch])) {
-			$themes[$switch] = Kdyby\Template\Helpers::getThemePath($this, $switch);
+			$themes[$switch] = Kdyby\Templates\Helpers::getThemePath($this, $switch);
 		}
 
 		return $themes[$switch];

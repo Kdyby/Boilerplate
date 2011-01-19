@@ -1,6 +1,6 @@
 <?php
 
-namespace Kdyby\Control;
+namespace Kdyby\Controls;
 
 use Nette;
 use Kdyby;
