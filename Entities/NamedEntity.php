@@ -1,11 +1,11 @@
 <?php
 
 /**
- * This file is part of the Framework - Content Managing System (F-CMS) Kdyby.
+ * This file is part of the Framework - Content Managing System (CMF) Kdyby.
  *
  * For more information please see http://www.kdyby.org
  *
- * @package F-CMS Kdyby-Common
+ * @package CMF Kdyby-Common
  */
 
 

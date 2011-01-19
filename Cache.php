@@ -8,11 +8,11 @@
  * This source file is subject to the GNU Lesser General Public License. For more information please see http://nellacms.com
  */
 /**
- * This file is part of the Framework - Content Managing System (F-CMS) Kdyby.
+ * This file is part of the Framework - Content Managing System (CMF) Kdyby.
  *
  * For more information please see http://www.kdyby.org
  *
- * @package F-CMS Kdyby-Common
+ * @package CMF Kdyby-Common
  */
 
 namespace Kdyby\Doctrine;
