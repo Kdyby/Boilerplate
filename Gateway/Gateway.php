@@ -19,20 +19,20 @@ use Nette;
 
 
 /**
- * @property-read Kdyby\Gateway\Protocol\IProtocol $protocol
+ * @property-read Kdyby\Gateway\Protocols\IProtocol $protocol
  */
 abstract class Gateway extends Nette\Object
 {
 
-	/** @var Kdyby\Gateway\Protocol\IProtocol */
+	/** @var Kdyby\Gateway\Protocols\IProtocol */
 	private $protocol;
 
 
 
 	/**
-	 * @param Kdyby\Gateway\Protocol\IProtocol $protocol
+	 * @param Kdyby\Gateway\Protocols\IProtocol $protocol
 	 */
-	public function __construct(Kdyby\Gateway\Protocol\IProtocol $protocol)
+	public function __construct(Kdyby\Gateway\Protocols\IProtocol $protocol)
 	{
 		$this->protocol = $protocol;
 	}
@@ -40,7 +40,7 @@ abstract class Gateway extends Nette\Object
 
 
 	/**
-	 * @return Kdyby\Gateway\Protocol\IProtocol
+	 * @return Kdyby\Gateway\Protocols\IProtocol
 	 */
 	public function getProtocol()
 	{

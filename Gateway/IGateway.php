@@ -20,7 +20,7 @@ use Kdyby;
 interface IGateway
 {
 
-	public function __construct(Kdyby\Gateway\Protocol\IProtocol $protocol);
+	public function __construct(Kdyby\Gateway\Protocols\IProtocol $protocol);
 
     function createRequest();
 

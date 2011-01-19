@@ -11,7 +11,7 @@
  */
 
 
-namespace Kdyby\Gateway\Protocol;
+namespace Kdyby\Gateway\Protocols;
 
 use Nette;
 
