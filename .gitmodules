@@ -1,0 +1,6 @@
+[submodule "Doctrine"]
+	path = Doctrine
+	url = git@github.com:HosipLan/Kdyby-Doctrine.git
+[submodule "Common"]
+	path = Common
+	url = git@github.com:HosipLan/Kdyby-Common.git
