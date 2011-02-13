@@ -44,6 +44,9 @@ final class Authenticator extends Nette\Object implements Nette\Security\IAuthen
 				new Kdyby\Security\Acl\Role('admin')
 			));
 
+		$identity->firstname = 'Filip';
+		$identity->lastname = 'Procházka';
+
 		return $identity;
 
 

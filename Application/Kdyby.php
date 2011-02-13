@@ -37,6 +37,10 @@ final class Kdyby extends Nette\Application\Application
 		//	->addCredentials('HosipLan', 'reddwarf')
 		//	->setNameColumn('name');
 
+
+		// develop environment!
+		//\Kdyby\Debug\DoctrinePanel::register();
+
 		return $this;
 	}
 
