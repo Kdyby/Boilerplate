@@ -5,6 +5,13 @@ namespace Kdyby\Doctrine\Mapping;
 use Kdyby;
 use Nette;
 use Doctrine;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\ORM\Mapping\MappingException;
+use Doctrine\ORM\PersistentCollection;
+use Doctrine\ORM\Proxy\Proxy;
+use Doctrine\ORM\UnitOfWork;
 
 
 
@@ -35,6 +42,7 @@ class EntityFormMapper extends Nette\Object implements Kdyby\Doctrine\Mapping\IF
 		$data = array();
 
 		$class = $this->entityManager->getClassMetadata(get_class($entity));
+		$UoW = $this->entityManager->getUnitOfWork();
 		$id = $class->getIdentifierValues($entity); // !$id === NEW
 
 		foreach ($class->reflFields as $name => $prop) {
@@ -54,16 +62,14 @@ class EntityFormMapper extends Nette\Object implements Kdyby\Doctrine\Mapping\IF
 						$data[$name] = NULL;
 
 					} elseif ( ! $assoc2['isCascadeMerge']) {
-						if ($this->getEntityState($other, self::STATE_DETACHED) == self::STATE_MANAGED) {
-							$data[$name] = $other;
+//						if ($UoW->getEntityState($other, UnitOfWork::STATE_DETACHED) == UnitOfWork::STATE_MANAGED) {
+//							$data[$name] = $this->entityToIdentifikator($other);
+//
+//						} else {
+//							$targetClass = $this->entityManager->getClassMetadata($assoc2['targetEntity']);
+//						}
 
-						} else {
-							$targetClass = $this->em->getClassMetadata($assoc2['targetEntity']);
-							$id = $targetClass->getIdentifierValues($other);
-							$proxy = $this->em->getProxyFactory()->getProxy($assoc2['targetEntity'], $id);
-							$prop->setValue($managedCopy, $proxy);
-							$this->registerManaged($proxy, $id, array());
-						}
+						$data[$name] = $this->entityToIdentifikator($other);
 					}
 
 				} else {
@@ -78,7 +84,7 @@ class EntityFormMapper extends Nette\Object implements Kdyby\Doctrine\Mapping\IF
 					foreach ($mergeCol->getValues() as $value) {
 						try {
 							$colClass = $this->entityManager->getClassMetadata(get_class($value));
-						} catch (Doctrine\ORM\Mapping\MappingException $e) { 
+						} catch (MappingException $e) { 
 							$colClass = FALSE;
 						}
 
