@@ -16,7 +16,7 @@ use Nette\Debug;
 use Nette\Environment;
 
 
-define('KDYBY_LIBS_DIR', __DIR__);
+define('KDYBY_FRAMEWORK_DIR', __DIR__);
 
 // Step 1: Load libraries
 // this allows load Nette Framework classes automatically so that

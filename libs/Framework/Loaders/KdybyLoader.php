@@ -30,7 +30,6 @@ class KdybyLoader extends Nette\Loaders\AutoLoader
 	public $list = array(
 
 		// doctrine
-		'kdyby\application\databasemanager' => '/Doctrine/DatabaseManager.php',
 		'kdyby\doctrine\cache' => '/Doctrine/Cache.php',
 		'kdyby\doctrine\factory' => '/Doctrine/Factory.php',
 		'kdyby\doctrine\baseentity' => '/Doctrine/Entities/BaseEntity.php',
@@ -72,7 +71,7 @@ class KdybyLoader extends Nette\Loaders\AutoLoader
 		// indexed class
 		$typeLower = strtolower($type);
 		if (isset($this->list[$typeLower])) {
-			LimitedScope::load(KDYBY_DIR . $this->list[$typeLower]);
+			LimitedScope::load(KDYBY_FRAMEWORK_DIR . $this->list[$typeLower]);
 			return self::$count++;
 		}
 
@@ -81,7 +80,7 @@ class KdybyLoader extends Nette\Loaders\AutoLoader
 			$namespace = substr($type, 0, $pos);
 			$class = substr($type, $pos + 1);
 
-			$file = KDYBY_LIBS_DIR . '/' . str_replace('\\', '/', $namespace) . '/' . $class . '.php';
+			$file = KDYBY_FRAMEWORK_DIR . '/' . str_replace('\\', '/', $namespace) . '/' . $class . '.php';
 
 			if (file_exists($file)) {
 				LimitedScope::load($file);

@@ -16,27 +16,17 @@ use Kdyby;
 abstract class Service extends Nette\Object
 {
 
-	/** @var Kdyby\Application\DatabaseManager */
-	private $databaseManager;
+	/** @var Doctrine\ORM\EntityManager */
+	private $em;
 
 
 
 	/**
-	 * @param Kdyby\Application\DatabaseManager $databaseManager
+	 * @param Doctrine\ORM\EntityManager $em
 	 */
-	public function setDatabaseManager(Kdyby\Application\DatabaseManager $databaseManager)
+	public function __construct(Doctrine\ORM\EntityManager $em)
 	{
-		$this->databaseManager = $databaseManager;
-	}
-
-
-
-	/**
-	 * @return Kdyby\Application\DatabaseManager
-	 */
-	public function getDatabaseManager()
-	{
-		return $this->databaseManager;
+		$this->em = $em;
 	}
 
 
@@ -46,7 +36,7 @@ abstract class Service extends Nette\Object
 	 */
 	public function getEntityManager()
 	{
-		return $this->getDatabaseManager()->getEntityManager();
+		return $this->em;
 	}
 
 

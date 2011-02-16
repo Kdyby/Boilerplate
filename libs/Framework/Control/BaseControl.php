@@ -30,8 +30,8 @@ class BaseControl extends Nette\Application\Control
 	/** @var Nette\ITranslator */
 	private $translator;
 
-	/** @var Kdyby\Application\DatabaseManager */
-	private $databaseManager;
+	/** @var Doctrine\ORM\EntityManager */
+	private $em;
 
 
 
@@ -46,15 +46,15 @@ class BaseControl extends Nette\Application\Control
 
 
 	/**
-	 * @return Kdyby\Application\DatabaseManager
+	 * @return Doctrine\ORM\EntityManager
 	 */
-	public function getDatabaseManager()
+	public function getEntityManager()
 	{
-		if ($this->databaseManager === NULL) {
-			$this->databaseManager = Environment::getService('Kdyby\Application\DatabaseManager');
+		if ($this->em === NULL) {
+			$this->em = Environment::getService('Doctrine\ORM\EntityManager');
 		}
 
-		return $this->databaseManager;
+		return $this->em;
 	}
 
 

@@ -27,11 +27,12 @@ class EntityService extends Service
 
 
 	/**
-	 * @param string $entityName
 	 * @param Doctrine\ORM\EntityManager $entityManager
+	 * @param string $entityName
 	 */
-	public function __construct($entityName)
+	public function __construct(Doctrine\ORM\EntityManager $em, $entityName)
 	{
+		parent::__construct($em);
 		$this->entityName = $entityName;
 	}
 

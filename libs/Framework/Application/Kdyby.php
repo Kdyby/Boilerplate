@@ -24,6 +24,36 @@ final class Kdyby extends Nette\Application\Application
 	/** @var string */
 	public $errorPresenter = 'Error';
 
+	/** @var Kdyby\Injection\IServiceContainer */
+	private $container;
+
+
+
+	/**
+	 * Dispatch a HTTP request to a front controller.
+	 * @return void
+	 */
+	public function run()
+	{
+		$this->getContainer()->freeze();
+
+		parent::run();
+	}
+
+
+
+	/**
+	 * @return Kdyby\Injection\IServiceContainer
+	 */
+	public function getContainer()
+	{
+		if ($this->container === NULL) {
+			$this->setContainer(Nette\Environment::getContext());
+		}
+
+		return $this->container;
+	}
+
 
 
 	/**
