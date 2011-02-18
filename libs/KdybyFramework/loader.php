@@ -34,7 +34,7 @@ Debug::$strictMode = TRUE;
 
 
 // register kdyby loader
-require_once KDYBY_LIBS_DIR . '/Loaders/KdybyLoader.php';
+require_once KDYBY_FRAMEWORK_DIR . '/Loaders/KdybyLoader.php';
 Kdyby\Loaders\KdybyLoader::getInstance()->register();
 
 

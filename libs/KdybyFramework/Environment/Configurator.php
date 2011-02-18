@@ -43,9 +43,6 @@ class Configurator extends Nette\Configurator
 		// session setup
 		$this->setupSession(Environment::getSession());
 
-		// config extension
-		Nette\Config\Config::registerExtension('neon', 'Kdyby\Config\ConfigAdapterNeon');
-
 		// templates
 		Kdyby\Templates\KdybyMacros::register();
 	}
@@ -276,18 +273,6 @@ class Configurator extends Nette\Configurator
 		$loader->register();
 
 		return $loader;
-	}
-
-
-
-	/**
-	 * @return Zend\Loader\StandardAutoloader
-	 */
-	public static function createZendFramework2Loader()
-	{
-		require_once LIBS_DIR . '/Zend/Loader/StandardAutoloader.php';
-
-		return $zendLoader = new \Zend\Loader\StandardAutoloader();
 	}
 
 }

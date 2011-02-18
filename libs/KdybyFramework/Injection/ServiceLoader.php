@@ -66,7 +66,7 @@ class ServiceLoader extends Nette\Object
 	 * @author http://github.com/janmarek
 	 *
 	 * @param array $options
-	 * @return Kdyby\Injection\IService
+	 * @return object
 	 */
 	public function serviceFactory(array $definition)
 	{
@@ -102,7 +102,7 @@ class ServiceLoader extends Nette\Object
 	 * @param string $class
 	 * @param array $options
 	 * @param bool $autowire
-	 * @return Kdyby\Injection\IService
+	 * @return object
 	 */
 	public function createInstanceOfService($class, array $arguments = array(), $autowire = TRUE)
 	{
@@ -134,8 +134,6 @@ class ServiceLoader extends Nette\Object
 
 	/**
 	 * @param array $arguments
-	 * @param Kdyby\Injection\IServiceContainer $container
-	 * @param array|Nette\Config\Config $config
 	 * @return array
 	 */
 	public function processArguments(array $arguments)

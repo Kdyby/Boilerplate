@@ -10,7 +10,7 @@ use NetteDI;
 /**
  * @author Filip Procházka
  */
-abstract class Presenter extends Nette\Application\Presenter implements Kdyby\Injection\IService
+abstract class Presenter extends Nette\Application\Presenter
 {
 
 	/**
