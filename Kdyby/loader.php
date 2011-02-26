@@ -16,7 +16,9 @@ use Nette\Debug;
 use Nette\Environment;
 
 
-define('KDYBY_FRAMEWORK_DIR', __DIR__);
+@header('X-Generated-By: Kdyby CMF ;url=www.kdyby.org'); // @ - headers may be sent
+
+define('KDYBY_DIR', __DIR__);
 
 // Step 1: Load libraries
 // this allows load Nette Framework classes automatically so that
