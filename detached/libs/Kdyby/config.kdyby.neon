@@ -1,0 +1,80 @@
+common:
+	php:
+		date.timezone: Europe/Prague
+
+	variable:
+		varDir: %wwwDir%/../var
+		tempDir: %varDir%
+		proxiesDir: %varDir%/proxies
+		logDir: %varDir%/log
+		sessionsDir: %varDir%/sessions
+		backupDir: %varDir%/backup
+		langDir: %varDir%/lang
+		lang: cs_CZ
+
+	Kdyby:
+		Core:
+			Nette\Security\IIdentity: Kdyby\User\Identity
+
+	service:
+		Nette\Application\Application:
+			option:
+				class: Kdyby\Application\Kdyby
+
+		Nette\Application\IPresenterLoader:
+			factory: Kdyby\Aplication\PresenterLoader
+
+		Nette\Loaders\RobotLoader:
+			factory: Kdyby\Environment\Configurator::createRobotLoader
+			option:
+				directory: [%appDir%, %libsDir%, %proxiesDir%]
+			run: true
+
+		Kdyby\Loaders\Symfony2:
+			factory: Kdyby\Environment\Configurator::createSymfony2Loader
+			run: true
+
+		Kdyby\Loaders\ZendFramework2:
+			factory: Kdyby\Environment\Configurator::createZendFramework2Loader
+			run: true
+
+		Nette\Security\IAuthenticator: Kdyby\Security\Authenticator
+		Nette\Web\IUser:
+			factory: Kdyby\Environment\Configurator::createIUser
+
+		Nette\Caching\ICacheStorage:
+			factory: Kdyby\Environment\Configurator::createCacheStorage
+			run: true
+
+		Nette\Caching\IMemcacheStorage:
+			factory: Kdyby\Environment\Configurator::createMemcacheStorage
+			prefix: Unired.
+
+		Nette\Caching\IMemcacheJournal:
+			factory: Kdyby\Environment\Configurator::createMemcacheJournal
+
+		Kdyby\PresenterTree:
+			factory: Kdyby\Tools\PresenterTree\PresenterTree::createPresenterTree
+
+		Doctrine\ORM\EntityManager:
+			factory: Kdyby\Doctrine\Factory::createEntityManager
+			option:
+				entityDir: [%appDir%/models, %kdybyDir%/Data, %kdybyDir%/Security]
+				proxyDir: %proxiesDir%
+
+		Kdyby\Application\DatabaseManager:
+			factory: Kdyby\Environment\Configurator::createDatabaseManager
+
+		Nette\ITranslator:
+			factory: NetteTranslator\Gettext::getTranslator
+			run: true
+
+		Kdyby\ConfigHooks:
+			factory: Kdyby\Environment\Configurator::createConfigHooks
+
+production < common:
+
+development < production:
+
+console < development:
+
