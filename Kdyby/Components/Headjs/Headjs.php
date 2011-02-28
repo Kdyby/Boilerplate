@@ -23,7 +23,7 @@ use Kdyby;
 /**
  * @author Filip Procházka <hosiplan@kdyby.org>
  */
-class Headjs extends Kdyby\Controls\LookoutControl
+class Headjs extends Kdyby\Control\LookoutControl
 {
 
 	const PACKAGE_FULL = 'head';

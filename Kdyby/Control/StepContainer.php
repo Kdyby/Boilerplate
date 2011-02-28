@@ -11,7 +11,7 @@
  */
 
 
-namespace Kdyby\Controls;
+namespace Kdyby\Control;
 
 use Nette;
 use Nette\String;
@@ -44,7 +44,7 @@ abstract class StepContainer extends LookoutControl
 	/** @var array */
 	private $steps = array();
 
-	/** @var Kdyby\Controls\Step */
+	/** @var Kdyby\Control\Step */
 	private $firstStep;
 
 	/** @var string */

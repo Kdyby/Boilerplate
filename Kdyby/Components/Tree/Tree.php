@@ -21,7 +21,7 @@ use Kdyby;
 /**
  * @author Filip Procházka <hosiplan@kdyby.org>
  */
-class Tree extends Kdyby\Controls\LookoutControl
+class Tree extends Kdyby\Control\LookoutControl
 {
 
 	/**

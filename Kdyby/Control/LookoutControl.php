@@ -11,14 +11,15 @@
  */
 
 
-namespace Kdyby\Controls;
+namespace Kdyby\Control;
 
+use Kdyby;
 use Nette;
 use Nette\String;
 
 
 
-abstract class LookoutControl extends BaseControl
+abstract class LookoutControl extends Kdyby\Application\Control
 {
 
 	/** @var string */

@@ -11,7 +11,7 @@
  */
 
 
-namespace Kdyby\Controls;
+namespace Kdyby\Application;
 
 use Kdyby;
 use Nette;
@@ -24,7 +24,7 @@ use Nette\String;
  * @property Kdyby\Templates\FileTemplate $template
  * @method Kdyby\Templates\FileTemplate getTemplate
  */
-class BaseControl extends Nette\Application\Control
+class Control extends Nette\Application\Control
 {
 
 	/** @var Nette\ITranslator */

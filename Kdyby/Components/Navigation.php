@@ -8,7 +8,7 @@ use Kdyby;
 
 
 
-class Navigation extends Kdyby\Controls\LookoutControl
+class Navigation extends Kdyby\Control\LookoutControl
 {
 
 
