@@ -21,7 +21,7 @@ use Kdyby;
 /**
  * @author Filip Procházka <hosiplan@kdyby.org>
  */
-class BasePresenter
+abstract class BasePresenter extends Kdyby\Application\Presenter
 {
 	
 }

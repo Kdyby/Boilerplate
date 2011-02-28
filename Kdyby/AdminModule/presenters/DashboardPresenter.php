@@ -8,7 +8,7 @@ use Doctrine;
 
 
 
-class DashboardPresenter extends AdminPresenter
+class DashboardPresenter extends BasePresenter
 {
 	
 }
