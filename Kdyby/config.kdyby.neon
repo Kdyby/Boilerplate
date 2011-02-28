@@ -21,8 +21,8 @@ common:
 			option:
 				class: Kdyby\Application\Kdyby
 
-		Nette\Application\IPresenterLoader:
-			factory: Kdyby\Aplication\PresenterLoader
+		Nette\Application\IPresenterFactory:
+			factory: Kdyby\Environment\Configurator::createPresenterFactory
 
 		Nette\Loaders\RobotLoader:
 			factory: Kdyby\Environment\Configurator::createRobotLoader

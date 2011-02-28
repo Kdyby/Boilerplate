@@ -26,10 +26,7 @@ class Configurator extends Nette\Configurator
 {
 
 	/** @var string */
-	private static $defaultServicesFile = "%kdybyDir%/services.database.neon";
-
-	/** @var string */
-	private static $kdybyConfigFile = "%kdybyDir%/config.kdyby.ini";
+	private static $kdybyConfigFile = "%kdybyDir%/config.kdyby.neon";
 
 	/** @var array */
 	private static $configHooks = array(
@@ -50,11 +47,26 @@ class Configurator extends Nette\Configurator
 
 
 	/**
+	 * @param Nette\IContext $context
+	 * @return Kdyby\Application\PresenterFactoryChain
+	 */
+	public static function createPresenterFactory(Nette\IContext $context)
+	{
+		$presenterFactoryChain = new Kdyby\Application\PresenterFactoryChain($context);
+		$presenterFactoryChain->addPresenterLoader(new Kdyby\Application\PresenterLoaders\AppPresenterLoader);
+		$presenterFactoryChain->addPresenterLoader(new Kdyby\Application\PresenterLoaders\AdminPresenterLoader);
+
+		return $presenterFactoryChain;
+	}
+
+
+
+	/**
 	 * @return Nette\Application\Application
 	 */
 	public static function createApplication(array $options = NULL)
 	{
-		$options['class'] = "Kdyby\Application\Kdyby";
+		$options['class'] = "Kdyby\Application\Kdyby"; // yes hardcode!
 
 		$application = parent::createApplication($options);
 		$context = $application->getContext();
@@ -73,10 +85,6 @@ class Configurator extends Nette\Configurator
 
 		return $router;
 	}
-
-
-
-	// Nette\\Application\\IPresenterLoader
 
 
 
@@ -136,16 +144,6 @@ class Configurator extends Nette\Configurator
 //
 //		return $dm;
 //	}
-
-
-
-	/**
-	 * @return Kdyby\Application\PresenterLoader
-	 */
-	public static function createPresenterLoader()
-	{
-		return new Kdyby\Application\PresenterLoader(Nette\Environment::getVariable('appDir'));
-	}
 
 
 
