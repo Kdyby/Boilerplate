@@ -95,6 +95,7 @@ class Configurator extends Nette\Configurator
 		$kdybyConfigFile = Nette\Environment::expand(self::$kdybyConfigFile);
 		$appConfigFile = Nette\Environment::expand($file ?: $this->defaultConfigFile);
 
+		// TODO: better!
 		$kdybyConfig = Nette\Config\Config::fromFile($kdybyConfigFile, $name);
 		$appConfig = Nette\Config\Config::fromFile($appConfigFile, $name);
 
