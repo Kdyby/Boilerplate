@@ -20,27 +20,28 @@ class ServiceLoader extends Nette\Object
 	const PREFIX_VAR_ENV = 'E$';
 	const PREFIX_VAR_CONF = 'C$';
 
-	/** @var Kdyby\Injection\IServiceContainer */
-	private $container;
+	/** @var Nette\IContext */
+	private $serviceContainer;
 
 
 
 	/**
-	 * @param Kdyby\Injection\IServiceContainer $container
+	 * @param Nette\IContext $container
 	 */
-	public function __construct(IServiceContainer $container)
+	public function __construct(Nette\IContext $serviceContainer)
 	{
-		$this->container = $container;
+		$this->serviceContainer = $serviceContainer;
 	}
 
 
 
 	/**
+	 * @todo rename getContainer to getServiceContainer
 	 * @return Kdyby\Injection\IServiceContainer
 	 */
 	public function getContainer()
 	{
-		return $this->container;
+		return $this->serviceContainer;
 	}
 
 
@@ -119,11 +120,7 @@ class ServiceLoader extends Nette\Object
 		}
 
 		$arguments = $this->processArguments($arguments);
-
-		$instance = $arguments ? $classReflection->newInstanceArgs($arguments) : new $class();
-		$instance->setContainer($this->getContainer());
-
-		return $instance;
+		return $arguments ? $classReflection->newInstanceArgs($arguments) : new $class();
 	}
 
 
@@ -133,6 +130,8 @@ class ServiceLoader extends Nette\Object
 
 
 	/**
+	 * For passing Context or ServiceContainer into service, requires registered recursion
+	 *
 	 * @param array $arguments
 	 * @return array
 	 */
@@ -150,15 +149,10 @@ class ServiceLoader extends Nette\Object
 			if (substr($arg, 0, strlen(ServiceLoader::PREFIX_SERVICE)) === ServiceLoader::PREFIX_SERVICE) {
 				$service = $container;
 
-				$prl = strlen(ServiceLoader::PREFIX_SERVICE);
-				do {
-					$nextServiceIndex = stripos($arg, ServiceLoader::PREFIX_SERVICE, $prl);
-					$end = ($nextServiceIndex ?: strlen($arg))-$start;
-					$serviceName = substr($arg, $prl, $end);
-
-					$service = $container->getService($serviceName);
-					$arg = substr($arg, stripos($arg, ServiceLoader::PREFIX_SERVICE, $prl) ?: strlen($arg));
-				} while (substr($arg, 0, $prl) === ServiceLoader::PREFIX_SERVICE);
+				$serviceNames = trim(explode(ServiceLoader::PREFIX_SERVICE, $arg), ServiceLoader::PREFIX_SERVICE);
+				foreach ($serviceNames as $serviceName) {
+					$service = $service->getService($serviceName);
+				}
 
 				return $service;
 			}

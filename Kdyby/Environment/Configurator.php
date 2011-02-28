@@ -164,6 +164,10 @@ class Configurator extends Nette\Configurator
 			$loader->getContainer()->addService($name, $service);
 		}
 
+		// aliasing, allow services to request Context or ServiceContainer
+		$loader->getContainer()->addService('Nette\IContext', $loader->getContainer());
+		$loader->getContainer()->addService('Kdyby\Injection\IServiceContainer', $loader->getContainer());
+
 		return $loader->getContainer();
 	}
 
