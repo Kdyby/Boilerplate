@@ -30,15 +30,8 @@ common:
 				directory: [%appDir%, %libsDir%, %proxiesDir%]
 			run: true
 
-		Kdyby\Loaders\Symfony2:
-			factory: Kdyby\Environment\Configurator::createSymfony2Loader
-			run: true
-
-		Kdyby\Loaders\ZendFramework2:
-			factory: Kdyby\Environment\Configurator::createZendFramework2Loader
-			run: true
-
 		Nette\Security\IAuthenticator: Kdyby\Security\Authenticator
+
 		Nette\Web\IUser:
 			factory: Kdyby\Environment\Configurator::createIUser
 
@@ -65,16 +58,16 @@ common:
 		Kdyby\Application\DatabaseManager:
 			factory: Kdyby\Environment\Configurator::createDatabaseManager
 
-		Nette\ITranslator:
-			factory: NetteTranslator\Gettext::getTranslator
-			run: true
+#		Nette\ITranslator:
+#			factory: NetteTranslator\Gettext::getTranslator
+#			run: true
 
 		Kdyby\ConfigHooks:
 			factory: Kdyby\Environment\Configurator::createConfigHooks
+
 
 production < common:
 
 development < production:
 
 console < development:
-

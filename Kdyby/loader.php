@@ -11,36 +11,36 @@
  * @package CMF Kdyby-Common
  */
 
-
-use Nette\Debug;
-use Nette\Environment;
-
-
 @header('X-Generated-By: Kdyby CMF ;url=www.kdyby.org'); // @ - headers may be sent
 
 define('KDYBY_DIR', __DIR__);
 
-// Step 1: Load libraries
+// Load libraries
 // this allows load Nette Framework classes automatically so that
 // you don't have to litter your code with 'require' statements
-// 1a) Load Nette Framework
+// Load Nette Framework
 require LIBS_DIR . '/Nette/loader.php';
 
+// helper
+function cd() {
+	foreach (func_get_args() as $arg) {
+		\Nette\Debug::barDump($arg);
+	}
+}
 
-// Step 2: Configure environment
-// 2a) enable Nette\Debug for better exception and error visualisation
-Debug::enable(Debug::DEVELOPMENT, TEMP_DIR . '/log');
-Debug::$strictMode = TRUE;
+// Configure environment
+// enable Nette\Debug for better exception and error visualisation
+//Nette\Debug::enable(Nette\Debug::DEVELOPMENT, TEMP_DIR . '/log');
+Nette\Debug::enable();
+Nette\Debug::$strictMode = TRUE;
 //Debug::$maxDepth = 10;
 //Debug::$maxLen = 2024;
 
 
 // register kdyby loader
-require_once KDYBY_FRAMEWORK_DIR . '/Loaders/KdybyLoader.php';
+require_once KDYBY_DIR . '/Loaders/KdybyLoader.php';
 Kdyby\Loaders\KdybyLoader::getInstance()->register();
 
 
 // configure environment
-Kdyby\Configurator::setupSession(Environment::getSession());
-Environment::setServiceAlias('Doctrine\\ORM\\EntityManager', 'EntityManager');
-Environment::setServiceAlias('Kdyby\\Application\\DatabaseManager', 'DatabaseManager');
+Nette\Environment::setServiceAlias('Doctrine\\ORM\\EntityManager', 'EntityManager');

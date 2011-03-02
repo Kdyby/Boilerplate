@@ -33,6 +33,9 @@ class Configurator extends Nette\Configurator
 		"Nette-Security-IIdentity" => "Kdyby\\Identity"
 	);
 
+	/** @var array */
+	private $configFiles = array();
+
 
 
 	public function __construct()
@@ -42,6 +45,51 @@ class Configurator extends Nette\Configurator
 
 		// templates
 		Kdyby\Templates\KdybyMacros::register();
+
+		foreach (array(self::$kdybyConfigFile, $this->defaultConfigFile) as $file) {
+			$file = realpath(Nette\Environment::expand($file));
+			if (file_exists($file)) {
+				$this->configFiles[$file] = array($file, TRUE, array());
+			}
+		}
+	}
+
+
+
+	/**
+	 * @param string $file
+	 * @param bool $environment
+	 * @param string|array $prefixPath
+	 * @return Kdyby\Environment\Configurator
+	 */
+	public function addConfigFile($file, $environments = TRUE, $prefixPath = NULL)
+	{
+		$file = realpath(Nette\Environment::expand($file));
+		$this->configFiles[$file] = array($file, (bool)$environments, $prefixPath ? (array)$prefixPath : array());
+		return $this;
+	}
+
+
+
+	/**
+	 * Detect environment mode.
+	 * @param  string mode name
+	 * @return bool
+	 */
+	public function detect($name)
+	{
+		switch ($name) {
+			case 'production':
+				// detects production mode by server IP address
+				if (isset($_SERVER['SERVER_ADDR']) || isset($_SERVER['LOCAL_ADDR'])) {
+					$addr = isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : $_SERVER['LOCAL_ADDR'];
+					if (substr($addr, -4) === '.loc') {
+						return FALSE;
+					}
+				}
+		}
+
+		return parent::detect($name);
 	}
 
 
@@ -72,12 +120,15 @@ class Configurator extends Nette\Configurator
 		$context = $application->getContext();
 
 		$context->addService('Nette\\Application\\IRouter', array(__CLASS__, 'createRoutes'));
-		
+
 		return $application;
 	}
 
 
 
+	/**
+	 * @return Nette\Application\MultiRouter
+	 */
 	public static function createRoutes()
 	{
 		$router = new Nette\Application\MultiRouter;
@@ -88,21 +139,55 @@ class Configurator extends Nette\Configurator
 
 
 
+	/**
+	 * @param string|NULL $file
+	 * @return Nette\Config\Config
+	 */
 	public function loadConfig($file)
 	{
+		if ($file) {
+			$file = realpath(Nette\Environment::expand($file));
+
+			if (isset($this->configFiles[$file])) {
+				$this->configFiles[$file][0] = $file;
+
+			} else {
+				$this->configFiles[$file][0] = array($file, TRUE, array());
+			}
+		}
+
+		return parent::loadConfig($this->loadConfigs());
+	}
+
+
+
+	/**
+	 * @return Nette\Config\Config
+	 */
+	public function loadConfigs()
+	{
 		$name = Environment::getName();
+		$configs = array();
 
-		$kdybyConfigFile = Nette\Environment::expand(self::$kdybyConfigFile);
-		$appConfigFile = Nette\Environment::expand($file ?: $this->defaultConfigFile);
+		// read and return according to actual environment name
+		foreach ($this->configFiles as $file => $config) {
+			$configs[$file] = Nette\Config\Config::fromFile(Nette\Environment::expand($config[0]), $config[1] ? $name : NULL);
+		}
 
-		// TODO: better!
-		$kdybyConfig = Nette\Config\Config::fromFile($kdybyConfigFile, $name);
-		$appConfig = Nette\Config\Config::fromFile($appConfigFile, $name);
+		$mergedConfig = array();
+		foreach ($this->configFiles as $file => $config) {
+			$appendConfig = array();
 
-		$mergedConfig = array_replace_recursive($kdybyConfig->toArray(), $appConfig->toArray());
-		$config = new Nette\Config\Config($mergedConfig);
+			$prefixed = &$appendConfig;
+			foreach ($config[2] as $prefix) {
+				$prefixed = &$prefixed[$prefix];
+			}
+			$prefixed = $configs[$file]->toArray();
 
-		return parent::loadConfig($config);
+			$mergedConfig = array_replace_recursive($mergedConfig, $appendConfig);
+		}
+
+		return new Nette\Config\Config($mergedConfig);
 	}
 
 
@@ -258,24 +343,6 @@ class Configurator extends Nette\Configurator
 			$dir = Kdyby\Tools\FileSystem::prepareWritableDir('%tempDir%/memcache');
 			return new Nette\Caching\FileJournal($dir);
 		}
-	}
-
-
-
-	/**
-	 * @return Symfony\Component\HttpFoundation\UniversalClassLoader
-	 */
-	public static function createSymfony2Loader()
-	{
-		require_once LIBS_DIR . '/Symfony/Component/HttpFoundation/UniversalClassLoader.php';
-
-		$loader = new \Symfony\Component\HttpFoundation\UniversalClassLoader();
-		$loader->registerNamespaces(array(
-			'Symfony' => LIBS_DIR,
-		));
-		$loader->register();
-
-		return $loader;
 	}
 
 }
