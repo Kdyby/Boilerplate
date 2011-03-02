@@ -41,6 +41,7 @@ class Factory extends Nette\Object
 	}
 
 
+
 	/**
 	 * @return Kdyby\Doctrine\Cache
 	 */
@@ -49,6 +50,7 @@ class Factory extends Nette\Object
 		$dataStorage = Nette\Environment::getApplication()->getService('Nette\\Caching\\ICacheStorage');
 		return new Cache(new Nette\Caching\Cache($dataStorage, 'Doctrine'));
 	}
+
 
 
 	/**
@@ -60,13 +62,15 @@ class Factory extends Nette\Object
 	}
 
 
+
 	/**
 	 * @return Nella\Doctrine\Panel
 	 */
 	protected static function createLogger($serviceName = 'Doctrine\ORM\EntityManager')
 	{
-		return \Nella\Doctrine\Panel::createAndRegister($serviceName);
+		return Kdyby\Doctrine\Diagnostics\Panel::createAndRegister($serviceName);
 	}
+
 
 
 	/**
@@ -79,6 +83,7 @@ class Factory extends Nette\Object
 		return new Doctrine\DBAL\Event\Listeners\MysqlSessionInit($charset, $collation);
 
 	}
+
 
 
 	/**
@@ -155,4 +160,5 @@ class Factory extends Nette\Object
 		// Entity manager
 		return Doctrine\ORM\EntityManager::create($database, $config, $event);
 	}
+
 }
