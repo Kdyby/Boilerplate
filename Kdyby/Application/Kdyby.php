@@ -24,9 +24,6 @@ final class Kdyby extends Nette\Application\Application
 	/** @var string */
 	public $errorPresenter = 'Error';
 
-	/** @var Kdyby\Injection\IServiceContainer */
-	private $container;
-
 
 
 	/**
@@ -35,23 +32,9 @@ final class Kdyby extends Nette\Application\Application
 	 */
 	public function run()
 	{
-		$this->getContainer()->freeze();
+		$this->getContext()->freeze();
 
 		parent::run();
-	}
-
-
-
-	/**
-	 * @return Kdyby\Injection\IServiceContainer
-	 */
-	public function getContainer()
-	{
-		if ($this->container === NULL) {
-			$this->setContainer(Nette\Environment::getContext());
-		}
-
-		return $this->container;
 	}
 
 
