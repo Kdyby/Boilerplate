@@ -7,7 +7,7 @@ use Kdyby;
 
 
 
-class EditPresenter extends BasePresenter
+class ListPresenter extends BasePresenter
 {
 
 }
