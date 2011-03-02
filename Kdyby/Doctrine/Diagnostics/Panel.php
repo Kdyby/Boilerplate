@@ -8,10 +8,12 @@
  * This source file is subject to the GNU Lesser General Public License. For more information please see http://nellacms.com
  */
 
-namespace Nella\Doctrine;
+namespace Kdyby\Doctrine\Diagnostics;
 
-use Nette\Debug,
-	Nette\String;
+use Doctrine;
+use Nette;
+use Nette\Debug;
+use Nette\String;
 
 
 
@@ -19,16 +21,20 @@ use Nette\Debug,
  * Doctrine SQL logger for Nette\Debug panel
  *
  * @author	Patrik Votoček
- * @package	Nella\Doctrine
+ * @package	Kdyby\Doctrine
  */
-class Panel extends \Nette\Object implements \Nette\IDebugPanel, \Doctrine\DBAL\Logging\SQLLogger
+class Panel extends Nette\Object implements Nette\IDebugPanel, Doctrine\DBAL\Logging\SQLLogger
 {
 	/** @var sting */
 	protected $service;
+
 	/** @var array */
 	protected $data = array();
+
 	/** @var int */
 	private $i = 0;
+
+
 
 	/**
 	 * @param sting service name
@@ -38,6 +44,8 @@ class Panel extends \Nette\Object implements \Nette\IDebugPanel, \Doctrine\DBAL\
 		$this->service = $service;
 	}
 
+
+
 	/**
 	 * @return sting
 	 */
@@ -45,6 +53,8 @@ class Panel extends \Nette\Object implements \Nette\IDebugPanel, \Doctrine\DBAL\
 	{
 		return 'doctrine';
 	}
+
+
 
 	/**
 	 * @return string
@@ -55,7 +65,7 @@ class Panel extends \Nette\Object implements \Nette\IDebugPanel, \Doctrine\DBAL\
 			return NULL;
 		}
 
-		$platform = get_class(\Nette\Environment::getApplication()->context->getService($this->service)->getConnection()->getDatabasePlatform());
+		$platform = get_class(Nette\Environment::getApplication()->context->getService($this->service)->getConnection()->getDatabasePlatform());
 		$platform = substr($platform, strrpos($platform, "\\") + 1, strrpos($platform, "Platform") - (strrpos($platform, "\\") + 1));
 		$data = $this->data;
 		$time = number_format(array_sum(array_map(function ($x) { return $x->time; }, $this->data)), 3, '.', ' ');
@@ -123,6 +133,8 @@ class Panel extends \Nette\Object implements \Nette\IDebugPanel, \Doctrine\DBAL\
 		}
 	}
 
+
+
 	/**
 	 * @return string
 	 */
@@ -130,6 +142,8 @@ class Panel extends \Nette\Object implements \Nette\IDebugPanel, \Doctrine\DBAL\
 	{
 		return '<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAEYSURBVBgZBcHPio5hGAfg6/2+R980k6wmJgsJ5U/ZOAqbSc2GnXOwUg7BESgLUeIQ1GSjLFnMwsKGGg1qxJRmPM97/1zXFAAAAEADdlfZzr26miup2svnelq7d2aYgt3rebl585wN6+K3I1/9fJe7O/uIePP2SypJkiRJ0vMhr55FLCA3zgIAOK9uQ4MS361ZOSX+OrTvkgINSjS/HIvhjxNNFGgQsbSmabohKDNoUGLohsls6BaiQIMSs2FYmnXdUsygQYmumy3Nhi6igwalDEOJEjPKP7CA2aFNK8Bkyy3fdNCg7r9/fW3jgpVJbDmy5+PB2IYp4MXFelQ7izPrhkPHB+P5/PjhD5gCgCenx+VR/dODEwD+A3T7nqbxwf1HAAAAAElFTkSuQmCC">'.count($this->data).' queries';
 	}
+
+
 
 	/**
 	 * @param string
@@ -143,10 +157,14 @@ class Panel extends \Nette\Object implements \Nette\IDebugPanel, \Doctrine\DBAL\
 		Debug::timer($this->getId() . '-watch-' . $this->i);
 	}
 
+
+
 	public function stopQuery()
 	{
 		$this->data[$this->i]->time = number_format(Debug::timer($this->getId() . '-watch-' . $this->i) * 1000, 3, '.', ' ');
 	}
+
+
 
 	/**
 	 * @param string
@@ -156,6 +174,8 @@ class Panel extends \Nette\Object implements \Nette\IDebugPanel, \Doctrine\DBAL\
 	{
 		return new static($service);
 	}
+
+
 
 	/**
 	 * @param string
