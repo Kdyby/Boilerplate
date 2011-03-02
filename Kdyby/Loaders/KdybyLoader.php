@@ -26,21 +26,6 @@ class KdybyLoader extends Nette\Loaders\AutoLoader
 	/** @var KdybyLoader */
 	private static $instance;
 
-	/** @var array */
-	public $list = array(
-
-		// doctrine
-		'kdyby\doctrine\cache' => '/Doctrine/Cache.php',
-		'kdyby\doctrine\factory' => '/Doctrine/Factory.php',
-		'kdyby\doctrine\baseentity' => '/Doctrine/Entities/BaseEntity.php',
-		'kdyby\doctrine\identifiedentity' => '/Doctrine/Entities/IdentifiedEntity.php',
-		'kdyby\doctrine\namedentity' => '/Doctrine/Entities/NamedEntityy.php',
-		'kdyby\doctrine\service' => '/Doctrine/Services/Service.php',
-		'kdyby\doctrine\entityservice' => '/Doctrine/Services/EntityService.php',
-		'kdyby\doctrine\serviceexception' => '/Doctrine/Services/ServiceException.php',
-		'nella\doctrine\panel' => '/Doctrine/NellaPanel/Panel.php',
-	);
-
 
 
 	/**
@@ -68,24 +53,17 @@ class KdybyLoader extends Nette\Loaders\AutoLoader
 			$type = substr($type, 1);
 		}
 
-		// indexed class
-		$typeLower = strtolower($type);
-		if (isset($this->list[$typeLower])) {
-			LimitedScope::load(KDYBY_FRAMEWORK_DIR . $this->list[$typeLower]);
-			return self::$count++;
+		$namespace = substr(__NAMESPACE__, 0, strrpos(__NAMESPACE__, '\\'));
+
+		if (strpos($type, $namespace . '\\') !== 0) {
+			return FALSE;
 		}
 
-		// standartized namespaced class name
-		if (FALSE !== ($pos = strripos($type, '\\')) && strtolower(substr($type, 0, 5)) === 'kdyby') {
-			$namespace = substr($type, 0, $pos);
-			$class = substr($type, $pos + 1);
+		$file = str_replace('\\', DIRECTORY_SEPARATOR, str_replace($namespace . '\\', KDYBY_DIR . DIRECTORY_SEPARATOR, $type)) . '.php';
 
-			$file = KDYBY_FRAMEWORK_DIR . '/' . str_replace('\\', '/', $namespace) . '/' . $class . '.php';
-
-			if (file_exists($file)) {
-				LimitedScope::load($file);
-				return self::$count++;
-			}
+		if (file_exists($file)) {
+			LimitedScope::load($file);
+			self::$count++;
 		}
 	}
 
