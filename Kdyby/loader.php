@@ -13,13 +13,17 @@
 
 @header('X-Generated-By: Kdyby CMF ;url=www.kdyby.org'); // @ - headers may be sent
 
+define('KDYBY', TRUE);
 define('KDYBY_DIR', __DIR__);
 
-// Load libraries
-// this allows load Nette Framework classes automatically so that
-// you don't have to litter your code with 'require' statements
-// Load Nette Framework
-require LIBS_DIR . '/Nette/loader.php';
+if (!defined('NETTE')) {
+	if (!defined('LIBS_DIR')) {
+		throw new RuntimeException("Nette Framework cannot be loaded! Missing constant LIBS_DIR");
+	}
+
+	// Load Nette Framework
+	require_once LIBS_DIR . '/Nette/loader.php';
+}
 
 // helper
 function cd() {

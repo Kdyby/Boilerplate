@@ -1,0 +1,13 @@
+<phpunit>
+	<testsuites>
+		<testsuite name="Kdyby Framework Test Suite">
+			<directory suffix="Test.php">./</directory>
+		</testsuite>
+	</testsuites>
+
+	<filter>
+	  <whitelist>
+		<directory suffix=".php">./../Kdyby</directory>
+	  </whitelist>
+	</filter>
+</phpunit>
