@@ -11,4 +11,4 @@ rm $TESTS_DIR/*.log &> /dev/null
 cd $TESTS_DIR
 
 # run tests
-phpunit --colors --configuration "phpunit.xml"
+phpunit --configuration "phpunit.xml"
