@@ -114,12 +114,10 @@ class Configurator extends Nette\Configurator
 	 */
 	public static function createApplication(array $options = NULL)
 	{
-		$options['class'] = "Kdyby\Application\Kdyby"; // yes hardcode!
+		$options['class'] = "Kdyby\Application\Application"; // yes hardcode!
 
 		$application = parent::createApplication($options);
-		$context = $application->getContext();
-
-		$context->addService('Nette\\Application\\IRouter', array(__CLASS__, 'createRoutes'));
+		$application->getContext()->addService('Nette\\Application\\IRouter', array(Environment::getConfigurator(), 'createRouter'));
 
 		return $application;
 	}
@@ -129,7 +127,7 @@ class Configurator extends Nette\Configurator
 	/**
 	 * @return Nette\Application\MultiRouter
 	 */
-	public static function createRoutes()
+	public function createRouter()
 	{
 		$router = new Nette\Application\MultiRouter;
 		$router[] = new Kdyby\Application\AdminRouter;
