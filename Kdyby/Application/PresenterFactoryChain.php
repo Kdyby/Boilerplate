@@ -131,7 +131,7 @@ class PresenterFactoryChain extends Nette\Object implements Nette\Application\IP
 				}
 
 				// canonicalize presenter name
-				$realName = $this->unformatPresenterClass($class);
+				$realName = $presenterLoader->unformatPresenterClass($class);
 				if ($name !== $realName) {
 					if ($this->caseSensitive) {
 						throw new InvalidPresenterException("Cannot load presenter '$name', case mismatch. Real name is '$realName'.");
