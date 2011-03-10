@@ -81,7 +81,6 @@ class Factory extends Nette\Object
 	protected static function createMysqlSessionListener($charset = 'utf8', $collation = FALSE)
 	{
 		return new Doctrine\DBAL\Event\Listeners\MysqlSessionInit($charset, $collation);
-
 	}
 
 
@@ -118,20 +117,20 @@ class Factory extends Nette\Object
 
 
 
-    /**
-     * Add a new default annotation driver with a correctly configured annotation reader.
-     *
-     * @param array $paths
-     * @return Mapping\Driver\AnnotationDriver
-     */
+	/**
+	 * Add a new default annotation driver with a correctly configured annotation reader.
+	 *
+	 * @param array $paths
+	 * @return Mapping\Driver\AnnotationDriver
+	 */
 	public static function newDefaultAnnotationDriver($paths = array())
-    {
-        $reader = new \Doctrine\Common\Annotations\AnnotationReader();
-        $reader->setDefaultAnnotationNamespace('Doctrine\ORM\Mapping\\');
+	{
+		$reader = new \Doctrine\Common\Annotations\AnnotationReader();
+		$reader->setDefaultAnnotationNamespace('Doctrine\ORM\Mapping\\');
 		$reader->setAnnotationNamespaceAlias('Kdyby\Doctrine\Mapping\\', 'Kdyby');
 
-        return new \Doctrine\ORM\Mapping\Driver\AnnotationDriver($reader, (array)$paths);
-    }
+		return new \Doctrine\ORM\Mapping\Driver\AnnotationDriver($reader, (array)$paths);
+	}
 
 
 
