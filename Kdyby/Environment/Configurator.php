@@ -40,12 +40,6 @@ class Configurator extends Nette\Configurator
 
 	public function __construct()
 	{
-		// session setup
-		$this->setupSession(Environment::getSession());
-
-		// templates
-		Kdyby\Templates\KdybyMacros::register();
-
 		foreach (array(self::$kdybyConfigFile, $this->defaultConfigFile) as $file) {
 			$file = realpath(Nette\Environment::expand($file));
 			if (file_exists($file)) {
@@ -190,47 +184,6 @@ class Configurator extends Nette\Configurator
 
 
 
-//	/**
-//	 * @return Kdyby\Application\DatabaseManager
-//	 */
-//	public static function createDatabaseManager(array $options = NULL)
-//	{
-//		$dm = new Kdyby\Application\DatabaseManager;
-//		$environmentName = Environment::getName();
-//
-//		$config = Environment::getConfig();
-//		$context = Environment::getApplication()->getContext();
-//		$em = $context->getService('Doctrine\ORM\EntityManager');
-//		$dm->setEntityManager($em);
-//		// Doctrine\DBAL\Types\Type::addType('set', 'Kdyby\Doctrine\Type\SetType');
-//
-//		$services = array();
-//		$servicesFile = Environment::expand(isset($options['servicesFile']) ? $options['servicesFile'] : self::$defaultServicesFile);
-//
-//		// parse and load special services
-//		if (file_exists($servicesFile)) {
-//			$services = Nette\Config\Config::fromFile($servicesFile);
-//		}
-//
-//		foreach ($services as $key => $value) {
-//			$serviceName = strtr($key, '-', '\\'); // limited INI chars
-//			$definition = is_string($value) ? array('class' => $value) : (array)$value;
-//
-//			$singleton = isset($value->singleton) ? (bool)$value->singleton : TRUE;
-//			$options = array(
-//				'definition' => $definition,
-//				'context' => $context,
-//				'config' => $config,
-//				);
-//
-//			$dm->addService($serviceName, __CLASS__.'::serviceFactory', $singleton, $options);
-//		}
-//
-//		return $dm;
-//	}
-
-
-
 	/**
 	 * Get initial instance of context.
 	 * @param array $services
@@ -257,7 +210,7 @@ class Configurator extends Nette\Configurator
 	/**
 	 * @param Nette\Web\Session $session
 	 */
-	protected function setupSession(Nette\Web\Session $session)
+	public function setupSession(Nette\Web\Session $session)
 	{
 		// setup session
 		if (!$session->isStarted()) {
@@ -270,6 +223,14 @@ class Configurator extends Nette\Configurator
 				$session->start();
 			}
 		}
+	}
+
+
+
+	public function setupTemplateMacros()
+	{
+		// templates
+		Kdyby\Templates\KdybyMacros::register();
 	}
 
 
