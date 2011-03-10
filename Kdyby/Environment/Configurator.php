@@ -95,12 +95,12 @@ class Configurator extends Nette\Configurator
 
 
 	/**
-	 * @param Nette\IContext $context
+	 * @param array $options
 	 * @return Kdyby\Application\PresenterFactoryChain
 	 */
-	public static function createPresenterFactory(Nette\IContext $context)
+	public static function createPresenterFactory(array $options)
 	{
-		$presenterFactoryChain = new Kdyby\Application\PresenterFactoryChain($context);
+		$presenterFactoryChain = new Kdyby\Application\PresenterFactoryChain($options['context']);
 		$presenterFactoryChain->addPresenterLoader(new Kdyby\Application\PresenterLoaders\AppPresenterLoader);
 		$presenterFactoryChain->addPresenterLoader(new Kdyby\Application\PresenterLoaders\AdminPresenterLoader);
 
@@ -238,21 +238,18 @@ class Configurator extends Nette\Configurator
 	 */
 	public function createContext(array $services = array())
 	{
-		$loader = new Kdyby\Injection\ServiceLoader(new Kdyby\Injection\ServiceContainer());
+		$container = new Kdyby\Injection\ServiceContainer();
+		$container->setServiceBuilder(new Kdyby\Injection\ServiceBuilder($container));
 
 		foreach ($services as $name => $configuration) {
-			$loader->addService($name, $configuration);
+			$container->addService($name, $configuration);
 		}
 
 		foreach ($this->defaultServices as $name => $service) {
-			$loader->getContainer()->addService($name, $service);
+			$container->addService($name, $service);
 		}
 
-		// aliasing, allow services to request Context or ServiceContainer
-		$loader->getContainer()->addService('Nette\IContext', $loader->getContainer());
-		$loader->getContainer()->addService('Kdyby\Injection\IServiceContainer', $loader->getContainer());
-
-		return $loader->getContainer();
+		return $container;
 	}
 
 

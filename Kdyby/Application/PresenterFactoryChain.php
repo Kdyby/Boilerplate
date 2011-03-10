@@ -13,8 +13,8 @@ class PresenterFactoryChain extends Nette\Object implements Nette\Application\IP
 	/** @var bool */
 	public $caseSensitive = TRUE; // internationaly
 
-	/** @var Kdyby\Injection\ServiceLoader */
-	private $serviceLoader;
+	/** @var Kdyby\Injection\ServiceBuilder */
+	private $ServiceBuilder;
 
 	/** @var array of Kdyby\Application\PresenterLoaders\IPresenterLoader */
 	private $presenterLoaders = array();
@@ -30,20 +30,20 @@ class PresenterFactoryChain extends Nette\Object implements Nette\Application\IP
 	/**
 	 * @param string
 	 */
-	public function __construct(Nette\IContext $context)
+	public function __construct(Kdyby\Injection\IServiceContainer $context)
 	{
 		$this->context = $context;
-		$this->serviceLoader = new Kdyby\Injection\ServiceLoader($context);
+		$this->ServiceBuilder = $context->getServiceBuilder();
 	}
 
 
 
 	/**
-	 * @return Kdyby\Injection\ServiceLoader
+	 * @return Kdyby\Injection\ServiceBuilder
 	 */
-	public function getServiceLoader()
+	public function getServiceBuilder()
 	{
-		return $this->serviceLoader;
+		return $this->ServiceBuilder;
 	}
 
 
@@ -77,7 +77,7 @@ class PresenterFactoryChain extends Nette\Object implements Nette\Application\IP
 	{
 		$class = $this->getPresenterClass($name);
 
-		$presenter = $this->getServiceLoader()->createInstanceOfService($class);
+		$presenter = $this->getServiceBuilder()->createInstanceOfService($class);
 		$presenter->setContext($this->context);
 
 		return $presenter;

@@ -18,11 +18,12 @@ common:
 
 	service:
 		Nette\Application\Application:
-			option:
-				class: Kdyby\Application\Kdyby
+			factory: Kdyby\Environment\Configurator::createApplication
 
 		Nette\Application\IPresenterFactory:
 			factory: Kdyby\Environment\Configurator::createPresenterFactory
+			option:
+				context: §Nette\IContext
 
 		Nette\Loaders\RobotLoader:
 			factory: Kdyby\Environment\Configurator::createRobotLoader

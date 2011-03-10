@@ -8,12 +8,37 @@ use Nette;
 
 /**
  * @author Filip Procházka
+ *
+ * @property Kdyby\Injection\ServiceBuilder $serviceBuilder
  */
 class ServiceContainer extends Nette\Context implements IServiceContainer
 {
 
 	/** @var array */
 	private $aliases = array();
+
+	/** @var Kdyby\Injection\ServiceBuilder */
+	private $serviceBuilder;
+
+
+
+	/**
+	 * @param Kdyby\Injection\ServiceBuilder $serviceBuilder
+	 */
+	public function setServiceBuilder(ServiceBuilder $serviceBuilder)
+	{
+		$this->serviceBuilder = $serviceBuilder;
+	}
+
+
+
+	/**
+	 * @return Kdyby\Injection\ServiceBuilder
+	 */
+	public function getServiceBuilder()
+	{
+		return $this->serviceBuilder;
+	}
 
 
 
@@ -39,6 +64,31 @@ class ServiceContainer extends Nette\Context implements IServiceContainer
 		$this->aliases[$alias] = $service;
 
 		return $this;
+	}
+
+
+
+	/**
+	 * Adds the specified service to the service container.
+	 * @param  string service name
+	 * @param  mixed  object, class name or factory callback
+	 * @param  bool   is singleton?
+	 * @param  array  factory options, $options)
+	 * @return Kdyby\Injection\ServiceContainer
+	 */
+	public function addService($name, $service, $singleton = TRUE, array $options = array())
+	{
+		$args = func_get_args();
+		if (is_object($service) && !($service instanceof \Closure || $service instanceof Callback)) {
+			return call_user_func_array(array($this, 'parent::addService'), $args);
+		}
+
+		if (!isset($options['description']) || !$options['description'] instanceof Description) {
+			$options['description'] = $this->serviceBuilder->createDescription($service, $options);
+		}
+
+		$args = array($name, array($this->serviceBuilder, 'serviceFactory'), $singleton, $options);
+		return call_user_func_array(array($this, 'parent::addService'), $args);
 	}
 
 
@@ -89,5 +139,5 @@ class ServiceContainer extends Nette\Context implements IServiceContainer
 			unset($this->aliases[$alias]);
 		}
 	}
-    
+
 }
