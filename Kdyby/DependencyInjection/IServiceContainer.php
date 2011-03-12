@@ -7,19 +7,24 @@
  * This source file is subject to the GNU Lesser General Public License. For more information please see http://nela-project.org
  */
 
-namespace Nella\DependencyInjection;
+namespace Kdyby\DependencyInjection;
+
+use Nette;
+
+
 
 /**
  * Dependency injection service container interface
  * 
  * @author	Patrik Votoček
  */
-interface IContext extends \Nette\IContext
+interface IServiceContainer extends Nette\IContext
 {
+
 	/**
 	 * @param string
 	 * @param mixed
-	 * @return Context
+	 * @return ServiceContainer
 	 * @throws \InvalidStateException
 	 */
 	public function setParameter($key, $value);
@@ -35,4 +40,5 @@ interface IContext extends \Nette\IContext
 	 * @return mixed
 	 */
 	public function getParameter($key);
+
 }

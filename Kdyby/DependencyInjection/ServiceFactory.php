@@ -7,58 +7,74 @@
  * This source file is subject to the GNU Lesser General Public License. For more information please see http://nella-project.org
  */
 
-namespace Nella\DependencyInjection;
+namespace Kdyby\DependencyInjection;
+
+use Nette;
+
+
 
 /**
  * Dependency injection service factory
  *
  * @author	Patrik Votoček
- * 
+ *
  * @property-read string $name
  * @property-write string $class
- * @property-write \Nette\Callback $factory
+ * @property-write Nette\Callback $factory
  * @property-write array $arguments
  * @property-write array $methods
  * @property bool $singleton
  * @property-read $instance
  */
-class ServiceFactory extends \Nette\Object
+class ServiceFactory extends Nette\Object
 {
-	/** @var IContext */
-	protected $context;
-	/** @var string */
-	protected $name;
-	/** @var string */
-	protected $class;
-	/** @var \Nette\Callback */
-	protected $factory;
+
 	/** @var array */
-	protected $arguments;
+	public $onBeforeCreate = array();
+
 	/** @var array */
-	protected $methods;
-	/** @var bool */
-	protected $singleton;
-	/*p @var \Nette\Callback *
-	protected $configurator;
-	 */
-	
-	/** @var array */
-	public $onInit = array();
+	public $onCreate = array();
+
 	/** @var array */
 	public $onReturn = array();
-	
+
+	/** @var IServiceContainer */
+	protected $serviceContainer;
+
+	/** @var string */
+	protected $name;
+
+	/** @var string */
+	protected $class;
+
+	/** @var Nette\Callback */
+	protected $factory;
+
+	/** @var array */
+	protected $arguments;
+
+	/** @var array */
+	protected $methods;
+
+	/** @var bool */
+	protected $singleton;
+
+
+
 	/**
-	 * @param IContexy
+	 * @param IServiceContainer
 	 * @param string
 	 */
-	public function __construct(IContext $context, $name)
+	public function __construct(IServiceContainer $serviceContainer, $name)
 	{
-		$this->context = $context;
+		$this->serviceContainer = $serviceContainer;
 		$this->name = $name;
 		$this->singleton = TRUE;
 		$this->arguments = $this->methods = array();
 	}
-	
+
+
+
 	/**
 	 * @return string
 	 */
@@ -66,7 +82,9 @@ class ServiceFactory extends \Nette\Object
 	{
 		return $this->name;
 	}
-	
+
+
+
 	/**
 	 * @param string
 	 * @return ServiceFactory
@@ -74,14 +92,26 @@ class ServiceFactory extends \Nette\Object
 	public function setClass($class)
 	{
 		if (!is_string($class) && !$this->singleton) {
-			throw new \InvalidArgumentException("Non sigleton allow only for factory or class");
+			throw new \InvalidArgumentException("Non singleton service is allowed only for factory or class");
 		}
 		$this->class = $class;
 		return $this;
 	}
-	
+
+
+
 	/**
-	 * @param string
+	 * @return mixed
+	 */
+	public function getClass()
+	{
+		return $this->class;
+	}
+
+
+
+	/**
+	 * @param string|callable
 	 * @return ServiceFactory
 	 * @throws InvalidArgumentException
 	 */
@@ -90,47 +120,63 @@ class ServiceFactory extends \Nette\Object
 		if (is_string($factory) && strpos($factory, "::") !== FALSE) {
 			$factory = callback($factory);
 		}
-		
+
 		if (!is_callable($factory) && !($factory instanceof \Closure) && !($factory instanceof \Nette\Callback)) {
-			throw new \InvalidArgumentException("Factory must be valid callback");
+			throw new \InvalidArgumentException("Factory must be a valid callback");
 		}
-		
+
 		$this->factory = $factory;
 		return $this;
 	}
-	
+
+
+
+	/**
+	 * @return string|callable
+	 */
+	public function getFactory()
+	{
+		return $this->factory;
+	}
+
+
+
 	/**
 	 * @param array
 	 * @return ServiceFactory
 	 */
 	public function setArguments(array $arguments = NULL)
 	{
-		$arguments = $arguments === NULL ? array() : $arguments;
-		$this->arguments = $arguments;
+		$this->arguments = $arguments ?: array();
 		return $this;
 	}
-	
+
+
+
 	/**
 	 * @param mixed
-	 * @return ServiceFactory 
+	 * @return ServiceFactory
 	 */
 	public function addArgument($value)
 	{
 		$this->arguments[] = $value;
 		return $this;
 	}
-	
+
+
+
 	/**
 	 * @param array
 	 * @return ServiceFactory
 	 */
 	public function setMethods(array $methods = NULL)
 	{
-		$methods = $methods === NULL ? array() : $methods;
-		$this->methods = $methods;
+		$this->methods = $methods ?: array();
 		return $this;
 	}
-	
+
+
+
 	/**
 	 * @param string
 	 * @param array
@@ -138,11 +184,12 @@ class ServiceFactory extends \Nette\Object
 	 */
 	public function addMethod($name, array $arguments = NULL)
 	{
-		$arguments = $arguments === NULL ? array() : $arguments;
-		$this->methods[] = array('method' => $name, 'arguments' => $arguments);
+		$this->methods[] = array('method' => $name, 'arguments' => $arguments ?: array());
 		return $this;
 	}
-	
+
+
+
 	/**
 	 * @return bool
 	 */
@@ -150,7 +197,9 @@ class ServiceFactory extends \Nette\Object
 	{
 		return $this->singleton;
 	}
-	
+
+
+
 	/**
 	 * @param bool
 	 * @return ServiceFactory
@@ -160,7 +209,9 @@ class ServiceFactory extends \Nette\Object
 		$this->singleton = $singleton;
 		return $this;
 	}
-	
+
+
+
 	/**
 	 * @return mixed
 	 */
@@ -168,54 +219,68 @@ class ServiceFactory extends \Nette\Object
 	{
 		if (is_string($this->class)) { // Class
 			if (!class_exists($this->class)) {
-				throw new \InvalidStateException("Class '{$this->class}' not exist");
+				throw new \InvalidStateException("Class '{$this->class}' doesn't exist");
 			}
-			$ref = new \Nette\Reflection\ClassReflection($this->class);
-			$args = $this->context->expandParameter($this->arguments);
+
 			if ($args) {
-				$instance = $ref->newInstanceArgs($args);
-			} else {
-				$instance = $ref->newInstanceArgs();
+				$ref = new Nette\Reflection\ClassReflection($this->class);
+				$args = $this->serviceContainer->expandParameters($this->arguments);
+				return $ref->newInstanceArgs($args);
 			}
-			
-			return $instance;
+
+			return new $this->class;
+
 		} elseif ($this->class) { // Instance
-			if (!$this->singleton) {
+			if (!$this->isSingleton()) {
 				throw new \InvalidStateException("Non sigleton allow only for factory or class");
 			}
+
 			return $this->class;
+
 		} elseif ($this->factory) { // Factory
-			return callback($this->factory)->invokeArgs($this->context->expandParameter($this->arguments));
-		} else {
-			throw new \InvalidStateException("Class or factory not defined");
+			return callback($this->factory)->invokeArgs($this->serviceContainer->expandParameters($this->arguments));
+
 		}
+
+		throw new \InvalidStateException("Class or factory is not defined");
 	}
-	
+
+
+
 	/**
 	 * @param mixed
 	 */
 	protected function callMethods($instance)
 	{
 		foreach ($this->methods as $value) {
-			callback($instance, $value['method'])->invokeArgs($this->context->expandParameter($value['arguments']));
+			callback($instance, $value['method'])->invokeArgs($this->serviceContainer->expandParameter($value['arguments']));
 		}
 	}
-	
+
+
+
 	/**
 	 * @return mixed
 	 */
-	public function getInstance()
+	public function createService()
 	{
+		// configure factory
+		$this->onBeforeCreate($this);
+
+		// create instance
 		$instance = $this->createInstance();
-		$this->onInit($instance);
-		
-		if ($this->class && $this->factory) { // if defined class and factroy use factory as "configurator"
-			callback($this->factory)->invokeArgs(array($instance));
-		}
-		
 		$this->callMethods($instance);
-		
+
+		if ($instance instanceof IContainerAware) {
+			$instance->setServiceContainer($this->serviceContainer);
+		}
+
+		// additionaly configure service
+		$this->onCreate($instance);
+
+		// fully configured service
 		$this->onReturn($instance);
+
 		return $instance;
 	}
 }
