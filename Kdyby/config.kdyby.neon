@@ -12,60 +12,17 @@ common:
 		langDir: %varDir%/lang
 		lang: cs_CZ
 
-	Kdyby:
-		Core:
-			Nette\Security\IIdentity: Kdyby\User\Identity
+	Application:
+    application.class: Kdyby\Application\Application
+
+	Security:
+		identity.class: Kdyby\Security\Identity
+
+	EntityDirs: [%appDir%/models, %kdybyDir%/Data, %kdybyDir%/Security]
 
 	service:
-		Nette\Application\Application:
-			factory: Kdyby\Environment\Configurator::createApplication
-
-		Nette\Application\IPresenterFactory:
-			factory: Kdyby\Environment\Configurator::createPresenterFactory
-			option:
-				context: §Nette\IContext
-
-		Nette\Loaders\RobotLoader:
-			factory: Kdyby\Environment\Configurator::createRobotLoader
-			option:
-				directory: [%appDir%, %libsDir%, %proxiesDir%]
-			run: true
-
-		Nette\Security\IAuthenticator: Kdyby\Security\Authenticator
-
-		Nette\Web\IUser:
-			factory: Kdyby\Environment\Configurator::createIUser
-
-		Nette\Caching\ICacheStorage:
-			factory: Kdyby\Environment\Configurator::createCacheStorage
-			run: true
-
-		Nette\Caching\IMemcacheStorage:
-			factory: Kdyby\Environment\Configurator::createMemcacheStorage
-			prefix: Unired.
-
-		Nette\Caching\IMemcacheJournal:
-			factory: Kdyby\Environment\Configurator::createMemcacheJournal
-
 		Kdyby\PresenterTree:
 			factory: Kdyby\Tools\PresenterTree\PresenterTree::createPresenterTree
-
-		Doctrine\ORM\EntityManager:
-			factory: Kdyby\Doctrine\Factory::createEntityManager
-			option:
-				entityDir: [%appDir%/models, %kdybyDir%/Data, %kdybyDir%/Security]
-				proxyDir: %proxiesDir%
-
-		Kdyby\Application\DatabaseManager:
-			factory: Kdyby\Environment\Configurator::createDatabaseManager
-
-#		Nette\ITranslator:
-#			factory: NetteTranslator\Gettext::getTranslator
-#			run: true
-
-		Kdyby\ConfigHooks:
-			factory: Kdyby\Environment\Configurator::createConfigHooks
-
 
 production < common:
 
