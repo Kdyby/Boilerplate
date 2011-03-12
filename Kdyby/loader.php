@@ -48,3 +48,6 @@ Kdyby\Loaders\KdybyLoader::getInstance()->register();
 
 // configure environment
 Nette\Environment::setServiceAlias('Doctrine\\ORM\\EntityManager', 'EntityManager');
+
+// Create Configurator
+Nette\Environment::setConfigurator(new Kdyby\DependencyInjection\ServiceContainerBuilder);
