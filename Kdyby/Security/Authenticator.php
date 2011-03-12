@@ -10,9 +10,9 @@
  * @package CMF Kdyby-Common
  */
 
-
 namespace Kdyby\Security;
 
+use Doctrine;
 use Nette;
 use Nette\Security\AuthenticationException;
 use Kdyby;
@@ -25,27 +25,52 @@ use Kdyby;
 final class Authenticator extends Nette\Object implements Nette\Security\IAuthenticator
 {
 
+	/** @var Doctrine\ORM\EntityManager */
+	private $entityManager;
+
+	/** @var array */
+	private $parameters;
+
+
+
+	/**
+	 * @param Doctrine\ORM\EntityManager $entityManager
+	 * @param array $security
+	 */
+	public function __construct(Doctrine\ORM\EntityManager $entityManager, $parameters)
+	{
+		$this->entityManager = $entityManager;
+		$this->parameters = $parameters;
+	}
+
+
+
 	/**
 	 * Performs an authentication
+	 *
 	 * @param  array
 	 * @return Nette\Security\IIdentity
 	 * @throws Nette\Security\AuthenticationException
 	 */
 	public function authenticate(array $credentials)
 	{
+		throw new \NotImplementedException("Needs refatoring");
+
 		$username = $credentials[self::USERNAME];
 		$password = $credentials[self::PASSWORD];
 
-		$configHooks = $this->context->getService("Kdyby\\ConfigHooks");
+		$identityRepository = $this->entityManager->getRepository($this->parameters['identity.class']);
 
-		$identity = new $configHooks['Nette\Security\IIdentity']($username, $password);
-		$identity->addRoles(array(
-				new Kdyby\Security\Acl\Role('registered'),
-				new Kdyby\Security\Acl\Role('admin')
-			));
+		if (strpos($username, '@') !== FALSE) {
+			$identity = $identityRepository->findOneByEmail($username);
+		} else {
+			$identity = $identityRepository->findOneByUsername($username);
+		}
 
-		$identity->firstname = 'Filip';
-		$identity->lastname = 'Procházka';
+//		$identity->addRoles(array(
+//				new Kdyby\Security\Acl\Role('registered'),
+//				new Kdyby\Security\Acl\Role('admin')
+//			));
 
 		return $identity;
 
@@ -62,13 +87,6 @@ final class Authenticator extends Nette\Object implements Nette\Security\IAuthen
 //
 //		unset($row->password);
 //		return new Identity($row->id, $row->role, $row);
-	}
-
-
-
-	public function getContext()
-	{
-		return Nette\Environment::getApplication()->getContext();
 	}
 
 }
