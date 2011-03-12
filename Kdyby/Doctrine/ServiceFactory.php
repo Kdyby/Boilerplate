@@ -29,7 +29,7 @@ use Kdyby;
  * @author	Patrik Votoček
  * @package	Nella\Doctrine
  */
-class Factory extends Nette\Object
+class ServiceFactory extends Nette\Object
 {
 
 	/**
