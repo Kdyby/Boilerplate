@@ -10,15 +10,12 @@
  * @package CMF Kdyby-Common
  */
 
-
-namespace Kdyby;
+namespace Kdyby\Security;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Kdyby;
 use Kdyby\Security\Acl\Role;
 use Nette;
-use Nette\Security\IIdentity;
-use Nette\Security\IRole;
 
 
 
@@ -30,7 +27,7 @@ use Nette\Security\IRole;
  * @property-read int $id
  * @property string $username
  */
-class Identity extends Kdyby\Data\Person implements IIdentity, IRole
+class Identity extends Kdyby\Data\Person implements Nette\Security\IIdentity, Nette\Security\IRole
 {
 
     /** @Column(type="string", length=50, unique=TRUE) */
