@@ -19,10 +19,34 @@ use Nette\Environment;
 
 
 
-final class Application extends Nette\Application\Application
+final class Application extends Nette\Application\Application implements \Kdyby\DependencyInjection\IContainerAware
 {
 	/** @var string */
 	public $errorPresenter = 'Error';
+
+	/** @var Kdyby\DependencyInjection\IServiceContainer */
+	private $serviceContainer;
+
+
+
+	/**
+	 * @param Kdyby\DependencyInjection\IServiceContainer $serviceContainer
+	 */
+	public function setServiceContainer(Kdyby\DependencyInjection\IServiceContainer $serviceContainer)
+	{
+		$this->serviceContainer = $serviceContainer;
+		$this->setContext($serviceContainer);
+	}
+
+
+
+	/**
+	 * @return Kdyby\DependencyInjection\IServiceContainer
+	 */
+	public function getServiceContainer()
+	{
+		return $this->serviceContainer;
+	}
 
 
 
@@ -45,16 +69,6 @@ final class Application extends Nette\Application\Application
 		$this->getContainer()->freeze();
 
 		parent::run();
-	}
-
-
-
-	/**
-	 * @return Kdyby\Injection\ServiceContainer
-	 */
-	public function getContainer()
-	{
-		return $this->getContext();
 	}
 
 
