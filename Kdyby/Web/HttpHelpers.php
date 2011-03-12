@@ -26,10 +26,14 @@ use Kdyby;
 class HttpHelpers extends Nette\Object
 {
 
+	const DOMAIN_PATTERN = '~^(?:(?P<second>[^.]+)+\.)?(?P<domain>(?P<top>[^.]+)\.(?P<tld>[^.]+))$~i';
+
+
+
 	public static function getDomain()
 	{
 		$host = Environment::getHttpRequest()->uri->host;
-		$domainMap = String::match($host, '~^(?:(?P<second>[^.]+)+\.)?(?P<domain>(?P<top>[^.]+)\.(?P<tld>[^.]+))$~i');
+		$domainMap = String::match($host, self::DOMAIN_PATTERN);
 
 		return (object)$domainMap;
 	}
