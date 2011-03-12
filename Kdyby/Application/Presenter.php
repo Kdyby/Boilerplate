@@ -7,8 +7,37 @@ use Kdyby;
 
 
 
-class Presenter extends Nette\Application\Presenter
+/**
+ * @property Kdyby\DependencyInjection\IServiceContainer $serviceContainer
+ */
+class Presenter extends Nette\Application\Presenter implements Kdyby\DependencyInjection\IContainerAware
 {
+
+	/** @var Kdyby\DependencyInjection\IServiceContainer */
+	private $serviceContainer;
+
+
+
+	/**
+	 * @param Kdyby\DependencyInjection\IServiceContainer $serviceContainer
+	 */
+	public function setServiceContainer(Kdyby\DependencyInjection\IServiceContainer $serviceContainer)
+	{
+		$this->serviceContainer = $serviceContainer;
+		$this->setContext($serviceContainer);
+	}
+
+
+
+	/**
+	 * @return Kdyby\DependencyInjection\IServiceContainer
+	 */
+	public function getServiceContainer()
+	{
+		return $this->serviceContainer;
+	}
+
+
 
 	/**
 	 * @param string $name
@@ -17,7 +46,7 @@ class Presenter extends Nette\Application\Presenter
 	 */
 	public function getService($name, array $options = array())
 	{
-		return $this->getApplication()->getContainer()->getService($name, $options);
+		return $this->getServiceContainer()->getService($name, $options);
 	}
 
 }
