@@ -256,8 +256,7 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 				}
 			}
 
-			$this->factories[$lower] = $factory;
-			$this->registry[$lower] = & $this->globalRegistry[$lower]; // forces cloning using reference
+			$this->addFactory($factory);
 		}
 
 		return $this;
@@ -334,17 +333,8 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 			return $this->registry[$lower];
 
 		} elseif (isset($this->factories[$lower])) {
-			$factory = $this->factories[$lower];
-
-			if (isset($options['arguments'])) {
-				$factory->arguments = $options['arguments'];
-			}
-
-			if (isset($options['methods'])) {
-				$factory->methods = $options['methods'];
-			}
-
-			$service = $factory->instance;
+			$factory = $this->getFactory($name, $options);
+			$service = $factory->getInstance();
 
 			if ($factory->singleton) {
 				$this->registry[$lower] = $service;
@@ -404,6 +394,59 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 
 		$lower = strtolower($name);
 		unset($this->registry[$lower], $this->factories[$lower]);
+
+		return $this;
+	}
+
+
+
+	/**
+	 * @param string
+	 * @return IServiceFactory
+	 */
+	public function getFactory($name, array $options = array())
+	{
+		$lower = strtolower($name);
+		if (!isset($this->factories[$lower])) {
+			throw new \InvalidStateException("Service factory '$name' not found.");
+		}
+
+		$factory = $this->factories[$lower];
+
+		if ($options && $factory->singleton) { // todo: ORLY?
+			$factory = clone $factory;
+		}
+
+		if (isset($options['arguments'])) {
+			$factory->arguments = $options['arguments'];
+		}
+
+		if (isset($options['methods'])) {
+			$factory->methods = $options['methods'];
+		}
+
+		return $factory;
+	}
+
+
+
+	/**
+	 * @param IServiceFactory
+	 * @return ServiceContainer
+	 */
+	public function addFactory(IServiceFactory $factory)
+	{
+		if ($this->isFrozen()) {
+			throw new \InvalidStateException("Service container is frozen for changes");
+		}
+
+		$lower = strtolower($factory->getName());
+		if (isset($this->registry[$lower])) { // only for instantiated services?
+			throw new Nette\AmbiguousServiceException("Service named '{$factory->getName()}' has already been registered.");
+		}
+
+		$this->factories[$lower] = $factory;
+		$this->registry[$lower] = & $this->globalRegistry[$lower]; // forces cloning using reference
 
 		return $this;
 	}
