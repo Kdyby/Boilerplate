@@ -521,9 +521,10 @@ class ServiceContainerBuilder extends Nette\Configurator
 
 		$ref = Kdyby\Reflection\ServiceReflection::from($class);
 		$params = $ref->getConstructorParamClasses();
+		$serviceContainer = clone $this->getServiceContainer();
 
-		$serviceContainer = $this->getServiceContainer();
 		$application = $params ? $ref->newInstanceArgs($serviceContainer->expandParams($params)) : new $class;
+		$application->setServiceContainer($serviceContainer);
 		$application->catchExceptions = Environment::isProduction();
 
 		return $application;

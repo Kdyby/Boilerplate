@@ -14,12 +14,13 @@
 
 namespace Kdyby\Application;
 
+use Kdyby;
 use Nette;
 use Nette\Environment;
 
 
 
-final class Application extends Nette\Application\Application implements \Kdyby\DependencyInjection\IContainerAware
+final class Application extends Nette\Application\Application
 {
 	/** @var string */
 	public $errorPresenter = 'Error';
@@ -56,17 +57,11 @@ final class Application extends Nette\Application\Application implements \Kdyby\
 	 */
 	public function run()
 	{
-		// session setup
-		Nette\Environment::getConfigurator()->setupSession($this->getSession());
-
-		// template macros
-		Nette\Environment::getConfigurator()->setupTemplateMacros();
-
 //		$this->initializeModules();
 
 //		$this->initializeContainer();
 
-		$this->getContainer()->freeze();
+		$this->getServiceContainer()->freeze();
 
 		parent::run();
 	}
