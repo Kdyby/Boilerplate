@@ -4,7 +4,7 @@
  *
  * Copyright (c) 2006, 2011 Patrik Votoček (http://patrik.votocek.cz)
  *
- * This source file is subject to the GNU Lesser General Public License. For more information please see http://nela-project.org
+ * This source file is subject to the GNU Lesser General Public License. For more information please see http://nella-project.org
  */
 
 namespace Kdyby\DependencyInjection;
@@ -436,7 +436,7 @@ class ServiceContainerBuilder extends Nette\Configurator
 		'Nette\\Caching\\IMemcacheJournal' => array(
 			'factory' => array(__CLASS__, 'createMemcacheJournal'),
 		),
-	
+
 		'Doctrine\\ORM\\EntityManager' => array(
 			'factory' => array('Kdyby\\Doctrine\\ServiceFactory', 'createEntityManager'),
 			'arguments' => array('%Database%', '@Doctrine\\ORM\\Configuration', '@Doctrine\\Common\\EventManager'),
