@@ -47,6 +47,9 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 	/** @var array */
 	private $factories = array();
 
+	/** @var array */
+	private $tags = array();
+
 
 
 	/**
@@ -179,6 +182,62 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 
 
 	/**
+	 * @param string $tag
+	 * @param string $service
+	 * @return ServiceContainer
+	 */
+	public function addTag($tag, $service)
+	{
+		if ($this->isFrozen()) {
+			throw new \InvalidStateException("Service container is frozen for changes");
+		}
+
+		if (!is_string($tag) || $tag === '') {
+			throw new \InvalidArgumentException("Service tag name must be a non-empty string, " . gettype($tag) . " given.");
+		}
+		if (!is_string($service) || $service === '') {
+			throw new \InvalidArgumentException("Service name must be a non-empty string, " . gettype($service) . " given.");
+		}
+
+		$lower = strtolower($service);
+
+		if (!isset($this->registry[$lower]) && !isset($this->factories[$lower])) {
+			throw new \InvalidArgumentException("Service '$service' not found.");
+		}
+
+		$lowerT = strtolower($tag);
+		if (!in_array($lower, $this->tag[$lowerT], TRUE)) {
+			$this->tags[$lowerT][] = $service;
+		}
+
+		return $this;
+	}
+
+
+
+	/**
+	 * @param string $tag
+	 * @return array
+	 */
+	public function getServicesByTag($tag)
+	{
+		$lowerT = strtolower($tag);
+
+		if (!isset($this->tags[$lowerT])) {
+			throw new \InvalidArgumentException("Tag '$tag' not found.");
+		}
+
+		$services = array();
+		foreach ($this->tags[$lowerT] as $serviceName) {
+			$services[] = $this->getService($serviceName);
+		}
+
+		return $services;
+	}
+
+
+
+	/**
 	 * Adds the specified service to the service container
 	 *
 	 * @param string
@@ -253,13 +312,19 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 				$factory->methods = $options['methods'];
 			}
 
+			$this->addFactory($factory);
+
 			if (isset($options['aliases'])) {
 				foreach ($options['aliases'] as $alias) {
 					$this->addAlias($alias, $factory->name);
 				}
 			}
 
-			$this->addFactory($factory);
+			if (isset($options['tags'])) {
+				foreach ($options['tags'] as $tag) {
+					$this->addTag($tag, $factory->name);
+				}
+			}
 		}
 
 		return $this;
