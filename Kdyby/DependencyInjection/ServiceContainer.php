@@ -213,7 +213,7 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 
 		} elseif (is_object($service) && !($service instanceof \Closure || $service instanceof Nette\Callback)) {
 			if (!$singleton || $options) {
-				throw new \InvalidArgumentException("Service named '$name' is an instantiated object and must therefore be singleton without options.");
+				throw new \InvalidArgumentException("Service named '$name' is an instantiated object and therefore it must be singleton without options.");
 			}
 			$this->registry[$lower] = $service;
 
@@ -225,12 +225,15 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 			$factory = new ServiceFactory($this, $name);
 			$factory->singleton = $singleton;
 
-			// BACK COPATABILITY
-			if ((is_string($service) && strpos($service, '::') !== FALSE) || $service instanceof \Closure ||
-					is_callable($service) || $service instanceof Nette\Callback) {
+			// BACK COMPATIBILITY
+			if (is_string($service) && strpos($service, '::') !== FALSE) {
+				$service = callback($service);
+			}
+
+			if ($service instanceof \Closure || is_callable($service) || $service instanceof Nette\Callback) {
 				$factory->factory = $service;
 
-			} elseif ($service) {
+			} else {
 				$factory->class = $service;
 			}
 
@@ -319,10 +322,6 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 	 */
 	public function getService($name, array $options = NULL)
 	{
-		if (!is_string($name) || $name === '') {
-			throw new \InvalidArgumentException("Service name must be a non-empty string, " . gettype($name) . " given.");
-		}
-
 		$lower = strtolower($name);
 
 		if (isset($this->registry[$lower])) { // instantiated singleton
@@ -362,10 +361,6 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 	 */
 	public function hasService($name, $created = FALSE)
 	{
-		if (!is_string($name) || $name === '') {
-			throw new \InvalidArgumentException("Service name must be a non-empty string, " . gettype($name) . " given.");
-		}
-
 		$lower = strtolower($name);
 		return isset($this->registry[$lower]) || (!$created && isset($this->factories[$lower]));
 	}
