@@ -1,18 +1,10 @@
 <?php
-
 /**
  * This file is part of the Nella Framework.
  *
- * Copyright (c) 2006, 2010 Patrik Votoček (http://patrik.votocek.cz)
+ * Copyright (c) 2006, 2011 Patrik Votoček (http://patrik.votocek.cz)
  *
- * This source file is subject to the GNU Lesser General Public License. For more information please see http://nellacms.com
- */
-/**
- * This file is part of the Framework - Content Managing System (CMF) Kdyby.
- *
- * For more information please see http://www.kdyby.org
- *
- * @package CMF Kdyby-Common
+ * This source file is subject to the GNU Lesser General Public License. For more information please see http://nella-project.org
  */
 
 namespace Kdyby\Doctrine;
