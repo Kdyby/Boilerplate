@@ -26,7 +26,7 @@ use Nette;
  * @property bool $singleton
  * @property-read $instance
  */
-class ServiceFactory extends Nette\Object
+class ServiceFactory extends Nette\Object implements IServiceFactory
 {
 
 	/** @var array */
@@ -154,6 +154,23 @@ class ServiceFactory extends Nette\Object
 
 
 	/**
+	 * @param int $index
+	 * @param mixed $argument
+	 * @return ServiceFactory
+	 */
+	public function setArgument($index, $argument)
+	{
+		if ($index < 0 || $index > count($this->arguments) - 1) {
+			throw new \OutOfBoundsException('The index "' . $index . '" is not in the range [0, ' . (count($this->arguments) - 1) . '].');
+		}
+
+		$this->arguments[$index] = $argument;
+		return $this;
+	}
+
+
+
+	/**
 	 * @param mixed
 	 * @return ServiceFactory
 	 */
@@ -262,18 +279,18 @@ class ServiceFactory extends Nette\Object
 	/**
 	 * @return mixed
 	 */
-	public function createService()
+	public function getInstance()
 	{
 		// configure factory
 		$this->onBeforeCreate($this);
 
 		// create instance
 		$instance = $this->createInstance();
-		$this->callMethods($instance);
-
 		if ($instance instanceof IContainerAware) {
 			$instance->setServiceContainer($this->serviceContainer);
 		}
+
+		$this->callMethods($instance);
 
 		// additionaly configure service
 		$this->onCreate($instance);
