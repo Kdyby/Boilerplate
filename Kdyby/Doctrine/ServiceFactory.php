@@ -21,13 +21,13 @@ use Kdyby;
  * @author	Patrik Votoček
  * @package	Nella\Doctrine
  */
-class ServiceFactory extends Nette\Object
+final class ServiceFactory extends Nette\Object
 {
 
 	/**
 	 * @throws InvalidStateException
 	 */
-	final private function __construct()
+	final public function __construct()
 	{
 		throw new \InvalidStateException("Cannot instantiate static class " . get_called_class());
 	}
@@ -55,11 +55,12 @@ class ServiceFactory extends Nette\Object
 	 * @param array $dirs
 	 * @return \Doctrine\ORM\Configuration
 	 */
-	protected static function createConfiguration(Doctrine\Common\Cache\Cache $cache, array $dirs = array())
+	protected static function createConfiguration(array $dirs = array())
 	{
 		$config = new Doctrine\ORM\Configuration;
 
 		// Cache
+		$cache = new Doctrine\Common\Cache\ArrayCache();
 		$config->setMetadataCacheImpl($cache);
 		$config->setQueryCacheImpl($cache);
 
@@ -86,7 +87,7 @@ class ServiceFactory extends Nette\Object
 	public static function createEntityManager(array $database, Doctrine\ORM\Configuration $configuration = NULL, Doctrine\Common\EventManager $event = NULL)
 	{
 		// Entity manager
-		$configuration = $configuration ?: self::createConfiguration(new Doctrine\Common\Cache\ArrayCache());
+		$configuration = $configuration ?: self::createConfiguration();
 		if (key_exists('driver', $database) && $database['driver'] == "pdo_mysql" && key_exists('charset', $database)) {
 			if (!$event) {
 				$event = new Doctrine\Common\EventManager;

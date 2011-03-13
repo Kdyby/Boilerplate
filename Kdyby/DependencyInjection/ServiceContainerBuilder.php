@@ -449,13 +449,18 @@ class ServiceContainerBuilder extends Nette\Configurator
 		'Doctrine\\ORM\\Configuration' => array(
 			'factory' => array('Kdyby\\Doctrine\\ServiceFactory', 'createConfiguration'),
 			'arguments' => array('@Doctrine\\Common\\Cache\\Cache', '%EntityDirs%'),
+			'methods' => array(
+				array('method' => 'setMetadataCacheImpl', 'arguments' => array('@Doctrine\Common\Cache\Cache')),
+				array('method' => 'setQueryCacheImpl', 'arguments' => array('@Doctrine\Common\Cache\Cache')),
+			),
 		),
 		'Doctrine\\Common\\EventManager' => array(
 			'class' => 'Doctrine\\Common\\EventManager',
 		),
-		'Doctrine\\DBAL\\Logging\\SQLLogger' => array(
-			'factory' => array('Kdyby\\Doctrine\\Panel', 'create'),
-		),
+//		set through profiler parameter in %Database% parameter
+//		'Doctrine\\DBAL\\Logging\\SQLLogger' => array(
+//			'factory' => array('Kdyby\\Doctrine\\Panel', 'create'),
+//		),
 
 		'Kdyby\\Doctrine\\Cache' => array(
 			'class' => 'Nette\\Caching\\Cache',
