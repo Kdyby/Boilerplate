@@ -136,7 +136,7 @@ class FreezableArray extends Nette\FreezableObject implements \ArrayAccess, \Cou
 	public function offsetUnset($key)
 	{
 		$this->updating();
-		unset($this->list[$key]);
+		unset($this->array[$key]);
 	}
 
 }

@@ -78,7 +78,7 @@ class FreezableArrayTest extends Kdyby\Testing\TestCase
 	 */
 	public function testFrozenSet()
 	{
-		$this->arr->getIterator();
+		$this->arr->freeze();
 		$this->arr['bar'] = "foo";
 	}
 
@@ -89,7 +89,7 @@ class FreezableArrayTest extends Kdyby\Testing\TestCase
 	 */
 	public function testFrozenUnset()
 	{
-		$this->arr->getIterator();
+		$this->arr->freeze();
 		unset($this->arr['foo']);
 	}
 
