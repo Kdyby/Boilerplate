@@ -4,6 +4,7 @@ namespace Kdyby\Environment;
 
 use Kdyby;
 use Nette;
+use Nette\Config\Config;
 
 
 
@@ -100,7 +101,7 @@ class Configurator extends Nette\Configurator
 
 
 	/**
-	 * @return Nette\Config\Config
+	 * @return Config
 	 */
 	protected function loadConfigs()
 	{
@@ -109,7 +110,7 @@ class Configurator extends Nette\Configurator
 
 		// read and return according to actual environment name
 		foreach ($this->configFiles as $file => $config) {
-			$configs[$file] = Nette\Config\Config::fromFile(Nette\Environment::expand($config[0]), $config[1] ? $name : NULL);
+			$configs[$file] = Config::fromFile(Nette\Environment::expand($config[0]), $config[1] ? $name : NULL);
 		}
 
 		$mergedConfig = array();
@@ -125,15 +126,15 @@ class Configurator extends Nette\Configurator
 			$mergedConfig = array_replace_recursive($mergedConfig, $appendConfig);
 		}
 
-		return new Nette\Config\Config($mergedConfig);
+		return new Config($mergedConfig);
 	}
 
 
 
 	/**
 	 * Loads global configuration from file and process it.
-	 * @param  string|Nette\Config\Config  file name or Config object
-	 * @return Nette\Config\Config
+	 * @param  string|Config  file name or Config object
+	 * @return Config
 	 */
 	public function loadConfig($file)
 	{
