@@ -7,15 +7,20 @@
  * This source file is subject to the GNU Lesser General Public License. For more information please see http://nella-project.org
  */
 
-namespace NellaTests\DependencyInjection;
+namespace KdybyTests\DependencyInjection;
 
-require_once __DIR__ . "/../bootstrap.php";
+use Kdyby;
+use Nette;
 
-class ServiceFactoryMock extends \Nella\DependencyInjection\ServiceFactory
+
+
+require_once __DIR__ . "/../../bootstrap.php";
+
+class ServiceFactoryMock extends Kdyby\DependencyInjection\ServiceFactory
 {
-	public function getContext()
+	public function getServiceContainer()
 	{
-		return $this->context;
+		return $this->serviceContainer;
 	}
 	
 	public function getClass()

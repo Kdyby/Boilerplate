@@ -239,7 +239,7 @@ class ServiceFactory extends Nette\Object implements IServiceFactory
 				throw new \InvalidStateException("Class '{$this->class}' doesn't exist");
 			}
 
-			if ($args) {
+			if ($this->arguments) {
 				$ref = new Nette\Reflection\ClassReflection($this->class);
 				$args = $this->serviceContainer->expandParameters($this->arguments);
 				return $ref->newInstanceArgs($args);
@@ -270,7 +270,7 @@ class ServiceFactory extends Nette\Object implements IServiceFactory
 	protected function callMethods($instance)
 	{
 		foreach ($this->methods as $value) {
-			callback($instance, $value['method'])->invokeArgs($this->serviceContainer->expandParameter($value['arguments']));
+			callback($instance, $value['method'])->invokeArgs($this->serviceContainer->expandParameters($value['arguments']));
 		}
 	}
 

@@ -9,6 +9,7 @@
 
 namespace Kdyby\DependencyInjection;
 
+use Kdyby;
 use Nette;
 use Nette\Environment;
 use Nette\Config\Config;
@@ -82,8 +83,9 @@ class ServiceContainerBuilder extends Nette\Configurator
 	public function setServiceContainerClass($class)
 	{
 		if (!class_exists($class)) {
-			throw new \InvalidArgumentException("ServiceContainer class '$class' is not exist");
+			throw new \InvalidArgumentException("ServiceContainer class '$class' does not exist");
 		}
+
 		$ref = new Nette\Reflection\ClassReflection($class);
 		if (!$ref->implementsInterface('Kdyby\DependencyInjection\IServiceContainer')) {
 			throw new \InvalidArgumentException("ServiceContainer class '$class' is not valid 'Kdyby\DependencyInjection\IServiceContainer'");
@@ -111,7 +113,7 @@ class ServiceContainerBuilder extends Nette\Configurator
 	protected function loadEnvironmentName($name)
 	{
 		Environment::setVariable('environment', $name);
-		$this->getServiceContainer()->environment = $name;
+		$this->getServiceContainer()->setEnvironment($name);
 	}
 
 
@@ -399,8 +401,6 @@ class ServiceContainerBuilder extends Nette\Configurator
 		),
 		'Nette\\Loaders\\RobotLoader' => array(
 			'factory' => array(__CLASS__, 'createRobotLoader'),
-			'arguments' => array(array('directory' => array('%appDir%', '%libsDir%', '%proxiesDir%'))),
-			'run' => TRUE,
 		),
 		'Nette\\Caching\\Cache' => array(
 			'class' => 'Nette\\Caching\\Cache',
@@ -491,8 +491,7 @@ class ServiceContainerBuilder extends Nette\Configurator
 	 */
 	public function createServiceContainer()
 	{
-		$class = $this->serviceContainerClass;
-		$serviceContainer = new $class;
+		$serviceContainer = new $this->serviceContainerClass;
 		foreach ($this->defaultServices as $name => $service) {
 			$serviceContainer->addService($name, $service);
 		}
@@ -515,7 +514,7 @@ class ServiceContainerBuilder extends Nette\Configurator
 	/**
 	 * @return Kdyby\Application\Application
 	 */
-	public static function createApplication($parameters)
+	public static function createApplication(array $options = NULL)
 	{
 		$class = $parameters['application.class'];
 
@@ -539,7 +538,7 @@ class ServiceContainerBuilder extends Nette\Configurator
 	 */
 	public static function createRegistryNamespacePrefixes()
 	{
-		$register = new FreezableArray;
+		$register = new Kdyby\Tools\FreezableArray();
 		$register['app'] = 'App\\';
 		$register['framework'] = 'Kdyby\\';
 
@@ -555,7 +554,7 @@ class ServiceContainerBuilder extends Nette\Configurator
 	 */
 	public static function createRegistryTemplateDirs()
 	{
-		$register = new FreezableArray;
+		$register = new Kdyby\Tools\FreezableArray();
 		$register['app'] = APP_DIR;
 		$register['framework'] = KDYBY_DIR;
 

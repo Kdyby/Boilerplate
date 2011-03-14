@@ -152,7 +152,7 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 	{
 		$tmp = array();
 		foreach ($data as $key => $value) {
-			$tmp[$key] = $this->resolveParameter($value);
+			$tmp[$key] = $this->expandParameter($value);
 		}
 
 		return $tmp;
@@ -168,10 +168,12 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 	public function expandParameter($data)
 	{
 		if (is_string($data)) {
-			if (Nette\String::startsWith($data, '@') && $this->hasService(substr($data, 1))) {
-				$data = $this->getService(substr($data, 1));
+			if (substr($data, 0, 1) == '@') {
+				if ($this->hasService(substr($data, 1))) {
+					$data = $this->getService(substr($data, 1));
+				}
 
-			} elseif (Nette\String::startsWith($data, '%') && Nette\String::endsWith($data, '%')) { // @todo: better (DI) implementation
+			} elseif (substr($data, 0, 1) === '%' && substr($data, -1) === '%') { // @todo: better (DI) implementation
 				$data = $this->getParameter(substr($data, 1, -1));
 			}
 		}
@@ -397,7 +399,7 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 			return $this->registry[$lower];
 
 		} elseif (isset($this->factories[$lower])) {
-			$factory = $this->getFactory($name, $options);
+			$factory = $this->getFactory($name, $options ?: array());
 			$service = $factory->getInstance();
 
 			if ($factory->singleton) {

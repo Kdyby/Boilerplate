@@ -7,13 +7,17 @@
  * This source file is subject to the GNU Lesser General Public License. For more information please see http://nella-project.org
  */
 
-namespace NellaTests\DependencyInjection;
+namespace KdybyTests\DependencyInjection;
 
+use Kdyby;
+use Nette;
 use Nette\Config\Config;
 
-require_once __DIR__ . "/../bootstrap.php";
 
-class ContextBuilderMock extends \Nella\DependencyInjection\ContextBuilder
+
+require_once __DIR__ . "/../../bootstrap.php";
+
+class ServiceContainerBuilderMock extends Kdyby\DependencyInjection\ServiceContainerBuilder
 {
 	public function loadEnvironmentNameMock($name)
 	{
