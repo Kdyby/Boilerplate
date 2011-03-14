@@ -52,6 +52,36 @@ class FreezableArray extends Nette\FreezableObject implements \ArrayAccess, \Cou
 
 
 	/**
+	 * @param callable $filter
+	 * @return array
+	 */
+	public function filter($filter)
+	{
+		if (!is_callable($filter)) {
+			throw new \InvalidArgumentException("Given filter is not callable");
+		}
+
+		return array_filter($this->array, callback($filter));
+	}
+
+
+
+	/**
+	 * @param callable $mapper
+	 * @return array
+	 */
+	public function map($mapper)
+	{
+		if (!is_callable($mapper)) {
+			throw new \InvalidArgumentException("Given mapper is not callable");
+		}
+
+		return array_map(callback($mapper), $this->array);
+	}
+
+
+
+	/**
 	 * Replaces or appends a item.
 	 * 
 	 * @param  string
