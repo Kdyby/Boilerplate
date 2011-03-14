@@ -10,7 +10,7 @@
 namespace KdybyTests\Application;
 
 use Kdyby;
-use Kdyby\DependencyInjection\ServiceContainerBuilder;
+use Kdyby\DependencyInjection\DefaultServiceFactories;
 use Nette;
 
 
@@ -27,8 +27,8 @@ class PresenterFactoryTest extends Kdyby\Testing\TestCase
 	public function setUp()
 	{
 		$serviceContainer = new Kdyby\DependencyInjection\ServiceContainer();
-		$serviceContainer->addService('Kdyby\Registry\NamespacePrefixes', ServiceContainerBuilder::createRegistryNamespacePrefixes());
-		$serviceContainer->addService('Kdyby\Registry\TemplateDirs', ServiceContainerBuilder::createRegistryTemplateDirs());
+		$serviceContainer->addService('Kdyby\Registry\NamespacePrefixes', DefaultServiceFactories::createRegistryNamespacePrefixes());
+		$serviceContainer->addService('Kdyby\Registry\TemplateDirs', DefaultServiceFactories::createRegistryTemplateDirs());
 
 		$this->factory = new Kdyby\Application\PresenterFactory($serviceContainer->getService('Kdyby\Registry\NamespacePrefixes'));
 		$this->factory->setServiceContainer($serviceContainer);
