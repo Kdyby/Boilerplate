@@ -23,6 +23,9 @@ use Nette\Application\InvalidPresenterException;
  */
 class PresenterFactory extends Nette\Object implements Nette\Application\IPresenterFactory, Kdyby\DependencyInjection\IContainerAware
 {
+	/** @var bool */
+	public $caseSensitive = FALSE;
+
 	/** @var Kdyby\Tools\FreezableArray */
 	private $namespacePrefixes;
 
@@ -94,7 +97,7 @@ class PresenterFactory extends Nette\Object implements Nette\Application\IPresen
 	private function formatPresenterClasses($name)
 	{
 		$class = NULL;
-		foreach ($this->registry as $key => $namespace) {
+		foreach ($this->namespacePrefixes as $key => $namespace) {
 			$class = $this->formatPresenterClass($name, $key);
 			if (class_exists($class)) {
 				break;
@@ -129,6 +132,7 @@ class PresenterFactory extends Nette\Object implements Nette\Application\IPresen
 		if (!$reflection->implementsInterface('Nette\Application\IPresenter')) {
 			throw new InvalidPresenterException("Cannot load presenter '$name', class '$class' is not Nette\\Application\\IPresenter implementor.");
 		}
+
 		if ($reflection->isAbstract()) {
 			throw new InvalidPresenterException("Cannot load presenter '$name', class '$class' is abstract.");
 		}
@@ -155,7 +159,7 @@ class PresenterFactory extends Nette\Object implements Nette\Application\IPresen
 	 */
 	public function formatPresenterClass($presenter, $type = 'app')
 	{
-		$prefix = isset($this->registry[$type]) ? $this->registry[$type] : NULL;
+		$prefix = isset($this->namespacePrefixes[$type]) ? $this->namespacePrefixes[$type] : NULL;
 		return $prefix . str_replace(':', '\\', $presenter) . 'Presenter';
 	}
 
@@ -169,13 +173,15 @@ class PresenterFactory extends Nette\Object implements Nette\Application\IPresen
 	 */
 	public function unformatPresenterClass($class)
 	{
-		$prefix = current(array_filter((array)$this->registry, function ($prefix) use ($class) {
-			if (Nette\String::startsWith($class, $prefix)) {
-				return $prefix;
-			}
-		})) ?: "";
+		$suitable = $this->namespacePrefixes->filter(function ($prefix) use ($class) {
+			return Nette\String::startsWith($class, $prefix);
+		});
 
-		return str_replace("\\", ':', substr(trim($class, '\\'), strlen($prefix), -9));
+		if (!$suitable) {
+			throw new \InvalidArgumentException("Presenter prefix not found.");
+		}
+
+		return str_replace("\\", ':', substr(trim($class, '\\'), strlen(current($suitable)), -9));
 	}
 
 }
