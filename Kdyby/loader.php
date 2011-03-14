@@ -46,8 +46,5 @@ require_once KDYBY_DIR . '/Loaders/KdybyLoader.php';
 Kdyby\Loaders\KdybyLoader::getInstance()->register();
 
 
-// configure environment
-Nette\Environment::setServiceAlias('Doctrine\\ORM\\EntityManager', 'EntityManager');
-
 // Create Configurator
 Nette\Environment::setConfigurator(new Kdyby\DependencyInjection\ServiceContainerBuilder);
