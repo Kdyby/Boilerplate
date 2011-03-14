@@ -44,10 +44,6 @@ class ServiceContainerBuilder extends Nette\Configurator
 
 	public function __construct()
 	{
-		if (Environment::getVariable('baseUri', NULL) === NULL) {
-			Environment::setVariable('baseUri', Environment::getHttpRequest()->getUri()->getBaseUri());
-		}
-
 		foreach (array(self::$kdybyConfigFile, $this->defaultConfigFile) as $file) {
 			$file = realpath(Nette\Environment::expand($file));
 			if (file_exists($file)) {
@@ -516,6 +512,10 @@ class ServiceContainerBuilder extends Nette\Configurator
 	 */
 	public static function createApplication(array $options = NULL)
 	{
+		if (Environment::getVariable('baseUri', NULL) === NULL) {
+			Environment::setVariable('baseUri', Environment::getHttpRequest()->getUri()->getBaseUri());
+		}
+
 		$class = $parameters['application.class'];
 
 		$ref = Kdyby\Reflection\ServiceReflection::from($class);
