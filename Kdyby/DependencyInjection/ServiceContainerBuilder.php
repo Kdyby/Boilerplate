@@ -25,52 +25,14 @@ use Nette\Config\Config;
  * @property-write string $ServiceContainerClass
  * @property-read IServiceContainer $ServiceContainer
  */
-class ServiceContainerBuilder extends Nette\Object
+class ServiceContainerBuilder extends Nette\Object implements IServiceContainerBuilder
 {
-
-	/** @var string */
-	private static $kdybyConfigFile = "%kdybyDir%/config.kdyby.neon";
-
-	/** @var string */
-	public $defaultConfigFile = '%appDir%/config.neon';
 
 	/** @var string */
 	private $serviceContainerClass = 'Kdyby\DependencyInjection\ServiceContainer';
 
 	/** @var array */
 	private $autoRunServices = array();
-
-	/** @var array */
-	private $configFiles = array();
-
-
-
-	public function __construct()
-	{
-		foreach (array(self::$kdybyConfigFile, $this->defaultConfigFile) as $file) {
-			$file = realpath(Nette\Environment::expand($file));
-			if (file_exists($file)) {
-				$this->configFiles[$file] = array($file, TRUE, array());
-			}
-		}
-
-		Kdyby\Templates\KdybyMacros::register();
-	}
-
-
-
-	/**
-	 * @param string $file
-	 * @param bool $environment
-	 * @param string|array $prefixPath
-	 * @return ServiceContainerBuilder
-	 */
-	public function addConfigFile($file, $environments = TRUE, $prefixPath = NULL)
-	{
-		$file = realpath(Nette\Environment::expand($file));
-		$this->configFiles[$file] = array($file, (bool)$environments, $prefixPath ? (array)$prefixPath : array());
-		return $this;
-	}
 
 
 
@@ -113,32 +75,6 @@ class ServiceContainerBuilder extends Nette\Object
 	{
 		Environment::setVariable('environment', $name);
 		$this->getServiceContainer()->setEnvironment($name);
-	}
-
-
-
-	/**
-	 * Detect environment mode.
-	 * 
-	 * @param  string mode name
-	 * @return bool
-	 */
-	public function detect($name)
-	{
-		switch ($name) {
-			case 'production':
-				// detects production mode by server IP address
-				if (isset($_SERVER['SERVER_ADDR']) || isset($_SERVER['LOCAL_ADDR'])) {
-					$addr = isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : $_SERVER['LOCAL_ADDR'];
-					if (substr($addr, -4) === '.loc') {
-						return FALSE;
-					}
-				}
-		}
-
-		// TODO: temporary
-		$configurator = new Nette\Configurator();
-		return $configurator->detect();
 	}
 
 
@@ -304,50 +240,16 @@ class ServiceContainerBuilder extends Nette\Object
 
 
 	/**
-	 * @return Nette\Config\Config
-	 */
-	protected function loadConfigs()
-	{
-		$name = Environment::getName();
-		$configs = array();
-
-		// read and return according to actual environment name
-		foreach ($this->configFiles as $file => $config) {
-			$configs[$file] = Nette\Config\Config::fromFile(Nette\Environment::expand($config[0]), $config[1] ? $name : NULL);
-		}
-
-		$mergedConfig = array();
-		foreach ($this->configFiles as $file => $config) {
-			$appendConfig = array();
-
-			$prefixed = &$appendConfig;
-			foreach ($config[2] as $prefix) {
-				$prefixed = &$prefixed[$prefix];
-			}
-			$prefixed = $configs[$file]->toArray();
-
-			$mergedConfig = array_replace_recursive($mergedConfig, $appendConfig);
-		}
-
-		return new Nette\Config\Config($mergedConfig);
-	}
-
-
-
-	/**
 	 * Loads global configuration from file and process it.
-	 * @param  string|Nette\Config\Config  file name or Config object
+	 * @param  Nette\Config\Config  file name or Config object
 	 * @return Nette\Config\Config
 	 *
 	 * @author Patrik Votoček
 	 */
-	public function loadConfig($file)
+	public function loadConfig(Config $config)
 	{
-		if ($file) {
-			$this->addConfigFile($file);
-		}
-
-		$config = $this->loadConfigs();
+		$environment = Environment::getName(); // BACK compatability
+		$this->loadEnvironmentName($environment);
 
 		isset($config->php) && $this->loadIni($config->php);
 
@@ -378,16 +280,6 @@ class ServiceContainerBuilder extends Nette\Object
 		}
 
 		return $serviceContainer;
-	}
-
-
-
-	/**
-	 * @return Kdyby\DependencyInjection\IServiceContainer
-	 */
-	public function createContext()
-	{
-		return $this->createServiceContainer();
 	}
 
 }

@@ -27,8 +27,11 @@ class ServiceContainerBuilderTest extends Kdyby\Testing\TestCase
 
 	public function setUp()
 	{
-		$this->builder = new ServiceContainerBuilderMock;
-		Environment::setConfigurator($this->builder);
+		$configurator = new Kdyby\Environment\Configurator;
+		$this->builder = new ServiceContainerBuilderMock();
+
+		$configurator->setServiceContainerBuilder($this->builder);
+		Environment::setConfigurator($configurator);
 	}
 
 

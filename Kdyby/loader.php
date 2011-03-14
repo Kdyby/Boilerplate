@@ -47,4 +47,4 @@ Kdyby\Loaders\KdybyLoader::getInstance()->register();
 
 
 // Create Configurator
-Nette\Environment::setConfigurator(new Kdyby\DependencyInjection\ServiceContainerBuilder);
+Nette\Environment::setConfigurator(new Kdyby\Environment\Configurator);
