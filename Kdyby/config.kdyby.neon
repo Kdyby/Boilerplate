@@ -21,6 +21,12 @@ common:
 	EntityDirs: [%appDir%/models, %kdybyDir%/Data, %kdybyDir%/Security]
 
 	service:
+		Nette\Loaders\RobotLoader:
+			factory: Nette\Configurator::createRobotLoader
+			option:
+				directory: ['%appDir%', '%libsDir%', '%proxiesDir%']
+			run: TRUE
+
 		Kdyby\PresenterTree:
 			factory: Kdyby\Tools\PresenterTree\PresenterTree::createPresenterTree
 
