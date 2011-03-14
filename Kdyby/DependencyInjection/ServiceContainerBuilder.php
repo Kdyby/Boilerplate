@@ -513,10 +513,10 @@ class ServiceContainerBuilder extends Nette\Configurator
 	public static function createApplication(array $options = NULL)
 	{
 		if (Environment::getVariable('baseUri', NULL) === NULL) {
-			Environment::setVariable('baseUri', Environment::getHttpRequest()->getUri()->getBaseUri());
+			Environment::setVariable('baseUri', $this->getServiceContainer()->httpRequest->getUri()->getBaseUri());
 		}
 
-		$class = $parameters['application.class'];
+		$class = $options['application.class'];
 
 		$ref = Kdyby\Reflection\ServiceReflection::from($class);
 		$params = $ref->getConstructorParamClasses();

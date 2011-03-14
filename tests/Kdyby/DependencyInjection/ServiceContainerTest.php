@@ -16,6 +16,12 @@ use Nette;
 
 require_once __DIR__ . "/../../bootstrap.php";
 
+/**
+ * Todo:
+ * - Aliases test
+ * - Tags test
+ * - ArrayAcces parameters access test
+ */
 class ServiceContainerTest extends Kdyby\Testing\TestCase
 {
 	/** @var Kdyby\DependencyInjection\ServiceContainer */
