@@ -7,6 +7,10 @@ use Nette;
 
 
 
+/**
+ * TODO: list of properties to work with, for data intersection
+ * TODO: basic dictionary for bi-directional properties mapping array('someName' => 'some_name')
+ */
 class UniversalObjectMapper extends Nette\Object
 {
 
