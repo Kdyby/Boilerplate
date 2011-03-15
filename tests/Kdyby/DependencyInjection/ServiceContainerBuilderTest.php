@@ -16,8 +16,6 @@ use Nette\Environment;
 
 
 
-require_once __DIR__ . "/../../bootstrap.php";
-
 class ServiceContainerBuilderTest extends Kdyby\Testing\TestCase
 {
 	/** @var ServiceContainerBuilderMock */

@@ -7,9 +7,6 @@ use Kdyby;
 
 
 
-# autoloading and stuff
-require_once __DIR__ . '/../../bootstrap.php';
-
 class ServiceReflectionTest extends Kdyby\Testing\TestCase
 {
 

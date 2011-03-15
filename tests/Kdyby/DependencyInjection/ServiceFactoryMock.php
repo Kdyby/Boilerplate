@@ -14,8 +14,6 @@ use Nette;
 
 
 
-require_once __DIR__ . "/../../bootstrap.php";
-
 class ServiceFactoryMock extends Kdyby\DependencyInjection\ServiceFactory
 {
 	public function getServiceContainer()

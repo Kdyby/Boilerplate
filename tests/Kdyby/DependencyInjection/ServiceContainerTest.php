@@ -14,8 +14,6 @@ use Nette;
 
 
 
-require_once __DIR__ . "/../../bootstrap.php";
-
 /**
  * Todo:
  * - Aliases test

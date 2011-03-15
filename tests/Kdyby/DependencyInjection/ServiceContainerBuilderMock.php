@@ -15,8 +15,6 @@ use Nette\Config\Config;
 
 
 
-require_once __DIR__ . "/../../bootstrap.php";
-
 class ServiceContainerBuilderMock extends Kdyby\DependencyInjection\ServiceContainerBuilder
 {
 	public function loadEnvironmentNameMock($name)
