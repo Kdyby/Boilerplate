@@ -13,7 +13,7 @@ class UniversalObjectMapper extends Nette\Object
 	/** @var string */
 	private $className;
 
-	/** @var string */
+	/** @var Nette\Reflection\ClassReflection */
 	private $classRef;
 
 	/** @var object */
@@ -104,6 +104,7 @@ class UniversalObjectMapper extends Nette\Object
 
 	/**
 	 * @param object $object
+	 * @return array
 	 */
 	public function save($object)
 	{
@@ -111,13 +112,13 @@ class UniversalObjectMapper extends Nette\Object
 			throw new \InvalidArgumentException("Given object is not instance of " . $this->className . ".");
 		}
 
-		$date = array();
+		$data = array();
 		foreach ($this->classRef->getProperties() as $propRef) {
 			$propRef->setAccessible(TRUE);
-			$date[$propRef->getName()] = $propRef->getValue($object);
+			$data[$propRef->getName()] = $propRef->getValue($object);
 		}
 
-		return $date;
+		return $data;
 	}
 
 }
