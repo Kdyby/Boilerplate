@@ -27,7 +27,11 @@ class UniversalObjectMapperTest extends Kdyby\Testing\TestCase
 	 */
 	public function createObject()
 	{
-		$this->assertInstanceOf('KdybyTests\Tools\CommonEntityClassMock', $this->mapper->createNew());
+		$object = $this->mapper->createNew();
+
+		$this->assertInstanceOf('KdybyTests\Tools\CommonEntityClassMock', $object);
+		$this->assertTrue($object->constructorCalled);
+		$this->assertEquals(array(), $object->constructorArgs);
 	}
 
 
@@ -35,14 +39,59 @@ class UniversalObjectMapperTest extends Kdyby\Testing\TestCase
 	/**
 	 * @test
 	 */
-	public function createObjectWithId()
+	public function createObjectWithArguments()
 	{
-		$object = $this->mapper->createNew(array(
+		$object = $this->mapper->createNew(array('arg1', 'arg2'));
+
+		$this->assertInstanceOf('KdybyTests\Tools\CommonEntityClassMock', $object);
+		$this->assertTrue($object->constructorCalled);
+		$this->assertSame(array('arg1', 'arg2'), $object->constructorArgs);
+	}
+
+
+
+	/**
+	 * @test
+	 */
+	public function createObjectWithArgumentsAndData()
+	{
+		$object = $this->mapper->createNew(array('arg1', 'arg2'), array('id' => 2, 'name' => 'common'));
+
+		$this->assertInstanceOf('KdybyTests\Tools\CommonEntityClassMock', $object);
+		$this->assertTrue($object->constructorCalled);
+		$this->assertEquals(array('arg1', 'arg2'), $object->constructorArgs);
+		$this->assertEquals(2, $object->id);
+		$this->assertEquals('common', $object->name);
+	}
+
+
+
+	/**
+	 * @test
+	 */
+	public function restoreObject()
+	{
+		$object = $this->mapper->restore();
+		$this->assertInstanceOf('KdybyTests\Tools\CommonEntityClassMock', $object);
+		$this->assertFalse($object->constructorCalled);
+		$this->assertEquals(array(), $object->constructorArgs);
+	}
+
+
+
+	/**
+	 * @test
+	 */
+	public function restoreObjectWithId()
+	{
+		$object = $this->mapper->restore(array(
 			'id' => 1
 		));
 
 		$this->assertInstanceOf('KdybyTests\Tools\CommonEntityClassMock', $object);
 		$this->assertEquals(1, $object->id);
+		$this->assertFalse($object->constructorCalled);
+		$this->assertEquals(array(), $object->constructorArgs);
 	}
 
 
@@ -51,9 +100,9 @@ class UniversalObjectMapperTest extends Kdyby\Testing\TestCase
 	 * @test
 	 * @expectedException \MemberAccessException
 	 */
-	public function failCreateObjectWithUndefinedProperty()
+	public function failLoadObjectWithUndefinedProperty()
 	{
-		$object = $this->mapper->createNew(array(
+		$this->mapper->load(new CommonEntityClassMock(), array(
 			'nonexistingproperty' => 1
 		));
 	}
@@ -66,7 +115,7 @@ class UniversalObjectMapperTest extends Kdyby\Testing\TestCase
 	 */
 	public function failWithNonexistingClass()
 	{
-		$creator = new Kdyby\Tools\UniversalObjectMapper('KdybyTests\Tools\CommonNonExistingEntityClassMock');
+		$creator = new Kdyby\Tools\UniversalObjectMapper('KdybyTests\Tools\CommonNonExistingEntityClassMock' . Nette\String::random());
 	}
 
 
@@ -83,8 +132,9 @@ class UniversalObjectMapperTest extends Kdyby\Testing\TestCase
 		));
 
 		$this->assertEquals($object, $newObject);
-		$this->assertEquals($newObject->id, 1);
-		$this->assertEquals($newObject->name, 'entity');
+		$this->assertEquals(1, $newObject->id);
+		$this->assertEquals('entity', $newObject->name);
+		$this->assertTrue($newObject->constructorCalled);
 
 		return $newObject;
 	}
@@ -99,7 +149,9 @@ class UniversalObjectMapperTest extends Kdyby\Testing\TestCase
 	{
 		$this->assertEquals(array(
 			'id' => 1,
-			'name' => 'entity'
+			'name' => 'entity',
+			'constructorCalled' => TRUE,
+			'constructorArgs' => array(),
 		), $this->mapper->save($object));
 	}
 
@@ -118,6 +170,20 @@ class CommonEntityClassMock extends Nette\Object
 
 	/** @var string */
 	public $name;
+
+	/** @var bool */
+	public $constructorCalled = FALSE;
+
+	/** @var array */
+	public $constructorArgs = array();
+
+
+
+	public function __construct()
+	{
+		$this->constructorCalled = TRUE;
+		$this->constructorArgs = func_get_args();
+	}
 
 
 

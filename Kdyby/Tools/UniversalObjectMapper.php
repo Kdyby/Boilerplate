@@ -41,10 +41,22 @@ class UniversalObjectMapper extends Nette\Object
 
 
 	/**
+	 * @param array $arguments
 	 * @param array $data
 	 * @return object
 	 */
-	public function createNew(array $data = array())
+	public function createNew(array $arguments = array(), array $data = array())
+	{
+		return $this->load($this->classRef->newInstanceArgs($arguments), $data);
+	}
+
+
+
+	/**
+	 * @param array $data
+	 * @return object
+	 */
+	public function restore(array $data = array())
 	{
 		if ($this->prototype === NULL) {
 			$this->prototype = unserialize(sprintf('O:%d:"%s":0:{}', strlen($this->className), $this->className));
