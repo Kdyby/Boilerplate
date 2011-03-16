@@ -98,7 +98,7 @@ class UniversalObjectMapperTest extends Kdyby\Testing\TestCase
 
 	/**
 	 * @test
-	 * @expectedException \MemberAccessException
+	 * @expectedException \InvalidArgumentException
 	 */
 	public function failLoadObjectWithUndefinedProperty()
 	{
@@ -153,6 +153,151 @@ class UniversalObjectMapperTest extends Kdyby\Testing\TestCase
 			'constructorCalled' => TRUE,
 			'constructorArgs' => array(),
 		), $this->mapper->save($object));
+	}
+
+
+
+	/**
+	 * @test
+	 */
+	public function nameColumns()
+	{
+		$this->mapper->setColumns(array('id', 'name'));
+
+		$this->assertEquals(array(
+			'id',
+			'name'
+		), $this->mapper->getColumns());
+
+		$this->assertEquals(array(
+			'table_name.id AS id',
+			'table_name.name AS name',
+		), $this->mapper->getColumns('table_name'));
+
+		$this->assertEquals(array(
+			'table_name.id id',
+			'table_name.name name',
+		), $this->mapper->getColumns('table_name', ' '));
+
+		$this->assertEquals(array(
+			'table_name.id id',
+			'table_name.name name',
+		), $this->mapper->getColumns('table_name', NULL));
+	}
+
+
+
+	/**
+	 * @test
+	 */
+	public function nameAndPrefixColumns()
+	{
+		$this->mapper->setColumns(array('id', 'name'));
+		$this->mapper->setPrefix('tn1_');
+
+		$this->assertEquals(array(
+			'tn1_id',
+			'tn1_name'
+		), $this->mapper->getColumns());
+
+		$this->assertEquals(array(
+			'table_name.id AS tn1_id',
+			'table_name.name AS tn1_name',
+		), $this->mapper->getColumns('table_name'));
+
+		$this->assertEquals(array(
+			'table_name.id tn1_id',
+			'table_name.name tn1_name',
+		), $this->mapper->getColumns('table_name', ' '));
+
+		$this->assertEquals(array(
+			'table_name.id tn1_id',
+			'table_name.name tn1_name',
+		), $this->mapper->getColumns('table_name', NULL));
+	}
+
+
+
+	/**
+	 * @test
+	 */
+	public function columnsMapping()
+	{
+		$this->mapper->setColumnsMap(array(
+			'id' => 'entity_id',
+			'name' => 'entity_name',
+		));
+
+		$object = new CommonEntityClassMock;
+		$this->mapper->load($object, array(
+			'entity_id' => 2,
+			'entity_name' => 'Franta'
+		), TRUE); // TRUE enables columns mapping
+
+		$this->assertEquals(2, $object->id);
+		$this->assertEquals('Franta', $object->name);
+
+		$this->assertEquals(array(
+			'entity_id' => 2,
+			'entity_name' => 'Franta'
+		), $this->mapper->save($object, TRUE)); // TRUE enables columns mapping
+	}
+
+
+
+	/**
+	 * @test
+	 * @expectedException \InvalidArgumentException
+	 */
+	public function failAssertColumnsMapping()
+	{
+		$this->mapper->setColumnsMap(array(
+			'id' => 'entity_id',
+			'name' => 'name',
+			'nonexistingproperty' => 'nonexistingproperty',
+		));
+	}
+
+
+
+	/**
+	 * @test
+	 */
+	public function loadEntityColumnsMappingWithPrefixes()
+	{
+		$this->mapper->setColumnsMap(array(
+			'id' => 'entity_id',
+			'name' => 'entity_name',
+		))->setPrefix('tn1_');
+
+		$object = new CommonEntityClassMock;
+		$this->mapper->load($object, array(
+			'tn1_entity_id' => 2,
+			'tn1_entity_name' => 'Franta'
+		), TRUE); // TRUE enables columns mapping
+	}
+
+
+
+	/**
+	 * @test
+	 */
+	public function saveEntityColumnsMappingWithPrefixesReturnsUnprefixedValues()
+	{
+		$this->mapper->setColumnsMap(array(
+			'id' => 'entity_id',
+			'name' => 'entity_name',
+		))->setPrefix('tn1_');
+
+		$object = $this->mapper->restore(array(
+			'id' => 2,
+			'name' => 'Franta'
+		)); // TRUE enables columns mapping
+
+		$this->assertEquals(array(
+			'entity_id' => 2,
+			'entity_name' => 'Franta'
+		), $this->mapper->save($object, TRUE)); // TRUE enables columns mapping
 	}
 
 }
