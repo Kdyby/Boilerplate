@@ -148,8 +148,27 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 	 * @param array $data
 	 * @return array
 	 */
-	public function expandParameters(array $data)
+	public function expandParameters(array $data = NULL)
 	{
+		if ($data === NULL) {
+			if ($this->isFrozen()) {
+				throw new \InvalidStateException("Service container is frozen for changes");
+			}
+
+			foreach ($this->parameters as $key => $value) {
+				if (is_array($value)) {
+					array_walk_recursive($value, function (&$value, $key, $serviceContainer) {
+						$value = $serviceContainer->expandParameter($value);
+					}, $this);
+
+				} else {
+					$this->parameters[$key] = $this->expandParameter($value);
+				}
+			}
+
+			return ;
+		}
+
 		$tmp = array();
 		foreach ($data as $key => $value) {
 			$tmp[$key] = $this->expandParameter($value);
@@ -165,7 +184,7 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 	 * @param mixed $data
 	 * @return mixed
 	 */
-	public function expandParameter($data)
+	public function expandParameter($data = NULL)
 	{
 		if (is_string($data)) {
 			if (substr($data, 0, 1) == '@') {

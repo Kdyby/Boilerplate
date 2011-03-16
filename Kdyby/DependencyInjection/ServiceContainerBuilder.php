@@ -167,18 +167,22 @@ class ServiceContainerBuilder extends Nette\Object implements IServiceContainerB
 	 */
 	protected function loadParameters(Config $config)
 	{
+		$serviceContainer = $this->getServiceContainer();
+
 		foreach ($config as $key => $value) {
 			if (in_array($key, array('variable', 'variables')) && $value instanceof Config) {
 				foreach ($value as $k => $v) {
-					$this->getServiceContainer()->setParameter($k, $v);
+					$serviceContainer->setParameter($k, $v);
 					Environment::setVariable($k, $v);
 				}
 
 			} elseif ($key != "php" && !in_array($key, array('service', 'services'))) {
 				$tmp = $value instanceof Config ? $value->toArray() : $value;
-				$this->getServiceContainer()->setParameter($key, $tmp);
+				$serviceContainer->setParameter($key, $tmp);
 			}
 		}
+
+		$serviceContainer->expandParameters();
 	}
 
 
