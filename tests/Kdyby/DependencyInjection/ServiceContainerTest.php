@@ -338,6 +338,29 @@ class ServiceContainerTest extends Kdyby\Testing\TestCase
 
 
 
+	public function testAddServiceClassAsString()
+	{
+		$this->serviceContainer->addService('Test', 'KdybyTests\DependencyInjection\Foo', TRUE, array(
+			'class' => 'KdybyTests\DependencyInjection\Foo'
+		));
+
+		$this->assertInstanceOf('KdybyTests\DependencyInjection\Foo', $this->serviceContainer->getService('Test'));
+	}
+
+
+
+	/**
+	 * @expectedException InvalidArgumentException
+	 */
+	public function testAddServiceClassAsArrayException()
+	{
+		$this->serviceContainer->addService('Test', 'KdybyTests\DependencyInjection\Foo', TRUE, array(
+			'class' => array('KdybyTests\DependencyInjection\Foo', 'method')
+		));
+	}
+
+
+
 	/**
 	 * @expectedException InvalidArgumentException
 	 */

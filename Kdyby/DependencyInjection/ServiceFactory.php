@@ -255,8 +255,14 @@ class ServiceFactory extends Nette\Object implements IServiceFactory
 			return $this->class;
 
 		} elseif ($this->factory) { // Factory
-			return callback($this->factory)->invokeArgs($this->serviceContainer->expandParameters($this->arguments));
+			$callback = callback($this->factory);
 
+			if ($this->arguments) {
+				return $callback->invokeArgs($this->serviceContainer->expandParameters($this->arguments));
+
+			} else {
+				return $callback();
+			}
 		}
 
 		throw new \InvalidStateException("Class or factory is not defined");
@@ -270,7 +276,14 @@ class ServiceFactory extends Nette\Object implements IServiceFactory
 	protected function callMethods($instance)
 	{
 		foreach ($this->methods as $value) {
-			callback($instance, $value['method'])->invokeArgs($this->serviceContainer->expandParameters($value['arguments']));
+			$callback = callback($instance, $value['method']);
+
+			if (isset($value['arguments']) && $value['arguments']) {
+				$callback->invokeArgs($this->serviceContainer->expandParameters($value['arguments']));
+
+			} else {
+				$callback->invoke();
+			}
 		}
 	}
 

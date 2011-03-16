@@ -14,8 +14,12 @@ class DefaultServiceFactories extends Nette\Object
 	public static $defaultServices = array(
 		'Nette\\Application\\Application' => array(
 			'factory' => array(__CLASS__, 'createApplication'),
-			'arguments' => array('%Application%'),
+			'arguments' => array('%Application%', '@Nette\\Web\\IHttpRequest'),
 			'aliases' => array('application'),
+		),
+		'Nette\\Application\\IRouter' => array(
+			'factory' => array(__CLASS__, 'createRouter'),
+			'arguments' => array('@Nette\\Web\\IHttpRequest')
 		),
 		'Nette\\Web\\HttpContext' => array(
 			'class' => 'Nette\Web\HttpContext',
@@ -31,6 +35,7 @@ class DefaultServiceFactories extends Nette\Object
 		),
 		'Nette\\Caching\\ICacheStorage' => array(
 			'factory' => array(__CLASS__, 'createCacheStorage'),
+			'arguments' => array('@Nette\\Caching\\ICacheJournal'),
 		),
 		'Nette\\Caching\\ICacheJournal' => array(
 			'factory' => array('Nette\Configurator', 'createCacheJournal'),
@@ -40,7 +45,7 @@ class DefaultServiceFactories extends Nette\Object
 			'aliases' => array('mailer'),
 		),
 		'Nette\\Web\\Session' => array(
-			'class' => array(__CLASS__, 'createSession'),
+			'factory' => array(__CLASS__, 'createSession'),
 			'arguments' => array('@Nette\\Web\\IHttpRequest'),
 			'aliases' => array('sessionStorage'),
 		),
@@ -66,16 +71,13 @@ class DefaultServiceFactories extends Nette\Object
 			'class' => 'Kdyby\\Security\\User',
 			'aliases' => array('user'),
 		),
-		'Nette\\Application\\IRouter' => array(
-			'class' => 'Nette\\Application\\MultiRouter'
-		),
 		'Nette\\Application\\IPresenterFactory' => array(
 			'class' => 'Kdyby\\Application\\PresenterFactory',
 			'arguments' => array('@Kdyby\\Registry\\NamespacePrefixes'),
 		),
 		'Nette\\Caching\\IMemcacheStorage' => array(
 			'factory' => array(__CLASS__, 'createMemcacheStorage'),
-			'arguments' => array(array('prefix' => 'Kdyby.')),
+			'arguments' => array('%memcache%', '@Nette\\Caching\\IMemcacheJournal'),
 			'aliases' => array('memcache'),
 		),
 		'Nette\\Caching\\IMemcacheJournal' => array(
@@ -142,7 +144,7 @@ class DefaultServiceFactories extends Nette\Object
 	/**
 	 * @return IServiceContainer
 	 */
-	public function getServiceContainer()
+	public static function getServiceContainer()
 	{
 		return Environment::getContext();
 	}
@@ -150,25 +152,42 @@ class DefaultServiceFactories extends Nette\Object
 
 
 	/**
+	 * @param array $parameters
 	 * @return Kdyby\Application\Application
 	 */
-	public static function createApplication(array $options = NULL)
+	public static function createApplication(array $parameters, Nette\Web\IHttpRequest $httpRequest)
 	{
 		if (Environment::getVariable('baseUri', NULL) === NULL) {
-			Environment::setVariable('baseUri', $this->getServiceContainer()->httpRequest->getUri()->getBaseUri());
+			Environment::setVariable('baseUri', $httpRequest->getUri()->getBaseUri());
 		}
 
-		$class = $options['application.class'];
+		$class = $parameters['application.class'];
 
 		$ref = Kdyby\Reflection\ServiceReflection::from($class);
 		$params = $ref->getConstructorParamClasses();
-		$serviceContainer = clone $this->getServiceContainer();
+		$serviceContainer = clone self::getServiceContainer();
 
 		$application = $params ? $ref->newInstanceArgs($serviceContainer->expandParams($params)) : new $class;
 		$application->setServiceContainer($serviceContainer);
 		$application->catchExceptions = Environment::isProduction();
 
 		return $application;
+	}
+
+
+
+	/**
+	 * @param Nette\Web\HttpRequest $httpRequest
+	 * @return Nette\Application\MultiRouter
+	 */
+	public static function createRouter(Nette\Web\HttpRequest $httpRequest)
+	{
+		$domainMap = (object)Nette\String::match($httpRequest->uri->host, Kdyby\Web\HttpHelpers::DOMAIN_PATTERN);
+
+		$router = new Nette\Application\MultiRouter;
+		$router[] = new Kdyby\Application\Routers\AdminRouter('//admin.' . $domainMap->domain);
+
+		return $router;
 	}
 
 
@@ -206,19 +225,6 @@ class DefaultServiceFactories extends Nette\Object
 
 
 	/**
-	 * @return Nette\Application\MultiRouter
-	 */
-	public function createRouter()
-	{
-		$router = new Nette\Application\MultiRouter;
-		$router[] = new Kdyby\Application\AdminRouter;
-
-		return $router;
-	}
-
-
-
-	/**
 	 * @param Nette\Web\Session $session
 	 */
 	public static function createSession(Nette\Web\HttpRequest $httpRequest)
@@ -246,25 +252,22 @@ class DefaultServiceFactories extends Nette\Object
 	/**
 	 * @return Nette\Caching\FileJournal
 	 */
-	public static function createCacheStorage()
+	public static function createCacheStorage(Nette\Caching\ICacheJournal $cacheJournal)
 	{
 		$dir = Kdyby\Tools\FileSystem::prepareWritableDir('%varDir%/cache');
-
-		$journal = Environment::getService('Nette\\Caching\\ICacheJournal');
-		return new Kdyby\Caching\FileStorage($dir, $journal);
+		return new Kdyby\Caching\FileStorage($dir, $cacheJournal);
 	}
 
 
 
 	/**
+	 * @param array $properties
+	 * @param Nette\Caching\ICacheJournal $cacheJournal
 	 * @return Nette\Caching\MemcachedStorage
 	 */
-	public static function createMemcacheStorage($options)
+	public static function createMemcacheStorage($properties, Nette\Caching\ICacheJournal $cacheJournal)
 	{
-		$config = Environment::getConfig('memcache');
-
-		$journal = Environment::getService('Nette\Caching\IMemcacheJournal');
-		return new Nette\Caching\MemcachedStorage($config['host'], $config['port'], $options['prefix'], $journal);
+		return new Nette\Caching\MemcachedStorage($properties['host'], $properties['port'], $properties['prefix'], $cacheJournal);
 	}
 
 

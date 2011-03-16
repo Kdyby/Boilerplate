@@ -168,13 +168,13 @@ class ServiceContainerBuilder extends Nette\Object implements IServiceContainerB
 	protected function loadParameters(Config $config)
 	{
 		foreach ($config as $key => $value) {
-			if ($key == "variables" && $value instanceof Config) {
+			if (in_array($key, array('variable', 'variables')) && $value instanceof Config) {
 				foreach ($value as $k => $v) {
 					$this->getServiceContainer()->setParameter($k, $v);
 					Environment::setVariable($k, $v);
 				}
 
-			} elseif ($key != "php" && $key != "services") {
+			} elseif ($key != "php" && !in_array($key, array('service', 'services'))) {
 				$tmp = $value instanceof Config ? $value->toArray() : $value;
 				$this->getServiceContainer()->setParameter($key, $tmp);
 			}
@@ -189,9 +189,26 @@ class ServiceContainerBuilder extends Nette\Object implements IServiceContainerB
 	protected function loadServices(array $config)
 	{
 		foreach ($config as $name => $data) {
+			$this->fallbackAddService($this->getServiceContainer(), $name, $data);
+		}
+	}
+
+
+
+	/**
+	 * @param IServiceContainer $serviceContainer
+	 * @param string $name
+	 * @param array $data
+	 */
+	protected function fallbackAddService(IServiceContainer $serviceContainer, $name, $data)
+	{
+		if (is_string($data)) {
+			$serviceContainer->addService($name, $data);
+
+		} else {
 			$service = key_exists('class', $data) ? $data['class'] : (key_exists('factory', $data) ? $data['factory'] : NULL);
 
-			$this->getServiceContainer()->addService($name, $service, key_exists('singleton', $data) ? $data['singleton'] : TRUE, $data);
+			$serviceContainer->addService($name, $service, key_exists('singleton', $data) ? $data['singleton'] : TRUE, $data);
 
 			if (key_exists('run', $data) && $data['run']) {
 				$this->autoRunServices[] = $name;
@@ -251,11 +268,9 @@ class ServiceContainerBuilder extends Nette\Object implements IServiceContainerB
 		$environment = Environment::getName(); // BACK compatability
 		$this->loadEnvironmentName($environment);
 
-		isset($config->php) && $this->loadIni($config->php);
-
 		$this->loadParameters($config);
-		// $this->loadServices($this->defaultServices); // TODO: why??
-
+		isset($config->php) && $this->loadIni($config->php);
+		isset($config->service) && $this->loadServices($config->service->toArray());
 		isset($config->services) && $this->loadServices($config->services->toArray());
 		isset($config->const) && $this->loadConstants($config->const);
 		isset($config->mode) && $this->loadModes($config->mode);
@@ -275,8 +290,8 @@ class ServiceContainerBuilder extends Nette\Object implements IServiceContainerB
 	public function createServiceContainer()
 	{
 		$serviceContainer = new $this->serviceContainerClass;
-		foreach (DefaultServiceFactories::$defaultServices as $name => $service) {
-			$serviceContainer->addService($name, $service);
+		foreach (DefaultServiceFactories::$defaultServices as $name => $data) {
+			$this->fallbackAddService($serviceContainer, $name, $data);
 		}
 
 		return $serviceContainer;

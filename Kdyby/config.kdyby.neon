@@ -13,7 +13,7 @@ common:
 		lang: cs_CZ
 
 	Application:
-    application.class: Kdyby\Application\Application
+		application.class: Kdyby\Application\Application
 
 	Security:
 		identity.class: Kdyby\Security\Identity
@@ -26,6 +26,10 @@ common:
 			option:
 				directory: ['%appDir%', '%libsDir%', '%proxiesDir%']
 			run: TRUE
+
+		Nette\Application\IRouter:
+			factory: Kdyby\Environment\Configurator::createRouter
+			arguments: ['@Nette\Web\HttpRequest']
 
 		Kdyby\PresenterTree:
 			factory: Kdyby\Tools\PresenterTree\PresenterTree::createPresenterTree

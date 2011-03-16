@@ -11,6 +11,12 @@ use Nette\Config\Config;
 class Configurator extends Nette\Configurator
 {
 
+	/** @var array */
+	public $onBeforeLoad = array();
+
+	/** @var array */
+	public $onAfterLoad = array();
+
 	/** @var string */
 	private static $kdybyConfigFile = "%kdybyDir%/config.kdyby.neon";
 
@@ -62,6 +68,16 @@ class Configurator extends Nette\Configurator
 
 
 	/**
+	 * @return Kdyby\DependencyInjection\IServiceContainer
+	 */
+	public function getServiceContainer()
+	{
+		return Nette\Environment::getContext();
+	}
+
+
+
+	/**
 	 * Detect environment mode.
 	 *
 	 * @param  string mode name
@@ -80,7 +96,7 @@ class Configurator extends Nette\Configurator
 				}
 		}
 
-		return parent::detect();
+		return parent::detect($name);
 	}
 
 
@@ -105,7 +121,7 @@ class Configurator extends Nette\Configurator
 	 */
 	protected function loadConfigs()
 	{
-		$name = Environment::getName();
+		$name = Nette\Environment::getName();
 		$configs = array();
 
 		// read and return according to actual environment name
@@ -138,11 +154,16 @@ class Configurator extends Nette\Configurator
 	 */
 	public function loadConfig($file)
 	{
+		$this->onBeforeLoad($this->getServiceContainer());
+
 		if ($file) {
 			$this->addConfigFile($file);
 		}
 
-		return $this->serviceContainerBuilder->loadConfig($this->loadConfigs());
+		$config = $this->serviceContainerBuilder->loadConfig($this->loadConfigs());
+
+		$this->onAfterLoad($this->getServiceContainer());
+		return $config;
 	}
 
 

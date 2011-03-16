@@ -265,7 +265,7 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 
 		$lower = strtolower($name);
 		if (isset($this->registry[$lower])) { // only for instantiated services?
-			throw new \Nette\AmbiguousServiceException("Service named '$name' has already been registered.");
+			throw new Nette\AmbiguousServiceException("Service named '$name' has already been registered.");
 		}
 
 		if ($service instanceof self) {
@@ -299,6 +299,10 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 			}
 
 			if (isset($options['class'])) {
+				if (!is_string($options['class'])) {
+					throw new \InvalidArgumentException("In options, class key should be allways string, " . gettype($options['class']) . " given as class of service " . $name . ".");
+				}
+
 				$factory->class = $options['class'];
 			}
 
@@ -363,7 +367,7 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 		}
 
 		$lowerA = strtolower($alias);
-		if (isset($this->aliases[$lowerA])) {
+		if (isset($this->aliases[$lowerA]) && $this->aliases[$lowerA] !== $lower) {
 			throw new Nette\AmbiguousServiceException("Service alias named '$alias' has already been registered.");
 		}
 
@@ -400,6 +404,7 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 
 		} elseif (isset($this->factories[$lower])) {
 			$factory = $this->getFactory($name, $options ?: array());
+
 			$service = $factory->getInstance();
 
 			if ($factory->singleton) {
@@ -523,11 +528,13 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 	 */
 	public function &__get($name)
 	{
-		if (!isset($this->aliases[$name])) {
+		$lowerA = strtolower($name);
+		if (!isset($this->aliases[$lowerA])) {
 			throw new \InvalidArgumentException("Alias " . $name . " is not defined.");
 		}
 
-		return $this->getService($this->aliases[$name]);
+		$service = $this->getService($this->aliases[$lowerA]);
+		return $service;
 	}
 
 
