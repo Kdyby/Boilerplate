@@ -160,7 +160,7 @@ class PresenterFactory extends Nette\Object implements Nette\Application\IPresen
 	public function formatPresenterClass($presenter, $type = 'app')
 	{
 		$prefix = isset($this->namespacePrefixes[$type]) ? $this->namespacePrefixes[$type] : NULL;
-		return $prefix . str_replace(':', '\\', $presenter) . 'Presenter';
+		return $prefix . str_replace(':', 'Module\\', $presenter) . 'Presenter';
 	}
 
 
@@ -181,7 +181,7 @@ class PresenterFactory extends Nette\Object implements Nette\Application\IPresen
 			throw new \InvalidArgumentException("Presenter prefix not found.");
 		}
 
-		return str_replace("\\", ':', substr(trim($class, '\\'), strlen(current($suitable)), -9));
+		return str_replace("Module\\", ':', substr($class, strlen(current($suitable)), -9));
 	}
 
 }

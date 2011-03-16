@@ -15,8 +15,6 @@ use Nette;
 
 
 
-require_once __DIR__ . "/../../bootstrap.php";
-
 class PresenterFactoryTest extends Kdyby\Testing\TestCase
 {
 	/** @var Nette\Application\IPresenterFactory */
@@ -42,11 +40,11 @@ class PresenterFactoryTest extends Kdyby\Testing\TestCase
 	public function formatPresenterClass()
 	{
 		$this->assertEquals('App\FooPresenter', $this->factory->formatPresenterClass('Foo'), "->formatPresenterClass('Foo')");
-		$this->assertEquals('App\Foo\BarPresenter', $this->factory->formatPresenterClass('Foo:Bar'), "->formatPresenterClass('Foo:Bar')");
-		$this->assertEquals('App\Foo\Bar\BazPresenter', $this->factory->formatPresenterClass('Foo:Bar:Baz'), "->formatPresenterClass('Foo:Bar:Baz')");
+		$this->assertEquals('App\FooModule\BarPresenter', $this->factory->formatPresenterClass('Foo:Bar'), "->formatPresenterClass('Foo:Bar')");
+		$this->assertEquals('App\FooModule\BarModule\BazPresenter', $this->factory->formatPresenterClass('Foo:Bar:Baz'), "->formatPresenterClass('Foo:Bar:Baz')");
 		$this->assertEquals('Kdyby\FooPresenter', $this->factory->formatPresenterClass('Foo', 'framework'), "->formatPresenterClass('Foo', 'lib')");
-		$this->assertEquals('Kdyby\Foo\BarPresenter', $this->factory->formatPresenterClass('Foo:Bar', 'framework'), "->formatPresenterClass('Foo:Bar', 'lib')");
-		$this->assertEquals('Kdyby\Foo\Bar\BazPresenter', $this->factory->formatPresenterClass('Foo:Bar:Baz', 'framework'), "->formatPresenterClass('Foo:Bar:Baz', 'lib')");
+		$this->assertEquals('Kdyby\FooModule\BarPresenter', $this->factory->formatPresenterClass('Foo:Bar', 'framework'), "->formatPresenterClass('Foo:Bar', 'lib')");
+		$this->assertEquals('Kdyby\FooModule\BarModule\BazPresenter', $this->factory->formatPresenterClass('Foo:Bar:Baz', 'framework'), "->formatPresenterClass('Foo:Bar:Baz', 'lib')");
 	}
 
 
@@ -57,11 +55,11 @@ class PresenterFactoryTest extends Kdyby\Testing\TestCase
 	public function unformatPresenterClass()
 	{
 		$this->assertEquals('Foo', $this->factory->unformatPresenterClass('App\FooPresenter'), "->unformatPresenterClass('App\\FooPresenter')");
-		$this->assertEquals('Foo:Bar', $this->factory->unformatPresenterClass('App\Foo\BarPresenter'), "->unformatPresenterClass('App\\Foo\\BarPresenter')");
-		$this->assertEquals('Foo:Bar:Baz', $this->factory->unformatPresenterClass('App\Foo\Bar\BazPresenter'), "->unformatPresenterClass('App\\Foo\\Bar\\BazPresenter')");
+		$this->assertEquals('Foo:Bar', $this->factory->unformatPresenterClass('App\FooModule\BarPresenter'), "->unformatPresenterClass('App\\Foo\\BarPresenter')");
+		$this->assertEquals('Foo:Bar:Baz', $this->factory->unformatPresenterClass('App\FooModule\BarModule\BazPresenter'), "->unformatPresenterClass('App\\Foo\\Bar\\BazPresenter')");
 		$this->assertEquals('Foo', $this->factory->unformatPresenterClass('Kdyby\FooPresenter'), "->unformatPresenterClass('Nella\\FooPresenter')");
-		$this->assertEquals('Foo:Bar', $this->factory->unformatPresenterClass('Kdyby\Foo\BarPresenter'), "->unformatPresenterClass('Nella\\Foo\\BarPresenter')");
-		$this->assertEquals('Foo:Bar:Baz', $this->factory->unformatPresenterClass('Kdyby\Foo\Bar\BazPresenter'), "->unformatPresenterClass('Nella\\Foo\\Bar\\BazPresenter')");
+		$this->assertEquals('Foo:Bar', $this->factory->unformatPresenterClass('Kdyby\FooModule\BarPresenter'), "->unformatPresenterClass('Nella\\Foo\\BarPresenter')");
+		$this->assertEquals('Foo:Bar:Baz', $this->factory->unformatPresenterClass('Kdyby\FooModule\BarModule\BazPresenter'), "->unformatPresenterClass('Nella\\Foo\\Bar\\BazPresenter')");
 	}
 
 
@@ -75,13 +73,13 @@ class PresenterFactoryTest extends Kdyby\Testing\TestCase
 		$this->assertEquals('App\FooPresenter', $this->factory->getPresenterClass($name), "->getPresenterClass('$name')");
 
 		$name = 'Bar:Foo';
-		$this->assertEquals('App\Bar\FooPresenter', $this->factory->getPresenterClass($name), "->getPresenterClass('$name')");
+		$this->assertEquals('App\BarModule\FooPresenter', $this->factory->getPresenterClass($name), "->getPresenterClass('$name')");
 
 		$name = 'My';
 		$this->assertEquals('Kdyby\MyPresenter', $this->factory->getPresenterClass($name), "->getPresenterClass('$name')");
 
 		$name = 'Foo:My';
-		$this->assertEquals('Kdyby\Foo\MyPresenter', $this->factory->getPresenterClass($name), "->getPresenterClass('$name')");
+		$this->assertEquals('Kdyby\FooModule\MyPresenter', $this->factory->getPresenterClass($name), "->getPresenterClass('$name')");
 	}
 
 
@@ -134,22 +132,3 @@ class PresenterFactoryTest extends Kdyby\Testing\TestCase
 		$this->factory->getPresenterClass($name);
 	}
 }
-
-
-namespace Kdyby;
-
-class MyPresenter extends \Kdyby\Application\Presenter { }
-
-namespace Kdyby\Foo;
-
-class MyPresenter extends \Kdyby\Application\Presenter { }
-
-namespace App;
-
-class FooPresenter extends \Kdyby\Application\Presenter { }
-abstract class BarPresenter extends \Kdyby\Application\Presenter { }
-class BazPresenter { }
-
-namespace App\Bar;
-
-class FooPresenter extends \Kdyby\Application\Presenter { }
