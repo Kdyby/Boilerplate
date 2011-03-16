@@ -66,7 +66,7 @@ class Presenter extends Nette\Application\Presenter implements Kdyby\DependencyI
 	 * @return array
 	 */
 	public function formatLayoutTemplateFiles($presenter, $layout)
-	{dump($presenter, $layout);
+	{
 		$path = '/' . str_replace(':', 'Module/', $presenter);
 		$pathP = substr_replace($path, '/templates', strrpos($path, '/'), 0);
 
@@ -101,7 +101,7 @@ class Presenter extends Nette\Application\Presenter implements Kdyby\DependencyI
 	 * @return array
 	 */
 	public function formatTemplateFiles($presenter, $view)
-	{dump($presenter, $view);
+	{
 		$path = '/' . str_replace(':', 'Module/', $presenter);
 		$pathP = substr_replace($path, '/templates', strrpos($path, '/'), 0);
 		$path = substr_replace($path, '/templates', strrpos($path, '/'));
