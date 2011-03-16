@@ -1,6 +1,6 @@
 <?php
 
-namespace Kdyby\Application;
+namespace Kdyby\Application\Routers;
 
 use Nette;
 use Doctrine;
@@ -17,13 +17,13 @@ class AdminRouter extends Nette\Application\Route
 	public function __construct($mask = NULL, $flags = 0)
 	{
 		parent::__construct(
-				$mask . "[!/<presenter>][/<action>]",
+				$mask . "/[!<presenter>/][<action>/]",
 				$metadata = array(
-					'module' => 'AdminModule',
+					'module' => 'Admin',
 					'presenter' => 'Dashboard',
 					'action' => 'default'
 				),
-				$flags | Nette\Application\IRouter::SECURED
+				$flags //| Nette\Application\IRouter::SECURED
 			);
 	}
 

@@ -12,7 +12,7 @@
 
 
 
-namespace Kdyby\Application;
+namespace Kdyby\Application\Routers;
 
 use Kdyby\Model AS Model,
 	Nette,

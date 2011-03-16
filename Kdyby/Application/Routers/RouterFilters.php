@@ -1,9 +1,10 @@
 <?php
 
-namespace Kdyby\Application;
+namespace Kdyby\Application\Routers;
 
 use Doctrine;
 use Nette;
+use Kdyby;
 
 
 
