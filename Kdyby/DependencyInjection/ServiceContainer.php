@@ -192,8 +192,28 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 					$data = $this->getService(substr($data, 1));
 				}
 
-			} elseif (substr($data, 0, 1) === '%' && substr($data, -1) === '%') { // @todo: better (DI) implementation
-				$data = $this->getParameter(substr($data, 1, -1));
+			} elseif (substr($data, 0, 1) === '%' && substr($data, -1) === '%') {
+				$varName = substr($data, 1, -1);
+
+				if ($this->hasParameter($varName)) {
+					$data = $this->getParameter(substr($data, 1, -1));
+
+				} elseif (!$this->hasParameter($varName) && strpos($varName, '[') !== FALSE) {
+					// allows to get variables through "%group[key]%"
+					$groupSubKey = Nette\String::match($varName, '~^(?P<group>[^\[]+)(\[(?P<key>[^\[]+)\])?$~i');
+					if (!isset($groupSubKey['key']) || empty($groupSubKey['key'])) {
+						throw new \InvalidArgumentException("Can't expand given property's name '" . $varName . "'. Right format is '%group[key]%'.");
+					}
+
+					try {
+						$group = $groupSubKey['group'];
+						$key = $groupSubKey['key'];
+						if (isset($this[$group][$key])) {
+							$data = $this[$group][$key];
+						}
+
+					} catch (\InvalidStateException $e) {  }
+				}
 			}
 		}
 

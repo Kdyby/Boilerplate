@@ -76,8 +76,8 @@ class DefaultServiceFactories extends Nette\Object
 			'arguments' => array('@Kdyby\\Registry\\NamespacePrefixes'),
 		),
 		'Nette\\Caching\\IMemcacheStorage' => array(
-			'factory' => array(__CLASS__, 'createMemcacheStorage'),
-			'arguments' => array('%memcache%', '@Nette\\Caching\\IMemcacheJournal'),
+			'class' => 'Nette\\Caching\\MemcachedStorage',
+			'arguments' => array('%memcache[host]%', '%memcache[port]%', '%memcache[prefix]%', '@Nette\\Caching\\IMemcacheJournal'),
 			'aliases' => array('memcache'),
 		),
 		'Nette\\Caching\\IMemcacheJournal' => array(
@@ -157,10 +157,6 @@ class DefaultServiceFactories extends Nette\Object
 	 */
 	public static function createApplication(array $parameters, Nette\Web\IHttpRequest $httpRequest)
 	{
-		if (Environment::getVariable('baseUri', NULL) === NULL) {
-			Environment::setVariable('baseUri', $httpRequest->getUri()->getBaseUri());
-		}
-
 		$class = $parameters['application.class'];
 
 		$ref = Kdyby\Reflection\ServiceReflection::from($class);
@@ -256,18 +252,6 @@ class DefaultServiceFactories extends Nette\Object
 	{
 		$dir = Kdyby\Tools\FileSystem::prepareWritableDir('%varDir%/cache');
 		return new Kdyby\Caching\FileStorage($dir, $cacheJournal);
-	}
-
-
-
-	/**
-	 * @param array $properties
-	 * @param Nette\Caching\ICacheJournal $cacheJournal
-	 * @return Nette\Caching\MemcachedStorage
-	 */
-	public static function createMemcacheStorage($properties, Nette\Caching\ICacheJournal $cacheJournal)
-	{
-		return new Nette\Caching\MemcachedStorage($properties['host'], $properties['port'], $properties['prefix'], $cacheJournal);
 	}
 
 

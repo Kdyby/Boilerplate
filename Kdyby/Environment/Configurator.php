@@ -43,6 +43,16 @@ class Configurator extends Nette\Configurator
 		}
 
 		Kdyby\Templates\KdybyMacros::register();
+
+		$this->onAfterLoad[] = function (Kdyby\DependencyInjection\IServiceContainer $serviceContainer) {
+			$baseUri = $serviceContainer->httpRequest->uri->baseUri;
+
+			if (Nette\Environment::getVariable('baseUri', NULL) === NULL) {
+				Nette\Environment::setVariable('baseUri', $baseUri);
+			}
+
+			$serviceContainer['baseUri'] = $baseUri;
+		};
 	}
 
 

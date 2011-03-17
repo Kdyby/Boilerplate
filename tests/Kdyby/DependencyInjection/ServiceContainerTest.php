@@ -94,6 +94,20 @@ class ServiceContainerTest extends Kdyby\Testing\TestCase
 
 
 
+	public function testParametersExpandKey()
+	{
+		$this->serviceContainer->setParameter('foo', array(
+			'id' => 10,
+			'name' => 'Johny',
+		));
+		$this->serviceContainer->setParameter('bar', "%foo[id]%");
+
+		$this->assertEquals('Johny', $this->serviceContainer->expandParameter('%foo[name]%'), "->expandParameter('%foo[name]%') equals 'Johny'");
+		$this->assertEquals(10, $this->serviceContainer->getParameter('bar'), "->getParameter('bar') equals '10' from foo[id] paramter");
+	}
+
+
+
 	public function testParametersExpandService()
 	{
 		$this->serviceContainer->addService('Foo', new Foo);
