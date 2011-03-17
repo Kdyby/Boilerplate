@@ -17,7 +17,7 @@ use Nette;
 
 
 
-class FileStorage extends Nette\Caching\FileStorage
+class FileStorage extends Nette\Caching\FileStorage implements \ArrayAccess
 {
 
 	/**
@@ -28,5 +28,50 @@ class FileStorage extends Nette\Caching\FileStorage
     {
         return new \DateTime(filemtime($this->getCacheFile($key)));
     }
+
+
+
+	/**
+	 * @param string $namespace
+	 * @return Nette\Caching\Cache
+	 */
+	public function offsetGet($namespace)
+	{
+		return new Nette\Caching\Cache(
+			$this,
+			$namespace
+		);
+	}
+
+
+
+	/**
+	 * @param string $offset
+	 * @param mixed $value
+	 */
+	public function offsetSet($offset, $value)
+	{
+		throw new \NotSupportedException();
+	}
+
+
+
+	/**
+	 * @param string $offset
+	 */
+	public function offsetExists($offset)
+	{
+		throw new \NotSupportedException();
+	}
+
+
+
+	/**
+	 * @param string $offset
+	 */
+	public function offsetUnset($offset)
+	{
+		throw new \NotSupportedException();
+	}
 
 }

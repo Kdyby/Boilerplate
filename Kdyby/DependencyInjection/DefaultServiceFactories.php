@@ -36,6 +36,7 @@ class DefaultServiceFactories extends Nette\Object
 		'Nette\\Caching\\ICacheStorage' => array(
 			'factory' => array(__CLASS__, 'createCacheStorage'),
 			'arguments' => array('@Nette\\Caching\\ICacheJournal'),
+			'aliases' => array('cache'),
 		),
 		'Nette\\Caching\\ICacheJournal' => array(
 			'factory' => array('Nette\Configurator', 'createCacheJournal'),
@@ -51,11 +52,6 @@ class DefaultServiceFactories extends Nette\Object
 		),
 		'Nette\\Loaders\\RobotLoader' => array(
 			'factory' => array('Nette\Configurator', 'createRobotLoader'),
-		),
-		'Nette\\Caching\\Cache' => array(
-			'class' => 'Nette\\Caching\\Cache',
-			'arguments' => array('@Nette\\Caching\\ICacheStorage', 'Nette'),
-			'aliases' => array('cache'),
 		),
 		'Nette\\Security\\IAuthenticator' => array(
 			'class' => 'Kdyby\\Security\\Authenticator',
