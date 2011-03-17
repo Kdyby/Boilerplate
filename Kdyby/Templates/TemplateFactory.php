@@ -2,81 +2,123 @@
 
 namespace Kdyby\Templates;
 
-use Nette;
 use Kdyby;
+use Nette;
 
 
 
-class TemplateFactory extends Nette\Object
+class TemplateFactory extends Nette\Object implements ITemplateFactory
 {
 
-	/** Nette\Application\PresenterComponent */
-	private $component;
+	/** @var Nette\Web\IUser */
+	private $user;
+
+	/** @var string */
+	private $baseUri;
+
+	/** @var string */
+	private $templateClass = 'Nette\Templates\FileTemplate';
+
+	/** @var Nette\ITranslator */
+	private $translator;
 
 
 
 	/**
-	 * @param Nette\Application\PresenterComponent $component
+	 * @param Nette\Web\IUser $user
+	 * @param string $baseUri
 	 */
-	public function __construct(Nette\Application\PresenterComponent $component = NULL)
+	public function __construct(Nette\Web\IUser $user, $baseUri)
 	{
-		$this->component = $component;
+		$this->user = $user;
+		$this->baseUri = $baseUri;
 	}
 
 
 
 	/**
-	 * @param string $class
+	 * @param string $templateClass
+	 */
+	public function setTemplateClass($templateClass)
+	{
+		if (!class_exists($templateClass)) {
+			throw new \InvalidArgumentException("Template class " . $templateClass . " not found.");
+		}
+
+		$ref = Nette\Reflection\ClassReflection::from($templateClass);
+		if (!$ref->implementsInterface('Nette\Templates\ITemplate')) {
+			throw new \InvalidArgumentException("Class " . $templateClass . " does not implement interface Nette\Templates\ITemplate.");
+		}
+
+		$this->templateClass = $templateClass;
+	}
+
+
+
+	/**
+	 * @return string
+	 */
+	public function getTemplateClass()
+	{
+		return $this->templateClass;
+	}
+
+
+
+	/**
+	 * @param Nette\ITranslator $translator
+	 */
+	public function setTranslator(Nette\ITranslator $translator)
+	{
+		$this->translator = $translator;
+	}
+
+
+
+	/**
+	 * @return Nette\ITranslator
+	 */
+	public function getTranslator()
+	{
+		return $this->translator;
+	}
+
+
+
+	/**
+	 * @param Nette\Component $component
 	 * @return Nette\Templates\ITemplate
 	 */
-	public function createTemplate($class = NULL)
+	public function createTemplate(Nette\Component $component)
 	{
-		$class = $class ?: 'Kdyby\Templates\FileTemplate';
-		$template = new $class;
+		$template = new $this->templateClass;
 
-		if ($this->component) {
-			$presenter = $this->component->getPresenter(FALSE);
-			$template->onPrepareFilters[] = callback($presenter, 'templatePrepareFilters');
-		}
+		// latte filter
+		$template->onPrepareFilters[] = callback(__CLASS__, 'templatePrepareFilters');
 
-		// default latte if none
-		if (!$template->onPrepareFilters) {
-			$template->onPrepareFilters[] = function($template) {
-				$template->registerFilter(new \Nette\Templates\LatteFilter);
-			};
-		}
-
-		$template->onPrepareFilters[] = callback(__CLASS__.'::templatePrepareFilters');
+		// default helpers
+		$this->templateRegisterHelpers($template);
 
 		// default parameters
-		$template->user = Nette\Environment::getUser();
-		$template->baseUri = Helpers::getBaseUri();
-		$template->basePath = Helpers::getBasePath();
-		$template->theme = isset($presenter) ? $presenter->getThemePath() : NULL;
+		$template->control = $component;
+		$template->presenter = $presenter = $component->lookup('Nette\Application\Presenter', FALSE);
+		$template->user = $this->user;
+		$template->baseUri = rtrim($this->baseUri, '/');
+		$template->basePath = preg_replace('#https?://[^/]+#A', '', $template->baseUri);
 
-		if ($this->component) {
-			$template->control = $this->component;
-			$template->presenter = $presenter;
-
-			// flash message
-			if ($presenter !== NULL && $presenter->hasFlashSession()) {
-				$id = $this->component->getParamId('flash');
-				$template->flashes = $presenter->getFlashSession()->$id;
-			}
+		// translator
+		if ($this->translator) {
+			$template->setTranslator($this->translator);
 		}
 
+		// flash message
+		if ($presenter !== NULL && $presenter->hasFlashSession()) {
+			$id = $this->getParamId('flash');
+			$template->flashes = $presenter->getFlashSession()->$id;
+		}
 		if (!isset($template->flashes) || !is_array($template->flashes)) {
 			$template->flashes = array();
 		}
-
-		self::templateRegisterHelpers($template);
-
-		$context = Nette\Environment::getApplication()->getContext();
-		$translator = $context->hasService("Nette\\ITranslator") ? $context->getService("Nette\\ITranslator") : NULL;
-		$template->setTranslator($translator);
-
-		// global = base folder for templates
-		$template->globalPath = APP_DIR . '/templates';
 
 		return $template;
 	}
