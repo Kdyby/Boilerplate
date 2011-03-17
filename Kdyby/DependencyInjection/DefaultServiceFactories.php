@@ -14,7 +14,7 @@ class DefaultServiceFactories extends Nette\Object
 	public static $defaultServices = array(
 		'Nette\\Application\\Application' => array(
 			'factory' => array(__CLASS__, 'createApplication'),
-			'arguments' => array('%Application%', '@Nette\\Web\\IHttpRequest'),
+			'arguments' => array('%Application[application.class]%'),
 			'aliases' => array('application'),
 		),
 		'Nette\\Application\\IRouter' => array(
@@ -77,11 +77,8 @@ class DefaultServiceFactories extends Nette\Object
 		),
 		'Nette\\Caching\\IMemcacheStorage' => array(
 			'class' => 'Nette\\Caching\\MemcachedStorage',
-			'arguments' => array('%memcache[host]%', '%memcache[port]%', '%memcache[prefix]%', '@Nette\\Caching\\IMemcacheJournal'),
+			'arguments' => array('%memcache[host]%', '%memcache[port]%', '%memcache[prefix]%'),
 			'aliases' => array('memcache'),
-		),
-		'Nette\\Caching\\IMemcacheJournal' => array(
-			'factory' => array(__CLASS__, 'createMemcacheJournal'),
 		),
 
 		'Doctrine\\ORM\\EntityManager' => array(
@@ -152,13 +149,11 @@ class DefaultServiceFactories extends Nette\Object
 
 
 	/**
-	 * @param array $parameters
-	 * @return Kdyby\Application\Application
+	 * @param string $class
+	 * @return Nette\Application\Application
 	 */
-	public static function createApplication(array $parameters, Nette\Web\IHttpRequest $httpRequest)
+	public static function createApplication($class)
 	{
-		$class = $parameters['application.class'];
-
 		$ref = Kdyby\Reflection\ServiceReflection::from($class);
 		$params = $ref->getConstructorParamClasses();
 		$serviceContainer = clone self::getServiceContainer();
@@ -166,6 +161,10 @@ class DefaultServiceFactories extends Nette\Object
 		$application = $params ? $ref->newInstanceArgs($serviceContainer->expandParams($params)) : new $class;
 		$application->setServiceContainer($serviceContainer);
 		$application->catchExceptions = Environment::isProduction();
+
+		if (!$application instanceof Nette\Application\Application) {
+			throw new \InvalidArgumentException("Application class " . $class .  " must be descendant of Nette\Application\Application.");
+		}
 
 		return $application;
 	}
@@ -252,21 +251,6 @@ class DefaultServiceFactories extends Nette\Object
 	{
 		$dir = Kdyby\Tools\FileSystem::prepareWritableDir('%varDir%/cache');
 		return new Kdyby\Caching\FileStorage($dir, $cacheJournal);
-	}
-
-
-
-	/**
-	 * @return Nette\Caching\ICacheJournal
-	 */
-	public static function createMemcacheJournal()
-	{
-		/*if (Nette\Caching\SqliteJournal::isAvailable()) {
-			return new Nette\Caching\SqliteJournal(Environment::getVariable('tempDir') . '/cachejournal.db');
-		} else*/ {
-			$dir = Kdyby\Tools\FileSystem::prepareWritableDir('%tempDir%/memcache');
-			return new Nette\Caching\FileJournal($dir);
-		}
 	}
 
 }
