@@ -8,7 +8,8 @@ use Kdyby;
 
 
 
-class Navigation extends Kdyby\Control\LookoutControl
+/** @deprecated */
+class _Navigation extends Kdyby\Control\LookoutControl
 {
 
 
@@ -24,7 +25,7 @@ class Navigation extends Kdyby\Control\LookoutControl
 
 //	private function getItems($menu)
 //	{
-// 
+//
 // 		překladač!
 //
 //		$translator = $this->getTranslator();
