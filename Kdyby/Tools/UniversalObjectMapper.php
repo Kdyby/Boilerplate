@@ -55,10 +55,12 @@ class UniversalObjectMapper extends Nette\Object
 	/**
 	 * @param array $columns
 	 * @param string $prefix
+	 * @return UniversalObjectMapper
 	 */
 	public function setColumns(array $columns)
 	{
 		$this->columns = $columns;
+		return $this;
 	}
 
 
