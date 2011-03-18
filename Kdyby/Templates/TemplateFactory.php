@@ -10,7 +10,7 @@ use Nette;
 class TemplateFactory extends Nette\Object implements ITemplateFactory
 {
 
-	/** @var Nette\Web\IUser */
+	/** @var Kdyby\Security\User */
 	private $user;
 
 	/** @var string */
@@ -41,16 +41,7 @@ class TemplateFactory extends Nette\Object implements ITemplateFactory
 	 */
 	public function setTemplateClass($templateClass)
 	{
-		if (!class_exists($templateClass)) {
-			throw new \InvalidArgumentException("Template class " . $templateClass . " not found.");
-		}
-
-		$ref = Nette\Reflection\ClassReflection::from($templateClass);
-		if (!$ref->implementsInterface('Nette\Templates\ITemplate')) {
-			throw new \InvalidArgumentException("Class " . $templateClass . " does not implement interface Nette\Templates\ITemplate.");
-		}
-
-		$this->templateClass = $templateClass;
+		$this->templateClass = $this->validateTemplateClass($templateClass);
 	}
 
 
@@ -87,14 +78,16 @@ class TemplateFactory extends Nette\Object implements ITemplateFactory
 
 	/**
 	 * @param Nette\Component $component
+	 * @param string $templateClass
 	 * @return Nette\Templates\ITemplate
 	 */
-	public function createTemplate(Nette\Component $component)
+	public function createTemplate(Nette\Component $component, $templateClass = NULL)
 	{
-		$template = new $this->templateClass;
+		$templateClass = $templateClass ? $this->validateTemplateClass($templateClass) : $this->templateClass;
+		$template = new $templateClass;
 
 		// latte filter
-		$template->onPrepareFilters[] = callback(__CLASS__, 'templatePrepareFilters');
+		$template->onPrepareFilters[] = callback($this, 'templatePrepareFilters');
 
 		// default helpers
 		$this->templateRegisterHelpers($template);
@@ -105,6 +98,10 @@ class TemplateFactory extends Nette\Object implements ITemplateFactory
 		$template->user = $this->user;
 		$template->baseUri = rtrim($this->baseUri, '/');
 		$template->basePath = preg_replace('#https?://[^/]+#A', '', $template->baseUri);
+		$template->baseTemplatesPath = APP_DIR . '/templates';
+		$template->themePath = $this->user->theme->link;
+
+		// todo: theme template parameter ??
 
 		// translator
 		if ($this->translator) {
@@ -126,21 +123,42 @@ class TemplateFactory extends Nette\Object implements ITemplateFactory
 
 
 	/**
-	 * @param  Nette\Templates\Template
-	 * @return void
+	 * @param string $templateClass
+	 * @throws \InvalidArgumentException
 	 */
-	public static function templatePrepareFilters(Nette\Templates\Template $template)
+	private function validateTemplateClass($templateClass)
 	{
-		$template->registerFilter('Nette\Templates\TemplateFilters::netteLinks');
+		if (!class_exists($templateClass)) {
+			throw new \InvalidArgumentException("Template class " . $templateClass . " not found.");
+		}
+
+		$ref = Nette\Reflection\ClassReflection::from($templateClass);
+		if (!$ref->implementsInterface('Nette\Templates\ITemplate')) {
+			throw new \InvalidArgumentException("Class " . $templateClass . " does not implement interface Nette\Templates\ITemplate.");
+		}
+
+		return $templateClass;
 	}
 
 
 
 	/**
-	 * @param Nette\Templates\Template $template
+	 * @param  Nette\Templates\ITemplate
 	 * @return void
 	 */
-	public static function templateRegisterHelpers(Nette\Templates\Template $template)
+	public function templatePrepareFilters(Nette\Templates\ITemplate $template)
+	{
+		// $template->registerFilter('Nette\Templates\TemplateFilters::netteLinks');
+		$template->registerFilter(new Nette\Templates\LatteFilter);
+	}
+
+
+
+	/**
+	 * @param Nette\Templates\ITemplate $template
+	 * @return void
+	 */
+	public function templateRegisterHelpers(Nette\Templates\ITemplate $template)
 	{
 		// default helpers
 		$template->registerHelper('escape', 'Nette\Templates\TemplateHelpers::escapeHtml');
