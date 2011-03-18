@@ -120,6 +120,12 @@ class DefaultServiceFactories extends Nette\Object
 			),
 			'aliases' => array('templateDirs'),
 		),
+		'Kdyby\\Templates\\ITemplateFactory' => array(
+			'class' => 'Kdyby\\Templates\\TemplateFactory',
+			'arguments' => array('@Nette\\Web\\IUser', '%baseUri%'),
+//				('Nette\\Templates\\FileTemplate', '@Nette\\ITranslator'),
+			'aliases' => array('templateFactory'),
+		),
 	);
 
 
