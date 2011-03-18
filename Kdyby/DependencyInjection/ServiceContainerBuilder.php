@@ -181,8 +181,6 @@ class ServiceContainerBuilder extends Nette\Object implements IServiceContainerB
 				$serviceContainer->setParameter($key, $tmp);
 			}
 		}
-
-		$serviceContainer->expandParameters();
 	}
 
 

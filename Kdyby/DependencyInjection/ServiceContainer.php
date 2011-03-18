@@ -22,12 +22,31 @@ use Nette\Environment;
  * Properties are accesible throught ArrayAccess interface
  *
  * @author	Patrik Votoček
- * @author Filip Procházka
+ * @author	Filip Procházka
  *
  * @property string $environment
+ *
+ * @property-read Kdyby\Application\Application $application
+ * @property-read Nette\Web\HttpContext $httpContext
+ * @property-read Nette\Web\HttpRequest $httpRequest
+ * @property-read Nette\Web\HttpResponse $httpResponse
+ * @property-read Nette\Mail\IMailer $mailer
+ * @property-read Nette\Web\Session $sessionStorage
+ * @property-read Nette\Caching\Cache $cache
+ * @property-read Kdyby\Security\Authenticator $authenticator
+ * @property-read Kdyby\Security\Authorizator $authorizator
+ * @property-read Kdyby\Security\User $user
+ * @property-read Nette\Caching\ICacheStorage $memcache
+ * @property-read Doctrine\ORM\EntityManager $entityManager
+ * @property-read Kdyby\Tools\FreezableArray $namespacePrefixes
+ * @property-read Kdyby\Tools\FreezableArray $templateDirs
+ * @property-read Kdyby\Templates\TemplateFactory $templateFactory
  */
 class ServiceContainer extends Nette\FreezableObject implements IServiceContainer, \ArrayAccess
 {
+
+	/** @var array */
+	public $onBeforeFreeze = array();
 
 	/** @var string */
 	private $environment;
@@ -148,29 +167,10 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 	 * @param array $data
 	 * @return array
 	 */
-	public function expandParameters(array $data = NULL)
+	public function expandParameters($data = NULL)
 	{
-		if ($data === NULL) {
-			if ($this->isFrozen()) {
-				throw new \InvalidStateException("Service container is frozen for changes");
-			}
-
-			foreach ($this->parameters as $key => $value) {
-				if (is_array($value)) {
-					array_walk_recursive($value, function (&$value, $key, $serviceContainer) {
-						$value = $serviceContainer->expandParameter($value);
-					}, $this);
-
-				} else {
-					$this->parameters[$key] = $this->expandParameter($value);
-				}
-			}
-
-			return ;
-		}
-
 		$tmp = array();
-		foreach ($data as $key => $value) {
+		foreach ((array)$data as $key => $value) {
 			$tmp[$key] = $this->expandParameter($value);
 		}
 
@@ -453,7 +453,7 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 
 			return $service;
 		}
-		
+
 		throw new \InvalidStateException("Service '$name' not found.");
 	}
 
@@ -555,6 +555,30 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 		$this->registry[$lower] = & $this->globalRegistry[$lower]; // forces cloning using reference
 
 		return $this;
+	}
+
+
+
+	/**
+	 * Makes the object unmodifiable.
+	 * @return void
+	 */
+	public function freeze()
+	{
+		if (!$this->isFrozen()) {
+			foreach ($this->parameters as $key => $value) {
+				if (is_array($value)) {
+					array_walk_recursive($value, function (&$value, $key, $serviceContainer) {
+						$value = $serviceContainer->expandParameter($value);
+					}, $this);
+
+				} else {
+					$this->parameters[$key] = $this->expandParameter($value);
+				}
+			}
+		}
+
+		parent::freeze();
 	}
 
 
