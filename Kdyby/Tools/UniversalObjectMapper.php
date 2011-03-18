@@ -197,7 +197,7 @@ class UniversalObjectMapper extends Nette\Object
 		}
 
 		// get reflecton of properties
-		foreach (array_intersect_key($this->getProperties(), $data) as $property => $propRef) {
+		foreach (array_intersect_key($this->getProperties(TRUE), $data) as $property => $propRef) {
 			$propRef->setValue($object, $data[$property]);
 		}
 
