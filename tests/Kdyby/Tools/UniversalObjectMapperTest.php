@@ -98,13 +98,16 @@ class UniversalObjectMapperTest extends Kdyby\Testing\TestCase
 
 	/**
 	 * @test
-	 * @expectedException \InvalidArgumentException
 	 */
-	public function failLoadObjectWithUndefinedProperty()
+	public function loadObjectWithUndefinedProperty()
 	{
-		$this->mapper->load(new CommonEntityClassMock(), array(
+		$object = new CommonEntityClassMock();
+		$snapshot = clone $object;
+		$this->mapper->load($object, array(
 			'nonexistingproperty' => 1
 		));
+
+		$this->assertEquals((array)$snapshot, (array)$object);
 	}
 
 

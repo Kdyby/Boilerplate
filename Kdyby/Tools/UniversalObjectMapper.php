@@ -191,23 +191,11 @@ class UniversalObjectMapper extends Nette\Object
 				unset($data[$column]);
 			}
 
-			if ($data) {
-				$diff = array_keys($data);
-				throw new \InvalidArgumentException("Following columns are redundant: " . implode(', ', $diff));
-			}
-
 			$data = $tmp;
 		}
 
 		// get reflecton of properties
-		$properties = array_intersect_key($this->getProperties(), $data);
-		if (count($properties) != count($data)) {
-			$diff = array_diff(array_keys($data), array_keys($properties));
-			throw new \InvalidArgumentException("Mapper is not able/allowed to inject, into object of " . $this->className . ", following properties: " . implode(', ', $diff));
-		}
-
-		$prepared = array();
-		foreach ($properties as $property => $propRef) {
+		foreach (array_intersect_key($this->getProperties(), $data) as $property => $propRef) {
 			$propRef->setValue($object, $data[$property]);
 		}
 
