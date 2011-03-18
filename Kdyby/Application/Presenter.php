@@ -58,6 +58,22 @@ class Presenter extends Nette\Application\Presenter implements Kdyby\DependencyI
 
 
 
+	/**************************** Templates ****************************/
+
+
+
+	/**
+	 * @param string|NULL $class
+	 * @return Nette\Templates\ITemplate
+	 */
+	protected function createTemplate($class = NULL)
+	{
+		$templateFactory = $this->getServiceContainer()->getService('Kdyby\Templates\ITemplateFactory');
+		return $templateFactory->createTemplate($this, $class);
+	}
+
+
+
 	/**
 	 * Formats layout template file names.
 	 *
@@ -83,8 +99,14 @@ class Presenter extends Nette\Application\Presenter implements Kdyby\DependencyI
 			return $list;
 		};
 
+		$moduleDir = dirname(dirname($this->reflection->getFileName()));
+
 		$files = array();
 		foreach ($this->getServiceContainer()->templateDirs as $dir) {
+			if (!Nette\String::startsWith($moduleDir, $dir)) {
+				continue;
+			}
+
 			$files = array_merge($files, $mapper($dir));
 		}
 
@@ -113,8 +135,14 @@ class Presenter extends Nette\Application\Presenter implements Kdyby\DependencyI
 			);
 		};
 
+		$moduleDir = dirname(dirname($this->reflection->getFileName()));
+
 		$files = array();
 		foreach ($this->getServiceContainer()->templateDirs as $dir) {
+			if (!Nette\String::startsWith($moduleDir, $dir)) {
+				continue;
+			}
+
 			$files = array_merge($files, $mapper($dir));
 		}
 

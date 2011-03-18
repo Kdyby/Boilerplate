@@ -21,26 +21,21 @@ use Nette\String;
 
 
 /**
+ * @property-read Kdyby\Application\Presenter $presenter
  * @property Kdyby\Templates\FileTemplate $template
- * @method Kdyby\Templates\FileTemplate getTemplate
+ *
+ * @method Kdyby\Templates\FileTemplate getTemplate() getTemplate()
+ * @method Kdyby\Application\Presenter getPresenter() getPresenter()
  */
 class Control extends Nette\Application\Control
 {
 
-	/** @var Nette\ITranslator */
-	private $translator;
-
-	/** @var Doctrine\ORM\EntityManager */
-	private $em;
-
-
-
 	/**
-	 * @return Nette\Web\IUser
+	 * @return Kdyby\Security\User
 	 */
 	public function getUser()
 	{
-		return Nette\Environment::getUser();
+		return $this->getPresenter()->getService('Nette\Web\IUser');
 	}
 
 
@@ -50,11 +45,7 @@ class Control extends Nette\Application\Control
 	 */
 	public function getEntityManager()
 	{
-		if ($this->em === NULL) {
-			$this->em = Environment::getService('Doctrine\ORM\EntityManager');
-		}
-
-		return $this->em;
+		return $this->getPresenter()->getService('Doctrine\ORM\EntityManager');
 	}
 
 
@@ -64,39 +55,35 @@ class Control extends Nette\Application\Control
 	 */
 	public function getTranslator()
 	{
-		if ($this->translator === NULL) {
-			$this->translator = Environment::getService("Nette\\ITranslator");
-		}
-
-		return $this->translator;
+		return $this->getPresenter()->getService("Nette\\ITranslator");
 	}
+
+
+
+	/**************************** Templates ****************************/
+
 
 
 	/**
-	 * @param Nette\ITranslator $translator
+	 * @param string|NULL $class
+	 * @return Nette\Templates\ITemplate
 	 */
-	public function setTranslator(Nette\ITranslator $translator)
-	{
-		$this->translator = $translator;
-	}
-
-
-
-	/*=========================== Templates =============================*/
-
-
 	protected function createTemplate($class = NULL)
 	{
-		$templateFactory = new Kdyby\Templates\TemplateFactory($this);
-		return $templateFactory->createTemplate($class);
+		$templateFactory = $this->getPresenter()->getService('Kdyby\Templates\ITemplateFactory');
+		return $templateFactory->createTemplate($this, $class);
 	}
 
 
 
-	/*=========================== Components magic =============================*/
+	/**************************** Components magic ****************************/
 
 
 
+	/**
+	 * @param string $name
+	 * @return Nette\Component
+	 */
 	public function createComponent($name)
 	{
 		$component = parent::createComponent($name);
