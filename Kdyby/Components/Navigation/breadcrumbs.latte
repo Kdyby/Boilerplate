@@ -1,0 +1,3 @@
+<div class="control breadcrumbs" n:inner-foreach="$items as $item">
+	<a href="{$item->url}" n:class="$iterator->isLast()? 'active'">{$item->label}</a>{sep} &rarr; {/sep}
+</div>
