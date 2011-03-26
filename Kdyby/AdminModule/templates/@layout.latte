@@ -1,2 +1,6 @@
-
-{include #content}
+{extends '@layout.top.latte'}
+{block #content}
+	<div class="column-right column-big">
+		{include #mainContent}
+	</div>
+{/block}

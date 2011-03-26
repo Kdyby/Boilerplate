@@ -23,5 +23,18 @@ use Kdyby;
  */
 abstract class BasePresenter extends Kdyby\Application\Presenter
 {
-	
+
+	// security and stuff
+	protected function startup()
+	{
+		parent::startup();
+
+		// theme
+		$this->user->theme->switchTheme(Nette\Environment::expand('%wwwDir%/_kdyby-admin'));
+
+		// admin bundle
+		$bundleRepo = $this->serviceContainer->entityManager->getRepository('Kdyby\Application\Presentation\Bundle');
+		$this->applicationBundle = $bundleRepo->findOneByPlaceholderName(Kdyby\AdminModule\BundleInfo::PLACEHOLDER_NAME);
+	}
+
 }
