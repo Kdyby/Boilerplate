@@ -687,11 +687,11 @@ final class ExtendableRouter extends Nette\Object implements Nette\Application\I
 
 	/**
 	 * Constructs absolute URL from PresenterRequest object.
-	 * @param  Nette\Web\IHttpRequest
 	 * @param  PresenterRequest
+	 * @param  Nette\Web\Uri referential URI
 	 * @return string|NULL
 	 */
-	public function constructUrl(PresenterRequest $appRequest, Nette\Web\IHttpRequest $httpRequest)
+	public function constructUrl(PresenterRequest $appRequest, Nette\Web\Uri $refUri)
 	{
 		
 	}
