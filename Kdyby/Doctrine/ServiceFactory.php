@@ -10,6 +10,7 @@
 namespace Kdyby\Doctrine;
 
 use Doctrine;
+use Doctrine\DBAL\Types\Type as DoctrineTypes;
 use Nette;
 use Kdyby;
 
@@ -55,7 +56,7 @@ final class ServiceFactory extends Nette\Object
 	 * @param array $dirs
 	 * @return \Doctrine\ORM\Configuration
 	 */
-	protected static function createConfiguration(array $dirs = array())
+	public static function createConfiguration(array $dirs = array())
 	{
 		$config = new Doctrine\ORM\Configuration;
 

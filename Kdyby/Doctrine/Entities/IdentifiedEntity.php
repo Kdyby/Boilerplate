@@ -9,7 +9,7 @@
  */
 
 
-namespace Kdyby\Doctrine;
+namespace Kdyby\Doctrine\Entities;
 
 use Nette;
 use Kdyby;
@@ -26,7 +26,11 @@ use Kdyby;
 abstract class IdentifiedEntity extends BaseEntity
 {
 
-	/** @Id @Column(type="integer") @GeneratedValue */
+	/**
+	 * @Id
+	 * @Column(type="integer")
+	 * @GeneratedValue
+	 */
 	private $id;
 
 	public function getId() { return $this->id; }

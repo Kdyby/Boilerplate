@@ -8,12 +8,7 @@
  * @package CMF Kdyby-Common
  */
 
-
-namespace Kdyby\Doctrine;
-
-use Nette;
-use Nette\Environment;
-use Nette\Caching\Cache AS NCache;
+namespace Kdyby\Doctrine\Entities;
 
 
 

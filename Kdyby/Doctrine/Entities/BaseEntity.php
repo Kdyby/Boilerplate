@@ -9,11 +9,10 @@
  */
 
 
-namespace Kdyby\Doctrine;
+namespace Kdyby\Doctrine\Entities;
 
 use Nette;
 use Nette\Environment;
-use Nette\Caching\Cache AS NCache;
 
 
 
@@ -37,7 +36,7 @@ abstract class BaseEntity extends Nette\Object
 	public function setValues(array $data)
 	{
 		foreach ($data as $key => $value) {
-			$this->__set($key, $value);
+			$this->$key = $value;
 		}
 	}
 
@@ -65,7 +64,7 @@ abstract class BaseEntity extends Nette\Object
 	public function cleanCache()
 	{
 		Environment::getCache()->clean(array(
-			NCache::TAGS => array_merge(array(get_class($this)), $this->getCacheTags())
+			Nette\Caching\Cache::TAGS => array_merge(array(get_class($this)), $this->getCacheTags())
 		));
 	}
 

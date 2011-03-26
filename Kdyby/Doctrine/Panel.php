@@ -106,10 +106,7 @@ class Panel extends Nette\Object implements Nette\IDebugPanel, Doctrine\DBAL\Log
 			}
 
 			$s .= '</td><td>';
-			foreach ($params as $param) {
-				$s .= "{$h(String::truncate($param, self::$maxLength))}<br>";
-			}
-
+			$s .= Debug::dump($params, TRUE);
 			$s .= '</td><td>' . $rows . '</td></tr>';
 		}
 
