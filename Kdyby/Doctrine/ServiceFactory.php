@@ -80,9 +80,9 @@ final class ServiceFactory extends Nette\Object
 		$config->setMetadataDriverImpl(self::newDefaultAnnotationDriver($dirs));
 
 		// Proxies
-		$config->setProxyDir(VAR_DIR . "/proxies");
+		$config->setProxyDir(TEMP_DIR . "/proxies");
 		$config->setProxyNamespace('Kdyby\Models\Proxies');
-		$config->setAutoGenerateProxyClasses(!Nette\Environment::isProduction());
+		$config->setAutoGenerateProxyClasses(Nette\Environment::isProduction() === FALSE);
 
 		return $config;
 	}
