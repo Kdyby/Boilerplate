@@ -41,6 +41,7 @@ use Nette\Environment;
  * @property-read Kdyby\Tools\FreezableArray $namespacePrefixes
  * @property-read Kdyby\Tools\FreezableArray $templateDirs
  * @property-read Kdyby\Templates\TemplateFactory $templateFactory
+ * @property-read Kdyby\Application\INavigationManager $navigationManager
  */
 class ServiceContainer extends Nette\FreezableObject implements IServiceContainer, \ArrayAccess
 {
@@ -169,12 +170,11 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 	 */
 	public function expandParameters($data = NULL)
 	{
-		$tmp = array();
-		foreach ((array)$data as $key => $value) {
-			$tmp[$key] = $this->expandParameter($value);
-		}
+		array_walk_recursive($data, function (&$value, $key, $serviceContainer) {
+			$value = $serviceContainer->expandParameter($value);
+		}, $this);
 
-		return $tmp;
+		return $data;
 	}
 
 
@@ -192,32 +192,47 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 					$data = $this->getService(substr($data, 1));
 				}
 
-			} elseif (substr($data, 0, 1) === '%' && substr($data, -1) === '%') {
-				$varName = substr($data, 1, -1);
+			} elseif (strpos($data, '%') !== FALSE) {
+				if (substr($data, 0, 1) === '%' && substr($data, -1) === '%' && substr_count($data, '%') === 2) {
+					$resolved = $this->resolveParameterFragment(substr($data, 1, -1));
+					return is_array($resolved) ? $this->expandParameters($resolved) : $this->expandParameter($resolved);
+				}
 
-				if ($this->hasParameter($varName)) {
-					$data = $this->getParameter(substr($data, 1, -1));
-
-				} elseif (!$this->hasParameter($varName) && strpos($varName, '[') !== FALSE) {
-					// allows to get variables through "%group[key]%"
-					$groupSubKey = Nette\String::match($varName, '~^(?P<group>[^\[]+)(\[(?P<key>[^\[]+)\])?$~i');
-					if (!isset($groupSubKey['key']) || empty($groupSubKey['key'])) {
-						throw new \InvalidArgumentException("Can't expand given property's name '" . $varName . "'. Right format is '%group[key]%'.");
-					}
-
-					try {
-						$group = $groupSubKey['group'];
-						$key = $groupSubKey['key'];
-						if (isset($this[$group][$key])) {
-							$data = $this[$group][$key];
-						}
-
-					} catch (\InvalidStateException $e) {  }
+				foreach (Nette\String::matchAll($data, '~(?P<pattern>\%(?P<varName>[^%]+)\%)~i') as $match) {
+					$data = str_replace($match['pattern'], $this->resolveParameterFragment($match['varName']), $data);
 				}
 			}
 		}
 
 		return Environment::expand($data);
+	}
+
+
+
+	/**
+	 * @param string $varName
+	 * @return string|NULL
+	 */
+	private function resolveParameterFragment($varName)
+	{
+		if ($this->hasParameter($varName)) {
+			return $this->getParameter($varName);
+
+		} elseif (!$this->hasParameter($varName) && strpos($varName, '[') !== FALSE) {
+			// allows to get variables through "%group[key]%"
+			$groupSubKey = Nette\String::match($varName, '~^(?P<group>[^\[]+)(\[(?P<key>[^\[]+)\])?$~i');
+			if (!isset($groupSubKey['key']) || empty($groupSubKey['key'])) {
+				throw new \InvalidArgumentException("Can't expand given parameter's name '" . $varName . "', right format is '%group[key]%'.");
+			}
+
+			try {
+				$group = $groupSubKey['group'];
+				$key = $groupSubKey['key'];
+				return isset($this[$group][$key]) ? $this[$group][$key] : NULL;
+			} catch (\InvalidStateException $e) {  }
+		}
+
+		return NULL;
 	}
 
 
@@ -566,8 +581,9 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 	public function freeze()
 	{
 		if (!$this->isFrozen()) {
-			foreach ($this->parameters as $key => $value) {
+			foreach ($this->parameters as $key => &$value) {
 				if (is_array($value)) {
+
 					array_walk_recursive($value, function (&$value, $key, $serviceContainer) {
 						$value = $serviceContainer->expandParameter($value);
 					}, $this);
