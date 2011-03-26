@@ -2,6 +2,7 @@
 
 namespace Kdyby\DependencyInjection;
 
+use Doctrine;
 use Kdyby;
 use Nette;
 use Nette\Environment;
@@ -19,7 +20,7 @@ class DefaultServiceFactories extends Nette\Object
 		),
 		'Nette\\Application\\IRouter' => array(
 			'factory' => array(__CLASS__, 'createRouter'),
-			'arguments' => array('@Nette\\Web\\IHttpRequest')
+			'arguments' => array('@Doctrine\\ORM\\EntityManager'),
 		),
 		'Nette\\Web\\HttpContext' => array(
 			'class' => 'Nette\Web\HttpContext',
@@ -52,6 +53,9 @@ class DefaultServiceFactories extends Nette\Object
 		),
 		'Nette\\Loaders\\RobotLoader' => array(
 			'factory' => array('Nette\Configurator', 'createRobotLoader'),
+			'arguments' => array(
+				array('directory' => array('%appDir%')),
+			),
 		),
 		'Nette\\Security\\IAuthenticator' => array(
 			'class' => 'Kdyby\\Security\\Authenticator',
@@ -79,7 +83,7 @@ class DefaultServiceFactories extends Nette\Object
 
 		'Doctrine\\ORM\\EntityManager' => array(
 			'factory' => array('Kdyby\\Doctrine\\ServiceFactory', 'createEntityManager'),
-			'arguments' => array('%Database%', '@Doctrine\\ORM\\Configuration', '@Doctrine\\Common\\EventManager'),
+			'arguments' => array('%database%', '@Doctrine\\ORM\\Configuration', '@Doctrine\\Common\\EventManager'),
 			'aliases' => array('entityManager'),
 		),
 		'Doctrine\\Common\\Cache\\Cache' => array(
@@ -88,7 +92,7 @@ class DefaultServiceFactories extends Nette\Object
 		),
 		'Doctrine\\ORM\\Configuration' => array(
 			'factory' => array('Kdyby\\Doctrine\\ServiceFactory', 'createConfiguration'),
-			'arguments' => array('@Doctrine\\Common\\Cache\\Cache', '%EntityDirs%'),
+			'arguments' => array('%EntityDirs%'),
 			'methods' => array(
 				array('method' => 'setMetadataCacheImpl', 'arguments' => array('@Doctrine\Common\Cache\Cache')),
 				array('method' => 'setQueryCacheImpl', 'arguments' => array('@Doctrine\Common\Cache\Cache')),
@@ -96,8 +100,15 @@ class DefaultServiceFactories extends Nette\Object
 		),
 		'Doctrine\\Common\\EventManager' => array(
 			'class' => 'Doctrine\\Common\\EventManager',
+			'methods' => array(
+				array('method' => 'addEventSubscriber', 'arguments' => array('@Gedmo\\Tree\\TreeListener')),
+			),
 		),
-//		set through profiler parameter in %Database% parameter
+
+		'Gedmo\\Tree\\TreeListener' => array(
+			'class' => 'Gedmo\\Tree\\TreeListener',
+		),
+//		set through profiler parameter in %database% parameter
 //		'Doctrine\\DBAL\\Logging\\SQLLogger' => array(
 //			'factory' => array('Kdyby\\Doctrine\\Panel', 'create'),
 //		),
@@ -125,6 +136,11 @@ class DefaultServiceFactories extends Nette\Object
 			'arguments' => array('@Nette\\Web\\IUser', '%baseUri%'),
 //				('Nette\\Templates\\FileTemplate', '@Nette\\ITranslator'),
 			'aliases' => array('templateFactory'),
+		),
+		'Kdyby\\Application\\INavigationManager' => array(
+			'class' => 'Kdyby\\Components\\Navigation\\NavigationManager',
+			'arguments' => array('@Doctrine\\ORM\\EntityManager'),
+			'aliases' => array('navigationManager'),
 		),
 	);
 
@@ -174,15 +190,13 @@ class DefaultServiceFactories extends Nette\Object
 
 
 	/**
-	 * @param Nette\Web\HttpRequest $httpRequest
+	 * @param Doctrine\ORM\EntityManager $em
 	 * @return Nette\Application\MultiRouter
 	 */
-	public static function createRouter(Nette\Web\HttpRequest $httpRequest)
+	public static function createRouter(Doctrine\ORM\EntityManager $em)
 	{
-		$domainMap = (object)Nette\String::match($httpRequest->uri->host, Kdyby\Web\HttpHelpers::DOMAIN_PATTERN);
-
 		$router = new Nette\Application\MultiRouter;
-		$router[] = new Kdyby\Application\Routers\AdminRouter('//admin.' . $domainMap->domain);
+		$router[] = new Kdyby\Application\Routers\SequentialRouter($em);
 
 		return $router;
 	}
@@ -253,6 +267,19 @@ class DefaultServiceFactories extends Nette\Object
 	{
 		$dir = Kdyby\Tools\FileSystem::prepareWritableDir('%varDir%/cache');
 		return new Kdyby\Caching\FileStorage($dir, $cacheJournal);
+	}
+
+
+
+	/**
+	 * @param array $directories
+	 * @return Nette\Loaders\RobotLoader
+	 */
+	public static function createRobotLoader(array $directories)
+	{
+		return Nette\Configurator::createRobotLoader(array(
+			'directory' => $directories
+		));
 	}
 
 }
