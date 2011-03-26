@@ -87,7 +87,7 @@ class Control extends Nette\Application\Control
 	public function createComponent($name)
 	{
 		$component = parent::createComponent($name);
-		return Kdyby\Component\Helpers::createComponent($this, $component, $name);
+		return Kdyby\Components\Helpers::createComponent($this, $component, $name);
 	}
 
 }
