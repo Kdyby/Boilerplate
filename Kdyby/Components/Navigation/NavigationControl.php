@@ -91,6 +91,16 @@ class NavigationControl extends Kdyby\Application\Control
 
 
 	/**
+	 * @return NavigationNode
+	 */
+	public function getHomepage()
+	{
+		return $this->getComponent("homepage");
+	}
+
+
+
+	/**
 	 * Render menu
 	 *
 	 * @param bool $renderChildren
