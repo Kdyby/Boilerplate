@@ -42,7 +42,8 @@ class Configurator extends Nette\Configurator
 			}
 		}
 
-		Kdyby\Templates\KdybyMacros::register();
+		$this->onAfterLoad[] = callback('Kdyby\Templates\KdybyMacros', 'register');
+		$this->onAfterLoad[] = callback('Kdyby\Doctrine\ServiceFactory', 'registerTypes');
 
 		$this->onAfterLoad[] = function (Kdyby\DependencyInjection\IServiceContainer $serviceContainer) {
 			$baseUri = $serviceContainer->httpRequest->uri->baseUri;

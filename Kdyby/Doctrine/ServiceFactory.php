@@ -36,6 +36,16 @@ final class ServiceFactory extends Nette\Object
 
 
 	/**
+	 * @return void
+	 */
+	public static function registerTypes()
+	{
+		DoctrineTypes::addType('callback', '\Kdyby\Doctrine\Types\CallbackType');
+	}
+
+
+
+	/**
 	 * Add a new default annotation driver with a correctly configured annotation reader.
 	 *
 	 * @param array $paths
