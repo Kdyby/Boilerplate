@@ -4,23 +4,48 @@ namespace Kdyby\Application;
 
 use Nette;
 use Kdyby;
+use Kdyby\Application\Presentation\Bundle;
 
 
 
 /**
- * @property Kdyby\DependencyInjection\IServiceContainer $serviceContainer
+ * @property Kdyby\DependencyInjection\ServiceContainer $serviceContainer
+ * @property Kdyby\Application\Presentation\Bundle $applicationBundle
  */
 class Presenter extends Nette\Application\Presenter implements Kdyby\DependencyInjection\IContainerAware
 {
 
-	/** @var Kdyby\DependencyInjection\IServiceContainer */
+	/** @var Kdyby\DependencyInjection\ServiceContainer */
 	private $serviceContainer;
+
+	/** @var Kdyby\Application\Presentation\Bundle */
+	private $bundle;
 
 
 
 	public function __construct()
 	{
 		parent::__construct(NULL, NULL);
+	}
+
+
+
+	/**
+	 * @param Bundle $bundle
+	 */
+	public function setApplicationBundle(Bundle $bundle)
+	{
+		$this->bundle = $bundle;
+	}
+
+
+
+	/**
+	 * @return Bundle
+	 */
+	public function getApplicationBundle()
+	{
+		return $this->bundle;
 	}
 
 
@@ -37,7 +62,7 @@ class Presenter extends Nette\Application\Presenter implements Kdyby\DependencyI
 
 
 	/**
-	 * @return Kdyby\DependencyInjection\IServiceContainer
+	 * @return Kdyby\DependencyInjection\ServiceContainer
 	 */
 	public function getServiceContainer()
 	{
@@ -56,6 +81,19 @@ class Presenter extends Nette\Application\Presenter implements Kdyby\DependencyI
 		return $this->getServiceContainer()->getService($name, $options);
 	}
 
+
+	/**************************** Components ****************************/
+
+
+	/**
+	 * @param string $name
+	 * @return Kdyby\Components\Navigation\NavigationControl
+	 */
+	protected function createComponentNavigation($name)
+	{
+		$manager = $this->serviceContainer->navigationManager;
+		return $this[$name] = $manager->createBundleNavigation($this, $maxLevel = 1);
+	}
 
 
 	/**************************** Templates ****************************/
