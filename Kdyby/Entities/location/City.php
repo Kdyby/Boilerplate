@@ -22,7 +22,7 @@ use Kdyby;
  * @author Filip Procházka <hosiplan@kdyby.org>
  * @Entity @Table(name="location_cities")
  */
-class City extends Kdyby\Doctrine\IdentifiedEntity
+class City extends Kdyby\Doctrine\Entities\IdentifiedEntity
 {
 	/** @Column(type="string", length=100) */
 	private $name;

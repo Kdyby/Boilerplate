@@ -30,7 +30,7 @@ use Kdyby;
  *		4 = "Kdyby\Location\ContactAddress"
  *	})
  */
-class Address extends Kdyby\Doctrine\IdentifiedEntity
+class Address extends Kdyby\Doctrine\Entities\IdentifiedEntity
 {
 	/** @Column(type="string", length=100, nullable=TRUE) */
 	private $street;

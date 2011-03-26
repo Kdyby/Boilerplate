@@ -22,7 +22,7 @@ use Kdyby;
  * @author Filip Procházka <hosiplan@kdyby.org>
  * @Entity @Table(name="location_realities")
  */
-class Realty extends Kdyby\Doctrine\IdentifiedEntity
+class Realty extends Kdyby\Doctrine\Entities\IdentifiedEntity
 {
 
 

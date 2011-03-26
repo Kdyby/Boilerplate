@@ -23,7 +23,7 @@ use Kdyby;
  * @author Filip Procházka <hosiplan@kdyby.org>
  * @Entity @Table(name="location_states")
  */
-class State extends Kdyby\Doctrine\IdentifiedEntity
+class State extends Kdyby\Doctrine\Entities\IdentifiedEntity
 {
 	/** @Column(type="string", unique=TRUE) */
 	private $name;
