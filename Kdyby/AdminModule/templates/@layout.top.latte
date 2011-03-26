@@ -1,0 +1,33 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="Content-Language" content="cs">
+
+    <link rel="stylesheet" href="{$basePath}/reset-blueprint.css" type="text/css">
+	<link rel="stylesheet" href="{$basePath}/restypo.css" type="text/css">
+	<link rel="stylesheet" href="{$themePath}/style-display.css" type="text/css">
+	<!--[if IE]><script language="javascript" type="text/javascript" src="resources/scripts/excanvas.min.js"></script><![endif]-->
+
+    <title n:block="title">Admin panel - Kdyby CMF</title>
+</head>
+<body>
+
+<div class="page-center">
+
+	<div class="page-navigation-horizontal">
+		
+	</div>
+
+	<div class="page-content">
+		<div n:inner-foreach="$flashes as $flash" class="flashes">
+			<div class="flash {$flash->type}">{$flash->message}</div>
+		</div>
+
+		{include #content}
+	<span class="clear"></span></div>
+
+</div>
+
+  </body>
+</html>

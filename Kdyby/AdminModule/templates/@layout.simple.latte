@@ -1,0 +1,9 @@
+{extends './@layout.top.latte'}
+{block content}
+
+	<div class="column-wide">
+		{foreach $flashes as $flash}<div class="flash {$flash->type}">{$flash->message}</div>{/foreach}
+		{include #mainContent}
+	</div>
+
+{/block}
