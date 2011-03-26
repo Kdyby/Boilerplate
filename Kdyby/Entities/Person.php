@@ -11,7 +11,7 @@
  */
 
 
-namespace Kdyby\Data;
+namespace Kdyby\Entities;
 
 use Nette;
 use Kdyby;
@@ -23,7 +23,7 @@ use Kdyby;
  * @property-read string $fullname
  * @MappedSuperClass
  */
-abstract class Person extends Kdyby\Doctrine\IdentifiedEntity
+abstract class Person extends Kdyby\Doctrine\Entities\IdentifiedEntity
 {
 
 	/** @Column(type="string", length=15) */

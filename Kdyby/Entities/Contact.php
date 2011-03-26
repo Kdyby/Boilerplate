@@ -1,6 +1,6 @@
 <?php
 
-namespace Kdyby\Data;
+namespace Kdyby\Entities;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Nette;
@@ -12,7 +12,7 @@ use Kdyby;
  * @author Filip Procházka <hosiplan@kdyby.org>
  * @Entity @Table(name="contacts")
  */
-class Contact extends Kdyby\Doctrine\IdentifiedEntity
+class Contact extends Kdyby\Doctrine\Entities\IdentifiedEntity
 {
 
 	/** @Column(type="array") */
