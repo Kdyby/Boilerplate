@@ -18,15 +18,9 @@ common:
 	Security:
 		identity.class: Kdyby\Security\Identity
 
-	EntityDirs: [%appDir%/models, %kdybyDir%/Data, %kdybyDir%/Security]
+	EntityDirs: ['%appDir%/models', '%kdybyDir%/Entities', '%kdybyDir%/Security', '%kdybyDir%/Application', '%kdybyDir%/Components/Navigation']
 
 	service:
-		Nette\Loaders\RobotLoader:
-			factory: Nette\Configurator::createRobotLoader
-			option:
-				directory: ['%appDir%', '%libsDir%', '%proxiesDir%']
-			run: TRUE
-
 		Nette\Application\IRouter:
 			factory: Kdyby\Environment\Configurator::createRouter
 			arguments: ['@Nette\Web\HttpRequest']
