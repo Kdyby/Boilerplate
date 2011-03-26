@@ -27,7 +27,7 @@ use Nette;
  * @property-read int $id
  * @property string $username
  */
-class Identity extends Kdyby\Data\Person implements Nette\Security\IIdentity, Nette\Security\IRole
+class Identity extends Kdyby\Entities\Person implements Nette\Security\IIdentity, Nette\Security\IRole
 {
 
     /** @Column(type="string", length=50, unique=TRUE) */
