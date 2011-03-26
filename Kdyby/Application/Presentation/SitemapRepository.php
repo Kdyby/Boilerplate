@@ -40,25 +40,17 @@ class SitemapRepository extends Kdyby\Doctrine\Repositories\NestedTreeRepository
 	public function findBySequenceAndBundle(array $sequences, Bundle $bundle)
 	{
 		// initialize sitemap
-		if ($bundle->sitemap->sequence !== reset($sequences)) {
+		$rootSequence = array_shift($sequences);
+		if ($bundle->sitemap->sequence !== $rootSequence) {
 			return NULL;
 		}
 
-		$rootSequence = array_shift($sequences);
 		$secondSequence = array_shift($sequences);
-
-		// first query...
-		$section = $bundle->sitemap->getChildren()->filter(function (Sitemap $sitemap) use ($secondSequence) {
-			return $sitemap->sequence === $secondSequence;
-		})->first();
-
-		if (!$section) {
-			return NULL;
-		} dump('section', $section);
-
 		$qb = $this->createQueryBuilder('l')
 			->where('l.parent = :id')
-			->setParameter('id', $section->id)
+				->andWhere('l.sequence = :sequence')
+			->setParameter('id', $bundle->sitemap->id)
+			->setParameter('sequence', $secondSequence)
 			->setMaxResults(1);
 
 		$alias = 'l';
@@ -71,17 +63,13 @@ class SitemapRepository extends Kdyby\Doctrine\Repositories\NestedTreeRepository
 				->setParameter($paramName, $sequence);
 		}
 
-		echo $qb->getQuery()->getDQL(), "<hr>";
-		echo $qb->getQuery()->getSQL(), "<hr>";
-		dump($qb->getQuery()->getParameters());
-
-		foreach ($leafs = $qb->getQuery()->getResult() as $leaf) {
-			dump($leaf);
-		} dump('count', count($leafs)); echo "<hr>";
-
+		$secondSitemap = $qb->getQuery()->getSingleResult();
+		if (!$secondSitemap) {
+			return NULL;
+		}
 
 		// returns already managed entity
-		return $this->find($id);
+		return $bundle->sitemap;
 	}
 
 }

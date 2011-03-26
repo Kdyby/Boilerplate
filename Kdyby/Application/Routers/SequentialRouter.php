@@ -23,7 +23,7 @@ class SequentialRouter extends Nette\Object implements Nette\Application\IRouter
 	const MASK_KEY = 'mask';
 	const TLD_KEY = 'tld';
 
-	/** @var SitemapRepository */
+	/** @var Kdyby\Application\Presentation\SitemapRepository */
 	private $sitemaps;
 
 	/** @var Kdyby\Application\Presentation\BundleMaskRepository */
@@ -128,11 +128,16 @@ class SequentialRouter extends Nette\Object implements Nette\Application\IRouter
 
 		// internaly autoloads whole mainmenu, path and returns last in path
 		$sitemap = $this->sitemaps->findBySequenceAndBundle($params[self::SEQUENCE_KEY], $mask->getBundle());
+
+		// destination & action
+		$link = explode(':', $sitemap->destination);
+		$action = array_pop($link) ?: 'default';
+		$destination = implode(':', $link);
 	
 		return new PresenterRequest(
-			$sitemap->destination,
+			$destination,
 			$httpRequest->getMethod(),
-			$params + $sitemap->defaultParams,
+			array('action' => $action) + $params + $sitemap->defaultParams,
 			$httpRequest->getPost(),
 			$httpRequest->getFiles(),
 			array(PresenterRequest::SECURED => $httpRequest->isSecured())
