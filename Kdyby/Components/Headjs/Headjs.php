@@ -11,7 +11,7 @@
  */
 
 
-namespace Kdyby\Component;
+namespace Kdyby\Components;
 
 use Nette;
 use Nette\String;
