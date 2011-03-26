@@ -2,21 +2,28 @@
 
 namespace Kdyby\Application\Routers;
 
-use Nette;
 use Doctrine;
+use Doctrine\ORM\EntityManager;
+use Nette;
 
 
 
-class AdminRouter extends Nette\Application\Route
+class AdminRouter extends Nette\Application\MultiRouter
 {
 
 	/**
+	 * @param EntityManager $em
 	 * @param string $mask
-	 * @param int $flags
 	 */
-	public function __construct($mask = NULL, $flags = 0)
+	public function __construct(EntityManager $em, $mask, $flags = 0)
 	{
-		parent::__construct(
+		parent::__construct('Admin');
+
+		// sequential router
+		$this[] = new SeaquentialRouter($em, $mask, $flags); //$flags|Nette\Application\IRouter::SECURED
+
+		// fallback router
+		$this[] = new Nette\Application\Route(
 //				$mask . "/[<module>/][!<presenter>/][<action>/]",
 				$mask . "/[!<presenter>/][<action>/]",
 				$metadata = array(
