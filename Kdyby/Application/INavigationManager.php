@@ -3,6 +3,7 @@
 namespace Kdyby\Application;
 
 use Kdyby;
+use Kdyby\Application\Presentation\Bundle;
 use Nette;
 
 
@@ -10,6 +11,18 @@ use Nette;
 interface INavigationManager
 {
 
-	function createBundleNavigation(Kdyby\Application\Presenter $presenter, $maxLevel = 0);
+	/**
+	 * @param Bundle $bundle
+	 * @param string $destination
+	 * @param array $args
+	 * @return Nette\Application\PresenterRequest
+	 */
+	function createRequest(Bundle $bundle, $destination, $args);
+
+	/**
+	 * @param Presenter $presenter
+	 * @param int $maxLevel
+	 */
+	function createBundleNavigation(Presenter $presenter, $maxLevel = 0);
 
 }

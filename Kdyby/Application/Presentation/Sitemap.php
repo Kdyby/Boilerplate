@@ -45,6 +45,9 @@ class Sitemap extends Kdyby\Doctrine\Entities\NestedNode
 	/** @Column(type="array", nullable=TRUE) @var array */
 	private $defaultParams = array();
 
+	/** @Column(type="array", nullable=TRUE) @var array */
+	private $mapSequence = array();
+
 
 
 	/**
@@ -131,6 +134,20 @@ class Sitemap extends Kdyby\Doctrine\Entities\NestedNode
 
 
 
+	public function getMapSequence()
+	{
+		return (array)$this->mapSequence;
+	}
+
+
+
+	public function setMapSequence(array $mapSequence)
+	{
+		$this->mapSequence = $mapSequence;
+	}
+
+
+
 	/**
 	 * @return self|Null
 	 */
@@ -163,9 +180,62 @@ class Sitemap extends Kdyby\Doctrine\Entities\NestedNode
 
 
 	/**
+	 * @param array $sequences
+	 * @return Sitemap
+	 */
+	public function getChildrenBySequences(array $sequences)
+	{
+		$path = $this->getChildrensPathBySequences($sequences);
+		return end($path);
+	}
+
+
+
+	/**
+	 * @param array $sequences
+	 * @return Sitemap[]
+	 */
+	public function getChildrensPathBySequences(array $sequences)
+	{
+		$sequence = array_shift($sequences);
+
+		$child = $this->getChildren()->filter(function(Sitemap $sitemap) use ($sequence) {
+			return $sitemap->sequence === $sequence;
+		})->current();
+
+		if ($child) {
+			$children = array($child);
+			if ($sequences) {
+				$nextChildren = $child->getChildrensPathBySequences($sequences);
+				if ($nextChildren) {
+					$children = array_merge($children, $nextChildren);
+				}
+			}
+
+			return $children;
+		}
+
+		return NULL;
+	}
+
+
+
+	/**
+	 * @return array
+	 */
+	public function getSequencePathUp()
+	{
+		return $this->getParent() 
+			? array_merge($this->getParent()->getSequencePathUp(), array($this->getSequence()))
+			: array($this->getSequence());
+	}
+
+
+
+	/**
 	 * @return Bundle
 	 */
-	public function getBundle() 
+	public function getBundle()
 	{
 		return $this->bundle;
 	}

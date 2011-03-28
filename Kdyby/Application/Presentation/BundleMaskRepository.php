@@ -18,7 +18,7 @@ class BundleMaskRepository extends EntityRepository
 	public function findOneByMask($mask)
 	{
 		$qb = $this->createQueryBuilder('m')
-			->select('m', 'b')
+			->select('m', 'b', 's')
 			->innerJoin('m.bundle', 'b')
 			->innerJoin('b.sitemap', 's')
 			->orderBy('m.clarity', 'DESC')

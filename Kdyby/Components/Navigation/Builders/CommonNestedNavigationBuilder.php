@@ -28,7 +28,7 @@ class CommonNestedNavigationBuilder extends Nette\Object implements INavigationB
 	 */
 	private function buildNode(NestedNode $node, NodeComponent $navigation)
 	{
-		$link = $this->component->lazyLink($node->destination, $node->defaultParams);
+		$link = $this->component->lazyLink($node->destination); // $node->defaultParams?
 		$branch = $navigation->add($node->name, $link);
 
 		foreach ($node->getChildren() as $child) {
@@ -51,7 +51,7 @@ class CommonNestedNavigationBuilder extends Nette\Object implements INavigationB
 		$navigation = new NavigationControl();
 
 		if ($this->node->isRoot() && $this->node->getUseRoot()) {
-			$link = $this->component->lazyLink($this->node->destination, $this->node->defaultParams);
+			$link = $this->component->lazyLink($this->node->destination); // $this->node->defaultParams?
 			$navigation->setupHomepage($this->node->name, $link);
 		}
 

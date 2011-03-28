@@ -22,6 +22,7 @@ class SequentialRouter extends Nette\Object implements Nette\Application\IRouter
 	const SEQUENCE_KEY = 'sequence';
 	const MASK_KEY = 'mask';
 	const TLD_KEY = 'tld';
+	const SITEMAP_KEY = 'sitemap';
 
 	/** @var Kdyby\Application\Presentation\SitemapRepository */
 	private $sitemaps;
@@ -40,63 +41,6 @@ class SequentialRouter extends Nette\Object implements Nette\Application\IRouter
 	{
 		$this->sitemaps = $em->getRepository('Kdyby\Application\Presentation\Sitemap');
 		$this->masks = $em->getRepository('Kdyby\Application\Presentation\BundleMask');
-
-// test data
-// 
-//		$mask = $this->masks->findOneByMask('admin.*');
-//
-//		$m1 = new Sitemap();
-//		$m1->setName('Dashboard');
-//		$m1->setDestination(':Admin:Dashboard:');
-//		$m1->setSequence('dashboard');
-//		$mask->getBundle()->setSitemap($m1);
-//
-//			$m2 = new Sitemap();
-//			$m2->setName('Dsdadsa dsadsa');
-//			$m2->setDestination(':Admin:Dashboard:');
-//			$m2->setSequence('dsdadsa-dsadsa');
-//			$m1->addChild($m2);
-//
-//				$m4 = new Sitemap();
-//				$m4->setName('Dsadsa dšádas');
-//				$m4->setDestination(':Admin:Dashboard:');
-//				$m4->setSequence('dsadsa-dsadas');
-//				$m2->addChild($m4);
-//
-//					$m5 = new Sitemap();
-//					$m5->setName('Dsadsa dsagfd');
-//					$m5->setDestination(':Admin:Dashboard:');
-//					$m5->setSequence('dsadsa-dsagfd');
-//					$m4->addChild($m5);
-//
-//				$m6 = new Sitemap();
-//				$m6->setName('Tmatento');
-//				$m6->setDestination(':Admin:Dashboard:');
-//				$m6->setSequence('tamtento');
-//				$m2->addChild($m6);
-//
-//				$m7 = new Sitemap();
-//				$m7->setName('Tro lo lo');
-//				$m7->setDestination(':Admin:Dashboard:');
-//				$m7->setSequence('trololo');
-//				$m2->addChild($m7);
-//
-//			$m3 = new Sitemap();
-//			$m3->setName('Dsdadsa dsadsa');
-//			$m3->setDestination(':Admin:Dashboard:');
-//			$m3->setSequence('dsdadsa-dsadsa');
-//			$m1->addChild($m3);
-//
-//		$em->persist($m1);
-//		$em->persist($m2);
-//		$em->persist($m3);
-//		$em->persist($m4);
-//		$em->persist($m5);
-//		$em->persist($m6);
-//		$em->persist($m7);
-//		$em->flush();
-//
-//		die('no more!');
 	}
 
 
@@ -117,27 +61,90 @@ class SequentialRouter extends Nette\Object implements Nette\Application\IRouter
 			return NULL;
 		}
 
-		$params = array();
-		$params[self::MASK_KEY] = $match[self::MASK_KEY];
+		// query params
+		$params = $httpRequest->getQuery();
 
-		$sequences = rtrim($match[self::SEQUENCE_KEY], '/');
-		$params[self::SEQUENCE_KEY] = array_map(callback('rawurldecode'), explode('/', $sequences));
+		if (isset($match[self::SEQUENCE_KEY])) {
+			$sequences = rtrim($match[self::SEQUENCE_KEY], '/');
+			$sequences = $params[self::SEQUENCE_KEY] = array_map(callback('rawurldecode'), explode('/', $sequences));
+			$rootSequence = array_shift($params[self::SEQUENCE_KEY]);
+
+		} else {
+			$sequences = $params[self::SEQUENCE_KEY] = array();
+		}
 
 		// mask
-		$mask = $this->masks->findOneByMask($params[self::MASK_KEY]);
+		$mask = $this->masks->findOneByMask($match[self::MASK_KEY]);
+		$bundle = $mask->getBundle();
 
-		// internaly autoloads whole mainmenu, path and returns last in path
-		$sitemap = $this->sitemaps->findBySequenceAndBundle($params[self::SEQUENCE_KEY], $mask->getBundle());
+		try {
+			// internaly autoloads whole mainmenu, path and returns last in path
+			$sitemap = $this->sitemaps->findBySequencesAndBundle($sequences, $bundle);
+
+		} catch (Doctrine\ORM\NoResultException $e) {
+			$sitemap = $bundle->getSitemap();
+		}
+
+		// search from deepest
+		$presenterRequest = $deepest = NULL;
+		for($deepest = $sitemap; $deepest ;$deepest = $deepest->getParent()) {
+			$presenterRequest = $this->matchSitemap($httpRequest, $deepest, $params) ?: NULL;
+
+			if ($presenterRequest) {
+				$presenterRequest->params += array(self::SITEMAP_KEY => $deepest->id);
+				break;
+			}
+		}
+
+		return $presenterRequest;
+	}
+
+
+
+	/**
+	 * @param Nette\Web\IHttpRequest $httpRequest
+	 * @param Sitemap $sitemap
+	 * @param array $params
+	 * @return PresenterRequest
+	 */
+	private function matchSitemap(Nette\Web\IHttpRequest $httpRequest, Sitemap $sitemap, array $params)
+	{
+		foreach ($sitemap->getSequencePathUp() as $sequence) {
+			if (reset($params[self::SEQUENCE_KEY]) === $sequence) {
+				array_shift($params[self::SEQUENCE_KEY]);
+			}
+		}
+
+		foreach ($sitemap->mapSequence as $key) {
+			if (!$params[self::SEQUENCE_KEY]) {
+				break;
+			}
+
+			if (isset($params[$key])) {
+				throw new \MemberAccessException("Cannot overwrite already declared ");
+			}
+
+			$params[$key] = array_shift($params[self::SEQUENCE_KEY]);
+		}
+
+		unset($params[self::SEQUENCE_KEY]);
+		foreach ($sitemap->defaultParams as $param) {
+			if (!isset($params[$param])) {
+				return NULL;
+			}
+		}
 
 		// destination & action
 		$link = explode(':', $sitemap->destination);
 		$action = array_pop($link) ?: 'default';
 		$destination = implode(':', $link);
-	
+		$params = array('action' => $action) + $params;
+
+		// be winner like Charlie Sheen!
 		return new PresenterRequest(
 			$destination,
 			$httpRequest->getMethod(),
-			array('action' => $action) + $params + $sitemap->defaultParams,
+			$params,
 			$httpRequest->getPost(),
 			$httpRequest->getFiles(),
 			array(PresenterRequest::SECURED => $httpRequest->isSecured())
@@ -155,14 +162,7 @@ class SequentialRouter extends Nette\Object implements Nette\Application\IRouter
 	 */
 	public function constructUrl(PresenterRequest $appRequest, Nette\Web\Uri $refUri)
 	{
-		if (!isset($appRequest->params[self::SEQUENCE_KEY])) {
-			return NULL;
-		}
-
-		$sequences = implode('/', array_map(callback('rawurlencode'), $appRequest->params[self::SEQUENCE_KEY]));
-		$appRequest->setParams(array(self::SEQUENCE_KEY => $sequences) + $appRequest->params);
-
-		return parent::constructUrl($appRequest, $refUri);
+		return NULL;
 	}
 
 }

@@ -37,15 +37,20 @@ class SitemapRepository extends Kdyby\Doctrine\Repositories\NestedTreeRepository
 	 * @param Bundle $bundle
 	 * @return Sitemap
 	 */
-	public function findBySequenceAndBundle(array $sequences, Bundle $bundle)
+	public function findBySequencesAndBundle(array $sequences, Bundle $bundle)
 	{
+		if (!$sequences) {
+			return $bundle->sitemap;
+		}
+
 		// initialize sitemap
 		$rootSequence = array_shift($sequences);
 		if ($bundle->sitemap->sequence !== $rootSequence) {
 			return NULL;
 		}
 
-		$secondSequence = array_shift($sequences);
+		$tmpSequences = $sequences;
+		$secondSequence = array_shift($tmpSequences);
 		$qb = $this->createQueryBuilder('l')
 			->where('l.parent = :id')
 				->andWhere('l.sequence = :sequence')
@@ -54,7 +59,7 @@ class SitemapRepository extends Kdyby\Doctrine\Repositories\NestedTreeRepository
 			->setMaxResults(1);
 
 		$alias = 'l';
-		foreach ($sequences as $i => $sequence) {
+		foreach ($tmpSequences as $i => $sequence) {
 			$aliasName = 'l' . $i;
 			$paramName = 'sequence' . $i;
 
@@ -64,12 +69,12 @@ class SitemapRepository extends Kdyby\Doctrine\Repositories\NestedTreeRepository
 		}
 
 		$secondSitemap = $qb->getQuery()->getSingleResult();
-		if (!$secondSitemap) {
-			return NULL;
-		}
+//		if (!$secondSitemap) {
+//			return NULL;
+//		}
 
 		// returns already managed entity
-		return $bundle->sitemap;
+		return $bundle->sitemap->getChildrenBySequences($sequences);
 	}
 
 }

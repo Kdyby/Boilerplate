@@ -15,6 +15,9 @@ use Kdyby\Application\Presentation\Bundle;
 class Presenter extends Nette\Application\Presenter implements Kdyby\DependencyInjection\IContainerAware
 {
 
+	/** @var bool  automatically call canonicalize() */
+	public $autoCanonicalize = FALSE;
+
 	/** @var Kdyby\DependencyInjection\ServiceContainer */
 	private $serviceContainer;
 
@@ -26,6 +29,24 @@ class Presenter extends Nette\Application\Presenter implements Kdyby\DependencyI
 	public function __construct()
 	{
 		parent::__construct(NULL, NULL);
+	}
+
+
+
+	protected function startup()
+	{
+		parent::startup();
+
+		// auto cannonicalize ?
+	}
+
+
+
+	public function afterRender()
+	{
+		if (Nette\Debug::isEnabled()) { // todo: as panel
+			Nette\Debug::barDump($this->template->getParams(), 'Template variables');
+		}
 	}
 
 
@@ -79,6 +100,31 @@ class Presenter extends Nette\Application\Presenter implements Kdyby\DependencyI
 	public function getService($name, array $options = array())
 	{
 		return $this->getServiceContainer()->getService($name, $options);
+	}
+
+
+	/**************************** links ****************************/
+
+
+	/**
+	 * @param string $destination
+	 * @param array $args
+	 */
+	public function link($destination, $args = array())
+	{
+		if (!is_array($args)) {
+			$args = func_get_args();
+			array_shift($args);
+		}
+
+		try {
+			return $this->serviceContainer
+				->navigationManager
+				->createRequest($this->applicationBundle, $destination, $args);
+
+		} catch (InvalidLinkException $e) {
+			return $this->getPresenter()->handleInvalidLink($e);
+		}
 	}
 
 

@@ -25,6 +25,9 @@ class Bundle extends Kdyby\Doctrine\Entities\IdentifiedEntity
 	/** @OneToOne(targetEntity="Sitemap") @var Sitemap */
 	private $sitemap;
 
+	/** @Column(type="boolean") @var bool */
+	private $rootIsOptional = FALSE;
+
 	/** @Column(type="string") @var string */
 	private $placeholderName;
 
@@ -36,6 +39,7 @@ class Bundle extends Kdyby\Doctrine\Entities\IdentifiedEntity
 
 	/** @Column(type="boolean") @var bool */
 	private $private = TRUE;
+	// todo login type http auth, form, ...
 
 
 
@@ -77,7 +81,7 @@ class Bundle extends Kdyby\Doctrine\Entities\IdentifiedEntity
 	/**
 	 * @return Sitemap
 	 */
-	public function getSitemap() 
+	public function getSitemap()
 	{
 		return $this->sitemap;
 	}
@@ -92,6 +96,45 @@ class Bundle extends Kdyby\Doctrine\Entities\IdentifiedEntity
 		$this->sitemap = $sitemap;
 		$sitemap->setBundle($this);
 	}
+
+
+
+	/**
+	 * @return Doctrine\Common\Collections\Collection
+	 */
+	public function getMasks()
+	{
+		return $this->masks;
+	}
+
+
+
+	public function addMasks(BundleMask $mask)
+	{
+		$this->masks->add($masks);
+	}
+
+
+
+	public function removeMask(BundleMask $mask)
+	{
+		$this->masks->removeElement($mask);
+	}
+
+
+
+	public function getRootIsOptional()
+	{
+		return $this->rootIsOptional;
+	}
+
+
+
+	public function setRootIsOptional($rootIsOptional)
+	{
+		$this->rootIsOptional = (bool)$rootIsOptional;
+	}
+
 
 
 
@@ -118,7 +161,7 @@ class Bundle extends Kdyby\Doctrine\Entities\IdentifiedEntity
 	/**
 	 * @return bool
 	 */
-	public function getLocked() 
+	public function getLocked()
 	{
 		return $this->locked;
 	}
@@ -138,7 +181,7 @@ class Bundle extends Kdyby\Doctrine\Entities\IdentifiedEntity
 	/**
 	 * @return bool
 	 */
-	public function getPrivate() 
+	public function getPrivate()
 	{
 		return $this->private;
 	}

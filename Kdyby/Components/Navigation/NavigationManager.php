@@ -7,6 +7,7 @@ use Gedmo;
 use Kdyby;
 use Kdyby\Components\Navigation\Builders\CommonNestedNavigationBuilder;
 use Kdyby\Doctrine\Entities\NestedNode;
+use Kdyby\Application\Presentation\Bundle;
 use Nette;
 
 
@@ -37,6 +38,18 @@ class NavigationManager extends Nette\Object implements Kdyby\Application\INavig
 
 
 	/**
+	 * @param Bundle $bundle
+	 * @param string $destination
+	 * @param array $args
+	 */
+	public function createRequest(Bundle $bundle, $destination, $args)
+	{
+
+	}
+
+
+
+	/**
 	 * @param Kdyby\Application\Presenter $presenter
 	 * @param int $maxLevel
 	 * @return NavigationControl
@@ -56,13 +69,23 @@ class NavigationManager extends Nette\Object implements Kdyby\Application\INavig
 
 
 	/**
+	 * @param Sitemap $sitemap
+	 */
+	public function verifyUri(Sitemap $sitemap)
+	{
+
+	}
+
+
+
+	/**
 	 * Load navigation from database
 	 *
 	 * @param <type> $id
 	 */
 	public function load($id)
 	{
-		
+
 	}
 
 }
