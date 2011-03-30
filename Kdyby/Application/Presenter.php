@@ -24,6 +24,9 @@ class Presenter extends Nette\Application\Presenter implements Kdyby\DependencyI
 	/** @var Kdyby\Application\Presentation\Bundle */
 	private $bundle;
 
+	/** @var Kdyby\Application\Presentation\Sitemap */
+	private $actualSitemap;
+
 
 
 	public function __construct()
@@ -36,6 +39,10 @@ class Presenter extends Nette\Application\Presenter implements Kdyby\DependencyI
 	protected function startup()
 	{
 		parent::startup();
+
+		$sitemapRepository = $this->serviceContainer->entityManager->getRepository('Kdyby\Application\Presentation\Sitemap');
+		$this->actualSitemap = $sitemapRepository->find($this->params['sitemap']);
+		unset($this->params['sitemap']);
 
 		// auto cannonicalize ?
 	}
@@ -117,10 +124,31 @@ class Presenter extends Nette\Application\Presenter implements Kdyby\DependencyI
 			array_shift($args);
 		}
 
+		$navigationManager = $this->serviceContainer->navigationManager;
+		$requestManager = $this->serviceContainer->requestManager;
+
+		$request = (object)array(
+			'destination' => $destination,
+			'args' => $args
+		);
+
 		try {
-			return $this->serviceContainer
-				->navigationManager
-				->createRequest($this->applicationBundle, $destination, $args);
+			try {
+				// restore
+				$uri = $requestManager->restoreRequestUri($this->actualSitemap, $request);
+
+			} catch (\MemberAccessException $e) {
+				// prepare sequences
+				$request = $requestManager->prepareRequest($this->applicationBundle, $request);
+
+				// assemble
+				$uri = parent::createRequest($this, $request->destination, $request->args, 'link');
+
+				// store
+				$requestManager->storeRequestUri($this->actualSitemap, $request, $uri);
+			}
+
+			return $uri;
 
 		} catch (InvalidLinkException $e) {
 			return $this->getPresenter()->handleInvalidLink($e);

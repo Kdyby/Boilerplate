@@ -42,6 +42,7 @@ use Nette\Environment;
  * @property-read Kdyby\Tools\FreezableArray $templateDirs
  * @property-read Kdyby\Templates\TemplateFactory $templateFactory
  * @property-read Kdyby\Application\INavigationManager $navigationManager
+ * @property-read Kdyby\Application\RequestManager $requestManager
  */
 class ServiceContainer extends Nette\FreezableObject implements IServiceContainer, \ArrayAccess
 {
@@ -69,6 +70,15 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 
 	/** @var array */
 	private $tags = array();
+
+
+
+	public function __construct()
+	{
+		$lower = strtolower('Kdyby\DependencyInjection\IServiceContainer');
+		$this->registry[$lower] = & $this->globalRegistry[$lower];
+		$this->registry[$lower] = $this;
+	}
 
 
 

@@ -6,6 +6,8 @@ use Doctrine;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Query\Expr\Join;
 use Kdyby;
+use Kdyby\Application\Presentation\Bundle;
+use Kdyby\Application\Presentation\Sitemap;
 use Nette;
 
 
@@ -75,6 +77,25 @@ class SitemapRepository extends Kdyby\Doctrine\Repositories\NestedTreeRepository
 
 		// returns already managed entity
 		return $bundle->sitemap->getChildrenBySequences($sequences);
+	}
+
+
+
+	/**
+	 * @param string $destination
+	 * @param Bundle $bundle
+	 * @return Sitemap
+	 */
+	public function findOneByDestinationAndBundle($destination, Bundle $bundle)
+	{
+		$qb = $this->createQueryBuilder('s')
+			->where('s.destination = :destination')
+				->andWhere('s.nodeRoot = :root')
+			->setParameter('destination', $destination)
+			->setParameter('root', $bundle->sitemap->id)
+			->setMaxResults(1);
+
+		return $qb->getQuery()->getSingleResult();
 	}
 
 }

@@ -12,14 +12,6 @@ interface INavigationManager
 {
 
 	/**
-	 * @param Bundle $bundle
-	 * @param string $destination
-	 * @param array $args
-	 * @return Nette\Application\PresenterRequest
-	 */
-	function createRequest(Bundle $bundle, $destination, $args);
-
-	/**
 	 * @param Presenter $presenter
 	 * @param int $maxLevel
 	 */

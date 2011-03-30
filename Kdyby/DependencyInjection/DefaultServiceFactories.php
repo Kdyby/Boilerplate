@@ -142,6 +142,11 @@ class DefaultServiceFactories extends Nette\Object
 			'arguments' => array('@Doctrine\\ORM\\EntityManager'),
 			'aliases' => array('navigationManager'),
 		),
+		'Kdyby\\Application\\IRequestManager' => array( // todo: realy interface?
+			'class' => 'Kdyby\\Application\\RequestManager',
+			'arguments' => array('@Doctrine\\ORM\\EntityManager', '@Nette\\Caching\\ICacheStorage'),
+			'aliases' => array('requestManager'),
+		),
 	);
 
 

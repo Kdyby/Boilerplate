@@ -9,6 +9,7 @@ use Kdyby\Application\Presentation\Sitemap;
 use Kdyby\Application\Presentation\SitemapRepository;
 use Kdyby\Application\Presentation\BundleMaskRepository;
 use Nette;
+use Nette\Application\Presenter;
 use Nette\Application\Route;
 use Nette\Application\PresenterRequest;
 
@@ -56,8 +57,8 @@ class SequentialRouter extends Nette\Object implements Nette\Application\IRouter
 		$uri = $httpRequest->getUri();
 		$path = $uri->getHost() . $uri->getPath();
 
-		$match = Nette\String::match($path, '~^(?P<' . self::MASK_KEY . '>[^/]+\.(?P<' . self::TLD_KEY . '>[a-z]+))/(?P<' . self::SEQUENCE_KEY . '>(.*?/)+)?~i');
-		if ($match === FALSE) {
+		$match = self::matchPath($path);
+		if ($match === FALSE || $match['garbage']) {
 			return NULL;
 		}
 
@@ -78,7 +79,7 @@ class SequentialRouter extends Nette\Object implements Nette\Application\IRouter
 		$bundle = $mask->getBundle();
 
 		try {
-			// internaly autoloads whole mainmenu, path and returns last in path
+			// internaly autoloads whole mainmenu and path. Returns last in path
 			$sitemap = $this->sitemaps->findBySequencesAndBundle($sequences, $bundle);
 
 		} catch (Doctrine\ORM\NoResultException $e) {
@@ -115,22 +116,37 @@ class SequentialRouter extends Nette\Object implements Nette\Application\IRouter
 			}
 		}
 
+		// translate pieces of sequence into values
 		foreach ($sitemap->mapSequence as $key) {
 			if (!$params[self::SEQUENCE_KEY]) {
 				break;
 			}
 
 			if (isset($params[$key])) {
-				throw new \MemberAccessException("Cannot overwrite already declared ");
+				throw new \MemberAccessException("Cannot overwrite already declared key '$key'");
 			}
 
 			$params[$key] = array_shift($params[self::SEQUENCE_KEY]);
 		}
 
+		// too many sequences?
+		if ($params[self::SEQUENCE_KEY]) {
+			return NULL;
+		}
+
+		$params = $params + $sitemap->defaultParams;
 		unset($params[self::SEQUENCE_KEY]);
-		foreach ($sitemap->defaultParams as $param) {
+
+		// last resort
+		foreach ($sitemap->requiredParams as $param) {
 			if (!isset($params[$param])) {
 				return NULL;
+			}
+		}
+
+		foreach ($params as $key => $value) {
+			if (is_numeric($key)) {
+				unset($params[$key]);
 			}
 		}
 
@@ -154,6 +170,17 @@ class SequentialRouter extends Nette\Object implements Nette\Application\IRouter
 
 
 	/**
+	 * @param string $path
+	 * @return array
+	 */
+	public static function matchPath($path)
+	{
+		return Nette\String::match($path, '~^(?P<' . self::MASK_KEY . '>[^/]+\.(?P<' . self::TLD_KEY . '>[a-z]+))/(?P<' . self::SEQUENCE_KEY . '>(.*?/)+)?(?P<garbage>.*)?$~i');
+	}
+
+
+
+	/**
 	 * Constructs absolute URL from PresenterRequest object.
 	 * 
 	 * @param  PresenterRequest
@@ -162,7 +189,25 @@ class SequentialRouter extends Nette\Object implements Nette\Application\IRouter
 	 */
 	public function constructUrl(PresenterRequest $appRequest, Nette\Web\Uri $refUri)
 	{
-		return NULL;
+		$params = $appRequest->getParams();
+
+		if (isset($params[Presenter::ACTION_KEY]) && $params[Presenter::ACTION_KEY] === 'default') {
+			unset($params[Presenter::ACTION_KEY]);
+		}
+
+		$uri = isset($params[self::MASK_KEY]) ? '//' . $params[self::MASK_KEY] : NULL;
+		$uri .= '/' . implode('/', array_map(callback('rawurlencode'), $params[self::SEQUENCE_KEY])) . '/';
+		unset($params[self::SEQUENCE_KEY], $params[self::MASK_KEY]);
+
+		$sep = ini_get('arg_separator.input');
+		$query = http_build_query($params, '', $sep ? $sep[0] : '&');
+		$uri = $uri . ($query ? '?' . $query : NULL);
+
+//		todo: secured?
+//		$uri = ($this->flags & self::SECURED ? 'https:' : 'http:') . $uri;
+		$uri = 'http:' . $uri;
+
+		return $uri;
 	}
 
 }

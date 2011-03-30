@@ -6,8 +6,8 @@ use Doctrine;
 use Gedmo;
 use Kdyby;
 use Kdyby\Components\Navigation\Builders\CommonNestedNavigationBuilder;
-use Kdyby\Doctrine\Entities\NestedNode;
 use Kdyby\Application\Presentation\Bundle;
+use Kdyby\Application\Presentation\Sitemap;
 use Nette;
 
 
@@ -33,18 +33,6 @@ class NavigationManager extends Nette\Object implements Kdyby\Application\INavig
 	{
 		$this->em = $em;
 		$this->builder = new CommonNestedNavigationBuilder();
-	}
-
-
-
-	/**
-	 * @param Bundle $bundle
-	 * @param string $destination
-	 * @param array $args
-	 */
-	public function createRequest(Bundle $bundle, $destination, $args)
-	{
-
 	}
 
 

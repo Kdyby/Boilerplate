@@ -43,7 +43,7 @@ class NavigationNode extends Kdyby\Doctrine\Entities\NestedNode
 	private $destination;
 
 	/** @Column(type="array", nullable=TRUE) @var array */
-	private $defaultParams = array();
+	private $defaultParams;
 
 
 
@@ -102,7 +102,7 @@ class NavigationNode extends Kdyby\Doctrine\Entities\NestedNode
 	 */
 	public function getDefaultParams()
 	{
-		return $this->defaultParams;
+		return (array)$this->defaultParams;
 	}
 
 
@@ -112,9 +112,8 @@ class NavigationNode extends Kdyby\Doctrine\Entities\NestedNode
 	 */
 	public function setDefaultParams(array $defaultParams)
 	{
-		$this->defaultParams = $defaultParams;
+		$this->defaultParams = $defaultParams ?: NULL;
 	}
-
 
 
 

@@ -43,10 +43,13 @@ class Sitemap extends Kdyby\Doctrine\Entities\NestedNode
 	private $destination;
 
 	/** @Column(type="array", nullable=TRUE) @var array */
-	private $defaultParams = array();
+	private $defaultParams;
 
 	/** @Column(type="array", nullable=TRUE) @var array */
-	private $mapSequence = array();
+	private $requiredParams;
+
+	/** @Column(type="array", nullable=TRUE) @var array */
+	private $mapSequence;
 
 
 
@@ -119,7 +122,7 @@ class Sitemap extends Kdyby\Doctrine\Entities\NestedNode
 	 */
 	public function getDefaultParams()
 	{
-		return $this->defaultParams;
+		return (array)$this->defaultParams;
 	}
 
 
@@ -129,7 +132,21 @@ class Sitemap extends Kdyby\Doctrine\Entities\NestedNode
 	 */
 	public function setDefaultParams(array $defaultParams)
 	{
-		$this->defaultParams = $defaultParams;
+		$this->defaultParams = $defaultParams ?: NULL;
+	}
+
+
+
+	public function getRequiredParams()
+	{
+		return (array)$this->requiredParams;
+	}
+
+
+
+	public function setRequiredParams(array $requiredParams)
+	{
+		$this->requiredParams = $requiredParams ?: NULL;
 	}
 
 
@@ -143,7 +160,7 @@ class Sitemap extends Kdyby\Doctrine\Entities\NestedNode
 
 	public function setMapSequence(array $mapSequence)
 	{
-		$this->mapSequence = $mapSequence;
+		$this->mapSequence = $mapSequence ?: NULL;
 	}
 
 
@@ -225,7 +242,7 @@ class Sitemap extends Kdyby\Doctrine\Entities\NestedNode
 	 */
 	public function getSequencePathUp()
 	{
-		return $this->getParent() 
+		return $this->getParent()
 			? array_merge($this->getParent()->getSequencePathUp(), array($this->getSequence()))
 			: array($this->getSequence());
 	}
