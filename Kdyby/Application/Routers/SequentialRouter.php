@@ -74,6 +74,8 @@ class SequentialRouter extends Nette\Object implements Nette\Application\IRouter
 			$sequences = $params[self::SEQUENCE_KEY] = array();
 		}
 
+		$sequences = array_filter(array_map(callback('trim'), $sequences));
+
 		// mask
 		$mask = $this->masks->findOneByMask($match[self::MASK_KEY]);
 		$bundle = $mask->getBundle();
