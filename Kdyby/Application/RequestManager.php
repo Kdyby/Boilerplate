@@ -73,7 +73,12 @@ class RequestManager extends Nette\Object
 	 */
 	public function prepareRequest(Bundle $bundle, $request)
 	{
-		$targetSitemap = $this->sitemapRepository->findOneByDestinationAndBundle($request->destination, $bundle);
+		$search = ltrim($request->destination, ':');
+		if (substr($search, -7) === 'default') {
+			$search = substr($search, 0, -7);
+		}
+
+		$targetSitemap = $this->sitemapRepository->findOneByDestinationAndBundle($search, $bundle);
 		$sequences = $targetSitemap->getSequencePathUp();
 		$params = $request->args;
 

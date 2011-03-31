@@ -21,6 +21,7 @@ class SequentialRouter extends Nette\Object implements Nette\Application\IRouter
 	const PRESENTER_KEY = Route::PRESENTER_KEY;
 	const MODULE_KEY = Route::MODULE_KEY;
 	const SEQUENCE_KEY = 'sequence';
+	const BUNDLE_KEY = 'bundle';
 	const MASK_KEY = 'mask';
 	const TLD_KEY = 'tld';
 	const SITEMAP_KEY = 'sitemap';
@@ -95,6 +96,7 @@ class SequentialRouter extends Nette\Object implements Nette\Application\IRouter
 
 			if ($presenterRequest) {
 				$presenterRequest->params += array(self::SITEMAP_KEY => $deepest->id);
+				$presenterRequest->params += array(self::BUNDLE_KEY => $bundle->id);
 				break;
 			}
 		}

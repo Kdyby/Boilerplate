@@ -40,11 +40,16 @@ class Presenter extends Nette\Application\Presenter implements Kdyby\DependencyI
 	{
 		parent::startup();
 
-		$sitemapRepository = $this->serviceContainer->entityManager->getRepository('Kdyby\Application\Presentation\Sitemap');
-		$this->actualSitemap = $sitemapRepository->find($this->params['sitemap']);
-		unset($this->params['sitemap']);
+		$em = $this->serviceContainer->entityManager;
+		$sitemapRepository = $em->getRepository('Kdyby\Application\Presentation\Sitemap');
+		$bundleRepository = $em->getRepository('Kdyby\Application\Presentation\Bundle');
 
-		// auto cannonicalize ?
+		$this->bundle = $bundleRepository->find($this->params[Routers\SequentialRouter::BUNDLE_KEY]);
+		$this->actualSitemap = $sitemapRepository->find($this->params[Routers\SequentialRouter::SITEMAP_KEY]);
+		unset($this->params[Routers\SequentialRouter::BUNDLE_KEY], $this->params[Routers\SequentialRouter::SITEMAP_KEY]);
+
+//		todo: cannonicalize
+//		$link = $this->link($this->getAction(TRUE), $this->params);
 	}
 
 
@@ -138,8 +143,16 @@ class Presenter extends Nette\Application\Presenter implements Kdyby\DependencyI
 				$uri = $requestManager->restoreRequestUri($this->actualSitemap, $request);
 
 			} catch (\MemberAccessException $e) {
+				if (strpos($destination, '!') !== FALSE) {
+					$request->destination = $this->actualSitemap->destination;
+				}
+
 				// prepare sequences
-				$request = $requestManager->prepareRequest($this->applicationBundle, $request);
+				$request = $requestManager->prepareRequest($this->bundle, $request);
+
+				if (strpos($destination, '!') !== FALSE) {
+					$request->destination = $destination;
+				}
 
 				// assemble
 				$uri = parent::createRequest($this, $request->destination, $request->args, 'link');
