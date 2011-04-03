@@ -15,6 +15,11 @@ use Kdyby\Components\Grinder\Renderers\IGridRenderer;
 /**
  * Grid
  *
+ * @todo filtry
+ * @todo inline editation
+ * @todo ajax per each item
+ * @todo vícenásobné řazení
+ *
  * @author Jan Marek
  * @author Filip Procházka
  * @license MIT
