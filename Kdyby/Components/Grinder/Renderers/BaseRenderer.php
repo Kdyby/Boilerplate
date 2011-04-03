@@ -88,7 +88,7 @@ abstract class BaseRenderer extends CellRenderer implements IGridRenderer
 			$flashes->add($flash);
 		}
 
-		foreach ($grid->getComponent('form')->getErrors() as $error) {
+		foreach ($grid->getForm()->getErrors() as $error) {
 			$flash = Html::el('span')
 				->addClass('grinder-flash')
 				->addClass('error');
@@ -114,22 +114,19 @@ abstract class BaseRenderer extends CellRenderer implements IGridRenderer
 	 */
 	public function renderToolbar(Grid $grid)
 	{
-		$form = $grid->getComponent('form');
-
-		if (!$form->hasToolbar()) {
+		if (!$grid->hasToolbar()) {
 			return "";
 		}
 
 		$toolbarContainer = Html::el('div')
 			->setClass('grinder-toolbar');
 
-		foreach ($form->getToolbar() as $button) {
-			$action = Html::el('span')
+		foreach ($grid->getToolbar() as $action) {
+			$actionContainer = Html::el('span')
 				->setClass('grinder-toolbar-action');
 
-			renderToolbarAction($action);
-
-			$toolbarContainer->add($action);
+			$actionContainer->add($this->renderToolbarAction($action));
+			$toolbarContainer->add($actionContainer);
 		}
 
 		return $toolbarContainer;
@@ -192,7 +189,7 @@ abstract class BaseRenderer extends CellRenderer implements IGridRenderer
 	 */
 	public function renderForm(Grid $grid, $partName)
 	{
-		$form = $grid->getComponent('form');
+		$form = $grid->getForm();
 
 		ob_start();
 			$form->render($partName);

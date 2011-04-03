@@ -62,7 +62,7 @@ class BaseAction extends Nette\Application\PresenterComponent
 		parent::attached($obj);
 
 		if ($obj instanceof Grid) {
-			$form = $this->getGrid()->getComponent('form');
+			$form = $this->getGrid()->getForm();
 			$toolbar = $form->getComponent('toolbar');
 			$toolbar[$this->name] = $this->control;
 
@@ -74,9 +74,9 @@ class BaseAction extends Nette\Application\PresenterComponent
 
 	public function fireEvents()
 	{
-		$form = $this->getGrid()->getComponent('form');
-		if ($form->isSubmittedBy() === $this->control) {
-			$this->onSubmit($this->getGrid());
+		$form = $this->getGrid()->getForm();
+		if ($form->isSubmitted() === $this->control) {
+			$this->onSubmit($this);
 		}
 	}
 

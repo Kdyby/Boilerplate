@@ -81,6 +81,16 @@ class Grid extends Nette\Application\Control
 	}
 
 
+
+	/**
+	 * @return Kdyby\Components\Grinder\GridForm
+	 */
+	public function getForm()
+	{
+		return $this->getComponent('form');
+	}
+
+
 	/********************* Data *********************/
 
 
@@ -234,12 +244,12 @@ class Grid extends Nette\Application\Control
 	 * @param string button name
 	 * @param string caption
 	 * @param array options
-	 * @return Button
+	 * @return Kdyby\Components\Grinder\Toolbar\ButtonAction
 	 */
 	public function addToolbarAction($name, $caption = NULL, array $options = array())
 	{
-		$this['toolbar'] = $action = new Toolbar\ButtonAction($caption);
-		$this->setOptions($button, $options);
+		$this->getComponent('toolbar')->addComponent($action = new Toolbar\ButtonAction($caption), $name);
+		$this->setOptions($action, $options);
 
 		return $action;
 	}
@@ -313,7 +323,18 @@ class Grid extends Nette\Application\Control
 	 */
 	public function getColumns()
 	{
-		return $this['columns']->getComponents();
+		return $this->getComponent('columns')->getComponents();
+	}
+
+
+
+	/**
+	 * @param string $name
+	 * @return Kdyby\Components\Grinder\Columns\BaseColumn
+	 */
+	public function getColumn($name)
+	{
+		return $this->getComponent('columns')->getComponent($name);
 	}
 
 

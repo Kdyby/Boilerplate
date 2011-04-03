@@ -99,7 +99,7 @@ class FormColumn extends BaseColumn
 	public function getControl()
 	{
 		$data = $this->getGrid()->getCurrentRecord();
-		$form = $this->getGrid()->getComponent('form');
+		$form = $this->getGrid()->getForm();
 
 		$control = clone $this->controlPrototype;
 		$form[$this->name][$data[$this->columnName]] = $control;

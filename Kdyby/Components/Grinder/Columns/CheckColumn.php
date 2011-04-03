@@ -41,7 +41,7 @@ class CheckColumn extends BaseColumn
 		parent::attached($obj);
 
 		if ($obj instanceof Presenter) {
-			$form = $this->getGrid()->getComponent('form');
+			$form = $this->getGrid()->getForm();
 			$container = $form->addContainer($this->name);
 			$this->buildControls($container);
 		}
@@ -77,7 +77,7 @@ class CheckColumn extends BaseColumn
 
 		$index = $grid->getCurrentIndex();
 		$record = $grid->getCurrentRecord();
-		$container = $grid->getComponent('form')->getComponent($this->name);
+		$container = $grid->getForm()->getComponent($this->name);
 
 		$identifier = $grid->getModel()->getUniqueId($record);
 		$container['ids'][$index]->setValue($identifier);
@@ -92,13 +92,22 @@ class CheckColumn extends BaseColumn
 	 */
 	public function getChecked()
 	{
-		$container = $this->getGrid()->getComponent('form')->getComponent($this->name);
+		$keys = array_keys(array_filter($this->getValues()));
+		return $this->getGrid()->getModel()->getItemsByUniqueIds($keys);
+	}
+
+
+
+	/**
+	 * @return array
+	 */
+	public function getValues()
+	{
+		$container = $this->getGrid()->getForm()->getComponent($this->name);
 
 		$values = array();
-		foreach ($this->controls as $id => $control) {
-			if ($control->value) {
-				$values[] = $container['ids'][$index]->value;
-			}
+		foreach ($this->controls as $index => $control) {
+			$values[$container['ids'][$index]->value] = $control->value;
 		}
 
 		return $values;
