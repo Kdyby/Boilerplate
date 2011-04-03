@@ -39,7 +39,7 @@ abstract class BaseRenderer extends CellRenderer implements IGridRenderer
 		$s->add($this->renderForm($grid, 'begin'));
 
 		// toolbar
-		$s->add($this->renderToolbar($grid));
+		$s->add($grid->hasTopToolbar() ? $this->renderToolbar($grid) : "");
 
 		// paginator
 		$s->add($grid->hasTopPaginator() ? $this->renderPaginator($grid) : "");
@@ -50,6 +50,9 @@ abstract class BaseRenderer extends CellRenderer implements IGridRenderer
 		} else {
 			$s->add($this->renderEmptyResults());
 		}
+
+		// toolbar
+		$s->add($grid->hasBottomToolbar() ? $this->renderToolbar($grid) : "");
 
 		// paginator
 		$s->add($grid->hasBottomPaginator() ? $this->renderPaginator($grid) : "");

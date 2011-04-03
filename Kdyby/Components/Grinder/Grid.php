@@ -21,9 +21,9 @@ use Kdyby\Components\Grinder\Renderers\IGridRenderer;
  */
 class Grid extends Nette\Application\Control
 {
-	const PAGINATOR_TOP = 'top';
-	const PAGINATOR_BOTTOM = 'bottom';
-	const PAGINATOR_BOTH = 'both';
+	const PLACEMENT_TOP = 'top';
+	const PLACEMENT_BOTTOM = 'bottom';
+	const PLACEMENT_BOTH = 'both';
 
 	/** @persistent int */
 	public $page = 1;
@@ -56,7 +56,10 @@ class Grid extends Nette\Application\Control
 	private $rowHtmlClass;
 
 	/** @var string */
-	private $paginatorPlacemenet = self::PAGINATOR_BOTTOM;
+	private $paginatorPlacemenet = self::PLACEMENT_BOTTOM;
+
+	/** @var string */
+	private $toolbarPlacemenet = self::PLACEMENT_TOP;
 
 
 
@@ -219,6 +222,36 @@ class Grid extends Nette\Application\Control
 
 
 	/**
+	 * @param string $toolbarPlacemenet
+	 */
+	public function setToolbarPlacement($toolbarPlacemenet)
+	{
+		$this->toolbarPlacemenet = $toolbarPlacemenet;
+	}
+
+
+
+	/**
+	 * @return bool
+	 */
+	public function hasTopToolbar()
+	{
+		return $this->toolbarPlacemenet === self::PLACEMENT_BOTH || $this->toolbarPlacemenet === self::PLACEMENT_TOP;
+	}
+
+
+
+	/**
+	 * @return bool
+	 */
+	public function hasBottomToolbar()
+	{
+		return $this->toolbarPlacemenet === self::PLACEMENT_BOTH || $this->toolbarPlacemenet === self::PLACEMENT_BOTTOM;
+	}
+
+
+
+	/**
 	 * Has toolbar
 	 * @return bool
 	 */
@@ -352,7 +385,7 @@ class Grid extends Nette\Application\Control
 
 
 	/**
-	 * 
+	 *
 	 */
 	public function getFilters()
 	{
@@ -470,7 +503,7 @@ class Grid extends Nette\Application\Control
 	 */
 	public function hasTopPaginator()
 	{
-		return $this->paginatorPlacemenet === self::PAGINATOR_BOTH || $this->paginatorPlacemenet === self::PAGINATOR_TOP;
+		return $this->paginatorPlacemenet === self::PLACEMENT_BOTH || $this->paginatorPlacemenet === self::PLACEMENT_TOP;
 	}
 
 
@@ -480,7 +513,7 @@ class Grid extends Nette\Application\Control
 	 */
 	public function hasBottomPaginator()
 	{
-		return $this->paginatorPlacemenet === self::PAGINATOR_BOTH || $this->paginatorPlacemenet === self::PAGINATOR_BOTTOM;
+		return $this->paginatorPlacemenet === self::PLACEMENT_BOTH || $this->paginatorPlacemenet === self::PLACEMENT_BOTTOM;
 	}
 
 

@@ -40,11 +40,13 @@ class CheckColumn extends BaseColumn
 	{
 		parent::attached($obj);
 
-		if ($obj instanceof Presenter) {
-			$form = $this->getGrid()->getForm();
-			$container = $form->addContainer($this->name);
-			$this->buildControls($container);
+		if (!$obj instanceof Presenter) {
+			return;
 		}
+
+		$form = $this->getGrid()->getForm();
+		$container = $form->addContainer($this->name);
+		$this->buildControls($container);
 	}
 
 
@@ -107,7 +109,11 @@ class CheckColumn extends BaseColumn
 
 		$values = array();
 		foreach ($this->controls as $index => $control) {
-			$values[$container['ids'][$index]->value] = $control->value;
+			$id = $container['ids'][$index]->value;
+
+			if ($id) {
+				$values[$id] = $control->value;
+			}
 		}
 
 		return $values;
