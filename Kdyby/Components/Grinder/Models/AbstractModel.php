@@ -1,38 +1,43 @@
 <?php
 
-namespace Gridito;
+namespace Kdyby\Components\Grinder\Models;
 
 use ArrayIterator;
 
+
+
 /**
- * Abstract Gridito model
+ * Abstract Grinder model
  *
  * @author Jan Marek
  * @license MIT
  */
 abstract class AbstractModel implements IModel
 {
-	/** @var array */
+	/** @var int */
 	private $limit;
 
-	/** @var array */
+	/** @var int */
 	private $offset;
 
 	/** @var array */
-	private $sorting = array(null, null);
+	private $sorting = array(NULL, NULL);
 
 	/** @var string */
 	private $primaryKey = "id";
 
 	/** @var int */
-	private $count = null;
+	private $count = NULL;
 
 
 
-	abstract protected function _count();
+	abstract protected function doCount();
 
 
 
+	/**
+	 * @param int $limit
+	 */
 	public function setLimit($limit)
 	{
 		$this->limit = $limit;
@@ -40,6 +45,9 @@ abstract class AbstractModel implements IModel
 
 
 
+	/**
+	 * @return int
+	 */
 	public function getLimit()
 	{
 		return $this->limit;
@@ -47,6 +55,9 @@ abstract class AbstractModel implements IModel
 
 
 
+	/**
+	 * @return int
+	 */
 	public function getOffset()
 	{
 		return $this->offset;
@@ -54,6 +65,9 @@ abstract class AbstractModel implements IModel
 
 
 
+	/**
+	 * @param int $offset
+	 */
 	public function setOffset($offset)
 	{
 		$this->offset = $offset;
@@ -73,6 +87,9 @@ abstract class AbstractModel implements IModel
 
 
 
+	/**
+	 * @return array
+	 */
 	public function getSorting()
 	{
 		return $this->sorting;
@@ -80,6 +97,9 @@ abstract class AbstractModel implements IModel
 
 
 
+	/**
+	 * @param string $name
+	 */
 	public function setPrimaryKey($name)
 	{
 		$this->primaryKey = $name;
@@ -87,6 +107,9 @@ abstract class AbstractModel implements IModel
 
 
 
+	/**
+	 * @return string
+	 */
 	public function getPrimaryKey()
 	{
 		return $this->primaryKey;
@@ -94,6 +117,9 @@ abstract class AbstractModel implements IModel
 
 
 
+	/**
+	 * @return ArrayIterator
+	 */
 	public function getIterator()
 	{
 		return new ArrayIterator($this->getItems());
@@ -101,6 +127,10 @@ abstract class AbstractModel implements IModel
 
 
 
+	/**
+	 * @param object $item
+	 * @return mixed
+	 */
 	public function getUniqueId($item)
 	{
 		return $item->{$this->getPrimaryKey()};
@@ -108,6 +138,10 @@ abstract class AbstractModel implements IModel
 
 
 
+	/**
+	 * @param array $uniqueIds
+	 * @return array
+	 */
 	public function getItemsByUniqueIds(array $uniqueIds)
 	{
 		return array_map(array($this, "getItemByUniqueId"), $uniqueIds);
@@ -115,10 +149,13 @@ abstract class AbstractModel implements IModel
 
 
 
+	/**
+	 * @return int
+	 */
 	public function count()
 	{
 		if ($this->count === null) {
-			$this->count = $this->_count();
+			$this->count = $this->doCount();
 		}
 
 		return $this->count;

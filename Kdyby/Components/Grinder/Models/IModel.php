@@ -1,6 +1,8 @@
 <?php
 
-namespace Gridito;
+namespace Kdyby\Components\Grinder\Models;
+
+
 
 /**
  * Data model

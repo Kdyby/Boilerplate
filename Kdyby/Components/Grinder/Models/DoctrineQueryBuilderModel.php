@@ -1,20 +1,24 @@
 <?php
 
-namespace Gridito;
+namespace Kdyby\Components\Grinder\Models;
 
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
+
+
 
 /**
  * Doctrine QueryBuilder model
  *
  * @author Jan Marek
+ * @author Filip Procházka
  * @license MIT
  */
 class DoctrineQueryBuilderModel extends AbstractModel
 {
 	/** @var Doctrine\ORM\QueryBuilder */
 	private $qb;
+
 
 
 	/**
@@ -28,7 +32,10 @@ class DoctrineQueryBuilderModel extends AbstractModel
 
 
 
-	protected function _count()
+	/**
+	 * @return int
+	 */
+	protected function doCount()
 	{
 		$qb = clone $this->qb;
 		$qb->select('count(' . $qb->getRootAlias() . ') fullcount');
@@ -37,6 +44,9 @@ class DoctrineQueryBuilderModel extends AbstractModel
 
 
 
+	/**
+	 * @return array
+	 */
 	public function getItems()
 	{
 		$this->qb->setMaxResults($this->getLimit());
@@ -44,7 +54,7 @@ class DoctrineQueryBuilderModel extends AbstractModel
 
 		list($sortColumn, $sortType) = $this->getSorting();
 		if ($sortColumn) {
-			$this->qb->orderBy($this->qb->getRootAlias() . "." . $sortColumn, $sortType);
+			$this->qb->orderBy($this->qb->getRootAlias() . '.' . $sortColumn, $sortType === self::DESC ? self::DESC : self::ASC);
 		}
 
 		return $this->qb->getQuery()->getResult();
@@ -52,10 +62,29 @@ class DoctrineQueryBuilderModel extends AbstractModel
 
 
 
+	/**
+	 * @param scalar $uniqueId
+	 * @return object|null
+	 */
 	public function getItemByUniqueId($uniqueId)
 	{
 		$qb = clone $this->qb;
-		return $qb->andWhere($this->qb->getRootAlias() . "." . $this->getPrimaryKey() . " = " . (int) $uniqueId)->getQuery()->getSingleResult();
+		return $qb->andWhere($this->qb->getRootAlias() . '.' . $this->getPrimaryKey() . " = :grinderPrimaryKeyId")
+			->setParameter('grinderPrimaryKeyId', $uniqueId)
+			->getQuery()->getSingleResult();
+	}
+
+
+
+	/**
+	 * @param array $uniqueIds
+	 * @return array
+	 */
+	public function getItemsByUniqueIds(array $uniqueIds)
+	{
+		$qb = clone $this->qb;
+		return $qb->andWhere($qb->expr()->in($this->qb->getRootAlias() . '.' . $this->getPrimaryKey(), $uniqueIds))
+			->getQuery()->getResult();
 	}
 	
 }

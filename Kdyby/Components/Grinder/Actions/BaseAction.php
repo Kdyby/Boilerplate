@@ -1,35 +1,26 @@
 <?php
 
-namespace Gridito;
+namespace Kdyby\Components\Grinder;
 
-use Nette\Web\Html;
+use Nette;
+
+
 
 /**
- * Button base
+ * Action button
  *
  * @author Jan Marek
  * @license MIT
  */
-abstract class BaseButton extends \Nette\Application\PresenterComponent
+class Action extends Nette\Application\PresenterComponent
 {
+
 	/** @var string */
 	private $label;
 
-	/** @var callback */
-	private $handler;
+	/** @var string|callback|null */
+	private $confirmationQuestion = NULL;
 
-	/** @var string */
-	private $icon = null;
-
-	/** @var bool|callback */
-	private $visible = true;
-
-	/** @var string|callback */
-	private $link = null;
-	
-	/** @var bool */
-	private $showText = true;
-	
 
 
 	/**
@@ -57,30 +48,6 @@ abstract class BaseButton extends \Nette\Application\PresenterComponent
 
 
 	/**
-	 * Get jQuery UI icon
-	 * @return string
-	 */
-	public function getIcon()
-	{
-		return $this->icon;
-	}
-
-
-
-	/**
-	 * Set jQuery UI icon
-	 * @param string icon
-	 * @return BaseButton
-	 */
-	public function setIcon($icon)
-	{
-		$this->icon = $icon;
-		return $this;
-	}
-
-
-
-	/**
 	 * Get handler
 	 * @return callback
 	 */
@@ -101,9 +68,31 @@ abstract class BaseButton extends \Nette\Application\PresenterComponent
 		if (!is_callable($handler)) {
 			throw new \InvalidArgumentException("Handler is not callable.");
 		}
-		
+
 		$this->handler = $handler;
 		return $this;
+	}
+
+
+
+	/**
+	 * Handle click signal
+	 * @param string security token
+	 * @param mixed primary key
+	 */
+	public function handleClick($token, $uniqueId = NULL)
+	{
+		$grid = $this->getGrid();
+
+		if ($token !== $this->getGrid()->getSecurityToken()) {
+			throw new Nette\Application\ForbiddenRequestException("Security token does not match. Possible CSRF attack.");
+		}
+
+		if ($uniqueId === NULL) {
+			call_user_func($this->handler);
+		} else {
+			call_user_func($this->handler, $grid->getModel()->getItemByUniqueId($uniqueId));
+		}
 	}
 
 
@@ -126,7 +115,7 @@ abstract class BaseButton extends \Nette\Application\PresenterComponent
 	 * @param mixed row
 	 * @return string
 	 */
-	protected function getLink($row = null)
+	protected function getLink($row = NULL)
 	{
 		// custom link
 		if (isset($this->link)) {
@@ -142,7 +131,7 @@ abstract class BaseButton extends \Nette\Application\PresenterComponent
 
 		return $this->link('click!', array(
 			'token' => $grid->getSecurityToken(),
-			'uniqueId' => $row === null ? null : $grid->getModel()->getUniqueId($row),
+			'uniqueId' => $row === NULL ? NULL : $grid->getModel()->getUniqueId($row),
 		));
 	}
 
@@ -153,7 +142,7 @@ abstract class BaseButton extends \Nette\Application\PresenterComponent
 	 * @param mixed row
 	 * @return bool
 	 */
-	public function isVisible($row = null)
+	public function isVisible($row = NULL)
 	{
 		return is_bool($this->visible) ? $this->visible : call_user_func($this->visible, $row);
 	}
@@ -170,45 +159,75 @@ abstract class BaseButton extends \Nette\Application\PresenterComponent
 		if (!is_bool($visible) && !is_callable($visible)) {
 			throw new \InvalidArgumentException("Argument should be callable or boolean.");
 		}
-		
+
 		$this->visible = $visible;
 		return $this;
 	}
-	
-	
-	
-	/**
-	 * Show button text
-	 * @return bool
-	 */
-	public function getShowText()
-	{
-		return $this->showText;
-	}
 
 
 
-	/**
-	 * @param bool show text
-	 * @return BaseButton 
-	 */
-	public function setShowText($showText)
-	{
-		$this->showText = $showText;
-		return $this;
-	}
-
-
-	
 	/**
 	 * @return Grid
 	 */
 	public function getGrid()
 	{
-		return $this->getParent()->getParent();
+		return $this->lookup('Kdyby\Components\Grinder\Grid');
+	}
+	
+	
+
+	/**
+	 * Is ajax?
+	 * @return bool
+	 */
+	public function isAjax()
+	{
+		return $this->ajax;
 	}
 
 
+
+	/**
+	 * Set ajax mode
+	 * @param bool ajax
+	 * @return Button
+	 */
+	public function setAjax($ajax)
+	{
+		$this->ajax = (bool) $ajax;
+		return $this;
+	}
+
+
+
+	/**
+	 * Get confirmation question
+	 * @param mixed row
+	 * @return string|callback|null
+	 */
+	public function getConfirmationQuestion($row)
+	{
+		if (is_callable($this->confirmationQuestion)) {
+			return call_user_func($this->confirmationQuestion, $row);
+		} else {
+			return $this->confirmationQuestion;
+		}
+	}
+
+
+
+	/**
+	 * Set confirmation question
+	 * @param string|callback|null confirmation question
+	 * @return Button
+	 */
+	public function setConfirmationQuestion($confirmationQuestion)
+	{
+		$this->confirmationQuestion = $confirmationQuestion;
+		return $this;
+	}
+
+	
 
 	/**
 	 * Handle click signal
@@ -217,16 +236,12 @@ abstract class BaseButton extends \Nette\Application\PresenterComponent
 	 */
 	public function handleClick($token, $uniqueId = null)
 	{
-		$grid = $this->getGrid();
+		parent::handleClick($token, $uniqueId);
 
-		if ($token !== $this->getGrid()->getSecurityToken()) {
-			throw new \Nette\Application\ForbiddenRequestException("Security token does not match. Possible CSRF attack.");
-		}
-
-		if ($uniqueId === null) {
-			call_user_func($this->handler);
+		if ($this->getPresenter()->isAjax()) {
+			$this->getGrid()->invalidateControl();
 		} else {
-			call_user_func($this->handler, $grid->getModel()->getItemByUniqueId($uniqueId));
+			$this->getGrid()->redirect("this");
 		}
 	}
 
@@ -239,24 +254,11 @@ abstract class BaseButton extends \Nette\Application\PresenterComponent
 	 */
 	protected function createButton($row = null)
 	{
-		return Html::el("a")
-			->href($this->getLink($row))
-			->data("gridito-icon", $this->icon)
-			->class(array("gridito-button", $this->showText ? null : "gridito-hide-text"))
-			->setText($this->label);
-	}
-
-	
-
-	/**
-	 * Render button
-	 * @param mixed row
-	 */
-	public function render($row = null)
-	{
-		if ($this->isVisible($row)) {
-			echo $this->createButton($row);
-		}
+		$el = parent::createButton($row);
+		$el->class[] = $this->isAjax() ? $this->getGrid()->getAjaxClass() : null;
+		$el->data("grinder-question", $this->getConfirmationQuestion($row));
+		
+		return $el;
 	}
 
 }
