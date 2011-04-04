@@ -43,6 +43,7 @@ use Nette\Environment;
  * @property-read Kdyby\Templates\TemplateFactory $templateFactory
  * @property-read Kdyby\Application\INavigationManager $navigationManager
  * @property-read Kdyby\Application\RequestManager $requestManager
+ * @property-read Nette\ITranslator $translator
  */
 class ServiceContainer extends Nette\FreezableObject implements IServiceContainer, \ArrayAccess
 {

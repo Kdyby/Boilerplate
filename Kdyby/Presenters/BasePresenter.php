@@ -31,35 +31,6 @@ use Kdyby;
 abstract class BasePresenter extends Nette\Application\Presenter
 {
 
-	/** @var Nette\ITranslator */
-	private $translator;
-
-
-
-	/**
-	 * @return Nette\ITranslator
-	 */
-	public function getTranslator()
-	{
-		if ($this->translator === NULL) {
-			$this->translator = Environment::getService("Nette\\ITranslator");
-		}
-
-		return $this->translator;
-	}
-
-
-
-	/**
-	 * @param Nette\ITranslator $translator
-	 */
-	public function setTranslator(Nette\ITranslator $translator)
-	{
-		$this->translator = $translator;
-	}
-
-
-
 	/*=========================== Redirecting =============================*/
 
 	

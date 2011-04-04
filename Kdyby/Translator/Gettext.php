@@ -515,12 +515,13 @@ class Gettext extends \Nette\Object implements IEditable
 	/**
 	 * Get translator
 	 *
-	 * @param array $options
+	 * @param string $translationsDir
+	 * @param string $language
 	 * @return NetteTranslator\Gettext
 	 */
-	public static function getTranslator($options)
+	public static function getTranslator($translationsDir, $language = NULL)
 	{
-		return new static(isset($options['dir']) ? (array) $options['dir'] : NULL, Environment::getVariable('lang', 'en'));
+		return new static($translationsDir, $language ?: 'en_US');
 	}
 
 

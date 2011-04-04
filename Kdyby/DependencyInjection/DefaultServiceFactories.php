@@ -40,7 +40,9 @@ class DefaultServiceFactories extends Nette\Object
 			'aliases' => array('memcache'),
 		),
 		'Nette\\ITranslator' => array(
-			'factory' => 'Kdyby\\Translator\\Gettext::getTranslator'
+			'factory' => 'Kdyby\\Translator\\Gettext::getTranslator',
+			'arguments' => array('%translator[translationsDir]%', '%translator[language]%'),
+			'aliases' => array('translator')
 		),
 		'Nette\\Loaders\\RobotLoader' => array(
 			'factory' => array('Nette\Configurator', 'createRobotLoader'),
@@ -136,7 +138,7 @@ class DefaultServiceFactories extends Nette\Object
 		),
 		'Kdyby\\Templates\\ITemplateFactory' => array(
 			'class' => 'Kdyby\\Templates\\TemplateFactory',
-			'arguments' => array('@Nette\\Web\\IUser', '%baseUri%'),
+			'arguments' => array('@Nette\\ITranslator', '@Nette\\Web\\IUser', '%baseUri%'),
 //				('Nette\\Templates\\FileTemplate', '@Nette\\ITranslator'),
 			'aliases' => array('templateFactory'),
 		),

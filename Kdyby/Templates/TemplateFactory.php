@@ -28,8 +28,9 @@ class TemplateFactory extends Nette\Object implements ITemplateFactory
 	 * @param Nette\Web\IUser $user
 	 * @param string $baseUri
 	 */
-	public function __construct(Nette\Web\IUser $user, $baseUri)
+	public function __construct(Nette\ITranslator $translator, Nette\Web\IUser $user, $baseUri)
 	{
+		$this->translator = $translator;
 		$this->user = $user;
 		$this->baseUri = $baseUri;
 	}
@@ -52,26 +53,6 @@ class TemplateFactory extends Nette\Object implements ITemplateFactory
 	public function getTemplateClass()
 	{
 		return $this->templateClass;
-	}
-
-
-
-	/**
-	 * @param Nette\ITranslator $translator
-	 */
-	public function setTranslator(Nette\ITranslator $translator)
-	{
-		$this->translator = $translator;
-	}
-
-
-
-	/**
-	 * @return Nette\ITranslator
-	 */
-	public function getTranslator()
-	{
-		return $this->translator;
 	}
 
 
@@ -104,9 +85,7 @@ class TemplateFactory extends Nette\Object implements ITemplateFactory
 		// todo: theme template parameter ??
 
 		// translator
-		if ($this->translator) {
-			$template->setTranslator($this->translator);
-		}
+		$template->setTranslator($this->translator);
 
 		// flash message
 		if ($presenter !== NULL && $presenter->hasFlashSession()) {
