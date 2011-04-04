@@ -77,9 +77,14 @@ class SequentialRouter extends Nette\Object implements Nette\Application\IRouter
 
 		$sequences = array_filter(array_map(callback('trim'), $sequences));
 
-		// mask
-		$mask = $this->masks->findOneByMask($match[self::MASK_KEY]);
-		$bundle = $mask->getBundle();
+		try {
+			// mask
+			$mask = $this->masks->findOneByMask($match[self::MASK_KEY]);
+			$bundle = $mask->getBundle();
+
+		} catch (Doctrine\ORM\NoResultException $e) {
+			return NULL;
+		}
 
 		try {
 			// internaly autoloads whole mainmenu and path. Returns last in path
@@ -194,22 +199,34 @@ class SequentialRouter extends Nette\Object implements Nette\Application\IRouter
 	public function constructUrl(PresenterRequest $appRequest, Nette\Web\Uri $refUri)
 	{
 		$params = $appRequest->getParams();
+		$uri = NULL;
 
 		if (isset($params[Presenter::ACTION_KEY]) && $params[Presenter::ACTION_KEY] === 'default') {
 			unset($params[Presenter::ACTION_KEY]);
 		}
 
-		$uri = isset($params[self::MASK_KEY]) ? '//' . $params[self::MASK_KEY] : NULL;
-		$uri .= '/' . implode('/', array_map(callback('rawurlencode'), $params[self::SEQUENCE_KEY])) . '/';
+		// mask
+		if (isset($params[self::MASK_KEY])) {
+//			todo: secured?
+//			$uri = ($this->flags & self::SECURED ? 'https:' : 'http:') . $uri;
+			$uri .= 'http://';
+
+			$uri .=  $params[self::MASK_KEY];
+		}
+
+		$uri .= '/';
+
+		// sequences
+		if (isset($params[self::SEQUENCE_KEY])) {
+			$uri .= implode('/', array_map(callback('rawurlencode'), $params[self::SEQUENCE_KEY])) . '/';
+		}
+
+		// cleanup
 		unset($params[self::SEQUENCE_KEY], $params[self::MASK_KEY]);
 
 		$sep = ini_get('arg_separator.input');
 		$query = http_build_query($params, '', $sep ? $sep[0] : '&');
 		$uri = $uri . ($query ? '?' . $query : NULL);
-
-//		todo: secured?
-//		$uri = ($this->flags & self::SECURED ? 'https:' : 'http:') . $uri;
-		$uri = 'http:' . $uri;
 
 		return $uri;
 	}
