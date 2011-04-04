@@ -18,9 +18,49 @@ class DefaultServiceFactories extends Nette\Object
 			'arguments' => array('%Application[application.class]%'),
 			'aliases' => array('application'),
 		),
+		'Nette\\Application\\IPresenterFactory' => array(
+			'class' => 'Kdyby\\Application\\PresenterFactory',
+			'arguments' => array('@Kdyby\\Registry\\NamespacePrefixes'),
+		),
 		'Nette\\Application\\IRouter' => array(
 			'factory' => array(__CLASS__, 'createRouter'),
 			'arguments' => array('@Doctrine\\ORM\\EntityManager'),
+		),
+		'Nette\\Caching\\ICacheStorage' => array(
+			'factory' => array(__CLASS__, 'createCacheStorage'),
+			'arguments' => array('@Nette\\Caching\\ICacheJournal'),
+			'aliases' => array('cache'),
+		),
+		'Nette\\Caching\\ICacheJournal' => array(
+			'factory' => array('Nette\Configurator', 'createCacheJournal'),
+		),
+		'Nette\\Caching\\IMemcacheStorage' => array(
+			'class' => 'Nette\\Caching\\MemcachedStorage',
+			'arguments' => array('%memcache[host]%', '%memcache[port]%', '%memcache[prefix]%'),
+			'aliases' => array('memcache'),
+		),
+		'Nette\\ITranslator' => array(
+			'factory' => 'Kdyby\\Translator\\Gettext::getTranslator'
+		),
+		'Nette\\Loaders\\RobotLoader' => array(
+			'factory' => array('Nette\Configurator', 'createRobotLoader'),
+			'arguments' => array(
+				array('directory' => array('%appDir%')),
+			),
+		),
+		'Nette\\Mail\\IMailer' => array(
+			'factory' => array('Nette\Configurator', 'createMailer'),
+			'aliases' => array('mailer'),
+		),
+		'Nette\\Security\\IAuthenticator' => array(
+			'class' => 'Kdyby\\Security\\Authenticator',
+			'arguments' => array('@Doctrine\\ORM\\EntityManager', '%Security%'),
+			'aliases' => array('authenticator'),
+		),
+		'Nette\\Security\\IAuthorizator' => array(
+			'class' => 'Kdyby\\Security\Authorizator',
+			'arguments' => array('@Doctrine\\ORM\\EntityManager'),
+			'aliases' => array('authorizator'),
 		),
 		'Nette\\Web\\HttpContext' => array(
 			'class' => 'Nette\Web\HttpContext',
@@ -34,51 +74,14 @@ class DefaultServiceFactories extends Nette\Object
 			'class' => 'Nette\Web\HttpResponse',
 			'aliases' => array('httpResponse'),
 		),
-		'Nette\\Caching\\ICacheStorage' => array(
-			'factory' => array(__CLASS__, 'createCacheStorage'),
-			'arguments' => array('@Nette\\Caching\\ICacheJournal'),
-			'aliases' => array('cache'),
-		),
-		'Nette\\Caching\\ICacheJournal' => array(
-			'factory' => array('Nette\Configurator', 'createCacheJournal'),
-		),
-		'Nette\\Mail\\IMailer' => array(
-			'factory' => array('Nette\Configurator', 'createMailer'),
-			'aliases' => array('mailer'),
-		),
 		'Nette\\Web\\Session' => array(
 			'factory' => array(__CLASS__, 'createSession'),
 			'arguments' => array('@Nette\\Web\\IHttpRequest'),
 			'aliases' => array('sessionStorage'),
 		),
-		'Nette\\Loaders\\RobotLoader' => array(
-			'factory' => array('Nette\Configurator', 'createRobotLoader'),
-			'arguments' => array(
-				array('directory' => array('%appDir%')),
-			),
-		),
-		'Nette\\Security\\IAuthenticator' => array(
-			'class' => 'Kdyby\\Security\\Authenticator',
-			'arguments' => array('@Doctrine\\ORM\\EntityManager', '%Security%'),
-			'aliases' => array('authenticator'),
-		),
-		'Nette\\Security\\IAuthorizator' => array(
-			'class' => 'Kdyby\\Security\Authorizator',
-			'arguments' => array('@Doctrine\\ORM\\EntityManager'),
-			'aliases' => array('authorizator'),
-		),
 		'Nette\\Web\\IUser' => array(
 			'class' => 'Kdyby\\Security\\User',
 			'aliases' => array('user'),
-		),
-		'Nette\\Application\\IPresenterFactory' => array(
-			'class' => 'Kdyby\\Application\\PresenterFactory',
-			'arguments' => array('@Kdyby\\Registry\\NamespacePrefixes'),
-		),
-		'Nette\\Caching\\IMemcacheStorage' => array(
-			'class' => 'Nette\\Caching\\MemcachedStorage',
-			'arguments' => array('%memcache[host]%', '%memcache[port]%', '%memcache[prefix]%'),
-			'aliases' => array('memcache'),
 		),
 
 		'Doctrine\\ORM\\EntityManager' => array(
