@@ -16,6 +16,8 @@ use Kdyby\Components\Grinder\Renderers\IGridRenderer;
  * Grid
  *
  * @todo filtry
+ * @todo nested nodes manipulation (column + renderer)
+ * @todo column s indexem záznamu
  * @todo inline editation
  * @todo ajax per each item
  * @todo vícenásobné řazení
