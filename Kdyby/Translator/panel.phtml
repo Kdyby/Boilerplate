@@ -1,0 +1,519 @@
+<?php
+/*
+ * Copyright (c) 2010 Jan Smitka <jan@smitka.org>
+ *
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following
+ * conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ */
+
+namespace NetteTranslator;
+
+use Nette\Environment;
+
+/**
+ * Template for TranslationPanel
+ *
+ * @author Jan Smitka <jan@smitka.org>
+ * @author Patrik Votoček <patrik@votocek.cz>
+ * @var $this NetteTranslator\Panel
+ * @var $translator NetteTranslator\IEditableTranslator
+ */
+?>
+
+<style type="text/css">
+#TranslationPanel {
+	min-width: 600px;
+}
+
+#TranslationPanel .nette-inner {
+	max-width: 800px !important;
+	height: <?php echo $this->height . 'px'; ?>;
+	padding: 1px;
+}
+
+#TranslationPanel-sidebar {
+	width: <?php if ($this->layout == self::LAYOUT_VERTICAL) echo '40%'; else echo '30%'; ?>;
+	height: 100%;
+	overflow: hidden;
+	float: left;
+	margin: -1px 0 -1px -1px;
+}
+
+#TranslationPanel-strings {
+	height: <?php echo ($this->height - 30) . 'px'; ?>;
+	overflow: auto;
+	border: 1px solid #AAA;
+}
+
+#TranslationPanel-filter {
+	padding: 3px 3px 3px 21px;
+	border: 1px solid #AAA;
+	margin-bottom: 2px;
+	background: #FFF url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAArFJREFUeNqUU01IVGEUPe+9GcdRx18k0srKyKyQMtTMNEvCRbvatCja9WNlJLmJJMNt6KQW1CqkRVAEaZCDkVao2DgQFRKmoNQ4U+qkjs+ZeTPfu93Jft5UBF14fN+73HPuOZf7STBE+42bTboQFwgUD1rOSZIUlBXl6pmaEw34LYjo14+9td3t6O6mSFAlY0QCKjked5P9Wrv7bwRS9NJsb3XvLS/L2rKtEPZeLwYn/DDHKTCZJOxen4zjJRl47XKh78XAVN352uwYBc32tqbOzi5SNZ0O335PHc4ZGpsJ0SvPEvWML9D1oRmqc3goJIg6H3ZStN5IIIc1rX5PWQnaej04sDUNVRttmNMEpoMC8xEusCiwJphwd2QeFbtKoGmheqMNWejCkpyeAac7gO3ZCfCqAr6QjgUB+NnhkiwjOcmMUVVHSno6dKFbjAQmTgBCY88yBE/Ex539DF5icFCRkZgIhAVByOw3okHXdcQSkICICJjNCqYYqXLBYrQzg+OtPEjOa6woSDrC4QgTiBgCmXTS3B4vClea8eZTENOBqAX2zmqiYIvFBInPXKuOj14vq2FnRoJZn6/j2fMBHNpgZrAO9yJ3YpUsijsTVM7pYUJR3BKe9vVjk2XEFkPQam++PDo2Nv3WNYSafIE1VrahAYshYD5ASAmp2C9PwzXQD9+XORQfacXLluKfKyh9PwsuXmp4krsuJ3NncREyedrLayrh86wPg0NOfJjyoHJfFfLyCxDnd2LiUSOKzvZJkkFNwclTp2vT0tKO8luI+/EWSFL8a5VxW3h1NaxWG8pz5pG3ORWDd1pQei6WIBpZ/K2IWjPkomNXuq5UDCetKkJl6n1MJlQ+mBp1Hyyt7fmD4F+x415j9TCRBN4tOJyTx251jXT8D8E3EsP9Hc9J/SrAALenXlq1AZ12AAAAAElFTkSuQmCC") no-repeat 3px 50%;
+}
+
+#TranslationPanel-filterBox {
+	width: 80%;
+}
+
+#TranslationPanel-filterReset {
+	float: right;
+	width: 16px;
+	height: 16px;
+	margin: 1px 0;
+	background: transparent url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAnlJREFUeNp0k09IVFEUxr9775s/7zVaCkVmUBZBAzOgZlKR1iZatc5wWlVI7bRdJAVGOws3hlQEMaJQm2jZKokWZhnOgIsoC6qRyhlnHGYc9b3XOXd6j7HowOXde+75fu/cc88VqLGp47FeqYyktWM7XNclDw8BIQRKP37CsTcS3a/S4148x4gacY8QaiJ24RLMpia4Va1mkB7lTAbph/fJb58jyOQmAIsh5UTsYh/k9y8oPp+ECARIKSnKgbu+jsiZHji79iD9YAxwHA3RgKmueC+lmIz1XYb69hkbma+ACmB19jVBgiReQ7jtGGCvw2jaDbt5L9Jj9/jvia6puXG8PHLQzT955BZHbrqL3S2uZ9mB8+7iyf366xnvcxzHs44zkA6lyFZ58QzKtPyCNgw/Rijaqr+eKXOLjmNzdJEAyZWyKD1pmlCRemRPRX3BttGn/pz9KlJHcRbMQq5aWQ2QxMj+ggyEoYIEseqw0p+ovV29Zj/vy2AY7kquWmANIJK7vESAECTNg+1HUXc3uQnAa/bzvjSCEPl8TQbsXM5R4Q0IOpd5Y8QXFk/H/Tn7eV/R9cpiDUDQEUpENEJ0hFDIF5TPnoDa2ay/fhFp36BRyhfoBFWAuBPfd72jsX6oLXoApqFgr5aqHUZHglJ0/zb1QkW3swpbKG/YmJ3/gJlsYbB/7uMtxjQOx1v6DjfU3+6IR2GaIWo+6j5uUq+VeUWZlssVzKTm8SZXuHY1tTDG7eK9BQ3pJEjnoVYEI1b1HXlGUWvFEqbfvsf0HzHf7KbHxBA6zpX2rdaQbpK/AHwD7/KlwYHUp1EW//MaPQiNFvzfFjyxB/gtwABumBv4WzBkkgAAAABJRU5ErkJggg==") no-repeat 50% 50%;
+}
+
+#TranslationPanel div.TranslationPanel-string {
+	border-bottom: 1px solid #DDD;
+	padding: 0.3ex 1ex;
+	background-color: #E6EFC2;
+}
+
+#TranslationPanel div.TranslationPanel-string.untranslated {
+	background-color: #FFF6BF;
+}
+
+#TranslationPanel div.TranslationPanel-string a {
+	color: #264409;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+#TranslationPanel div.TranslationPanel-string a:hover {
+	background: none;
+}
+
+#TranslationPanel div.TranslationPanel-string.untranslated a {
+	color: #514721;
+}
+
+#TranslationPanel div.TranslationPanel-string.modified {
+	background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAT9JREFUeNpi/P//PwMlgImBQkCxAQwgLyBjdPBqvsV/fHrwGvBmqc2U/x9m/QfRZBnw5Xg+UOjjfxCNywAWdOe9Xmi16P/f37EMDH8ZuDS9GP692w2mX807DDSEmYGRmXUxUFkcTD2GAd/+MkpL+9YxMHPxMfx5d5Th/9ebDIzc6gyiUTMY/nx4zvBsW5c0snpGdGczMjKqXJxoNFHZRMmLTVKL4d+3ewxMXEoMPx+dY7h7+tE2g9JLIH/dwWcAiFL4eqrwPrMAK8Pfj/cYmAXVGX6/ecfAazFdESj3AFkP1nTwZoVXORMXG8PXCycYbh24u+7rucMMLHzCDK8WWJYTlQ7erPT6/3yuxccoO3FPIFc+yk7M8/kC+49vlrv+R9eDywvGQPwHiK8D8S8gZgNiTWign0XWwzj0MxNAgAEA2MzWr2VXRDEAAAAASUVORK5CYII=");
+	background-position: 99% 50%;
+	background-repeat: no-repeat;
+}
+
+#TranslationPanel-editor {
+	width: <?php if ($this->layout == self::LAYOUT_VERTICAL) echo '58%'; else echo '68%'; ?>;
+	height: 100%;
+	margin: -1px -1px -1px 0;
+	float: right;
+	position: relative;
+}
+
+<?php if ($this->layout == self::LAYOUT_HORIZONTAL) { ?>
+#TranslationPanel div.TranslationPanel-stringVariant {
+	width: 50%;
+	float: left;
+}
+<?php } ?>
+
+#TranslationPanel div.TranslationPanel-stringVariant sup {
+	font-size: 60%;
+}
+
+#TranslationPanel label {
+	display: block;
+	font-weight: bold;
+}
+
+#TranslationPanel textarea {
+	width: 95%;
+	height: 70%;
+	background-color: #fff;
+	border: 1px solid #bbb;
+	margin: 0.5em 0;
+	border: 1px solid #888;
+}
+
+#TranslationPanel-tools {
+	position: absolute;
+	bottom: -1px;
+	right: 0px;
+	width: 98%;
+	background-color: #EDEAE0;
+	padding: 1ex;
+	text-align: right;
+	border-radius: 0.7ex;
+	-moz-border-radius: 0.7ex;
+	-webkit-border-radius: 0.7ex;
+}
+
+#TranslationPanel-tools input.save {
+	padding: 3px 3px 3px 22px;
+	background: #DFDDD8 url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAWVJREFUeNpi/P//PwNdgVsnw38QJkuzYxvD/3c/JoIxiE2y5idfmv/P2sQAxk+/NoJdwkKs5sV5zQzbj9QyMLAyMDACxb7/f4eqyB1omjsWvzkBNd/+XPR/1h6G/zOBePZehv+XPsX/d4J4wRiu6MqnOCCGS0DEW4GKPyb8n30Q6OwDQM2HQJoTUDWDbD37we//7GNABUcZ/p967//foZkBjEFskPgsoPgcIH36gz+qZiBggfuHmYHhH1Dqwq2NDLVpNmBJEJuBCehnIFZTsWOomLaRYV8VgwlQ6izMAJB+Y5c2hjOlqboMj59cZvj3j4EBlrYYgbJMQM2yMroMXbMvM+xF0wwCQHsZnt/by7DlheCrNAd7WYYfPz4x/AfZCpRhBsaRiIQsw4Q5t7FqRgcgl/xf+Zz7/9wbDGAMYrug+ZkQMHYFalj9khuMXUnUDDfEExgznp3kaYYbQqxmRkqzM0CAAQBWbMG1YQFlxwAAAABJRU5ErkJggg==") scroll no-repeat 3px 50%;
+	border: 1px solid #CCC;
+	border-radius: 0.7ex;
+	-moz-border-radius: 0.7ex;
+	-webkit-border-radius: 0.7ex;
+}
+
+#TranslationPanel-tools input.save:hover, #TranslationPanel-tools input.save:focus {
+	border-color: #AAA;
+}
+
+#TranslationPanel-tools input.save.disabled {
+	background-color: transparent;
+	background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAU1JREFUeNq8k72OgkAQx2c5EkofwJLQmhCupEIKpKNWO7Wl5UVooCKxJFaXUIAdNOTuCSgs7wm0Uvd2JoGgnpfTS26TyS6z+/vPB7uMcw7/Omzb5mhPwePxmJdlSYZr9MmPwEEQQBiG9I1rxhiXH4GTJAFJksh3OBxoZv3acC6Kgl3Dvu9Dmqadz3VdiOMYttvtq9weWiwWtCn+ChcbJGJZFl8ul7DZbCiySBkcx4EoiggWRz5kjDydTiHPc4RhNpvB+XymbObzOflb2DTNC7hrItaDB9CqqgLP8ygbXKMPBXRdh/V6fQG3PTBECe+TyQSapoHri4UCmqZBlmU3MI4XYZ+73e7tdDqtRqMR7Pf7LhuMPBwOsbHfwq0AtCICWKmqCsfjkeDBYEBl3IP7Ap2IoigkImao6/pH+N4wevfdePbNGL+F2V+f85cAAwB9saVy6lAYxAAAAABJRU5ErkJggg==");
+	border: 1px solid #DDD;
+}
+
+#TranslationPanel-status {
+	float: left;
+	display: block;
+	padding: 4px 0;
+}
+
+#TranslationPanel-notification {
+	display: block;
+	position: absolute;
+	bottom: 0px;
+	font-size: 75%;
+	border: 1px solid #600;
+	background: #A00;
+	color: #FFF;
+	font-weight: bold;
+	border-radius: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	line-height: 100%;
+}
+</style>
+
+<script type="text/javascript">
+/* <![CDATA[ */
+var JSON = JSON || {};
+
+JSON.stringify = JSON.stringify || function (obj) {
+	var t = typeof (obj);
+	if (t != "object" || obj === null) {
+		// simple data type
+		if (t == "string") obj = '"'+obj+'"';
+		return String(obj);
+    } else {
+        var n, v, json = [], arr = (obj && obj.constructor == Array);
+		for (n in obj) {
+			v = obj[n]; t = typeof(v);
+			if (t == "string") v = '"'+v+'"';
+			else if (t == "object" && v !== null) v = JSON.stringify(v);
+			json.push((arr ? "" : '"' + n + '":') + String(v));
+		}
+
+		return (arr ? "[" : "{") + String(json) + (arr ? "]" : "}");
+   }
+};
+/* ]]> */
+</script>
+
+<script type="text/javascript">
+/* <![CDATA[ */
+
+var translationPanel = {
+	strings: <?php echo json_encode($strings); ?>,
+	variants: <?php echo json_encode($translator->getVariantsCount()); ?>,
+
+	updatedStrings: [],
+	currentString: false,
+	filter: '',
+
+	listElements: [],
+	icon: null,
+	iconNormal: '',
+	iconNotification: "data:image\/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8\/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAoNJREFUeNqUU01IVFEU\/u59d340\/Knoh8JNhK6qMaMoAoX2EdUmaNMihjZFrQwUIle1iCCibURuakpqk5hSmSWEjkmM\/VApjqjhOPp804zOe+\/ezr1vRmxR0WHO3HfenPOd73z3DEtcPfREcnU0kvE7Nwzm+iX8uJT+XiUloADGGJgQKzwcusm51Yq1pn97eOWgajjQCLu1F5v3x1C7azdqYk2I7GwAQmGgkMfP0SSGOtoRXr+Rec5SI5SsVwpneSh0RChqI6WC57mov3Yby71dUN\/H4I2+haiuQnFmBuvOXIK\/UoRfyKtKArYqKrDj3EW8j5+G0Ew0iP52UyPIdd5BeNt28C1bobwC\/Nk0\/MlxSGqw724CorISzC3C4qB3XgBAw9CHw7cXiHaIZibqlii5Bbm0CEk50eE+qM+jyH39gmi8zWjAy\/U6kAtZwrGCeFUoDqWBhTDFKhwByBWBgvMSgDYKpD1vTkZFXJ\/EkxsGBKCBjXNzSg26ysA00p2yxNqCCFnwii6cuWyQlHOozjLPwbjE1s4adiKYgJmE6b5u5HgUzniKNFUlaIWq6AdwAtY7Ac4MKxArzTAAKHgkHMeY4z8dcTLdHZ8m35WZvW7eM5T3JGlrGR0YibxM8WzPM2Rc+ViYbQsLTB2rwqnLgxeoZn6gOeaUhXwxt3i+ZVPtDUoTr7qeEzGFrCt7Xmbt+7e+TfcH10iLxF2FB9cPT9Q9WoLZYh6M256auEdPb\/D73ZAA+DHQEssHI2gWPnlRIX2iBnUJG0ow45RkU0oSfzDOSjegBeLUmRclpo5XI32ymkCV+UP9zYQu\/phMBgprMAKBp\/QN\/bO4vINNa+Jh\/Kf9EmAAjwQEmDZvGoIAAAAASUVORK5CYII=",
+
+	originalValue: null,
+
+	init: function() {
+		this.icon = document.getElementById('TranslationPanel-icon');
+		this.iconNormal = document.getElementById('TranslationPanel-icon').src;
+
+		this.drawList();
+
+		for (var i = 0; i < this.variants; i++) {
+			var textarea = document.getElementById('TranslationPanel-stringVariant_' + i);
+			textarea.onfocus = function () {
+				translationPanel.originalValue = this.value;
+			}
+			textarea.onkeyup = textarea.onchange = function () {
+				if (translationPanel.originalValue != this.value) {
+					translationPanel.save();
+				}
+			};
+		}
+
+		var button = document.getElementById('TranslationPanel-save');
+		button.disabled = true;
+		button.className += ' disabled';
+		button.onclick = function () {
+			button.disabled = true;
+			button.className += ' disabled';
+
+			translationPanel.commit();
+		};
+
+		var filterBox = document.getElementById('TranslationPanel-filterBox');
+		var filterReset = document.getElementById('TranslationPanel-filterReset');
+		filterReset.style.visibility = 'hidden';
+		var onChange = function () {
+			translationPanel.filter = filterBox.value;
+			filterReset.style.visibility = (translationPanel.filter ? 'visible' : 'hidden');
+			translationPanel.drawList();
+		};
+		filterBox.onkeyup = filterBox.onchange = onChange;
+		filterReset.onclick = function () {
+			translationPanel.filter = filterBox.value = '';
+			filterReset.style.visibility = 'hidden';
+			translationPanel.drawList();
+		};
+
+		translationPanel.setStatus();
+	},
+
+	drawList: function () {
+		var list = document.getElementById('TranslationPanel-strings');
+		list.innerHTML = '';
+		this.listElements = [];
+
+		var strings = [{}, {}];
+		var untranslated = 0;
+		for (var i in this.strings) {
+			var translated = Boolean(this.strings[i]);
+			if (translated && (typeof(this.strings[i]) == 'object' && this.strings[i] instanceof Array) && this.strings[i].length > 1) {
+				for (var plural = 0; plural < this.variants; plural++) {
+					if (!this.strings[i][plural]) {
+						translated = false;
+						break;
+					}
+				}
+			}
+
+			if (translated)
+				strings[1][i] = this.strings[i];
+			else {
+				strings[0][i] = this.strings[i];
+				untranslated++;
+			}
+		}
+
+		var notification = document.getElementById('TranslationPanel-notification');
+		if (notification)
+			notification.parentNode.removeChild(notification);
+
+		if (untranslated) {
+			this.icon.src = this.iconNotification;
+
+			notification = document.createElement('span');
+			notification.id = 'TranslationPanel-notification';
+			notification.textContent = untranslated;
+			this.icon.parentNode.style.position = 'relative';
+			this.icon.parentNode.appendChild(notification);
+		} else
+			this.icon.src = this.iconNormal;
+
+		for (var translated in strings) {
+			for (var i in strings[translated]) {
+				if (!this.matchesFilter(i, this.strings[i]))
+					continue;
+
+				var div = document.createElement('div');
+				div.className = 'TranslationPanel-string';
+				var label;
+				var stringData = this.strings[i];
+
+				if (translated == 0) {
+					div.className += ' untranslated';
+				}
+
+				if (!stringData) {
+					label = i;
+				} else {
+					if (typeof(stringData) != 'object' || !(stringData instanceof Array))
+						stringData = [stringData];
+
+					label = stringData[0];
+				}
+
+				var a = document.createElement('a');
+				a.title = i;
+				a.innerHTML = (label.length <= 30 ? this.escape(label) : this.escape(label).substr(0, 30) + '&hellip;');
+				a.onclick = function () {
+					translationPanel.edit(this);
+				};
+
+				div.appendChild(a);
+				list.appendChild(div);
+
+				this.listElements[i] = div;
+			}
+		}
+	},
+
+	matchesFilter: function (string, stringData) {
+		if (!this.filter)
+			return true;
+
+		var filter = new RegExp(this.filter, 'i');
+
+		if (string.match(filter))
+			return true;
+
+		if (typeof(stringData) != 'object' || !(stringData instanceof Array))
+			stringData = [stringData];
+		for (var i in stringData) {
+			if (typeof(stringData[i]) == 'string' && stringData[i].match(filter))
+				return true;
+		}
+
+		return false;
+	},
+
+	edit: function (anchor) {
+		var string = anchor.title;
+
+		this.fillIn(this.strings[string]);
+		this.currentString = string;
+		document.getElementById('TranslationPanel-stringVariant_0').focus();
+		this.setStatus(string.length <= 50 ? this.escape(string) : this.escape(string).substr(0, 50) + '&hellip;');
+	},
+
+	fillIn: function (stringData) {
+		if (typeof(stringData) != 'object' || !(stringData instanceof Array))
+			stringData = [stringData];
+
+		for (var i = 0; i < this.variants; i++) {
+			var textarea = document.getElementById('TranslationPanel-stringVariant_' + i);
+			if (stringData[i])
+				textarea.value = stringData[i];
+			else
+				textarea.value = '';
+		}
+	},
+
+	save: function () {
+		if (this.currentString) {
+			var stringData = [];
+			for (var i = 0; i < this.variants; i++) {
+				var textarea = document.getElementById('TranslationPanel-stringVariant_' + i);
+				if (textarea.value)
+					stringData[i] = textarea.value;
+			}
+
+			if (stringData.length == 1)
+				stringData = stringData.shift();
+			else if (stringData.length == 0)
+				stringData = false;
+
+			this.strings[this.currentString] = stringData;
+			this.updatedStrings.push(this.currentString);
+			if (this.listElements[this.currentString].className.search('modified') == -1)
+				this.listElements[this.currentString].className += ' modified';
+
+			document.getElementById('TranslationPanel-save').disabled = false;
+			document.getElementById('TranslationPanel-save').className = 'save';
+		}
+	},
+
+	commit: function () {
+		var data = {
+			'x-nette-translationpanel-lang': '<?php echo Environment::getService('Nette\ITranslator')->lang ?>'
+		};
+		for (var i in this.updatedStrings) {
+			data[this.updatedStrings[i]] = this.strings[this.updatedStrings[i]];
+		}
+
+		var xmlHttp = window.ActiveXObject ? new ActiveXObject('Microsoft.XMLHTTP') : new XMLHttpRequest();
+		xmlHttp.onreadystatechange = function() {
+			if (xmlHttp.readyState == 4) {
+				if (xmlHttp.status == 200) {
+					translationPanel.updatedStrings = [];
+					translationPanel.currentString = false;
+					translationPanel.setStatus('Sucessfuly saved.');
+					translationPanel.drawList();
+				} else {
+					translationPanel.setStatus('Unexpected error.');
+					var win = window.open('', 'Error');
+					win.document.write(xmlHttp.responseText);
+					translationPanel.updatedStrings = [];
+					translationPanel.currentString = false;
+					translationPanel.drawList();
+				}
+			}
+		}
+		xmlHttp.open("POST", <?php echo json_encode(Environment::getApplication()->getPresenter()->link('this')); ?>, true);
+		xmlHttp.setRequestHeader('<?php echo self::XHR_HEADER ?>', 'devel');
+		xmlHttp.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+		xmlHttp.send(JSON.stringify(data));
+	},
+
+	setStatus: function (text) {
+		if (text)
+			document.getElementById('TranslationPanel-status').innerHTML = text;
+		else
+			document.getElementById('TranslationPanel-status').innerHTML = '';
+	},
+
+	escape: function (string) {
+		return string
+			.replace('&', '&amp;')
+			.replace('"', '&quot;')
+			.replace('<', '&lt;')
+			.replace('>', '&gt;');
+	}
+};
+
+/* ]]> */
+</script>
+
+<div id="TranslationPanel">
+	<h1>Translations</h1>
+
+	<div class="nette-inner">
+		<div id="TranslationPanel-sidebar">
+			<div id="TranslationPanel-filter">
+				<input type="text" class="text" id="TranslationPanel-filterBox" />
+				<div id="TranslationPanel-filterReset"></div>
+			</div>
+			<div id="TranslationPanel-strings">
+			</div>
+		</div>
+
+		<div id="TranslationPanel-editor">
+			<?php
+			for ($i = 0; $i < $translator->getVariantsCount(); ++$i) {
+			?>
+				<div class="TranslationPanel-stringVariant">
+					<label for="TranslationPanel-stringVariant_<?php echo $i; ?>"><?php echo $i > 0 ? $i . '<sup>' . $this->ordinalSuffix($i) . '</sup> plural': 'Singular'; ?>:</label>
+					<textarea id="TranslationPanel-stringVariant_<?php echo $i; ?>" rows="4" cols="40"></textarea>
+				</div>
+			<?php
+			}
+			?>
+			<div id="TranslationPanel-tools">
+				<span id="TranslationPanel-status">Initializing&hellip;</span>
+				<input type="button" value="Save" class="save" id="TranslationPanel-save" />
+			</div>
+		</div>
+	</div>
+</div>
+
+
