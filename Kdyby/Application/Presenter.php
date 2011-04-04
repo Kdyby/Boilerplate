@@ -15,17 +15,14 @@ use Kdyby\Application\Presentation\Bundle;
 class Presenter extends Nette\Application\Presenter implements Kdyby\DependencyInjection\IContainerAware
 {
 
-	/** @var bool  automatically call canonicalize() */
-	public $autoCanonicalize = FALSE;
+	/** @persistent */
+	public $language = 'cs';
+
+	/** @persistent */
+	public $backlink;
 
 	/** @var Kdyby\DependencyInjection\ServiceContainer */
 	private $serviceContainer;
-
-	/** @var Kdyby\Application\Presentation\Bundle */
-	private $bundle;
-
-	/** @var Kdyby\Application\Presentation\Sitemap */
-	private $actualSitemap;
 
 
 
@@ -36,49 +33,13 @@ class Presenter extends Nette\Application\Presenter implements Kdyby\DependencyI
 
 
 
-	protected function startup()
+	protected function afterRender()
 	{
-		parent::startup();
+		parent::afterRender();
 
-		$em = $this->serviceContainer->entityManager;
-		$sitemapRepository = $em->getRepository('Kdyby\Application\Presentation\Sitemap');
-		$bundleRepository = $em->getRepository('Kdyby\Application\Presentation\Bundle');
-
-		$this->bundle = $bundleRepository->find($this->params[Routers\SequentialRouter::BUNDLE_KEY]);
-		$this->actualSitemap = $sitemapRepository->find($this->params[Routers\SequentialRouter::SITEMAP_KEY]);
-		unset($this->params[Routers\SequentialRouter::BUNDLE_KEY], $this->params[Routers\SequentialRouter::SITEMAP_KEY]);
-
-//		todo: cannonicalize
-//		$link = $this->link($this->getAction(TRUE), $this->params);
-	}
-
-
-
-	public function afterRender()
-	{
 		if (Nette\Debug::isEnabled()) { // todo: as panel
 			Nette\Debug::barDump($this->template->getParams(), 'Template variables');
 		}
-	}
-
-
-
-	/**
-	 * @param Bundle $bundle
-	 */
-	public function setApplicationBundle(Bundle $bundle)
-	{
-		$this->bundle = $bundle;
-	}
-
-
-
-	/**
-	 * @return Bundle
-	 */
-	public function getApplicationBundle()
-	{
-		return $this->bundle;
 	}
 
 
@@ -115,76 +76,7 @@ class Presenter extends Nette\Application\Presenter implements Kdyby\DependencyI
 	}
 
 
-	/**************************** links ****************************/
-
-
-	/**
-	 * @param string $destination
-	 * @param array $args
-	 */
-	public function link($destination, $args = array())
-	{
-		if (!is_array($args)) {
-			$args = func_get_args();
-			array_shift($args);
-		}
-
-		$navigationManager = $this->serviceContainer->navigationManager;
-		$requestManager = $this->serviceContainer->requestManager;
-
-		$request = (object)array(
-			'destination' => $destination,
-			'args' => $args
-		);
-
-		try {
-			try {
-				// restore
-				$uri = $requestManager->restoreRequestUri($this->actualSitemap, $request);
-
-			} catch (\MemberAccessException $e) {
-				if (strpos($destination, '!') !== FALSE) {
-					$request->destination = $this->actualSitemap->destination;
-				}
-
-				// prepare sequences
-				$request = $requestManager->prepareRequest($this->bundle, $request);
-
-				if (strpos($destination, '!') !== FALSE) {
-					$request->destination = $destination;
-				}
-
-				// assemble
-				$uri = parent::createRequest($this, $request->destination, $request->args, 'link');
-
-				// store
-				$requestManager->storeRequestUri($this->actualSitemap, $request, $uri);
-			}
-
-			return $uri;
-
-		} catch (InvalidLinkException $e) {
-			return $this->getPresenter()->handleInvalidLink($e);
-		}
-	}
-
-
-	/**************************** Components ****************************/
-
-
-	/**
-	 * @param string $name
-	 * @return Kdyby\Components\Navigation\NavigationControl
-	 */
-	protected function createComponentNavigation($name)
-	{
-		$manager = $this->serviceContainer->navigationManager;
-		return $this[$name] = $manager->createBundleNavigation($this, $maxLevel = 1);
-	}
-
-
 	/**************************** Templates ****************************/
-
 
 
 	/**
@@ -195,6 +87,37 @@ class Presenter extends Nette\Application\Presenter implements Kdyby\DependencyI
 	{
 		$templateFactory = $this->getServiceContainer()->getService('Kdyby\Templates\ITemplateFactory');
 		return $templateFactory->createTemplate($this, $class);
+	}
+
+
+
+	/**
+	 * @param string $file
+	 */
+	protected function setLayoutFile($file)
+	{
+		if (!file_exists($file)) {
+			$file = $this->searchTemplate($file);
+		}
+
+		if (!file_exists($file)) {
+			throw new \FileNotFoundException("Requested template '".$file."' is missing.");
+		}
+
+		$this->layout = FALSE;
+		$this->template->layout = $file;
+		$this->template->_extends = $file;
+	}
+
+
+
+	/**
+	 * @param string $template
+	 * @return string
+	 */
+	public function searchTemplate($template)
+	{
+		return Kdyby\Templates\Helpers::searchTemplate($this, $template);
 	}
 
 
