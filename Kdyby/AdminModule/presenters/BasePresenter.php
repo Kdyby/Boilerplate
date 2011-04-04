@@ -21,7 +21,7 @@ use Kdyby;
 /**
  * @author Filip Procházka <hosiplan@kdyby.org>
  */
-abstract class BasePresenter extends Kdyby\Application\Presenter
+abstract class BasePresenter extends Kdyby\Application\CmsPresenter
 {
 
 	// security and stuff
