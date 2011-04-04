@@ -11,7 +11,7 @@
  */
 
 
-namespace Kdyby\Components;
+namespace Kdyby\Components\Headjs;
 
 use Nette;
 use Nette\String;
@@ -23,7 +23,7 @@ use Kdyby;
 /**
  * @author Filip Procházka <hosiplan@kdyby.org>
  */
-class Headjs extends Kdyby\Control\LookoutControl
+class HeadjsLoader extends Kdyby\Control\LookoutControl
 {
 
 	const PACKAGE_FULL = 'head';
