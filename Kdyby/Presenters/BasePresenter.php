@@ -31,47 +31,8 @@ use Kdyby;
 abstract class BasePresenter extends Nette\Application\Presenter
 {
 
-	/** @persistent */
-	public $language = 'cs';
-
-	/** @persistent */
-	public $backlink;
-
-	/** @var Doctrine\ORM\EntityManager */
-	private $em;
-
-	/** @var bool (experimental) */
-	public $oldLayoutMode = FALSE;
-
-	/** @var bool (experimental) */
-	public $oldModuleMode = FALSE;
-
 	/** @var Nette\ITranslator */
 	private $translator;
-
-
-
-	/**
-	 * @return Doctrine\ORM\EntityManager
-	 */
-	public function getEntityManager()
-	{
-		if ($this->em === NULL) {
-			$this->em = Environment::getService('Doctrine\ORM\EntityManager');
-		}
-
-		return $this->em;
-	}
-
-
-
-	/**
-	 * @return Nette\Web\IUser
-	 */
-	public function getUser()
-	{
-		return Nette\Environment::getUser();
-	}
 
 
 
@@ -137,45 +98,6 @@ abstract class BasePresenter extends Nette\Application\Presenter
 
 
 
-	protected function setLayoutFile($file)
-	{
-		if (!file_exists($file)) {
-			$file = $this->searchTemplate($file);
-		}
-
-		if (!file_exists($file)) {
-			throw new \FileNotFoundException("Requested template '".$file."' is missing.");
-		}
-
-		$this->layout = FALSE;
-		$this->template->layout = $file;
-		$this->template->_extends = $file;
-	}
-
-
-
-	/**
-	 * @param string $search
-	 * @return string
-	 */
-	public function searchTemplate($search)
-	{
-		return Kdyby\Templates\Helpers::searchTemplate($this, $search);
-	}
-
-
-
-	/**
-	 * @return Nette\Templates\Template
-	 */
-	protected function createTemplate($class = NULL)
-	{
-		$templateFactory = new Kdyby\Templates\TemplateFactory($this);
-		return $templateFactory->createTemplate($class);
-	}
-
-
-
 	/**
 	 * @param string $switch
 	 * @return string
@@ -189,18 +111,6 @@ abstract class BasePresenter extends Nette\Application\Presenter
 		}
 
 		return $themes[$switch];
-	}
-
-
-
-	/*=========================== Components magic =============================*/
-
-
-
-	public function createComponent($name)
-	{
-		$component = parent::createComponent($name);
-		return Kdyby\Component\Helpers::createComponent($this, $component, $name);
 	}
 
 
