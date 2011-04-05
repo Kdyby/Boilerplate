@@ -16,9 +16,9 @@ use Kdyby\Components\Grinder\Renderers\IGridRenderer;
  * Grid
  *
  * @todo filtry
+ * @todo inline editation
  * @todo nested nodes manipulation (column + renderer)
  * @todo column s indexem záznamu
- * @todo inline editation
  * @todo ajax per each item
  * @todo vícenásobné řazení
  *
@@ -81,7 +81,7 @@ class Grid extends Nette\Application\Control
 		$this['actions'] = new ComponentContainer;
 		$this['toolbar'] = new ComponentContainer;
 		$this['columns'] = new ComponentContainer;
-		$this['form'] = $form = new GridForm;
+		$this['form'] = new GridForm;
 
 		// model
 		$this->model = $model;
@@ -286,9 +286,9 @@ class Grid extends Nette\Application\Control
 	 * @param array options
 	 * @return Kdyby\Components\Grinder\Toolbar\ButtonAction
 	 */
-	public function addToolbarAction($name, $caption = NULL, array $options = array())
+	public function addToolbarAction($name, $caption = NULL, array $options = array(), $insertBefore = NULL)
 	{
-		$this->getComponent('toolbar')->addComponent($action = new Toolbar\ButtonAction($caption), $name);
+		$this->getComponent('toolbar')->addComponent($action = new Toolbar\ButtonAction($caption), $name, $insertBefore);
 		$this->setOptions($action, $options);
 
 		return $action;
@@ -305,9 +305,9 @@ class Grid extends Nette\Application\Control
 	 * @param array options
 	 * @return Column
 	 */
-	public function addColumn($name, $caption = NULL, array $options = array())
+	public function addColumn($name, $caption = NULL, array $options = array(), $insertBefore = NULL)
 	{
-		$this['columns']->addComponent($column = new Columns\Column, $name);
+		$this['columns']->addComponent($column = new Columns\Column, $name, $insertBefore);
 
 		$this->setOptions($column, $options);
 		$column->setCaption($caption);
@@ -324,9 +324,9 @@ class Grid extends Nette\Application\Control
 	 * @param array options
 	 * @return Column
 	 */
-	public function addCheckColumn($name, $caption = NULL, array $options = array())
+	public function addCheckColumn($name, $caption = NULL, array $options = array(), $insertBefore = NULL)
 	{
-		$this['columns']->addComponent($column = new Columns\CheckColumn, $name);
+		$this['columns']->addComponent($column = new Columns\CheckColumn, $name, $insertBefore);
 
 		$this->setOptions($column, $options);
 		$column->setCaption($caption);
@@ -343,12 +343,12 @@ class Grid extends Nette\Application\Control
 	 * @param array options
 	 * @return Column
 	 */
-	public function addFormColumn($name, $control = NULL, $caption = NULL, array $options = array())
+	public function addFormColumn($name, $control = NULL, $caption = NULL, array $options = array(), $insertBefore = NULL)
 	{
 		throw new \NotImplementedException;
 
 		$control = $control ?: new Nette\Forms\Checkbox;
-		$this['columns']->addComponent($column = new Columns\FormColumn($control), $name);
+		$this['columns']->addComponent($column = new Columns\FormColumn($control), $name, $insertBefore);
 
 		$this->setOptions($column, $options);
 		$column->setCaption($caption);

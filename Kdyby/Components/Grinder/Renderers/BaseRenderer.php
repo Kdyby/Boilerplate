@@ -4,6 +4,7 @@ namespace Kdyby\Components\Grinder\Renderers;
 
 use Kdyby;
 use Kdyby\Components\Grinder\Grid;
+use Kdyby\Components\Grinder\Columns\BaseColumn;
 use Kdyby\Components\Grinder\Columns\CellRenderer;
 use Kdyby\Components\Grinder\Toolbar\BaseAction;
 use Nette;
@@ -181,7 +182,16 @@ abstract class BaseRenderer extends CellRenderer implements IGridRenderer
 	 * @param \Iterator $iterator
 	 * @return Html|NULL
 	 */
-	abstract public function renderItem(Grid $grid, \Iterator $iterator);
+	abstract public function renderDataHeader(Grid $grid, BaseColumn $column);
+
+
+
+	/**
+	 * @param Grid $grid
+	 * @param \Iterator $iterator
+	 * @return Html|NULL
+	 */
+	abstract public function renderDataItem(Grid $grid, \Iterator $iterator);
 
 
 
