@@ -9,14 +9,15 @@ use Nette;
 /**
  * Action button
  *
+ * @author Filip Procházka
  * @author Jan Marek
  * @license MIT
  */
-class Action extends Nette\Application\PresenterComponent
+class BaseAction extends Nette\Application\PresenterComponent
 {
 
 	/** @var string */
-	private $label;
+	private $caption;
 
 	/** @var string|callback|null */
 	private $confirmationQuestion = NULL;
@@ -24,24 +25,24 @@ class Action extends Nette\Application\PresenterComponent
 
 
 	/**
-	 * Get label
+	 * Get caption
 	 * @return string
 	 */
-	public function getLabel()
+	public function getCaption()
 	{
-		return $this->label;
+		return $this->caption;
 	}
 
 
 
 	/**
-	 * Set label
-	 * @param string label
+	 * Set caption
+	 * @param string caption
 	 * @return BaseButton
 	 */
-	public function setLabel($label)
+	public function setCaption($caption)
 	{
-		$this->label = $label;
+		$this->caption = $caption;
 		return $this;
 	}
 

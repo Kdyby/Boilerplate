@@ -12,7 +12,7 @@ use Nette;
  * @author Jan Marek
  * @license MIT
  */
-class LinkAction extends Nette\Application\PresenterComponent
+class LinkAction extends BaseAction
 {
 	/** @var callback */
 	private $handler;
@@ -147,11 +147,19 @@ class LinkAction extends Nette\Application\PresenterComponent
 
 
 
-	public function render()
+	public function getControl()
 	{
 		$el = Nette\Web\Html::el('a');
 		$el->link = $this->getLink($row);
-		
+		$el->setText($this->getCaption());
+		return $el;
+	}
+
+
+
+	public function render()
+	{
+		echo $this->getControl();
 	}
 
 }
