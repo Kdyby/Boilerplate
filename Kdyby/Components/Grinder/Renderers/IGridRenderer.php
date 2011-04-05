@@ -25,22 +25,4 @@ interface IGridRenderer
 	 */
 	function render(Grid $grid);
 
-
-	/**
-	 * Renders one value from one row
-	 *
-	 * @param BaseColumn $column
-	 * @return void
-	 */
-	function renderCell(BaseColumn $column);
-
-
-	/**
-	 * Renders one value from one row
-	 *
-	 * @param BaseAction $action
-	 * @return void
-	 */
-	function renderToolbarAction(BaseAction $action);
-
 }
