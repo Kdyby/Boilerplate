@@ -201,7 +201,7 @@ abstract class BaseColumn extends Nette\Application\PresenterComponent
 	/**
 	 * @return void
 	 */
-	public function render()
+	public function renderCell()
 	{
 		echo call_user_func(array($this->renderer, 'renderCell'), $this);
 	}

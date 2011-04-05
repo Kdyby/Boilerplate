@@ -27,28 +27,6 @@ abstract class CellRenderer extends Nette\Object
 
 
 	/**
-	 * Render date
-	 * @param Datetime value
-	 */
-	public function renderDate(DateTime $date)
-	{
-		return $this->renderDateTime($date, 'j.n.Y');
-	}
-
-
-
-	/**
-	 * Render time
-	 * @param Datetime value
-	 */
-	public function renderTime(DateTime $date)
-	{
-		return $this->renderDateTime($date, 'G:i');
-	}
-
-
-
-	/**
 	 * Render datetime
 	 * @param Datetime value
 	 * @param string datetime format
@@ -61,16 +39,50 @@ abstract class CellRenderer extends Nette\Object
 
 
 	/**
+	 * @param FormColumn $column
+	 * @return Html
+	 */
+	public function renderFormCell(FormColumn $column)
+	{
+		// column control -> IFormControl control
+		return $column->getControl()->getControl();
+	}
+
+
+
+	/**
+	 * @param ActionColumn $column
+	 * @return string
+	 */
+	public function renderActionsCell(ActionColumn $column)
+	{
+		$s = NULL;
+
+		foreach ($column->getActions() as $action) {
+			ob_start();
+				$action->render();
+			$s .= ob_get_clean();
+		}
+
+		return $s;
+	}
+
+
+
+	/**
 	 * Default cell renderer
-	 * 
-	 * @param Column $column
-	 * @return string|Html
+	 *
+	 * @param BaseColumn $column
+	 * @return string|Html Returns sanitized string or safe HTML
 	 */
 	public function renderCell(BaseColumn $column)
 	{
 		if ($column instanceof FormColumn || $column instanceof CheckColumn) {
-			// column control -> IFormControl control
-			return $column->getControl()->getControl();
+			return $this->renderFormCell($column);
+		}
+
+		if ($column instanceof ActionColumn) {
+			return $this->renderActionsCell($column);
 		}
 
 		$value = $column->getValue();
@@ -79,12 +91,11 @@ abstract class CellRenderer extends Nette\Object
 			return $this->renderBoolean($value);
 
 		} elseif ($value instanceof \DateTime) {
-			return $this->renderDateTime($value);		
+			return $this->renderDateTime($value, $column->dateTimeFormat);
 		}
 
 		// other
 		return TemplateHelpers::escapeHtml($value);
 	}
-
 
 }
