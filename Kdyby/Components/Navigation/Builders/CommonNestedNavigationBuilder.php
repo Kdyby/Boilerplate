@@ -25,11 +25,17 @@ class CommonNestedNavigationBuilder extends Nette\Object implements INavigationB
 	/**
 	 * @param Kdyby\Doctrine\Entities\NestedNode $node
 	 * @param Kdyby\Components\Navigation\NavigationNode $navigation
+	 * @param bool $buildCurrent
 	 */
-	private function buildNode(NestedNode $node, NodeComponent $navigation)
+	private function buildNode(NestedNode $node, NodeComponent $navigation, $buildCurrent = TRUE)
 	{
-		$link = $this->component->lazyLink($node->destination, $node->defaultParams);
-		$branch = $navigation->add($node->name, $link);
+		if ($buildCurrent) {
+			$link = $this->component->lazyLink($node->destination, $node->defaultParams);
+			$branch = $navigation->add($node->name, $link);
+
+		} else {
+			$branch = $navigation;
+		}
 
 		$children = $node->getChildren();
 		if (!$children) {
@@ -60,7 +66,7 @@ class CommonNestedNavigationBuilder extends Nette\Object implements INavigationB
 			$navigation->setupHomepage($this->node->name, $link);
 		}
 
-		$this->buildNode($this->node, $navigation->getHomepage());
+		$this->buildNode($this->node, $navigation->getHomepage(), FALSE);
 
 		return $navigation;
 	}
