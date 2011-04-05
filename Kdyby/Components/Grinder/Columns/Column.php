@@ -15,6 +15,9 @@ use Nette;
 class Column extends BaseColumn
 {
 
+	/** @var string */
+	public $dateTimeFormat = "j.n.Y G:i";
+
 	/** @var array */
 	private $filters = array();
 
