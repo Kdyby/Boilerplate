@@ -5,7 +5,6 @@ namespace Kdyby\Components\Grinder\Columns;
 use Nette;
 use Nette\Forms\FormContainer;
 use Kdyby;
-use Kdyby\Application\Presenter;
 use Kdyby\Components\Grinder\Grid;
 
 
@@ -14,58 +13,31 @@ use Kdyby\Components\Grinder\Grid;
  * Grid column
  *
  * @author Filip Procházka
- * @license MIT
  */
-class CheckColumn extends BaseColumn
+class CheckColumn extends FormColumn
 {
-
-	/** @var array */
-	private $controls = array();
-
-
 
 	public function __construct()
 	{
-//		$this->monitor('Kdyby\Components\Grinder\Grid');
-		$this->monitor('Kdyby\Application\Presenter');
-	}
-
-
-
-	/**
-	 * @param Nette\ComponentContainer $obj
-	 * @return void
-	 */
-	protected function attached($obj)
-	{
-		parent::attached($obj);
-
-		if (!$obj instanceof Presenter) {
-			return;
-		}
-
-		$form = $this->getGrid()->getForm();
-		$container = $form->addContainer($this->name);
-		$this->buildControls($container);
+		parent::__construct(new Nette\Forms\Checkbox);
 	}
 
 
 
 	/**
 	 * @param FormContainer $container
-	 * @return void
+	 * @return FormContainer
 	 */
 	protected function buildControls(FormContainer $container)
 	{
-		$grid = $this->getGrid();
-		$itemsCount = $grid->getPaginator()->getItemsPerPage();
+		$container = parent::buildControls($container);
+		$itemsIdsContainer = $container->addContainer('ids');
 
-		$itemsIds = $container->addContainer('ids');
-
-		for ($i = 0; $i < $itemsCount ;$i++) {
-			$this->controls[$i] = $container->addCheckBox($i);
-			$itemsIds->addHidden($i);
+		foreach ($container->getComponents() as $checkbox) {
+			$itemsIdsContainer->addHidden($checkbox->name);
 		}
+
+		return $container;
 	}
 
 
@@ -75,16 +47,17 @@ class CheckColumn extends BaseColumn
 	 */
 	public function getControl()
 	{
+		$control = parent::getControl();
 		$grid = $this->getGrid();
 
-		$index = $grid->getCurrentIndex();
-		$record = $grid->getCurrentRecord();
-		$container = $grid->getForm()->getComponent($this->name);
+		$itemsIdsContainer = $this->getContainer()->getComponent('ids');
+		$identifier = $grid->getModel()->getUniqueId($grid->getCurrentRecord());
 
-		$identifier = $grid->getModel()->getUniqueId($record);
-		$container['ids'][$index]->setValue($identifier);
+		if ($identifier) {
+			$itemsIdsContainer->getComponent($control->name)->setValue($identifier);
+		}
 
-		return $this->controls[$index];
+		return $control;
 	}
 
 
@@ -105,11 +78,11 @@ class CheckColumn extends BaseColumn
 	 */
 	public function getValues()
 	{
-		$container = $this->getGrid()->getForm()->getComponent($this->name);
+		$itemsIdsContainer = $this->getContainer()->getComponent('ids');
 
 		$values = array();
-		foreach ($this->controls as $index => $control) {
-			$id = $container['ids'][$index]->value;
+		foreach ($this->getControls() as $control) {
+			$id = $itemsIdsContainer[$control->name]->value;
 
 			if ($id) {
 				$values[$id] = $control->value;
@@ -117,16 +90,6 @@ class CheckColumn extends BaseColumn
 		}
 
 		return $values;
-	}
-
-
-
-	/**
-	 * Render cell
-	 */
-	public function renderCell()
-	{
-		echo call_user_func(array($this->renderer, 'renderCell'), $this);
 	}
 
 }
