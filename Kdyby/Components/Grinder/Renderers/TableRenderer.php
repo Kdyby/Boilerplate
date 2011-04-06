@@ -24,20 +24,18 @@ class TableRenderer extends BaseRenderer
 	 */
 	public function renderData(Grid $grid)
 	{
-		$table = Html::el('table')
-			->setClass('grinder-table');
+		$table = Html::el('table')->setClass('grinder-table');
 
 		// headers
-		$table->add(Html::el('thead')
-			->add($head = Html::el('tr')));
+		$table->add(Html::el('thead')->add($head = Html::el('tr')));
 
 		foreach ($grid->getColumns() as $column) {
 			$head->add(Html::el('th')->add($this->renderDataHeader($grid, $column)));
 		}
 
-//		if ($grid->hasActions()) {
-//			$head->add(Html::el('th')); // column for actions
-//		}
+		if ($grid->hasActions()) {
+			$head->add(Html::el('th')); // column for actions
+		}
 
 		// body
 		$table->add($body = Html::el('tbody'));
@@ -59,27 +57,17 @@ class TableRenderer extends BaseRenderer
 	public function renderDataHeader(Grid $grid, BaseColumn $column)
 	{
 		$header = Html::el('span');
+		$caption = $column->getCaption();
 
 		if ($column->isSortable()) {
-			$header->addClass('grinder-sortable');
+			$link = Html::el('a')
+				->setHref($grid->link('sort!', $this->getColumnSortingArgs($column)))
+				->{$caption instanceof Html ? 'add' : 'setText'}($caption);
 
-			$link = Html::el('a');
-
-			if ($column->getSorting() === NULL) {
-				$link->setHref($grid->link('sort!', $column->getName(), 'asc'));
-
-			} elseif ($column->getSorting() === 'asc') {
-				$link->setHref($grid->link('sort!', $column->getName(), 'desc'));
-
-			} elseif ($column->getSorting() === 'desc') {
-				$link->setHref($grid->link('sort!', NULL, NULL));
-			}
-
-			$link->setText($column->getCaption());
-			$header->add($link);
+			$header->addClass('grinder-sortable')->add($link);
 
 		} else {
-			$header->setText($column->getCaption());
+			$header->{$caption instanceof Html ? 'add' : 'setText'}($caption);
 		}
 
 		return $header;
@@ -94,18 +82,24 @@ class TableRenderer extends BaseRenderer
 	 */
 	public function renderDataItem(Grid $grid, \Iterator $iterator)
 	{
-		$item = Html::el('tr')
-			->addClass($grid->getRowHtmlClass($iterator));
+		$item = Html::el('tr')->addClass($grid->getRowHtmlClass($iterator));
 
 		foreach ($grid->getColumns() as $column) {
-			$cell = Html::el('td')
-				->addClass($column->getCellHtmlClass($iterator));
+			$cell = Html::el('td')->addClass($column->getCellHtmlClass($iterator));
 
 			ob_start();
 				$column->render();
-			$cell->setHtml(ob_get_clean());
+			$item->add($cell->setHtml(ob_get_clean()));
+		}
 
-			$item->add($cell);
+		if ($grid->hasActions()) {
+			$actions = Html::el('td')->addClass('grinder-actions');
+
+			foreach ($grid->getActions() as $action) {
+				$actions->add($this->renderAction($action));
+			}
+
+			$item->add($actions);
 		}
 
 		return count($item) ? $item : "";

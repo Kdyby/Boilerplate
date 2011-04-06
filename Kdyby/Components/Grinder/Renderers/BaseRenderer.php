@@ -28,8 +28,7 @@ abstract class BaseRenderer extends CellRenderer implements IGridRenderer
 	 */
 	public function render(Grid $grid)
 	{
-		$s = Html::el('div')
-			->setClass('grid');
+		$s = Html::el('div')->setClass('grid');
 
 		// flash messages
 		$s->add($this->renderFlashes($grid));
@@ -73,38 +72,17 @@ abstract class BaseRenderer extends CellRenderer implements IGridRenderer
 	 */
 	public function renderFlashes(Grid $grid)
 	{
-		$flashes = Html::el('div')
-			->setClass('grinder-flashes');
+		$flashes = Html::el('div')->setClass('grinder-flashes');
 
 		// the only reliable source of flash messages :-/
 		foreach ($grid->template->flashes as $flash) {
-			$flash = Html::el('span')
-				->addClass('grinder-flash')
-				->addClass($flash->type);
-
-			if ($flash->message instanceof Html) {
-				$flash->add($flash->message);
-
-			} else {
-				$flash->setText($flash->message);
-			}
-
-			$flashes->add($flash);
+			$flash = Html::el('span')->addClass('grinder-flash')->addClass($flash->type);
+			$flashes->add($flash->{$flash->message instanceof Html ? 'add' : 'setText'}($flash->message));
 		}
 
 		foreach ($grid->getForm()->getErrors() as $error) {
-			$flash = Html::el('span')
-				->addClass('grinder-flash')
-				->addClass('error');
-
-			if ($error instanceof Html) {
-				$flash->add($error);
-
-			} else {
-				$flash->setText($error);
-			}
-
-			$flashes->add($flash);
+			$flash = Html::el('span')->addClass('grinder-flash')->addClass('error');
+			$flashes->add($flash->{$error instanceof Html ? 'add' : 'setText'}($error));
 		}
 
 		return count($flashes) ? $flashes : "";
@@ -122,14 +100,11 @@ abstract class BaseRenderer extends CellRenderer implements IGridRenderer
 			return "";
 		}
 
-		$toolbarContainer = Html::el('div')
-			->setClass('grinder-toolbar');
+		$toolbarContainer = Html::el('div')->setClass('grinder-toolbar');
 
 		foreach ($grid->getToolbar() as $action) {
-			$actionContainer = Html::el('span')
-				->setClass('grinder-toolbar-action');
-
-			$actionContainer->add($this->renderToolbarAction($action));
+			$actionContainer = Html::el('span')->setClass('grinder-toolbar-action');
+			$actionContainer->add($this->renderAction($action));
 			$toolbarContainer->add($actionContainer);
 		}
 
@@ -142,17 +117,18 @@ abstract class BaseRenderer extends CellRenderer implements IGridRenderer
 	 * @param BaseAction $action
 	 * @return Html|NULL
 	 */
-	public function renderToolbarAction(BaseAction $action)
+	public function renderAction(BaseAction $action)
 	{
 		if ($action instanceof SelectAction) {
+			throw new \NotImplementedException;
 
 			// etc?
 			$action->add($button->getLabel());
 			$action->add($button->getControl());
 		}
 
-		// Html representation of IFormControl
-		return $action->getControl()->getControl();
+		$control = $action->getControl();
+		return $control instanceof Html ? $control : $control->getControl();
 	}
 
 
@@ -162,8 +138,7 @@ abstract class BaseRenderer extends CellRenderer implements IGridRenderer
 	 */
 	public function renderEmptyResults()
 	{
-		return Html::el('div')
-			->setClass('grinder-empty')
+		return Html::el('div')->setClass('grinder-empty')
 			->setHtml('<p>Nebyly nalezeny žádné záznamy</p>');
 	}
 
@@ -202,10 +177,8 @@ abstract class BaseRenderer extends CellRenderer implements IGridRenderer
 	 */
 	public function renderForm(Grid $grid, $partName)
 	{
-		$form = $grid->getForm();
-
 		ob_start();
-			$form->render($partName);
+			$grid->getForm()->render($partName);
 		return Html::el()->setHtml(ob_get_clean());
 	}
 
@@ -220,6 +193,23 @@ abstract class BaseRenderer extends CellRenderer implements IGridRenderer
 		ob_start();
 			$grid->getComponent('vp')->render();
 		return Html::el()->setHtml(ob_get_clean());
+	}
+
+
+
+	/**
+	 * @param BaseColumn $column
+	 * @return array
+	 */
+	public static function getColumnSortingArgs(BaseColumn $column)
+	{
+		$sorting = array(
+			"" => array($column->name, 'asc'),
+			'asc' => array($column->name, 'desc'),
+			'desc' => array(NULL, NULL)
+		);
+
+		return isset($sorting[(string)$column->sorting]) ? $sorting[(string)$column->sorting] : $sorting[""];
 	}
 
 }
