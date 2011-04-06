@@ -4,7 +4,6 @@ namespace Kdyby\Components\Grinder\Columns;
 
 use Nette;
 use Kdyby;
-use Kdyby\Components\Grinder\Renderers\IGridRenderer;
 
 
 
@@ -15,22 +14,16 @@ use Kdyby\Components\Grinder\Renderers\IGridRenderer;
  * @author Filip Procházka
  * @license MIT
  */
-abstract class BaseColumn extends Nette\Application\PresenterComponent
+abstract class BaseColumn extends Kdyby\Components\Grinder\GridComponent
 {
-	/** @var string */
-	private $caption;
-
 	/** @var mixed */
 	private $value;
-
-	/** @var IGridRenderer */
-	private $renderer = NULL;
 
 	/** @var bool */
 	protected $sortable = FALSE;
 
 	/** @var string|callable */
-	private $cellHtmlClass = NULL;
+	private $cellHtmlClass;
 
 
 
@@ -48,41 +41,15 @@ abstract class BaseColumn extends Nette\Application\PresenterComponent
 
 	/**
 	 * @param \Iterator $iterator
-	 * @param object $row
 	 * @return string
 	 */
-	public function getCellHtmlClass(\Iterator $iterator, $record)
+	public function getCellHtmlClass(\Iterator $iterator)
 	{
 		if (is_callable($this->cellHtmlClass)) {
-			return call_user_func($this->cellHtmlClass, $iterator, $record);
-
-		} elseif (is_string($this->cellHtmlClass)) {
-			return $this->cellHtmlClass;
+			return call_user_func($this->cellHtmlClass, $iterator, $iterator->current());
 		}
 
-		return null;
-	}
-
-
-
-	/**
-	 * @return string
-	 */
-	public function getCaption()
-	{
-		return $this->caption;
-	}
-
-
-
-	/**
-	 * @param string
-	 * @return Column
-	 */
-	public function setCaption($caption)
-	{
-		$this->caption = $caption;
-		return $this;
+		return $this->cellHtmlClass;
 	}
 
 
@@ -119,30 +86,6 @@ abstract class BaseColumn extends Nette\Application\PresenterComponent
 	public function setValue($value)
 	{
 		$this->value = $value;
-	}
-
-
-
-	/**
-	 * Get cell renderer
-	 * @return IGridRenderer
-	 */
-	public function getRenderer()
-	{
-		return $this->renderer;
-	}
-
-
-
-	/**
-	 * Set cell renderer
-	 * @param IGridRenderer cell renderer
-	 * @return Column
-	 */
-	public function setRenderer(IGridRenderer $cellRenderer)
-	{
-		$this->renderer = $cellRenderer;
-		return $this;
 	}
 
 
@@ -188,20 +131,9 @@ abstract class BaseColumn extends Nette\Application\PresenterComponent
 
 
 	/**
-	 * Get grid
-	 * @return Grid
-	 */
-	public function getGrid()
-	{
-		return $this->lookup('Kdyby\Components\Grinder\Grid');
-	}
-
-
-
-	/**
 	 * @return void
 	 */
-	public function renderCell()
+	public function render()
 	{
 		echo call_user_func(array($this->renderer, 'renderCell'), $this);
 	}

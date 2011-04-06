@@ -98,10 +98,11 @@ class TableRenderer extends BaseRenderer
 			->addClass($grid->getRowHtmlClass($iterator));
 
 		foreach ($grid->getColumns() as $column) {
-			$cell = Html::el('td');
+			$cell = Html::el('td')
+				->addClass($column->getCellHtmlClass($iterator));
 
 			ob_start();
-				$column->renderCell();
+				$column->render();
 			$cell->setHtml(ob_get_clean());
 
 			$item->add($cell);
