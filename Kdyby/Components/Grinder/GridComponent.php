@@ -3,22 +3,23 @@
 namespace Kdyby\Components\Grinder;
 
 use Kdyby;
-use Nette;
 use Kdyby\Components\Grinder\Grid;
 use Kdyby\Components\Grinder\Renderers\IGridRenderer;
+use Nette;
+use Nette\Web\Html;
 
 
 
 /**
  * @author Filip Procházka
  *
- * @property string $caption
+ * @property string|Nette\Web\Html $caption
  * @property Kdyby\Components\Grinder\Renderers\IGridRenderer $renderer
  */
-class GridComponent extends Nette\Application\PresenterComponent
+abstract class GridComponent extends Nette\Application\PresenterComponent
 {
 
-	/** @var string */
+	/** @var string|Nette\Web\Html */
 	private $caption;
 
 	/** @var Kdyby\Components\Grinder\Renderers\IGridRenderer */
@@ -31,18 +32,21 @@ class GridComponent extends Nette\Application\PresenterComponent
 		parent::__construct(NULL, NULL);
 
 		$this->monitor('Kdyby\Components\Grinder\Grid');
-		$this->monitor('Nette\Application\IPresenter');
+		$this->monitor('Nette\Application\Presenter');
 	}
 
 
 
 	/**
-	 * Set caption
-	 * @param string caption
-	 * @return BaseButton
+	 * @param string|Nette\Web\Html caption
+	 * @return GridComponent
 	 */
 	public function setCaption($caption)
 	{
+		if ($caption && !is_string($caption) && !$caption instanceof Html) {
+			throw new \InvalidArgumentException("Given caption must be either string or instance of Nette\\Web\\Html, " . gettype($caption) . " given.");
+		}
+
 		$this->caption = $caption;
 		return $this;
 	}
@@ -50,8 +54,7 @@ class GridComponent extends Nette\Application\PresenterComponent
 
 
 	/**
-	 * Get caption
-	 * @return string
+	 * @return string|Nette\Web\Html
 	 */
 	public function getCaption()
 	{
@@ -61,7 +64,6 @@ class GridComponent extends Nette\Application\PresenterComponent
 
 
 	/**
-	 * Get cell renderer
 	 * @return Kdyby\Components\Grinder\Renderers\IGridRenderer
 	 */
 	public function getRenderer()
@@ -72,9 +74,8 @@ class GridComponent extends Nette\Application\PresenterComponent
 
 
 	/**
-	 * Set cell renderer
-	 * @param Kdyby\Components\Grinder\Renderers\IGridRenderer cell renderer
-	 * @return Column
+	 * @param Kdyby\Components\Grinder\Renderers\IGridRenderer $cellRenderer
+	 * @return GridComponent
 	 */
 	public function setRenderer(IGridRenderer $cellRenderer)
 	{
