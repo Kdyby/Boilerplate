@@ -34,6 +34,8 @@ class FormColumn extends BaseColumn
 			throw new \InvalidArgumentException("Control " . $control->name . " can't be attached.");
 		}
 
+		parent::__construct();
+
 		$this->controlPrototype = $control;
 		$this->monitor('Nette\Application\Presenter');
 	}
