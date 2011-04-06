@@ -1,6 +1,6 @@
 <?php
 
-namespace Kdyby\Components\Grinder;
+namespace Kdyby\Components\Grinder\Forms;
 
 use Kdyby;
 use Nette;
