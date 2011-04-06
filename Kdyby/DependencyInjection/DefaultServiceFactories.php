@@ -259,7 +259,7 @@ class DefaultServiceFactories extends Nette\Object
 				$session->setCookieParams('/', '.' . $domainMap->domain);
 			}
 
-			$session->setExpiration(Nette\Tools::YEAR);
+			$session->setExpiration(Nette\DateTime::YEAR);
 			if (!$session->exists()) {
 				$session->start();
 			}
