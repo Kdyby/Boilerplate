@@ -47,4 +47,14 @@ class GridIterator extends \IteratorIterator
 		return $record;
 	}
 
+
+
+	/**
+	 * @return int|string
+	 */
+	public function getCurrentUniqueId()
+	{
+		return $this->grid->getModel()->getUniqueId($this->current());
+	}
+
 }
