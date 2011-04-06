@@ -4,9 +4,9 @@ namespace Kdyby\Components\Grinder\Renderers;
 
 use Kdyby;
 use Kdyby\Components\Grinder\Grid;
+use Kdyby\Components\Grinder\Actions\BaseAction;
 use Kdyby\Components\Grinder\Columns\BaseColumn;
 use Kdyby\Components\Grinder\Columns\CellRenderer;
-use Kdyby\Components\Grinder\Toolbar\BaseAction;
 use Nette;
 use Nette\Forms\Button;
 use Nette\Web\Html;
