@@ -81,7 +81,7 @@ class Grid extends Nette\Application\Control
 		$this['actions'] = new ComponentContainer;
 		$this['toolbar'] = new ComponentContainer;
 		$this['columns'] = new ComponentContainer;
-		$this['form'] = new GridForm;
+		$this['form'] = new Forms\GridForm;
 
 		// model
 		$this->model = $model;
