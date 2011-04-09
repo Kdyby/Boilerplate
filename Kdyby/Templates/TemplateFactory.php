@@ -73,9 +73,17 @@ class TemplateFactory extends Nette\Object implements ITemplateFactory
 		// default helpers
 		$this->templateRegisterHelpers($template);
 
+		// presenter lookup
+		if ($component instanceof Nette\Application\Presenter) {
+			$presenter = $component;
+
+		} else {
+			$presenter = $component->lookup('Nette\\Application\\Presenter', FALSE);
+		}
+
 		// default parameters
 		$template->control = $component;
-		$template->presenter = $presenter = $component->lookup('Nette\Application\Presenter', FALSE);
+		$template->presenter = $presenter;
 		$template->user = $this->user;
 		$template->baseUri = rtrim($this->baseUri, '/');
 		$template->basePath = preg_replace('#https?://[^/]+#A', '', $template->baseUri);
@@ -89,7 +97,7 @@ class TemplateFactory extends Nette\Object implements ITemplateFactory
 
 		// flash message
 		if ($presenter !== NULL && $presenter->hasFlashSession()) {
-			$id = $this->getParamId('flash');
+			$id = $presenter->getParamId('flash');
 			$template->flashes = $presenter->getFlashSession()->$id;
 		}
 		if (!isset($template->flashes) || !is_array($template->flashes)) {
