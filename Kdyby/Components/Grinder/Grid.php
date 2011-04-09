@@ -480,6 +480,21 @@ class Grid extends Nette\Application\Control
 	}
 
 
+
+	/**
+	 * @param string $name
+	 * @param array $args
+	 */
+	public function __call($name, $args)
+	{
+		if (substr($name, 0, 6) !== 'render') {
+			return parent::__call($name, $args);
+		}
+
+		return $this->render(lcfirst(substr($name, 6)), $args);
+	}
+
+
 	/********************* Paging *********************/
 
 
@@ -612,7 +627,7 @@ class Grid extends Nette\Application\Control
 	/**
 	 * Renders grid
 	 */
-	public function render()
+	public function render($part = NULL, array $args = array())
 	{
 		$this->getPaginator()->setItemCount($this->getModel()->count());
 
@@ -625,6 +640,10 @@ class Grid extends Nette\Application\Control
 
 		foreach ($this->getColumns() as $column) {
 			$column->setRenderer($this->getRenderer());
+		}
+
+		if ($part) {
+			return call_user_func_array(array($this->getRenderer(), 'render' . $part), array_merge(array($this), $args));
 		}
 
 		$this->getRenderer()->render($this);
