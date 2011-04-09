@@ -59,6 +59,9 @@ class Grid extends Nette\Application\Control
 	/** @var IGridRenderer */
 	private $renderer;
 
+	/** @var string|Nette\Web\Html */
+	private $emptyResultMessage;
+
 	/** @var string|callable */
 	private $rowHtmlClass;
 
@@ -168,7 +171,7 @@ class Grid extends Nette\Application\Control
 		$this->session = $session->getNamespace(__CLASS__);
 
 		if (!$this->session->securityToken) {
-			$this->session->securityToken = md5(uniqid(mt_rand(), TRUE));
+			$this->session->securityToken = Nette\String::random(6);
 		}
 	}
 
@@ -210,6 +213,17 @@ class Grid extends Nette\Application\Control
 
 	/**
 	 * @param string $name
+	 * @return Actions\BaseAction
+	 */
+	public function getAction($name)
+	{
+		return $this->getComponent('actions')->getComponent($name);
+	}
+
+
+
+	/**
+	 * @param string $name
 	 * @param string $caption
 	 * @param array $options
 	 * @param string $insertBefore
@@ -220,7 +234,7 @@ class Grid extends Nette\Application\Control
 		$this->getComponent('actions')->addComponent($action = new Actions\LinkAction, $name, $insertBefore);
 
 		$this->setOptions($action, $options);
-		$column->setCaption($caption);
+		$action->setCaption($caption);
 
 		return $action;
 	}
@@ -415,6 +429,32 @@ class Grid extends Nette\Application\Control
 	}
 
 
+
+	/**
+	 * @param string $action
+	 * @param string $token
+	 * @param string $id
+	 */
+	public function handleAction($action, $token, $id = NULL)
+	{
+		if ($token !== $this->getSecurityToken()) {
+			throw new Nette\Application\ForbiddenRequestException("Security token does not match. Possible CSRF attack.");
+		}
+
+		$action = $this->getAction($action);
+
+		if ($action instanceof Actions\LinkAction) {
+			$action->handleClick($id);
+		}
+
+		if ($this->getPresenter()->isAjax()) {
+			return $this->invalidateControl();
+		}
+
+		$this->getPresenter()->redirect("this");
+	}
+
+
 	/********************* Helpers *********************/
 
 
@@ -425,9 +465,14 @@ class Grid extends Nette\Application\Control
 	protected function setOptions($object, array $options)
 	{
 		foreach	($options as $option => $value) {
-			$method = "set" . ucfirst($option);
-			if (method_exists($object, $method)) {
+			$option = ucfirst($option);
+
+			if (method_exists($object, $method = "set" . $option)) {
 				$object->$method($value);
+
+			} elseif (method_exists($object, $method = "add" . $option)) {
+				$object->$method($value);
+
 			} else {
 				throw new \InvalidArgumentException("Option with name $option does not exist.");
 			}
@@ -516,13 +561,40 @@ class Grid extends Nette\Application\Control
 	/********************* Rendering *********************/
 
 
+	/**
+	 * @param string|Nette\Web\Html $message
+	 * @return Grid
+	 */
+	public function setEmptyResultMessage($message)
+	{
+		if (!is_string($message) && !$message instanceof Nette\Web\Html) {
+			throw new \InvalidArgumentException("Given message must be either string or instance of Nette\\Web\\Html, '" . gettype($message) . "' given.");
+		}
+
+		$this->emptyResultMessage = $message;
+		return $this;
+	}
+
+
+
+	/**
+	 * @return string
+	 */
+	public function getEmptyResultMessage()
+	{
+		return $this->emptyResultMessage ?: "No corresponding results were found.";
+	}
+
+
 
 	/**
 	 * @param Kdyby\Components\Grinder\Renderers\IGridRenderer $renderer
+	 * @return Grid
 	 */
 	public function setRenderer(IGridRenderer $renderer)
 	{
 		$this->renderer = $renderer;
+		return $this;
 	}
 
 

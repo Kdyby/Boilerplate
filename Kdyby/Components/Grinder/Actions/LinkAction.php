@@ -4,6 +4,7 @@ namespace Kdyby\Components\Grinder\Actions;
 
 use Kdyby;
 use Nette;
+use Nette\Application\Link;
 use Nette\Web\Html;
 
 
@@ -14,21 +15,32 @@ use Nette\Web\Html;
 class LinkAction extends BaseAction
 {
 
-	/** @var string|callback */
-	private $link;
+	/** @var boolean */
+	public $handlerPassEntity = FALSE;
 
 	/** @var callback */
 	private $handler;
 
+	/** @var string|callback */
+	private $link;
+
+	/** @var array */
+	private $mask = array();
+
 
 
 	/**
-	 * Set link URL
-	 * @param string|callback link
+	 * @param Link $link
+	 * @param array $mask
 	 * @return LinkAction
 	 */
-	public function setLink($link)
+	public function setLink($link, array $mask = array())
 	{
+		if (!is_callable($link) && !$link instanceof Link) {
+			throw new \InvalidArgumentException("Link must be callable or instance of Nette\\Application\\Link");
+		}
+
+		$this->mask = $mask;
 		$this->link = $link;
 		return $this;
 	}
@@ -36,24 +48,42 @@ class LinkAction extends BaseAction
 
 
 	/**
-	 * Get button link
-	 * @param \Iterator $iterator
 	 * @return string
 	 */
-	public function getLink(\Iterator $iterator)
+	public function getLink()
 	{
+		$record = $this->getGrid()->getCurrentRecord();
+
 		// custom link
 		if ($this->link) {
-			if (is_callable($this->link)) {
-				return call_user_func($this->link, $iterator, $iterator->current());
+			$args = array();
+			foreach ($this->mask as $argName => $paramName) {
+				if (method_exists($record, $method = 'get' . ucfirst($paramName))) {
+					$args[$argName] = $record->$method();
+
+				} elseif (isset($record->$paramName)) {
+					$args[$argName] = $record->$paramName;
+
+				} else {
+					throw new \InvalidStateException("Record " . (is_object($record) ? "of entity " . get_class($record) . ' ' : NULL) . "has no parameter named '" . $paramName . "'.");
+				}
 			}
 
-			return $this->link;
+			if (is_callable($this->link)) {
+				return call_user_func($this->link, $args);
+			}
+
+			$link = clone $this->link;
+			foreach ($args as $argName => $value) {
+				$link->setParam($argName, $value);
+			}
+			return (string)$link;
 		}
 
-		return $this->link('click!', array(
+		return $this->getGrid()->link('action!', array(
+			'action' => $this->name,
 			'token' => $this->getGrid()->getSecurityToken(),
-			'id' => $iterator->getCurrentUniqueId() ?: NULL,
+			'id' => $this->getGrid()->getModel()->getUniqueId($record) ?: NULL,
 		));
 	}
 
@@ -77,6 +107,7 @@ class LinkAction extends BaseAction
 	 */
 	public function setHandler($handler)
 	{
+		$handler = callback($handler);
 		if (!is_callable($handler)) {
 			throw new \InvalidArgumentException("Handler is not callable.");
 		}
@@ -88,29 +119,31 @@ class LinkAction extends BaseAction
 
 
 	/**
-	 * Handle click signal
-	 * 
-	 * @param string $token
-	 * @param mixed $id
+	 * @param int $id
 	 */
-	public function handleClick($token, $id = NULL)
+	public function handleClick($id = NULL)
 	{
-		if ($token !== $this->getGrid()->getSecurityToken()) {
-			throw new Nette\Application\ForbiddenRequestException("Security token does not match. Possible CSRF attack.");
+		if (!is_callable($this->getHandler())) {
+			throw new \InvalidStateException("Handler for action '" . $this->name . "' is not callable.");
 		}
 
-		// handle
-		call_user_func($this->handler, $uniqueId ? $grid->getModel()->getItemByUniqueId($uniqueId) : NULL);
+		$id = $id ?: NULL;
+		if ($this->handlerPassEntity === TRUE) {
+			if (!$id) {
+				throw new \InvalidStateException("Missing argument 'id' in action '" . $this->name . "'.");
+			}
 
-		if ($this->getPresenter()->isAjax()) {
-			return $this->getGrid()->invalidateControl();
+			$id = $this->getGrid()->getModel()->getItemByUniqueId($id);
 		}
 
-		$this->getGrid()->redirect("this");
+		call_user_func($this->getHandler(), $this, $id);
 	}
 
 
 
+	/**
+	 * @return Nette\Web\Html
+	 */
 	public function getControl()
 	{
 		$link = Html::el('a');

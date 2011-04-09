@@ -48,7 +48,7 @@ abstract class BaseRenderer extends CellRenderer implements IGridRenderer
 			$s->add($this->renderData($grid));
 
 		} else {
-			$s->add($this->renderEmptyResults());
+			$s->add($this->renderEmptyResults($grid));
 		}
 
 		// toolbar
@@ -74,10 +74,11 @@ abstract class BaseRenderer extends CellRenderer implements IGridRenderer
 	{
 		$flashes = Html::el('div')->setClass('grinder-flashes');
 
-		// the only reliable source of flash messages :-/
-		foreach ($grid->template->flashes as $flash) {
-			$flash = Html::el('span')->addClass('grinder-flash')->addClass($flash->type);
-			$flashes->add($flash->{$flash->message instanceof Html ? 'add' : 'setText'}($flash->message));
+		$flashesId  = $grid->getParamId('flash');
+		$messages = (array)$grid->getPresenter()->getFlashSession()->{$flashesId};
+		foreach ($messages as $message) {
+			$flash = Html::el('span')->addClass('grinder-flash')->addClass($message->type);
+			$flashes->add($flash->{$message->message instanceof Html ? 'add' : 'setText'}($message->message));
 		}
 
 		foreach ($grid->getForm()->getErrors() as $error) {
@@ -136,10 +137,12 @@ abstract class BaseRenderer extends CellRenderer implements IGridRenderer
 	/**
 	 * @return Html|NULL
 	 */
-	public function renderEmptyResults()
+	public function renderEmptyResults(Grid $grid)
 	{
+		$message = $grid->getEmptyResultMessage();
+
 		return Html::el('div')->setClass('grinder-empty')
-			->setHtml('<p>Nebyly nalezeny žádné záznamy</p>');
+			->setHtml(Html::el('p')->{$message instanceof Html ? 'add' : 'setText'}($message));
 	}
 
 
