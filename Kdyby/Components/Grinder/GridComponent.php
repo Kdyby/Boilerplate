@@ -6,6 +6,7 @@ use Kdyby;
 use Kdyby\Components\Grinder\Grid;
 use Kdyby\Components\Grinder\Renderers\IGridRenderer;
 use Nette;
+use Nette\IComponentContainer;
 use Nette\Web\Html;
 
 
@@ -33,6 +34,25 @@ abstract class GridComponent extends Nette\Application\PresenterComponent
 
 		$this->monitor('Kdyby\Components\Grinder\Grid');
 		$this->monitor('Nette\Application\Presenter');
+	}
+
+
+
+	/**
+	 * @param IComponentContainer $parent
+	 * @throws \InvalidStateException
+	 */
+	protected function validateParent(IComponentContainer $parent)
+	{
+		parent::validateParent($parent);
+
+		if (!$parent instanceof Grid) {
+			$grid = $parent->lookup('Kdyby\\Components\\Grinder\\Grid', FALSE);
+
+			if (!$grid instanceof Grid) {
+				throw new \InvalidStateException("Parent or one of ancesors must be instance of Kdyby\\Components\\Grinder\\Grid.");
+			}
+		}
 	}
 
 
