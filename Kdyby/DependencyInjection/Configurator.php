@@ -1,6 +1,6 @@
 <?php
 
-namespace Kdyby\Environment;
+namespace Kdyby\DependencyInjection;
 
 use Kdyby;
 use Nette;
@@ -26,14 +26,14 @@ class Configurator extends Nette\Configurator
 	/** @var array */
 	private $configFiles = array();
 
-	/** @var Kdyby\DependencyInjection\IServiceContainerBuilder */
+	/** @var IServiceContainerBuilder */
 	private $serviceContainerBuilder;
 
 
 
 	public function __construct()
 	{
-		$this->serviceContainerBuilder = new Kdyby\DependencyInjection\ServiceContainerBuilder();
+		$this->serviceContainerBuilder = new ServiceContainerBuilder();
 
 		foreach (array(self::$kdybyConfigFile, $this->defaultConfigFile) as $file) {
 			$file = realpath(Nette\Environment::expand($file));
@@ -45,7 +45,7 @@ class Configurator extends Nette\Configurator
 		$this->onAfterLoad[] = callback('Kdyby\Templates\KdybyMacros', 'register');
 		$this->onAfterLoad[] = callback('Kdyby\Doctrine\ServiceFactory', 'registerTypes');
 
-		$this->onAfterLoad[] = function (Kdyby\DependencyInjection\IServiceContainer $serviceContainer) {
+		$this->onAfterLoad[] = function (IServiceContainer $serviceContainer) {
 			$baseUri = $serviceContainer->httpRequest->uri->baseUri;
 
 			if (Nette\Environment::getVariable('baseUri', NULL) === NULL) {
@@ -59,9 +59,9 @@ class Configurator extends Nette\Configurator
 
 
 	/**
-	 * @param Kdyby\DependencyInjection\IServiceContainerBuilder $builder
+	 * @param IServiceContainerBuilder $builder
 	 */
-	public function setServiceContainerBuilder(Kdyby\DependencyInjection\IServiceContainerBuilder $builder)
+	public function setServiceContainerBuilder(IServiceContainerBuilder $builder)
 	{
 		return $this->serviceContainerBuilder = $builder;
 	}
@@ -69,7 +69,7 @@ class Configurator extends Nette\Configurator
 
 
 	/**
-	 * @return Kdyby\DependencyInjection\IServiceContainerBuilder
+	 * @return IServiceContainerBuilder
 	 */
 	public function getServiceContainerBuilder()
 	{
@@ -79,7 +79,7 @@ class Configurator extends Nette\Configurator
 
 
 	/**
-	 * @return Kdyby\DependencyInjection\IServiceContainer
+	 * @return IServiceContainer
 	 */
 	public function getServiceContainer()
 	{
@@ -180,7 +180,7 @@ class Configurator extends Nette\Configurator
 
 
 	/**
-	 * @return Kdyby\DependencyInjection\IServiceContainer
+	 * @return IServiceContainer
 	 */
 	public function createContext()
 	{
