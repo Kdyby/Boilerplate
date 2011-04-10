@@ -19,7 +19,7 @@ abstract class CellRenderer extends Nette\Object
 	 * Render boolean
 	 * @param bool value
 	 */
-	public function renderBoolean($value)
+	protected function renderBoolean($value)
 	{
 		return $value ? "ano" : "ne";
 	}
@@ -31,7 +31,7 @@ abstract class CellRenderer extends Nette\Object
 	 * @param Datetime value
 	 * @param string datetime format
 	 */
-	public function renderDateTime(DateTime $date, $format = 'j.n.Y G:i')
+	protected function renderDateTime(DateTime $date, $format = 'j.n.Y G:i')
 	{
 		return $date->format($format);
 	}
@@ -42,7 +42,7 @@ abstract class CellRenderer extends Nette\Object
 	 * @param FormColumn $column
 	 * @return Html
 	 */
-	public function renderFormCell(FormColumn $column)
+	protected function renderFormCell(FormColumn $column)
 	{
 		// column control -> IFormControl control
 		return $column->getControl()->getControl();
@@ -51,20 +51,12 @@ abstract class CellRenderer extends Nette\Object
 
 
 	/**
-	 * @param ActionColumn $column
-	 * @return string
+	 * @param ActionsColumn $column
+	 * @return Nette\Web\Html
 	 */
-	public function renderActionsCell(ActionColumn $column)
+	protected function renderActionsCell(ActionsColumn $column)
 	{
-		$s = NULL;
-
-		foreach ($column->getActions() as $action) {
-			ob_start();
-				$action->render();
-			$s .= ob_get_clean();
-		}
-
-		return $s;
+		return $column->getControl();
 	}
 
 
@@ -81,7 +73,7 @@ abstract class CellRenderer extends Nette\Object
 			return $this->renderFormCell($column);
 		}
 
-		if ($column instanceof ActionColumn) {
+		if ($column instanceof ActionsColumn) {
 			return $this->renderActionsCell($column);
 		}
 

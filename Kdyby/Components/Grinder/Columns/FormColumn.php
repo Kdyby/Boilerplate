@@ -37,7 +37,6 @@ class FormColumn extends BaseColumn
 		parent::__construct();
 
 		$this->controlPrototype = $control;
-		$this->monitor('Nette\Application\Presenter');
 	}
 
 

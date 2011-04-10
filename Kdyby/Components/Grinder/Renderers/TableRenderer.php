@@ -19,29 +19,29 @@ class TableRenderer extends BaseRenderer
 {
 
 	/**
-	 * @param Grid $grid
 	 * @return Html|NULL
 	 */
-	public function renderData(Grid $grid)
+	protected function renderData()
 	{
 		$table = Html::el('table')->setClass('grinder-table');
 
 		// headers
 		$table->add(Html::el('thead')->add($head = Html::el('tr')));
 
-		foreach ($grid->getColumns() as $column) {
-			$head->add(Html::el('th')->add($this->renderDataHeader($grid, $column)));
+		foreach ($this->grid->getColumns() as $column) {
+			$head->add(Html::el('th')->add($this->renderDataHeader($column)));
 		}
 
-		if ($grid->hasActions()) {
+		$unattachedActions = $this->grid->getActionsContainer()->getUnattachedActions();
+		if (count($unattachedActions) > 0) {
 			$head->add(Html::el('th')); // column for actions
 		}
 
 		// body
 		$table->add($body = Html::el('tbody'));
 
-		foreach ($iterator = $grid->getIterator() as $record) {
-			$body->add($this->renderDataItem($grid, $iterator));
+		foreach ($iterator = $this->grid->getIterator() as $record) {
+			$body->add($this->renderDataItem($iterator, $unattachedActions));
 		}
 
 		return $table;
@@ -50,18 +50,17 @@ class TableRenderer extends BaseRenderer
 
 
 	/**
-	 * @param Grid $grid
 	 * @param BaseColumn $column
 	 * @return Html|NULL
 	 */
-	public function renderDataHeader(Grid $grid, BaseColumn $column)
+	private function renderDataHeader(BaseColumn $column)
 	{
 		$header = Html::el('span');
 		$caption = $column->getCaption();
 
 		if ($column->isSortable()) {
 			$link = Html::el('a')
-				->setHref($grid->link('sort!', $this->getColumnSortingArgs($column)))
+				->setHref($this->grid->link('sort!', $this->getColumnSortingArgs($column)))
 				->{$caption instanceof Html ? 'add' : 'setText'}($caption);
 
 			$header->addClass('grinder-sortable')->add($link);
@@ -76,15 +75,15 @@ class TableRenderer extends BaseRenderer
 
 
 	/**
-	 * @param Grid $grid
 	 * @param \Iterator $iterator
+	 * @param \Iterator $unattachedActions
 	 * @return Html|NULL
 	 */
-	public function renderDataItem(Grid $grid, \Iterator $iterator)
+	private function renderDataItem(\Iterator $iterator, \Iterator $unattachedActions)
 	{
-		$item = Html::el('tr')->addClass($grid->getRowHtmlClass($iterator));
+		$item = Html::el('tr')->addClass($this->grid->getRowHtmlClass($iterator));
 
-		foreach ($grid->getColumns() as $column) {
+		foreach ($this->grid->getColumns() as $column) {
 			$cell = Html::el('td')->addClass($column->getCellHtmlClass($iterator));
 
 			ob_start();
@@ -92,10 +91,15 @@ class TableRenderer extends BaseRenderer
 			$item->add($cell->setHtml(ob_get_clean()));
 		}
 
-		if ($grid->hasActions()) {
+		if (count($unattachedActions) > 0) {
 			$actions = Html::el('td')->addClass('grinder-actions');
 
-			foreach ($grid->getActions() as $action) {
+			foreach ($unattachedActions as $action) {
+				if (!$action->isVisible()) {
+					continue;
+				}
+
+				$actions->add(' ');
 				$actions->add($this->renderAction($action));
 			}
 

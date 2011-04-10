@@ -3,6 +3,7 @@
 namespace Kdyby\Components\Grinder;
 
 use Nette;
+use Nette\IComponent;
 use Nette\ComponentContainer;
 use Nette\Environment;
 use Nette\Paginator;
@@ -47,6 +48,9 @@ class Grid extends Nette\Application\Control
 	/** @var Models\IModel */
 	private $model;
 
+	/** @var boolean */
+	private $isModelSetted = FALSE;
+
 	/** @var int */
 	private $index;
 
@@ -65,12 +69,6 @@ class Grid extends Nette\Application\Control
 	/** @var string|callable */
 	private $rowHtmlClass;
 
-	/** @var string */
-	private $paginatorPlacemenet = self::PLACEMENT_BOTTOM;
-
-	/** @var string */
-	private $toolbarPlacemenet = self::PLACEMENT_TOP;
-
 
 
 	/**
@@ -81,17 +79,28 @@ class Grid extends Nette\Application\Control
 	{
 		parent::__construct(NULL, NULL);
 
-		$this->addComponent(new ComponentContainer, 'actions');
-		$this->addComponent(new ComponentContainer, 'toolbar');
 		$this->addComponent(new ComponentContainer, 'columns');
+		$this->addComponent(new Actions\ActionsContainer, 'actions');
+		$this->addComponent(new Actions\ToolbarActionsContainer, 'toolbar');
 		$this->addComponent(new Forms\GridForm, 'form');
-		$this->addComponent(new VisualPaginator, 'vp');
+		$this->addComponent(new GridPaginator, 'paginator');
 
 		// model
 		$this->model = $model;
 
 		// paginator
 		$this->getPaginator()->setItemsPerPage($this->defaultItemsPerPage);
+	}
+
+
+
+	/**
+	 * @param IComponent $component
+	 * @throws \NotSupportedException
+	 */
+	final public function removeComponent(IComponent $component)
+	{
+		throw new \NotSupportedException;
 	}
 
 
@@ -191,33 +200,11 @@ class Grid extends Nette\Application\Control
 
 
 	/**
-	 * Has actions
-	 * @return bool
+	 * @return Kdyby\Components\Grinder\Actions\ActionsContainer
 	 */
-	public function hasActions()
+	public function getActionsContainer()
 	{
-		return count($this->getActions()) > 0;
-	}
-
-
-
-	/**
-	 * @return \ArrayIterator
-	 */
-	public function getActions()
-	{
-		return $this->getComponent('actions')->getComponents();
-	}
-
-
-
-	/**
-	 * @param string $name
-	 * @return Actions\BaseAction
-	 */
-	public function getAction($name)
-	{
-		return $this->getComponent('actions')->getComponent($name);
+		return $this->getComponent('actions');
 	}
 
 
@@ -231,12 +218,21 @@ class Grid extends Nette\Application\Control
 	 */
 	public function addAction($name, $caption = NULL, array $options = array(), $insertBefore = NULL)
 	{
-		$this->getComponent('actions')->addComponent($action = new Actions\LinkAction, $name, $insertBefore);
-
-		$this->setOptions($action, $options);
-		$action->setCaption($caption);
+		$action = $this->add(new Actions\LinkAction, $name, $insertBefore);
+		$this->setOptions($action, array('caption' => $caption) + $options);
 
 		return $action;
+	}
+
+
+
+	/**
+	 * @param string $name
+	 * @return Actions\BaseAction
+	 */
+	public function getAction($name)
+	{
+		return $this->getActionsContainer()->getComponent($name);
 	}
 
 
@@ -244,52 +240,11 @@ class Grid extends Nette\Application\Control
 
 
 	/**
-	 * @param string $toolbarPlacemenet
-	 */
-	public function setToolbarPlacement($toolbarPlacemenet)
-	{
-		$this->toolbarPlacemenet = $toolbarPlacemenet;
-	}
-
-
-
-	/**
-	 * @return bool
-	 */
-	public function hasTopToolbar()
-	{
-		return $this->toolbarPlacemenet === self::PLACEMENT_BOTH || $this->toolbarPlacemenet === self::PLACEMENT_TOP;
-	}
-
-
-
-	/**
-	 * @return bool
-	 */
-	public function hasBottomToolbar()
-	{
-		return $this->toolbarPlacemenet === self::PLACEMENT_BOTH || $this->toolbarPlacemenet === self::PLACEMENT_BOTTOM;
-	}
-
-
-
-	/**
-	 * Has toolbar
-	 * @return bool
-	 */
-	public function hasToolbar()
-	{
-		return count($this->getToolbar()) > 0;
-	}
-
-
-
-	/**
-	 * @return \ArrayIterator
+	 * @return Kdyby\Components\Grinder\Actions\ToolbarActionsContainer
 	 */
 	public function getToolbar()
 	{
-		return $this->getComponent('toolbar')->getComponents();
+		return $this->getComponent('toolbar');
 	}
 
 
@@ -303,10 +258,8 @@ class Grid extends Nette\Application\Control
 	 */
 	public function addToolbarAction($name, $caption = NULL, array $options = array(), $insertBefore = NULL)
 	{
-		$this->getComponent('toolbar')->addComponent($action = new Actions\ButtonAction, $name, $insertBefore);
-
-		$this->setOptions($action, $options);
-		$action->setCaption($caption);
+		$this->getToolbar()->addComponent($action = new Actions\ButtonAction, $name, $insertBefore);
+		$this->setOptions($action, array('caption' => $caption) + $options);
 
 		return $action;
 	}
@@ -320,14 +273,12 @@ class Grid extends Nette\Application\Control
 	 * @param string name
 	 * @param string caption
 	 * @param array options
-	 * @return Column
+	 * @return Columns\Column
 	 */
 	public function addColumn($name, $caption = NULL, array $options = array(), $insertBefore = NULL)
 	{
-		$this->getComponent('columns')->addComponent($column = new Columns\Column, $name, $insertBefore);
-
-		$this->setOptions($column, $options);
-		$column->setCaption($caption);
+		$column = $this->add(new Columns\Column, $name, $insertBefore);
+		$this->setOptions($column, array('caption' => $caption) + $options);
 
 		return $column;
 	}
@@ -339,14 +290,12 @@ class Grid extends Nette\Application\Control
 	 * @param string name
 	 * @param string caption
 	 * @param array options
-	 * @return Column
+	 * @return Columns\CheckColumn
 	 */
 	public function addCheckColumn($name, $caption = NULL, array $options = array(), $insertBefore = NULL)
 	{
-		$this->getComponent('columns')->addComponent($column = new Columns\CheckColumn, $name, $insertBefore);
-
-		$this->setOptions($column, $options);
-		$column->setCaption($caption);
+		$column = $this->add(new Columns\CheckColumn, $name, $insertBefore);
+		$this->setOptions($column, array('caption' => $caption) + $options);
 
 		return $column;
 	}
@@ -358,14 +307,32 @@ class Grid extends Nette\Application\Control
 	 * @param string name
 	 * @param string caption
 	 * @param array options
-	 * @return Column
+	 * @return Columns\FormColumn
 	 */
 	public function addFormColumn($name, $control, $caption = NULL, array $options = array(), $insertBefore = NULL)
 	{
-		$this->getComponent('columns')->addComponent($column = new Columns\FormColumn($control), $name, $insertBefore);
+		$column = $this->add(new Columns\FormColumn($control), $name, $insertBefore);
+		$this->setOptions($column, array('caption' => $caption) + $options);
 
-		$this->setOptions($column, $options);
-		$column->setCaption($caption);
+		return $column;
+	}
+
+
+
+	/**
+	 * Add column
+	 * @param string name
+	 * @param string caption
+	 * @param array options
+	 * @return Columns\ActionsColumn
+	 */
+	public function addActionsColumn($name, $caption = NULL, array $options = array(), $insertBefore = NULL)
+	{
+		$column = $this->add(new Columns\ActionsColumn, $name, $insertBefore);
+		$action = $column->addAction(new Actions\LinkAction, $name);
+
+		$this->setOptions($column, array('caption' => $caption) + $options, FALSE);
+		$this->setOptions($action, $options + array('caption' => $caption), FALSE);
 
 		return $column;
 	}
@@ -406,7 +373,7 @@ class Grid extends Nette\Application\Control
 
 
 	/**
-	 *
+	 * @return
 	 */
 	public function getFilters()
 	{
@@ -459,11 +426,48 @@ class Grid extends Nette\Application\Control
 
 
 	/**
+	 * @param GridComponent $component
+	 * @param string $name
+	 * @param string $insertBefore
+	 * @return GridComponent
+	 */
+	public function add($component, $name = NULL, $insertBefore = NULL)
+	{
+		if (!$component instanceof GridComponent) {
+			throw new \InvalidArgumentException("Given component must be instanceof Kdyby\\Components\\Grinder\\GridComponent");
+		}
+
+		$name = $name ?: $component->name;
+		if (!is_string($name) || $name === '') {
+			throw new \InvalidArgumentException("Component must have name or name must be explicitly set by argument \$name.");
+		}
+
+		if ($component instanceof Actions\BaseAction) {
+			$this->getComponent('actions')->addComponent($component, $name, $insertBefore);
+			return $component;
+		}
+
+		if ($component instanceof Columns\BaseColumn) {
+			$this->getComponent('columns')->addComponent($component, $name, $insertBefore);
+			return $component;
+		}
+
+		throw new \InvalidArgumentException("Unknown type of component '" . get_class($component) . "', with name " . $name . ".");
+	}
+
+
+
+	/**
 	 * @param object $object
 	 * @param array $options
+	 * @param boolean $exceptionOnInvalid
 	 */
-	protected function setOptions($object, array $options)
+	protected function setOptions($object, array $options, $exceptionOnInvalid = TRUE)
 	{
+		if (!is_object($object)) {
+			throw new \InvalidArgumentException("Can by applied only to objects.");
+		}
+
 		foreach	($options as $option => $value) {
 			$option = ucfirst($option);
 
@@ -473,7 +477,7 @@ class Grid extends Nette\Application\Control
 			} elseif (method_exists($object, $method = "add" . $option)) {
 				$object->$method($value);
 
-			} else {
+			} elseif ($exceptionOnInvalid) {
 				throw new \InvalidArgumentException("Option with name $option does not exist.");
 			}
 		}
@@ -500,33 +504,21 @@ class Grid extends Nette\Application\Control
 
 	/**
 	 * Get paginator
+	 * @return GridPaginator
+	 */
+	public function getVisualPaginator()
+	{
+		return $this->getComponent('paginator');
+	}
+
+
+	/**
+	 * Get paginator
 	 * @return Nette\Paginator
 	 */
 	public function getPaginator()
 	{
-		return $this->getComponent('vp')->paginator;
-	}
-
-
-
-	/**
-	 * Set page
-	 * @param int page
-	 */
-	private function setPage($page)
-	{
-		$this->getPaginator()->setPage($page);
-	}
-
-
-
-	/**
-	 * Get items per page
-	 * @return int
-	 */
-	public function getItemsPerPage()
-	{
-		return $this->getPaginator()->getItemsPerPage();
+		return $this->getVisualPaginator()->getPaginator();
 	}
 
 
@@ -540,36 +532,6 @@ class Grid extends Nette\Application\Control
 	{
 		$this->getPaginator()->setItemsPerPage($itemsPerPage);
 		return $this;
-	}
-
-
-
-	/**
-	 * @param string $placement
-	 */
-	public function setPaginatorPlacemenet($placement)
-	{
-		$this->paginatorPlacemenet = $placement;
-	}
-
-
-
-	/**
-	 * @return bool
-	 */
-	public function hasTopPaginator()
-	{
-		return $this->paginatorPlacemenet === self::PLACEMENT_BOTH || $this->paginatorPlacemenet === self::PLACEMENT_TOP;
-	}
-
-
-
-	/**
-	 * @return bool
-	 */
-	public function hasBottomPaginator()
-	{
-		return $this->paginatorPlacemenet === self::PLACEMENT_BOTH || $this->paginatorPlacemenet === self::PLACEMENT_BOTTOM;
 	}
 
 
@@ -629,12 +591,27 @@ class Grid extends Nette\Application\Control
 	 */
 	public function render($part = NULL, array $args = array())
 	{
+		$this->beforeRender();
+		$this->getRenderer()->render($this, $part, $args);
+	}
+
+
+
+	/**
+	 * @return void
+	 */
+	private function beforeRender()
+	{
+		if ($this->isModelSetted) {
+			return;
+		}
+
 		$this->getPaginator()->setItemCount($this->getModel()->count());
 
 		$this->getModel()->setLimit($this->getPaginator()->getLength());
 		$this->getModel()->setOffset($this->getPaginator()->getOffset());
 
-		if ($this->sortColumn && $this["columns"]->getComponent($this->sortColumn)->isSortable()) {
+		if ($this->sortColumn && $this->getColumn($this->sortColumn)->isSortable()) {
 			$this->getModel()->setSorting($this->sortColumn, $this->sortType);
 		}
 
@@ -642,11 +619,7 @@ class Grid extends Nette\Application\Control
 			$column->setRenderer($this->getRenderer());
 		}
 
-		if ($part) {
-			return call_user_func_array(array($this->getRenderer(), 'render' . $part), array_merge(array($this), $args));
-		}
-
-		$this->getRenderer()->render($this);
+		$this->isModelSetted = TRUE;
 	}
 
 

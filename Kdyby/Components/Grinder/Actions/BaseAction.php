@@ -4,6 +4,7 @@ namespace Kdyby\Components\Grinder\Actions;
 
 use Kdyby;
 use Kdyby\Components\Grinder\Grid;
+use Kdyby\Components\Grinder\Columns\ActionsColumn;
 use Kdyby\Components\Grinder\Renderers\IGridRenderer;
 use Nette;
 
@@ -15,14 +16,42 @@ use Nette;
 abstract class BaseAction extends Kdyby\Components\Grinder\GridComponent
 {
 
+	/** @var Kdyby\Components\Grinder\Columns\ActionsColumn */
+	private $column;
+
+	/** @var string|callable */
+	private $visible = TRUE;
+
 	/** @var boolean */
 	private $ajax;
 
 	/** @var string|callable */
-	private $visible;
-
-	/** @var string|callable */
 	private $confirmationQuestion;
+
+	/** @vat string */
+	private $toolbarPlacement = Grid::PLACEMENT_TOP;
+
+
+
+	/**
+	 * @param Kdyby\Components\Grinder\Columns\ActionsColumn $column
+	 * @return BaseAction
+	 */
+	public function setColumn(ActionsColumn $column)
+	{
+		$this->column = $column;
+		return $this;
+	}
+
+
+
+	/**
+	 * @return Kdyby\Components\Grinder\Columns\ActionsColumn
+	 */
+	public function getColumn()
+	{
+		return $this->column;
+	}
 
 
 
@@ -48,9 +77,10 @@ abstract class BaseAction extends Kdyby\Components\Grinder\GridComponent
 	 * @param mixed row
 	 * @return bool
 	 */
-	public function isVisible($row = NULL)
+	public function isVisible()
 	{
-		return is_bool($this->visible) ? $this->visible : call_user_func($this->visible, $row);
+		$record = $this->getGrid()->getCurrentRecord();
+		return is_bool($this->visible) ? $this->visible : call_user_func($this->visible, $record);
 	}
 
 
@@ -108,6 +138,32 @@ abstract class BaseAction extends Kdyby\Components\Grinder\GridComponent
 		}
 
 		return $this->confirmationQuestion;
+	}
+
+
+
+	/**
+	 * @param string $placement
+	 * @return BaseAction
+	 */
+	public function setToolbarPlacement($placement)
+	{
+		if ($this->getParent() !== $this->getGrid()->getToolbar()) {
+			throw new \InvalidStateException("Action is not attached to toolbar.");
+		}
+
+		$this->toolbarPlacement = $placement;
+		return $this;
+	}
+
+
+
+	/**
+	 * @return string
+	 */
+	public function getToolbarPlacement()
+	{
+		return $this->toolbarPlacement;
 	}
 
 

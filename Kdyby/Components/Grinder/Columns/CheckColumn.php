@@ -68,7 +68,7 @@ class CheckColumn extends FormColumn
 	public function getChecked()
 	{
 		$keys = array_keys(array_filter($this->getValues()));
-		return $this->getGrid()->getModel()->getItemsByUniqueIds($keys);
+		return $keys ? $this->getGrid()->getModel()->getItemsByUniqueIds($keys) : array();
 	}
 
 

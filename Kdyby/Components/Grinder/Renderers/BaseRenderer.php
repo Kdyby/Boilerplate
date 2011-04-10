@@ -20,6 +20,11 @@ use Nette\Web\Html;
 abstract class BaseRenderer extends CellRenderer implements IGridRenderer
 {
 
+	/** @var Kdyby\Components\Grinder\Grid */
+	protected $grid;
+
+
+
 	/**
 	 * Renders the grid
 	 *
@@ -28,37 +33,35 @@ abstract class BaseRenderer extends CellRenderer implements IGridRenderer
 	 */
 	public function render(Grid $grid)
 	{
-		$s = Html::el('div')->setClass('grid');
+		$args = func_get_args();
+		$this->grid = array_shift($args);
 
-		// flash messages
-		$s->add($this->renderFlashes($grid));
-
-		// todo: render filters
-
-		// form begin
-		$s->add($this->renderForm($grid, 'begin'));
-
-		// toolbar
-		$s->add($grid->hasTopToolbar() ? $this->renderToolbar($grid) : "");
-
-		// paginator
-		$s->add($grid->hasTopPaginator() ? $this->renderPaginator($grid) : "");
-
-		if ($grid->getModel()->count() > 0) {
-			$s->add($this->renderData($grid));
-
-		} else {
-			$s->add($this->renderEmptyResults($grid));
+		if (array_filter($args)) {
+			$part = array_shift($args);
+			echo call_user_func_array(array($this, 'render' . $part), (array)current($args));
+			return;
 		}
 
-		// toolbar
-		$s->add($grid->hasBottomToolbar() ? $this->renderToolbar($grid) : "");
+		$s = Html::el('div')->setClass('grid');
 
-		// paginator
-		$s->add($grid->hasBottomPaginator() ? $this->renderPaginator($grid) : "");
+		$s->add($this->renderFlashes());
 
-		// form end
-		$s->add($this->renderForm($grid, 'end'));
+		// TODO: render filters
+
+		$s->add($this->renderForm('begin'));
+		$s->add($this->renderToolbar(Grid::PLACEMENT_TOP));
+		$s->add($this->renderPaginator(Grid::PLACEMENT_TOP));
+
+		if ($this->grid->getModel()->count() > 0) {
+			$s->add($this->renderData());
+
+		} else {
+			$s->add($this->renderEmptyResult());
+		}
+
+		$s->add($this->renderPaginator(Grid::PLACEMENT_BOTTOM));
+		$s->add($this->renderToolbar(Grid::PLACEMENT_BOTTOM));
+		$s->add($this->renderForm('end'));
 
 		// output
 		echo $s;
@@ -67,21 +70,20 @@ abstract class BaseRenderer extends CellRenderer implements IGridRenderer
 
 
 	/**
-	 * @param Grid $grid
 	 * @return Html|NULL
 	 */
-	public function renderFlashes(Grid $grid)
+	protected function renderFlashes()
 	{
 		$flashes = Html::el('div')->setClass('grinder-flashes');
 
-		$flashesId  = $grid->getParamId('flash');
-		$messages = (array)$grid->getPresenter()->getFlashSession()->{$flashesId};
+		$flashesId  = $this->grid->getParamId('flash');
+		$messages = (array)$this->grid->getPresenter()->getFlashSession()->{$flashesId};
 		foreach ($messages as $message) {
 			$flash = Html::el('span')->addClass('grinder-flash')->addClass($message->type);
 			$flashes->add($flash->{$message->message instanceof Html ? 'add' : 'setText'}($message->message));
 		}
 
-		foreach ($grid->getForm()->getErrors() as $error) {
+		foreach ($this->grid->getForm()->getErrors() as $error) {
 			$flash = Html::el('span')->addClass('grinder-flash')->addClass('error');
 			$flashes->add($flash->{$error instanceof Html ? 'add' : 'setText'}($error));
 		}
@@ -92,18 +94,19 @@ abstract class BaseRenderer extends CellRenderer implements IGridRenderer
 
 
 	/**
-	 * @param Grid $grid
+	 * @param string $placement
 	 * @return Html|NULL
 	 */
-	public function renderToolbar(Grid $grid)
+	protected function renderToolbar($placement)
 	{
-		if (!$grid->hasToolbar()) {
+		$actions = $this->grid->getToolbar()->getActions($placement);
+		if (count($actions) <= 0) {
 			return "";
 		}
 
 		$toolbarContainer = Html::el('div')->setClass('grinder-toolbar');
 
-		foreach ($grid->getToolbar() as $action) {
+		foreach ($actions as $action) {
 			$actionContainer = Html::el('span')->setClass('grinder-toolbar-action');
 			$actionContainer->add($this->renderAction($action));
 			$toolbarContainer->add($actionContainer);
@@ -137,9 +140,9 @@ abstract class BaseRenderer extends CellRenderer implements IGridRenderer
 	/**
 	 * @return Html|NULL
 	 */
-	public function renderEmptyResults(Grid $grid)
+	protected function renderEmptyResult()
 	{
-		$message = $grid->getEmptyResultMessage();
+		$message = $this->grid->getEmptyResultMessage();
 
 		return Html::el('div')->setClass('grinder-empty')
 			->setHtml(Html::el('p')->{$message instanceof Html ? 'add' : 'setText'}($message));
@@ -148,53 +151,37 @@ abstract class BaseRenderer extends CellRenderer implements IGridRenderer
 
 
 	/**
-	 * @param Grid $grid
 	 * @return Html|NULL
 	 */
-	abstract public function renderData(Grid $grid);
+	abstract protected function renderData();
 
 
 
 	/**
-	 * @param Grid $grid
-	 * @param \Iterator $iterator
-	 * @return Html|NULL
-	 */
-	abstract public function renderDataHeader(Grid $grid, BaseColumn $column);
-
-
-
-	/**
-	 * @param Grid $grid
-	 * @param \Iterator $iterator
-	 * @return Html|NULL
-	 */
-	abstract public function renderDataItem(Grid $grid, \Iterator $iterator);
-
-
-
-	/**
-	 * @param Grid $grid
 	 * @param string $partName
 	 * @return Html|NULL
 	 */
-	public function renderForm(Grid $grid, $partName)
+	protected function renderForm($partName = NULL)
 	{
 		ob_start();
-			$grid->getForm()->render($partName);
+			$this->grid->getForm()->render($partName);
 		return Html::el()->setHtml(ob_get_clean());
 	}
 
 
 
 	/**
-	 * @param Grid $grid
 	 * @return Html|NULL
 	 */
-	public function renderPaginator(Grid $grid)
+	protected function renderPaginator($placement = Grid::PLACEMENT_BOTH)
 	{
+		$vp = $this->grid->getVisualPaginator();
+		if (!in_array($vp->getPlacement(), array($placement, Grid::PLACEMENT_BOTH))) {
+			return "";
+		}
+
 		ob_start();
-			$grid->getComponent('vp')->render();
+			$vp->render();
 		return Html::el()->setHtml(ob_get_clean());
 	}
 
