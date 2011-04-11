@@ -19,6 +19,9 @@ abstract class BaseColumn extends Kdyby\Components\Grinder\GridComponent
 	/** @var mixed */
 	private $value;
 
+	/** @var array */
+	private $filters = array();
+
 	/** @var bool */
 	protected $sortable = FALSE;
 
@@ -28,28 +31,23 @@ abstract class BaseColumn extends Kdyby\Components\Grinder\GridComponent
 
 
 	/**
-	 * @param string|callable $class
+	 * @param callback $filter
 	 * @return BaseColumn
 	 */
-	public function setCellHtmlClass($class)
+	public function addFilter($filter)
 	{
-	    $this->cellHtmlClass = $class;
+		$this->filters[] = callback($filter);
 		return $this;
 	}
 
 
 
 	/**
-	 * @param \Iterator $iterator
-	 * @return string
+	 * @return array
 	 */
-	public function getCellHtmlClass(\Iterator $iterator)
+	public function getFilters()
 	{
-		if (is_callable($this->cellHtmlClass)) {
-			return call_user_func($this->cellHtmlClass, $iterator, $iterator->current());
-		}
-
-		return $this->cellHtmlClass;
+		return $this->filters;
 	}
 
 
@@ -59,23 +57,28 @@ abstract class BaseColumn extends Kdyby\Components\Grinder\GridComponent
 	 */
 	public function getValue()
 	{
-		$data = $this->getGrid()->getCurrentRecord();
+		$record = $this->getGrid()->getCurrentRecord();
+		$value = NULL;
 
 		if ($this->value) {
-			return $this->value;
+			$value = $this->value;
 
-		} elseif (is_object($data)) {
-			if (isset($data->{$this->name})) {
-				return $data->{$this->name};
+		} elseif (is_object($record)) {
+			if (isset($record->{$this->name})) {
+				$value = $record->{$this->name};
 			}
 
-			return $data->{'get' . ucfirst($this->name)}();
+			$value = $record->{'get' . ucfirst($this->name)}();
 
-		} elseif (is_array($data)) {
-			return $data[$this->name];
+		} elseif (is_array($record)) {
+			$value = $record[$this->name];
 		}
 
-		return NULL;
+		foreach ($this->getFilters() as $filter) {
+			$value = $filter($value, $record);
+		}
+
+		return $value;
 	}
 
 
@@ -126,6 +129,33 @@ abstract class BaseColumn extends Kdyby\Components\Grinder\GridComponent
 		}
 
 		return null;
+	}
+
+
+
+	/**
+	 * @param string|callable $class
+	 * @return BaseColumn
+	 */
+	public function setCellHtmlClass($class)
+	{
+	    $this->cellHtmlClass = $class;
+		return $this;
+	}
+
+
+
+	/**
+	 * @param \Iterator $iterator
+	 * @return string
+	 */
+	public function getCellHtmlClass(\Iterator $iterator)
+	{
+		if (is_callable($this->cellHtmlClass)) {
+			return call_user_func($this->cellHtmlClass, $iterator, $iterator->current());
+		}
+
+		return $this->cellHtmlClass;
 	}
 
 
