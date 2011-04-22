@@ -39,7 +39,7 @@ class Identity extends Kdyby\Entities\Person implements Nette\Security\IIdentity
 	/** @Column(type="datetime") */
 	private $registeredAt;
 
-	/** @Column(type="array") @var Doctrine\Common\Collections\ArrayCollection */
+	/* @Column(type="array") @var Doctrine\Common\Collections\ArrayCollection */
 	private $roles;
 
 
@@ -51,7 +51,9 @@ class Identity extends Kdyby\Entities\Person implements Nette\Security\IIdentity
 		$this->roles = new ArrayCollection();
 		$this->username = $username;
 		$this->passwordHash = $this->cryptPassword($password);
+		$this->registeredAt = new Nette\Datetime();
 	}
+
 
 	public function getUsername() { return $this->username; }
 	public function setUsername($username) { $this->username = $username; }
@@ -62,8 +64,10 @@ class Identity extends Kdyby\Entities\Person implements Nette\Security\IIdentity
 		return parent::getFullname() ?: $this->getUsername();
 	}
 
+
 	public function &getRegisteredAt() { return $this->registeredAt; }
 	public function setRegisteredAt(\DateTime $date) { $this->registeredAt = $date; }
+
 
 	public function addRole(Role $role) { $this->roles->add($role); }
 	public function addRoles($roles) { foreach ($roles as $role) { $this->addRole($role); } }
@@ -78,7 +82,7 @@ class Identity extends Kdyby\Entities\Person implements Nette\Security\IIdentity
 
 	public function cryptPassword($password)
 	{
-		return sha1($password);
+		return sha1($this->username . $password);
 	}
 
 

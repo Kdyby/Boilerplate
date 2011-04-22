@@ -39,7 +39,7 @@ abstract class Person extends Kdyby\Doctrine\Entities\IdentifiedEntity
 	private $lastname;
 
 	/**
-     * @OneToOne(targetEntity="Kdyby\Location\Address")
+     * @OneToOne(targetEntity="Kdyby\Location\Address", cascade={"persist"}, fetch="EAGER")
      * @JoinColumn(name="address_id", referencedColumnName="id")
 	 */
 	private $address;
@@ -62,10 +62,10 @@ abstract class Person extends Kdyby\Doctrine\Entities\IdentifiedEntity
 
 	public function getFullname()
 	{
-		return ($this->salutation ? $this->salutation .' ' : NULL) .
+		return trim(($this->salutation ? $this->salutation .' ' : NULL) .
 			($this->firstname ? $this->firstname . ' ' : NULL) .
 			($this->secondname ? $this->secondname . ' ' : NULL) .
-			$this->lastname;
+			$this->lastname);
 	}
 
 }
