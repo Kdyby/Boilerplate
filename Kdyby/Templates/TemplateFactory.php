@@ -136,7 +136,9 @@ class TemplateFactory extends Nette\Object implements ITemplateFactory
 	public function templatePrepareFilters(Nette\Templates\ITemplate $template)
 	{
 		// $template->registerFilter('Nette\Templates\TemplateFilters::netteLinks');
-		$template->registerFilter(new Nette\Templates\LatteFilter);
+		$template->registerFilter($latte = new Nette\Templates\LatteFilter);
+
+		TwigMacro::register($latte->getHandler());
 	}
 
 
