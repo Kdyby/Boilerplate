@@ -1,6 +1,6 @@
 <?php
 
-namespace Kdyby\Doctrine;
+namespace Kdyby\Doctrine\Services;
 
 use Doctrine;
 use Nette;
