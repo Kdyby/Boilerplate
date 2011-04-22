@@ -4,19 +4,20 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta http-equiv="Content-Language" content="cs">
 
-    <link rel="stylesheet" href="{$basePath}/reset-blueprint.css" type="text/css">
 	<link rel="stylesheet" href="{$basePath}/restypo.css" type="text/css">
 	<link rel="stylesheet" href="{$themePath}/style-display.css" type="text/css">
-	<!--[if IE]><script language="javascript" type="text/javascript" src="resources/scripts/excanvas.min.js"></script><![endif]-->
+	<!--[if IE]><script language="javascript" type="text/javascript" src="{$basePath}/js/excanvas.min.js"></script><![endif]-->
 
-    <title n:block="title">Admin panel - Kdyby CMF</title>
+    <title>{block #title |stripTags|trim}Admin panel{/block}</title>
 </head>
 <body>
 
 <div class="page-center">
 
+	<h1>{include #title |stripTags|trim}</h1>
+
 	<div class="page-navigation-horizontal">
-		
+		{control navigation}
 	</div>
 
 	<div class="page-content">
