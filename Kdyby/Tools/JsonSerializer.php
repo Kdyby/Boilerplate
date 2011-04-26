@@ -13,6 +13,8 @@ use Nette\Reflection\ClassType;
  */
 class JsonSerializer extends Nette\Object
 {
+	/** @var string */
+	const CLASS_TYPE = '___classType';
 
 	/** @var Nette\Callback */
 	private $encoder;
@@ -83,7 +85,7 @@ class JsonSerializer extends Nette\Object
 					$value = $this->doPrepareToEncode($value);
 				}
 
-				$object->___type = get_class($data);
+				$object->{self::CLASS_TYPE} = get_class($data);
 				return $object;
 
 			} elseif (is_array($data)) {
@@ -120,11 +122,11 @@ class JsonSerializer extends Nette\Object
 
 		} else {
 			if (is_object($data)) {
-				if (!class_exists($classType = $data->___type)) {
+				if (!class_exists($classType = $data->{self::CLASS_TYPE})) {
 					throw new Nette\InvalidStateException("Class '" . $classType . "' not found");
 				}
 
-				unset($data->___type);
+				unset($data->{self::CLASS_TYPE});
 				foreach ($data as &$value) {
 					$value = $this->doDecode($value);
 				}
