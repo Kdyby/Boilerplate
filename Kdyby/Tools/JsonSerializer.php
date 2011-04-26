@@ -24,9 +24,13 @@ class JsonSerializer extends Nette\Object
 
 	/**
 	 * @param callable $encoder
+	 * @param callable $decoder
 	 */
-	public function __construct($encoder, $decoder)
+	public function __construct($encoder = NULL, $decoder = NULL)
 	{
+		$encode = $encode ?: 'Nette\Utils\Json::encode';
+		$decoder = $decoder ?: 'Nette\Utils\Json::decode';
+
 		if (!is_callable($encoder)) {
 			throw new Nette\InvalidArgumentException("Given encoder is not callable");
 		}
