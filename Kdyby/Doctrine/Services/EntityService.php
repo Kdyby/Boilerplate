@@ -60,7 +60,7 @@ class EntityService extends Service
 
 	/**
 	 * Create entity and flush
-	 * @return Kdyby\Doctrine\BaseEntity
+	 * @return BaseEntity
 	 */
 	public function create()
 	{
@@ -73,7 +73,7 @@ class EntityService extends Service
 
 	/**
 	 * Update entity and flush
-	 * @param Kdyby\Doctrine\BaseEntity entity
+	 * @param BaseEntity entity
 	 */
 	public function update($entity)
 	{
@@ -88,8 +88,8 @@ class EntityService extends Service
 
 	/**
 	 * Persist entity and flush
-	 * @param Kdyby\Doctrine\BaseEntity $entity
-	 * @return Kdyby\Doctrine\BaseEntity
+	 * @param BaseEntity $entity
+	 * @return BaseEntity
 	 */
 	public function save($entity)
 	{
@@ -104,7 +104,7 @@ class EntityService extends Service
 
 	/**
 	 * Delete entity and flush
-	 * @param Kdyby\Doctrine\BaseEntity entity
+	 * @param BaseEntity entity
 	 */
 	public function delete($entity)
 	{

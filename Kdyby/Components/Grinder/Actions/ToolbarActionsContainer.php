@@ -5,26 +5,26 @@ namespace Kdyby\Components\Grinder\Actions;
 use Kdyby;
 use Kdyby\Components\Grinder\Grid;
 use Nette;
-use Nette\IComponent;
+use Nette\ComponentModel\IComponent;
 
 
 
 /**
  * @author Filip Procházka
  */
-class ToolbarActionsContainer extends Nette\ComponentContainer
+class ToolbarActionsContainer extends Nette\ComponentModel\Container
 {
 
 	/**
 	 * @param IComponent
-	 * @throws \InvalidStateException
+	 * @throws Nette\InvalidStateException
 	 */
 	protected function validateChildComponent(IComponent $child)
 	{
 		parent::validateChildComponent($child);
 
 		if (!$child instanceof BaseAction) {
-			throw new \InvalidStateException("Child component of " . $this->name . " must be instanceof Kdyby\\Components\\Grinder\\Actions\\BaseAction.");
+			throw new Nette\InvalidStateException("Child component of " . $this->name . " must be instanceof Kdyby\\Components\\Grinder\\Actions\\BaseAction.");
 		}
 	}
 

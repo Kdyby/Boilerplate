@@ -8,7 +8,7 @@ use Nette\Config\Config;
 
 
 
-class Configurator extends Nette\Configurator
+class Configurator extends Nette\DI\Configurator
 {
 
 	/** @var array */
@@ -46,13 +46,13 @@ class Configurator extends Nette\Configurator
 		$this->onAfterLoad[] = callback('Kdyby\Doctrine\ServiceFactory', 'registerTypes');
 
 		$this->onAfterLoad[] = function (IServiceContainer $serviceContainer) {
-			$baseUri = $serviceContainer->httpRequest->uri->baseUri;
+			$baseUrl = $serviceContainer->httpRequest->url->baseUrl;
 
-			if (Nette\Environment::getVariable('baseUri', NULL) === NULL) {
-				Nette\Environment::setVariable('baseUri', $baseUri);
+			if (Nette\Environment::getVariable('baseUrl', NULL) === NULL) {
+				Nette\Environment::setVariable('baseUrl', $baseUrl);
 			}
 
-			$serviceContainer['baseUri'] = $baseUri;
+			$serviceContainer['baseUrl'] = $baseUrl;
 		};
 	}
 

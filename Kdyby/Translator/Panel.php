@@ -37,7 +37,7 @@ use Nette\Environment;
  * @author Jan Smitka <jan@smitka.org>
  * @author Patrik Votoček <patrik@votocek.cz>
  */
-class Panel implements \Nette\IDebugPanel
+class Panel implements \Nette\Diagnostics\IBarPanel
 {
 	const XHR_HEADER = "X-Translation-Client";
 	const SESSION_NAMESPACE = "NetteTranslator-Panel";
@@ -102,7 +102,7 @@ class Panel implements \Nette\IDebugPanel
 	 */
 	public function getPanel()
 	{
-		$translator = Environment::getService('Nette\ITranslator');
+		$translator = Environment::getService('Nette\Localization\ITranslator');
 		$strings = $translator->getStrings();
 
 		if (Environment::getSession()->isStarted()) {
@@ -136,14 +136,14 @@ class Panel implements \Nette\IDebugPanel
 		// Try starting the session
 		try {
 			$session = Environment::getSession(self::SESSION_NAMESPACE);
-		} catch (\InvalidStateException $e) {
+		} catch (\Nette\InvalidStateException $e) {
 			$session = FALSE;
 		}
 
 		$request = Environment::getHttpRequest();
 		if ($request->isPost() && $request->isAjax() && $request->getHeader(self::XHR_HEADER)) {
 			$data = json_decode(file_get_contents('php://input'));
-			$translator = Environment::getService('Nette\ITranslator');
+			$translator = Environment::getService('Nette\Localization\ITranslator');
 
 			if ($data) {
 				if ($session) {
@@ -199,7 +199,7 @@ class Panel implements \Nette\IDebugPanel
 	 */
 	public static function register(IEditable $translator = NULL, $layout = NULL, $height = NULL)
 	{
-		\Nette\Debug::addPanel(new static($layout, $height));
+		\Nette\Diagnostics\Debugger::addPanel(new static($layout, $height));
 	}
 
 }

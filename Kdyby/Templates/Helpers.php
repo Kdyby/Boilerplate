@@ -3,7 +3,7 @@
 namespace Kdyby\Templates;
 
 use Nette;
-use Nette\String;
+use Nette\Utils\Strings;
 use Kdyby;
 
 
@@ -25,7 +25,7 @@ class Helpers extends Nette\Object
 	 * @param string $search
 	 * @return string
 	 */
-	public static function searchTemplate(Nette\Application\Presenter $presenter, $search)
+	public static function searchTemplate(Nette\Application\UI\Presenter $presenter, $search)
 	{
 		$action = $presenter->getAction(TRUE);
 		$ns = explode(':', trim(substr($action, 0, strrpos($action, ':')), ':'));
@@ -40,7 +40,7 @@ class Helpers extends Nette\Object
 				// absolute ":/something.latte"
 
 				$ns = array_filter(
-						String::split(trim($nettePath, ':/'), '~:~'),
+						Strings::split(trim($nettePath, ':/'), '~:~'),
 						function($v){ return (bool)$v; }
 					);
 				$file = $path;
@@ -60,7 +60,7 @@ class Helpers extends Nette\Object
 				}
 
 				$relativePath = array_filter(
-						String::split(trim($nettePath, ':/'), '~:~'),
+						Strings::split(trim($nettePath, ':/'), '~:~'),
 						function($v){ return (bool)$v; }
 					);
 				//dump($ns, $relativePath);die();
@@ -79,10 +79,10 @@ class Helpers extends Nette\Object
 
 		if (!file_exists($file)) {
 			if (file_exists(substr($file, 0, -5).'phtml')) { // depracated
-				throw new \FileNotFoundException("Requested template '".substr($file, 0, -5)."phtml' should be using '.latte' extension.");
+				throw new Nette\FileNotFoundException("Requested template '".substr($file, 0, -5)."phtml' should be using '.latte' extension.");
 			}
 
-			throw new \FileNotFoundException("Requested template '".$file."' is missing.");
+			throw new Nette\FileNotFoundException("Requested template '".$file."' is missing.");
 		}
 
 		return $file;

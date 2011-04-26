@@ -15,7 +15,7 @@ namespace Kdyby\Application\Response;
 
 use Nette;
 use Nette\Image;
-use Nette\Application\IPresenterResponse;
+use Nette\Application\IResponse;
 use Nette\Environment;
 
 
@@ -24,7 +24,7 @@ use Nette\Environment;
  *
  * @author Mikulas Dite, Martin Sadovy
  */
-class GravatarResponse extends Nette\Object implements IPresenterResponse
+class GravatarResponse extends Nette\Object implements IResponse
 {
 
 	/** @var string uri */
@@ -35,7 +35,7 @@ class GravatarResponse extends Nette\Object implements IPresenterResponse
 
 
 
-	/** @var string|Nette\Image */
+	/** @var string|Image */
 	private $image;
 
 	/** @var string */
@@ -85,7 +85,7 @@ class GravatarResponse extends Nette\Object implements IPresenterResponse
 
 	/**
 	 * Returns the path to a file or Nette\Image instance.
-	 * @return string|Nette\Image
+	 * @return string|Image
 	 */
 	final public function getImage()
 	{
@@ -109,7 +109,7 @@ class GravatarResponse extends Nette\Object implements IPresenterResponse
 	 * Sends response to output.
 	 * @return void
 	 */
-	public function send(Nette\Web\IHttpRequest $httpRequest, Nette\Web\IHttpResponse $httpResponse)
+	public function send(Nette\Http\IRequest $httpRequest, Nette\Http\IResponse $httpResponse)
 	{
 		echo $this->image->send($this->type, 85);
 	}

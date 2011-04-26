@@ -16,18 +16,18 @@ namespace Kdyby\Application;
 use Kdyby;
 use Nette;
 use Nette\Environment;
-use Nette\String;
+use Nette\Utils\Strings;
 
 
 
 /**
- * @property-read Kdyby\Application\Presenter $presenter
+ * @property-read Presenter $presenter
  * @property Kdyby\Templates\FileTemplate $template
  *
  * @method Kdyby\Templates\FileTemplate getTemplate() getTemplate()
  * @method Kdyby\Application\Presenter getPresenter() getPresenter()
  */
-class Control extends Nette\Application\Control
+class Control extends Nette\Application\UI\Control
 {
 
 	/**
@@ -35,7 +35,7 @@ class Control extends Nette\Application\Control
 	 */
 	public function getUser()
 	{
-		return $this->getPresenter()->getService('Nette\Web\IUser');
+		return $this->getPresenter()->getService('Nette\Http\IUser');
 	}
 
 
@@ -51,11 +51,11 @@ class Control extends Nette\Application\Control
 
 
 	/**
-	 * @return Nette\ITranslator
+	 * @return Nette\Localization\ITranslator
 	 */
 	public function getTranslator()
 	{
-		return $this->getPresenter()->getService("Nette\\ITranslator");
+		return $this->getPresenter()->getService("Nette\\Localization\\ITranslator");
 	}
 
 
@@ -66,7 +66,7 @@ class Control extends Nette\Application\Control
 
 	/**
 	 * @param string|NULL $class
-	 * @return Nette\Templates\ITemplate
+	 * @return Nette\Templating\ITemplate
 	 */
 	protected function createTemplate($class = NULL)
 	{
@@ -82,7 +82,7 @@ class Control extends Nette\Application\Control
 
 	/**
 	 * @param string $name
-	 * @return Nette\Component
+	 * @return Nette\ComponentModel\Component
 	 */
 	public function createComponent($name)
 	{

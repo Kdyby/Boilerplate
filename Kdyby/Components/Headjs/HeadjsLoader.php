@@ -14,8 +14,8 @@
 namespace Kdyby\Components\Headjs;
 
 use Nette;
-use Nette\String;
-use Nette\Web\Html;
+use Nette\Utils\Strings;
+use Nette\Utils\Html;
 use Kdyby;
 
 
@@ -150,7 +150,7 @@ class HeadjsLoader extends Kdyby\Control\LookoutControl
 	 */
 	protected function isRelative($file)
 	{
-		return !String::match($file, '~^[a-z0-9]{1,5}:\/\/.+~i');
+		return !Strings::match($file, '~^[a-z0-9]{1,5}:\/\/.+~i');
 	}
 
 
@@ -161,7 +161,7 @@ class HeadjsLoader extends Kdyby\Control\LookoutControl
 	 */
 	protected function isClosure($string)
 	{
-		return String::match($string, '~^\s*?function\s*?\(\s*?\)\s*?\{.*?\}\s*?$~i');
+		return Strings::match($string, '~^\s*?function\s*?\(\s*?\)\s*?\{.*?\}\s*?$~i');
 	}
 
 

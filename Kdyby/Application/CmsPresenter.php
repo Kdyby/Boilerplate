@@ -14,10 +14,10 @@ class CmsPresenter extends Presenter
 	/** @var bool  automatically call canonicalize() */
 	public $autoCanonicalize = FALSE;
 
-	/** @var Kdyby\Application\Presentation\Bundle */
+	/** @var Bundle */
 	private $bundle;
 
-	/** @var Kdyby\Application\Presentation\Sitemap */
+	/** @var Presentation\Sitemap */
 	private $actualSitemap;
 
 
@@ -86,7 +86,7 @@ class CmsPresenter extends Presenter
 				// restore
 				$uri = $requestManager->restoreRequestUri($this->actualSitemap, $request);
 
-			} catch (\MemberAccessException $e) {
+			} catch (Nette\MemberAccessException $e) {
 				if (strpos($destination, '!') !== FALSE) {
 					$request->destination = $this->actualSitemap->destination;
 				}

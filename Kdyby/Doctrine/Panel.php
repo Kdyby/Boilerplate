@@ -11,8 +11,8 @@ namespace Kdyby\Doctrine;
 
 use Doctrine;
 use Nette;
-use Nette\Debug;
-use Nette\String;
+use Nette\Diagnostics\Debugger;
+use Nette\Utils\Strings;
 
 
 
@@ -22,7 +22,7 @@ use Nette\String;
  * @author	David Grudl
  * @author	Patrik Votoček
  */
-class Panel extends Nette\Object implements Nette\IDebugPanel, Doctrine\DBAL\Logging\SQLLogger
+class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrine\DBAL\Logging\SQLLogger
 {
 	/** @var int maximum SQL length */
 	static public $maxLength = 1000;
@@ -45,7 +45,7 @@ class Panel extends Nette\Object implements Nette\IDebugPanel, Doctrine\DBAL\Log
 	 */
 	public function startQuery($sql, array $params = NULL, array $types = NULL)
 	{
-		Debug::timer('doctrine');
+		Debugger::timer('doctrine');
 		
 		$source = NULL;
 		foreach (debug_backtrace(FALSE) as $row) {
@@ -64,7 +64,7 @@ class Panel extends Nette\Object implements Nette\IDebugPanel, Doctrine\DBAL\Log
 	{
 		$keys = array_keys($this->queries);
 		$key = end($keys);
-		$this->queries[$key][2] = Debug::timer('doctrine');
+		$this->queries[$key][2] = Debugger::timer('doctrine');
 		$this->totalTime += $this->queries[$key][2];
 	}
 
@@ -97,16 +97,16 @@ class Panel extends Nette\Object implements Nette\IDebugPanel, Doctrine\DBAL\Log
 
 			$s .= '<tr><td>' . sprintf('%0.3f', $time * 1000);
 			
-			$s .= '</td><td class="database-sql">' . Nette\Database\Connection::highlightSql(String::truncate($sql, self::$maxLength));
+			$s .= '</td><td class="database-sql">' . Nette\Database\Connection::highlightSql(Strings::truncate($sql, self::$maxLength));
 			if ($source) {
 				list($file, $line) = $source;
-				$s .= (Debug::$editor ? "<a href='{$h(Nette\DebugHelpers::editorLink($file, $line))}'" : '<span')
+				$s .= (Debugger::$editor ? "<a href='{$h(Nette\Diagnostics\Helpers::editorLink($file, $line))}'" : '<span')
 					. " class='database-source' title='{$h($file)}:$line'>"
-					. "{$h(basename(dirname($file)) . '/' . basename($file))}:$line" . (Debug::$editor ? '</a>' : '</span>');
+					. "{$h(basename(dirname($file)) . '/' . basename($file))}:$line" . (Debugger::$editor ? '</a>' : '</span>');
 			}
 
 			$s .= '</td><td>';
-			$s .= Debug::dump($params, TRUE);
+			$s .= Debugger::dump($params, TRUE);
 			$s .= '</td><td>' . $rows . '</td></tr>';
 		}
 
@@ -130,7 +130,7 @@ class Panel extends Nette\Object implements Nette\IDebugPanel, Doctrine\DBAL\Log
 	public static function create()
 	{
 		$panel = new static;
-		Debug::addPanel($panel);
+		Debugger::addPanel($panel);
 		return $panel;
 	}
 }

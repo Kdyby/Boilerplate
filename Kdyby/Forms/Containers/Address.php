@@ -23,7 +23,7 @@ use Kdyby;
  *
  * @author Filip Procházka <hosiplan@kdyby.org>
  */
-class Address extends Nette\Forms\FormContainer
+class Address extends Nette\Forms\Container
 {
 
 	public function attached($presenter)

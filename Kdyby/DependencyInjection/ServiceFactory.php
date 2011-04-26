@@ -121,7 +121,7 @@ class ServiceFactory extends Nette\Object implements IServiceFactory
 			$factory = callback($factory);
 		}
 
-		if (!is_callable($factory) && !($factory instanceof \Closure) && !($factory instanceof \Nette\Callback)) {
+		if (!is_callable($factory) && !($factory instanceof \Closure) && !($factory instanceof Nette\Callback)) {
 			throw new \InvalidArgumentException("Factory must be a valid callback");
 		}
 
@@ -236,11 +236,11 @@ class ServiceFactory extends Nette\Object implements IServiceFactory
 	{
 		if (is_string($this->class)) { // Class
 			if (!class_exists($this->class)) {
-				throw new \InvalidStateException("Class '{$this->class}' doesn't exist");
+				throw new Nette\InvalidStateException("Class '{$this->class}' doesn't exist");
 			}
 
 			if ($this->arguments) {
-				$ref = new Nette\Reflection\ClassReflection($this->class);
+				$ref = new Nette\Reflection\ClassType($this->class);
 				$args = $this->serviceContainer->expandParameters($this->arguments);
 				return $ref->newInstanceArgs($args);
 			}
@@ -249,7 +249,7 @@ class ServiceFactory extends Nette\Object implements IServiceFactory
 
 		} elseif ($this->class) { // Instance
 			if (!$this->isSingleton()) {
-				throw new \InvalidStateException("Non sigleton allow only for factory or class");
+				throw new Nette\InvalidStateException("Non sigleton allow only for factory or class");
 			}
 
 			return $this->class;
@@ -265,7 +265,7 @@ class ServiceFactory extends Nette\Object implements IServiceFactory
 			}
 		}
 
-		throw new \InvalidStateException("Class or factory is not defined");
+		throw new Nette\InvalidStateException("Class or factory is not defined");
 	}
 
 

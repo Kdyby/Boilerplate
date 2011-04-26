@@ -17,7 +17,7 @@ use Nette;
 
 
 
-class FileStorage extends Nette\Caching\FileStorage implements \ArrayAccess
+class FileStorage extends Nette\Caching\Storages\FileStorage implements \ArrayAccess
 {
 
 	/**
@@ -51,7 +51,7 @@ class FileStorage extends Nette\Caching\FileStorage implements \ArrayAccess
 	 */
 	public function offsetSet($offset, $value)
 	{
-		throw new \NotSupportedException();
+		throw new Nette\NotSupportedException();
 	}
 
 
@@ -61,7 +61,7 @@ class FileStorage extends Nette\Caching\FileStorage implements \ArrayAccess
 	 */
 	public function offsetExists($offset)
 	{
-		throw new \NotSupportedException();
+		throw new Nette\NotSupportedException();
 	}
 
 
@@ -71,7 +71,7 @@ class FileStorage extends Nette\Caching\FileStorage implements \ArrayAccess
 	 */
 	public function offsetUnset($offset)
 	{
-		throw new \NotSupportedException();
+		throw new Nette\NotSupportedException();
 	}
 
 }

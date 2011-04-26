@@ -3,7 +3,7 @@
 namespace Kdyby\Components\Grinder\Columns;
 
 use Nette;
-use Nette\Forms\FormContainer;
+use Nette\Forms\Container;
 use Kdyby;
 use Kdyby\Components\Grinder\Grid;
 
@@ -19,16 +19,16 @@ class CheckColumn extends FormColumn
 
 	public function __construct()
 	{
-		parent::__construct(new Nette\Forms\Checkbox);
+		parent::__construct(new Nette\Forms\Controls\Checkbox);
 	}
 
 
 
 	/**
-	 * @param FormContainer $container
-	 * @return FormContainer
+	 * @param Container $container
+	 * @return Container
 	 */
-	protected function buildControls(FormContainer $container)
+	protected function buildControls(Container $container)
 	{
 		$container = parent::buildControls($container);
 		$itemsIdsContainer = $container->addContainer('ids');
@@ -43,7 +43,7 @@ class CheckColumn extends FormColumn
 
 
 	/**
-	 * @return Nette\Forms\IFormControl
+	 * @return Nette\Forms\IControl
 	 */
 	public function getControl()
 	{

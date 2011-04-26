@@ -14,7 +14,7 @@
 namespace Kdyby\Control;
 
 use Nette;
-use Nette\String;
+use Nette\Utils\Strings;
 use Kdyby;
 
 
@@ -38,13 +38,13 @@ abstract class StepContainer extends LookoutControl
 	/** @persistent */
 	public $step;
 
-	/** @var Nette\Web\SessionNamespace */
+	/** @var Nette\Http\SessionNamespace */
 	private $data;
 
 	/** @var array */
 	private $steps = array();
 
-	/** @var Kdyby\Control\Step */
+	/** @var Step */
 	private $firstStep;
 
 	/** @var string */
@@ -56,7 +56,7 @@ abstract class StepContainer extends LookoutControl
 	{
 		parent::__construct($parent, $name);
 
-		if (!$parent instanceof Nette\ComponentContainer) {
+		if (!$parent instanceof Nette\ComponentModel\Container) {
 			throw new InvalidStateException("StepContainer must be attached to component tree by constructor");
 		}
 	}
@@ -174,7 +174,7 @@ abstract class StepContainer extends LookoutControl
 
 	/**
 	 * @param string $name
-	 * @return \Nette\Application\AppForm
+	 * @return Nette\Application\UI\Form
 	 */
 	abstract protected function createComponentForm($name);
 //	{

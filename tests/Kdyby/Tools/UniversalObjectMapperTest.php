@@ -118,7 +118,7 @@ class UniversalObjectMapperTest extends Kdyby\Testing\TestCase
 	 */
 	public function failWithNonexistingClass()
 	{
-		$creator = new Kdyby\Tools\UniversalObjectMapper('KdybyTests\Tools\CommonNonExistingEntityClassMock' . Nette\String::random());
+		$creator = new Kdyby\Tools\UniversalObjectMapper('KdybyTests\Tools\CommonNonExistingEntityClassMock' . Nette\Utils\Strings::random());
 	}
 
 

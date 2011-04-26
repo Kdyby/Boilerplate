@@ -127,7 +127,7 @@ class ServiceFactoryTest extends Kdyby\Testing\TestCase
 	 */
 	public function testCreateInstanceException1()
 	{
-		$this->factory->setClass(Nette\String::random() . "VrtakSuperUperDuperCoolClass");
+		$this->factory->setClass(Nette\Utils\Strings::random() . "VrtakSuperUperDuperCoolClass");
 		$this->factory->createInstanceMock();
 	}
 
@@ -172,7 +172,7 @@ class ServiceFactoryTest extends Kdyby\Testing\TestCase
 }
 
 
-class Foo extends \Nette\Object
+class Foo extends Nette\Object
 {
 	public $bar;
 

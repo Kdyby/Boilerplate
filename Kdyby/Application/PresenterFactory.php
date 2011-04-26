@@ -126,7 +126,7 @@ class PresenterFactory extends Nette\Object implements Nette\Application\IPresen
 		}
 
 		$class = $this->formatPresenterClasses($name);
-		$reflection = new Nette\Reflection\ClassReflection($class);
+		$reflection = new Nette\Reflection\ClassType($class);
 		$class = $reflection->getName();
 
 		if (!$reflection->implementsInterface('Nette\Application\IPresenter')) {
@@ -174,7 +174,7 @@ class PresenterFactory extends Nette\Object implements Nette\Application\IPresen
 	public function unformatPresenterClass($class)
 	{
 		$suitable = $this->namespacePrefixes->filter(function ($prefix) use ($class) {
-			return Nette\String::startsWith($class, $prefix);
+			return Nette\Utils\Strings::startsWith($class, $prefix);
 		});
 
 		if (!$suitable) {

@@ -40,7 +40,7 @@ abstract class RepetitiveForm extends LookoutControl
 
 
 	/**
-	 * @param Nette\Application\Control $parent
+	 * @param Nette\Application\UI\Control $parent
 	 */
 	protected function attached($parent)
 	{
@@ -57,7 +57,7 @@ abstract class RepetitiveForm extends LookoutControl
 
 	/**
 	 * @param int|string $id
-	 * @return Nette\Application\AppForm
+	 * @return Nette\Application\UI\Form
 	 */
 	protected function createAndAttach($id, $defaults = NULL)
 	{

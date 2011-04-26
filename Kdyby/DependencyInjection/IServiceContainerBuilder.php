@@ -19,8 +19,8 @@ interface IServiceContainerBuilder
 
 	/**
 	 * Loads global configuration from file and process it.
-	 * @param Nette\Config\Config $config
-	 * @return Nette\Config\Config
+	 * @param Config $config
+	 * @return Config
 	 */
 	function loadConfig(Config $config);
 
@@ -28,7 +28,7 @@ interface IServiceContainerBuilder
 	/**
 	 * Get initial instance of ServiceContainer
 	 *
-	 * @return Kdyby\DependencyInjection\IServiceContainer
+	 * @return IServiceContainer
 	 */
 	function createServiceContainer();
 

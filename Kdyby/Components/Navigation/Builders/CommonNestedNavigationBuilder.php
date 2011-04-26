@@ -7,14 +7,14 @@ use Kdyby\Components\Navigation\NavigationControl;
 use Kdyby\Components\Navigation\NavigationNode as NodeComponent;
 use Kdyby\Doctrine\Entities\NestedNode;
 use Nette;
-use Nette\Application\PresenterComponent;
+use Nette\Application\UI\PresenterComponent;
 
 
 
 class CommonNestedNavigationBuilder extends Nette\Object implements INavigationBuilder
 {
 
-	/** @var Kdyby\Doctrine\Entities\NestedNode */
+	/** @var NestedNode */
 	private $node;
 
 	/** @var PresenterComponent */
@@ -23,8 +23,8 @@ class CommonNestedNavigationBuilder extends Nette\Object implements INavigationB
 
 
 	/**
-	 * @param Kdyby\Doctrine\Entities\NestedNode $node
-	 * @param Kdyby\Components\Navigation\NavigationNode $navigation
+	 * @param NestedNode $node
+	 * @param NodeComponent $navigation
 	 * @param bool $buildCurrent
 	 */
 	private function buildNode(NestedNode $node, NodeComponent $navigation, $buildCurrent = TRUE)
@@ -51,7 +51,7 @@ class CommonNestedNavigationBuilder extends Nette\Object implements INavigationB
 
 	/**
 	 * @param PresenterComponent $component
-	 * @param Kdyby\Doctrine\Entities\NestedNode $node
+	 * @param NestedNode $node
 	 * @return NavigationControl
 	 */
 	public function createNavigation(PresenterComponent $component, NestedNode $node)

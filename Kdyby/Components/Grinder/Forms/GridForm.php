@@ -4,14 +4,14 @@ namespace Kdyby\Components\Grinder\Forms;
 
 use Kdyby;
 use Nette;
-use Nette\Application\AppForm;
+use Nette\Application\UI\Form;
 
 
 
 /**
  * @author Filip Procházka
  */
-class GridForm extends AppForm
+class GridForm extends Form
 {
 
 	public function __construct()

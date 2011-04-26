@@ -67,22 +67,22 @@ class Json extends Nette\Object
 	/**
 	 * @param string $file
 	 * @throws IOException
-	 * @return Kdyby\Types\Json
+	 * @return Json
 	 */
 	public static function fromFile($file)
 	{
 		if (!file_exists($file)) {
-			throw new \IOException("File '$file' not found");
+			throw new Nette\IOException("File '$file' not found");
 		}
 
-		return new static(Nette\Json::decode(file_get_contents($file)));
+		return new static(Nette\Utils\Json::decode(file_get_contents($file)));
 	}
 
 
 
 	/**
 	 * @param object $tree
-	 * @throws Nette\JsonException
+	 * @throws Nette\Utils\JsonException
 	 * @throws InvalidStateException
 	 * @return object
 	 */
@@ -118,7 +118,7 @@ class Json extends Nette\Object
 	public function merge($data, $branch)
 	{
 		if (gettype($data) !== gettype($branch)) {
-			throw new \InvalidStateException("Data for merging doesn't have the same type as target branch");
+			throw new Nette\InvalidStateException("Data for merging doesn't have the same type as target branch");
 		}
 
 		if (is_array($data)) {
@@ -150,7 +150,7 @@ class Json extends Nette\Object
 
 		if (is_object($map)) {
 			if (!is_object($branch)) {
-				throw new Nette\JsonException("Branch($index) type is not object, ".gettype($branch)." given.", $index);
+				throw new Nette\Utils\JsonException("Branch($index) type is not object, ".gettype($branch)." given.", $index);
 			}
 
 			$keys = array_keys(get_object_vars($map));
@@ -159,14 +159,14 @@ class Json extends Nette\Object
 
 		} elseif(is_array($map)) {
 			if (!is_array($branch)) {
-				throw new Nette\JsonException("Branch($index) type is not array, ".gettype($branch)." given.", $index);
+				throw new Nette\Utils\JsonException("Branch($index) type is not array, ".gettype($branch)." given.", $index);
 			}
 
 			$conditions = reset($map);
 			// $continuingMap = next($map);
 
 			if (!is_object($conditions)) {
-				throw new \NotImplementedException("Branch($index) condition type ".gettype($conditions)." is not supported.", $index);
+				throw new Nette\NotImplementedException("Branch($index) condition type ".gettype($conditions)." is not supported.", $index);
 			}
 
 			$match = NULL;
@@ -218,7 +218,7 @@ class Json extends Nette\Object
 	 */
 	public function encode()
 	{
-		return Nette\Json::encode($this->structure);
+		return Nette\Utils\Json::encode($this->structure);
 	}
 
 }

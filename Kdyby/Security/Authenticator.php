@@ -50,11 +50,11 @@ final class Authenticator extends Nette\Object implements Nette\Security\IAuthen
 	 *
 	 * @param  array
 	 * @return Nette\Security\IIdentity
-	 * @throws Nette\Security\AuthenticationException
+	 * @throws AuthenticationException
 	 */
 	public function authenticate(array $credentials)
 	{
-		throw new \NotImplementedException("Needs refatoring");
+		throw new Nette\NotImplementedException("Needs refatoring");
 
 		$username = $credentials[self::USERNAME];
 		$password = $credentials[self::PASSWORD];

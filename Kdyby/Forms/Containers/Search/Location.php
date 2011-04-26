@@ -21,7 +21,7 @@ use Kdyby;
 /**
  * @author Filip Procházka <hosiplan@kdyby.org>
  */
-class LocationSearch extends Nette\Forms\FormContainer
+class LocationSearch extends Nette\Forms\Container
 {
 
 	public function attached($presenter)

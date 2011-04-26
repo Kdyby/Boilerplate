@@ -14,7 +14,7 @@
 namespace Kdyby\Tools\PresenterTree;
 
 use Nette;
-use Nette\Reflection\ClassReflection;
+use Nette\Reflection\ClassType;
 
 
 
@@ -67,11 +67,11 @@ class PresenterInfo extends Nette\Object
 
 
 	/**
-	 * @return Nette\Reflection\ClassReflection
+	 * @return ClassType
 	 */
 	public function getPresenterReflection()
 	{
-		return new ClassReflection($this->getPresenterClass());
+		return new ClassType($this->getPresenterClass());
 	}
 
 
@@ -142,7 +142,7 @@ class PresenterInfo extends Nette\Object
 
 
 	/**
-	 * @return Nette\context
+	 * @return Nette\DI\Context
 	 */
 	private function getContext()
 	{

@@ -5,7 +5,7 @@ namespace Kdyby\Components\Grinder\Columns;
 use DateTime;
 use Kdyby;
 use Nette;
-use Nette\Templates\TemplateHelpers;
+use Nette\Templating\DefaultHelpers;
 
 
 
@@ -28,7 +28,7 @@ abstract class CellRenderer extends Nette\Object
 
 	/**
 	 * Render datetime
-	 * @param Datetime value
+	 * @param DateTime value
 	 * @param string datetime format
 	 */
 	protected function renderDateTime(DateTime $date, $format = 'j.n.Y G:i')
@@ -52,7 +52,7 @@ abstract class CellRenderer extends Nette\Object
 
 	/**
 	 * @param ActionsColumn $column
-	 * @return Nette\Web\Html
+	 * @return Nette\Utils\Html
 	 */
 	protected function renderActionsCell(ActionsColumn $column)
 	{
@@ -82,12 +82,12 @@ abstract class CellRenderer extends Nette\Object
 		if (is_bool($value)) {
 			return $this->renderBoolean($value);
 
-		} elseif ($value instanceof \DateTime) {
+		} elseif ($value instanceof DateTime) {
 			return $this->renderDateTime($value, $column->dateTimeFormat);
 		}
 
 		// other
-		return TemplateHelpers::escapeHtml($value);
+		return DefaultHelpers::escapeHtml($value);
 	}
 
 }

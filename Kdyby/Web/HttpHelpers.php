@@ -15,7 +15,7 @@ namespace Kdyby\Web;
 
 use Nette;
 use Nette\Environment;
-use Nette\String;
+use Nette\Utils\Strings;
 use Kdyby;
 
 
@@ -32,8 +32,8 @@ class HttpHelpers extends Nette\Object
 
 	public static function getDomain()
 	{
-		$host = Environment::getHttpRequest()->uri->host;
-		$domainMap = String::match($host, self::DOMAIN_PATTERN);
+		$host = Environment::getHttpRequest()->url->host;
+		$domainMap = Strings::match($host, self::DOMAIN_PATTERN);
 
 		return (object)$domainMap;
 	}

@@ -23,7 +23,7 @@ use Nette;
  *
  * @author Filip Procházka <hosiplan@kdyby.org>
  */
-class Step extends Nette\Application\Control
+class Step extends Nette\Application\UI\Control
 {
 
 	/** @var string */
@@ -59,12 +59,12 @@ class Step extends Nette\Application\Control
 
 	/**
 	 * @param self $control
-	 * @throws \InvalidStateException
+	 * @throws Nette\InvalidStateException
 	 */
 	public function attached($control)
 	{
 		if ($control instanceof self) {
-			throw new \InvalidStateException('Nested steps are forbidden.');
+			throw new Nette\InvalidStateException('Nested steps are forbidden.');
 		}
 
 		parent::attached($control);

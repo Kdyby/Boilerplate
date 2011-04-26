@@ -8,7 +8,7 @@ use Nette;
 
 
 
-class AdminRouter extends Nette\Application\MultiRouter
+class AdminRouter extends Nette\Application\Routers\RouteList
 {
 
 	/**
@@ -23,7 +23,7 @@ class AdminRouter extends Nette\Application\MultiRouter
 		$this[] = new SeaquentialRouter($em, $mask, $flags); //$flags|Nette\Application\IRouter::SECURED
 
 		// fallback router
-		$this[] = new Nette\Application\Route(
+		$this[] = new Nette\Application\Routers\Route(
 //				$mask . "/[<module>/][!<presenter>/][<action>/]",
 				$mask . "/[!<presenter>/][<action>/]",
 				$metadata = array(
@@ -50,7 +50,7 @@ class AdminRouter extends Nette\Application\MultiRouter
 	 */
 	public function filterRequestsToAdminModule($module)
 	{
-		if (!Nette\String::match($module, '~^\:?admin(\:.*)?$~i')) {
+		if (!Nette\Utils\Strings::match($module, '~^\:?admin(\:.*)?$~i')) {
 			return NULL;
 		}
 

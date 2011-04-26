@@ -20,7 +20,7 @@ use Kdyby;
 interface ISecuredGateway extends IGateway
 {
 
-    function authenticate(Kdyby\Gateway\ISecuredRequest $request);
+    function authenticate(ISecuredRequest $request);
 
 	function getAuthenticationHandler();
 

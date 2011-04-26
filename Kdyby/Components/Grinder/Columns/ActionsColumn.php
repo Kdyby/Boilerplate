@@ -3,9 +3,9 @@
 namespace Kdyby\Components\Grinder\Columns;
 
 use Nette;
-use Nette\Application\Presenter;
-use Nette\Forms\FormContainer;
-use Nette\Web\Html;
+use Nette\Application\UI\Presenter;
+use Nette\Forms\Container;
+use Nette\Utils\Html;
 use Kdyby;
 use Kdyby\Components\Grinder\Actions\BaseAction;
 
@@ -19,15 +19,15 @@ use Kdyby\Components\Grinder\Actions\BaseAction;
 class ActionsColumn extends BaseColumn
 {
 
-	/** @var Kdyby\Components\Grinder\Actions\BaseAction */
+	/** @var BaseAction */
 	private $actions = array();
 
 
 
 	/**
-	 * @param Kdyby\Components\Grinder\Actions\BaseAction $action
+	 * @param BaseAction $action
 	 * @param string $name
-	 * @return Kdyby\Components\Grinder\Actions\BaseAction
+	 * @return BaseAction
 	 */
 	public function addAction(BaseAction $action, $name = NULL)
 	{
@@ -56,7 +56,7 @@ class ActionsColumn extends BaseColumn
 
 
 	/**
-	 * @return Nette\Web\Html
+	 * @return Html
 	 */
 	public function getControl()
 	{

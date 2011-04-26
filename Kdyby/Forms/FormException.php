@@ -15,7 +15,7 @@ class FormException extends Nette\Object
 	 * @param Kdyby\Doctrine\BaseEntity $entity
 	 * @param string $formName
 	 * @param string $property
-	 * @return Kdyby\Forms\FormException
+	 * @return FormException
 	 */
 	public static function entityPropertyNotExists($entity, $formName, $property)
 	{

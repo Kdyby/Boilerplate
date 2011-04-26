@@ -33,7 +33,7 @@ namespace Kdyby\Translator;
  *
  * @author Jan Smitka <jan@smitka.org>
  */
-interface IEditable extends \Nette\ITranslator
+interface IEditable extends \Nette\Localization\ITranslator
 {
 
 	public function getVariantsCount();

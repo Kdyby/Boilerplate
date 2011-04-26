@@ -20,11 +20,11 @@ use Kdyby;
 interface IGateway
 {
 
-	public function __construct(Kdyby\Gateway\Protocols\IProtocol $protocol);
+	public function __construct(Protocols\IProtocol $protocol);
 
     function createRequest();
 
-	function openRequest(Kdyby\Gateway\IRequest $request);
+	function openRequest(IRequest $request);
 
 	function createResponse($result);
 

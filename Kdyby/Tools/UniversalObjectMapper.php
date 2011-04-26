@@ -13,7 +13,7 @@ class UniversalObjectMapper extends Nette\Object
 	/** @var string */
 	private $className;
 
-	/** @var Nette\Reflection\ClassReflection */
+	/** @var Nette\Reflection\ClassType */
 	private $classRef;
 
 	/** @var array */
@@ -47,7 +47,7 @@ class UniversalObjectMapper extends Nette\Object
 		}
 
 		$this->className = $className;
-		$this->classRef = new Nette\Reflection\ClassReflection($className);
+		$this->classRef = new Nette\Reflection\ClassType($className);
 	}
 
 
@@ -160,7 +160,7 @@ class UniversalObjectMapper extends Nette\Object
 			$this->prototype = unserialize(sprintf('O:%d:"%s":0:{}', strlen($this->className), $this->className));
 
 			if ($this->prototype === FALSE) {
-				throw new \InvalidStateException("Can't create new object of " . $this->className);
+				throw new Nette\InvalidStateException("Can't create new object of " . $this->className);
 			}
 		}
 

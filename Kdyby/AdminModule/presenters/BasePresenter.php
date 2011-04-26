@@ -34,7 +34,7 @@ abstract class BasePresenter extends Kdyby\Application\CmsPresenter
 
 		// admin bundle
 		$bundleRepo = $this->serviceContainer->entityManager->getRepository('Kdyby\Application\Presentation\Bundle');
-		$this->applicationBundle = $bundleRepo->findOneByPlaceholderName(Kdyby\AdminModule\BundleInfo::PLACEHOLDER_NAME);
+		$this->applicationBundle = $bundleRepo->findOneByPlaceholderName(BundleInfo::PLACEHOLDER_NAME);
 	}
 
 }

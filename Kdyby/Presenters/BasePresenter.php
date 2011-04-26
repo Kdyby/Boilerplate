@@ -15,9 +15,9 @@ namespace Kdyby\Presenters;
 
 use Nette;
 use Nette\Environment;
-use Nette\Reflection\ClassReflection;
-use Nette\String;
-use Nette\Web\User;
+use Nette\Reflection\ClassType;
+use Nette\Utils\Strings;
+use Nette\Http\User;
 use Kdyby;
 
 
@@ -28,7 +28,7 @@ use Kdyby;
  * @property Kdyby\Templates\FileTemplate $template
  * @method Kdyby\Templates\FileTemplate getTemplate
  */
-abstract class BasePresenter extends Nette\Application\Presenter
+abstract class BasePresenter extends Nette\Application\UI\Presenter
 {
 
 	/*=========================== Redirecting =============================*/

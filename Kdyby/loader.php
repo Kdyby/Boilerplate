@@ -28,15 +28,15 @@ if (!defined('NETTE')) {
 // helper
 function cd() {
 	foreach (func_get_args() as $arg) {
-		\Nette\Debug::barDump($arg);
+		Nette\Diagnostics\Debugger::barDump($arg);
 	}
 }
 
 // Configure environment
 // enable Nette\Debug for better exception and error visualisation
 //Nette\Debug::enable(Nette\Debug::DEVELOPMENT, TEMP_DIR . '/log');
-Nette\Debug::enable();
-Nette\Debug::$strictMode = TRUE;
+Nette\Diagnostics\Debugger::enable();
+Nette\Diagnostics\Debugger::$strictMode = TRUE;
 //Debug::$maxDepth = 10;
 //Debug::$maxLen = 2024;
 

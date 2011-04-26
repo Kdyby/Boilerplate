@@ -15,7 +15,7 @@ namespace Kdyby\Control;
 
 use Kdyby;
 use Nette;
-use Nette\String;
+use Nette\Utils\Strings;
 
 
 
@@ -115,7 +115,7 @@ abstract class LookoutControl extends Kdyby\Application\Control
 	 */
 	public function __call($method, $args)
 	{
-		if (String::startsWith($method, 'render')) {
+		if (Strings::startsWith($method, 'render')) {
 			$this->view = substr($method, 6);
 			$this->renderParams = $args;
 

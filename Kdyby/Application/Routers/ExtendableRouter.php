@@ -16,8 +16,8 @@ namespace Kdyby\Application\Routers;
 
 use Kdyby\Model AS Model,
 	Nette,
-	Nette\String,
-	Nette\Application\PresenterRequest;
+	Nette\Utils\Strings,
+	Nette\Application\Request;
 
 
 /**
@@ -179,7 +179,7 @@ final class ExtendableRouter extends Nette\Object implements Nette\Application\I
 	 */
 	public function __construct($name = self::DADDY, $mask = Null, array $metadata = array(), $flags = 0, ExtendableRouter $parent = Null, $strict = True)
 	{
-		if( !String::match($name, "#^[a-zA-Z0-9]+$#") ){
+		if( !Strings::match($name, "#^[a-zA-Z0-9]+$#") ){
 			throw new \InvalidArgumentException("Route \$name must be alphanumeric string!");
 		}
 
@@ -298,10 +298,10 @@ final class ExtendableRouter extends Nette\Object implements Nette\Application\I
 
 	/**
 	 * Maps HTTP request to a PresenterRequest object.
-	 * @param  Nette\Web\IHttpRequest
-	 * @return PresenterRequest|NULL
+	 * @param  Nette\Http\IRequest
+	 * @return Request|NULL
 	 */
-	public function match(Nette\Web\IHttpRequest $httpRequest)
+	public function match(Nette\Http\IRequest $httpRequest)
 	{
 		$httpQuery = $httpRequest->getQuery();
 		$childrenParams = array();
@@ -310,7 +310,7 @@ final class ExtendableRouter extends Nette\Object implements Nette\Application\I
 			$routes = $this->routes;
 
 			// daddy wanna know what domain he's banging
-			$hostParts = String::match($httpRequest->getUri()->host, "~^(www\.)?(?P<domain>[-A-Z0-9.]+)$~i");
+			$hostParts = Strings::match($httpRequest->getUri()->host, "~^(www\.)?(?P<domain>[-A-Z0-9.]+)$~i");
 
 			do{
 				if( count($routes) === 0 ){
@@ -346,7 +346,7 @@ final class ExtendableRouter extends Nette\Object implements Nette\Application\I
 					return $this->createRequest($httpRequest, $node, $appRequest);
 
 				} elseif( $rootRoute === self::INDEX ){
-					if( !String::match($uri->path, $this->getRe(TRUE)) ){
+					if( !Strings::match($uri->path, $this->getRe(TRUE)) ){
 						continue;
 					}
 				}
@@ -356,10 +356,10 @@ final class ExtendableRouter extends Nette\Object implements Nette\Application\I
 				}
 
 				// nice! we have names of every children of children, ... ready to go!
-				$node['routeLeafs'] = String::split($node['route'], "#\\~#");
+				$node['routeLeafs'] = Strings::split($node['route'], "#\\~#");
 
 				$cursor = $this[$rootRoute];
-				foreach( $iterator = new Nette\SmartCachingIterator($node['routeLeafs']) AS $leaf ){
+				foreach( $iterator = new Nette\Iterators\CachingIterator($node['routeLeafs']) AS $leaf ){
 					if( $leaf != "" ){
 						if( isset($cursor[$leaf]) ){
 							$cursor = $cursor[$leaf];
@@ -388,16 +388,16 @@ final class ExtendableRouter extends Nette\Object implements Nette\Application\I
 
 
 
-	private function createRequest(Nette\Web\HttpRequest $httpRequest, $node, $params)
+	private function createRequest(Nette\Http\Request $httpRequest, $node, $params)
 	{ _dump($node);
 		if( isset($node['presenter']) ){
-			return new PresenterRequest( // daddy's sending letter to mommy!
+			return new Request( // daddy's sending letter to mommy!
 				$node['presenter'], // TODO: FUCK TYPES!
 				$httpRequest->getMethod(),
 				$params,
 				$httpRequest->getPost(),
 				$httpRequest->getFiles(),
-				array(PresenterRequest::SECURED => $httpRequest->isSecured())
+				array(Request::SECURED => $httpRequest->isSecured())
 			);
 		}
 	}
@@ -427,7 +427,7 @@ final class ExtendableRouter extends Nette\Object implements Nette\Application\I
 			$path = rtrim($path, '/') . '/';
 		}
 
-		if (!$matches = String::match($path, $this->getRe(/*$isLast*/))) {
+		if (!$matches = Strings::match($path, $this->getRe(/*$isLast*/))) {
 			// stop, not matched
 			return NULL;
 		}
@@ -520,21 +520,21 @@ final class ExtendableRouter extends Nette\Object implements Nette\Application\I
 		}
 
 		// PARSE MASK
-		$parts = String::split($mask, '/<([^># ]+) *([^>#]*)(#?[^>\[\]]*)>|(\[!?|\]|\s*\?.*)/'); // <parameter-name [pattern] [#class]> or [ or ] or ?...
+		$parts = Strings::split($mask, '/<([^># ]+) *([^>#]*)(#?[^>\[\]]*)>|(\[!?|\]|\s*\?.*)/'); // <parameter-name [pattern] [#class]> or [ or ] or ?...
 
 		$this->xlat = array();
 		$i = count($parts) - 1;
 
 		// PARSE QUERY PART OF MASK
 		if (isset($parts[$i - 1]) && substr(ltrim($parts[$i - 1]), 0, 1) === '?') {
-			$matches = String::matchAll($parts[$i - 1], '/(?:([a-zA-Z0-9_.-]+)=)?<([^># ]+) *([^>#]*)(#?[^>]*)>/'); // name=<parameter-name [pattern][#class]>
+			$matches = Strings::matchAll($parts[$i - 1], '/(?:([a-zA-Z0-9_.-]+)=)?<([^># ]+) *([^>#]*)(#?[^>]*)>/'); // name=<parameter-name [pattern][#class]>
 
 			foreach ($matches as $match) {
 				list(, $param, $name, $pattern, $class) = $match;  // $pattern is not used
 
 				if ($class !== '') {
 					if (!isset(self::$styles[$class])) {
-						throw new \InvalidStateException("Parameter '$name' has '$class' flag, but Route::\$styles['$class'] is not set.");
+						throw new Nette\InvalidStateException("Parameter '$name' has '$class' flag, but Route::\$styles['$class'] is not set.");
 					}
 					$meta = self::$styles[$class];
 
@@ -605,7 +605,7 @@ final class ExtendableRouter extends Nette\Object implements Nette\Application\I
 			// pattern, condition & metadata
 			if ($class !== '') {
 				if (!isset(self::$styles[$class])) {
-					throw new \InvalidStateException("Parameter '$name' has '$class' flag, but Route::\$styles['$class'] is not set.");
+					throw new Nette\InvalidStateException("Parameter '$name' has '$class' flag, but Route::\$styles['$class'] is not set.");
 				}
 				$meta = self::$styles[$class];
 
@@ -687,11 +687,11 @@ final class ExtendableRouter extends Nette\Object implements Nette\Application\I
 
 	/**
 	 * Constructs absolute URL from PresenterRequest object.
-	 * @param  PresenterRequest
-	 * @param  Nette\Web\Uri referential URI
+	 * @param  Request
+	 * @param  Nette\Http\Url referential URI
 	 * @return string|NULL
 	 */
-	public function constructUrl(PresenterRequest $appRequest, Nette\Web\Uri $refUri)
+	public function constructUrl(Request $appRequest, Nette\Http\Url $refUri)
 	{
 		
 	}
@@ -887,7 +887,7 @@ final class ExtendableRouter extends Nette\Object implements Nette\Application\I
 			throw new \InvalidArgumentException("Argument must be IRouter descendant.");
 		}
 
-		if( !String::match($index, "#^[a-zA-Z0-9]+$#") ){
+		if( !Strings::match($index, "#^[a-zA-Z0-9]+$#") ){
 			throw new \InvalidArgumentException("Route \$name must be alphanumeric string!");
 		}
 
@@ -896,7 +896,7 @@ final class ExtendableRouter extends Nette\Object implements Nette\Application\I
 		}
 
 		if( isset($this[$index]) ){
-			throw new \NotSupportedException("You cannot overwrite router");
+			throw new Nette\NotSupportedException("You cannot overwrite router");
 		}
 
 		$this->routes[$index] = $route;
@@ -935,7 +935,7 @@ final class ExtendableRouter extends Nette\Object implements Nette\Application\I
 	 */
 	public function offsetUnset($index)
 	{
-		throw new \NotSupportedException("You cannot delete router");
+		throw new Nette\NotSupportedException("You cannot delete router");
 	}
 
 

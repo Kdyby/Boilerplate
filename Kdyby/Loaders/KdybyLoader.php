@@ -14,7 +14,7 @@
 namespace Kdyby\Loaders;
 
 use Nette;
-use Nette\Loaders\LimitedScope;
+use Nette\Utils\LimitedScope;
 
 
 

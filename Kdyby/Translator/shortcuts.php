@@ -37,7 +37,7 @@
  */
 function __($message)
 {
-	return Nette\Environment::getService('Nette\ITranslator')->translate($message);
+	return Nette\Environment::getService('Nette\Localization\ITranslator')->translate($message);
 }
 
 /**
@@ -50,7 +50,7 @@ function __($message)
  */
 function _n($single, $plural, $number)
 {
-	return Nette\Environment::getService('Nette\ITranslator')->translate($single, array($plural, $number));
+	return Nette\Environment::getService('Nette\Localization\ITranslator')->translate($single, array($plural, $number));
 }
 
 /**
@@ -62,7 +62,7 @@ function _n($single, $plural, $number)
  */
 function _x($message, array $args)
 {
-	return Nette\Environment::getService('Nette\ITranslator')->translate($message, NULL, $args);
+	return Nette\Environment::getService('Nette\Localization\ITranslator')->translate($message, NULL, $args);
 }
 
 /**
@@ -75,5 +75,5 @@ function _x($message, array $args)
  */
 function _nx($single, $plural, $number, array $args)
 {
-	return Nette\Environment::getService('Nette\ITranslator')->translate($single, array($plural, $number), $args);
+	return Nette\Environment::getService('Nette\Localization\ITranslator')->translate($single, array($plural, $number), $args);
 }

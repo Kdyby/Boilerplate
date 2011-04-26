@@ -15,8 +15,8 @@
 
 namespace Kdyby\Components\VisualPaginator;
 
-use Nette\Application\Control;
-use Nette\Paginator;
+use Nette\Application\UI\Control;
+use Nette\Utils\Paginator;
 
 
 

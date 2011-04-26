@@ -14,7 +14,7 @@
 namespace Kdyby\Component;
 
 use Nette;
-use Nette\Web\Html;
+use Nette\Utils\Html;
 use Kdyby;
 
 
@@ -41,7 +41,7 @@ class Tree extends Kdyby\Control\LookoutControl
 	 */
 	protected function attachTree(array $tree)
 	{
-		array_walk_recursive($tree, function(Nette\Component $item, $key, $parent){
+		array_walk_recursive($tree, function(Nette\ComponentModel\Component $item, $key, $parent){
 			$item->setParent($parent);
 		}, $this);
 

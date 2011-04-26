@@ -37,8 +37,8 @@ class ModelTools extends Nette\Object
 	 * @param  string  method name
 	 * @param  array   arguments
 	 * @return mixed
-	 * @throws \MemberAccessException
-	 * @throws \InvalidStateException
+	 * @throws Nette\MemberAccessException
+	 * @throws Nette\InvalidStateException
 	 */
 	public static function tryCall($_this, $name, $args)
 	{
@@ -48,10 +48,10 @@ class ModelTools extends Nette\Object
 
 		$method = substr($name, strlen(self::CACHED_PREFIX));
 		if (!\method_exists($_this, $method)){
-			throw new \InvalidStateException('Invalid call for cached output of ' . get_class($_this) . '::' . $method . ', method not set.');
+			throw new Nette\InvalidStateException('Invalid call for cached output of ' . get_class($_this) . '::' . $method . ', method not set.');
 		}
 
-		$reflection = new Nette\Reflection\MethodReflection($_this, $method);
+		$reflection = new Nette\Reflection\Method($_this, $method);
 		$annotations = $reflection->getAnnotations();
 
 		if (isset($annotations['Cache'])) {

@@ -15,7 +15,7 @@ namespace Kdyby\Gateway;
 
 
 
-class NotAuthenticatedException extends \InvalidStateException
+class NotAuthenticatedException extends \Nette\InvalidStateException
 {
     
 }

@@ -3,7 +3,7 @@
 namespace Kdyby\Components\Navigation\Builders;
 
 use Kdyby\Doctrine\Entities\NestedNode;
-use Nette\Application\PresenterComponent;
+use Nette\Application\UI\PresenterComponent;
 
 
 

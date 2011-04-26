@@ -102,12 +102,12 @@ class FreezableArray extends Nette\FreezableObject implements \ArrayAccess, \Cou
 	 * 
 	 * @param  string
 	 * @return mixed
-	 * @throws \MemberAccessException
+	 * @throws Nette\MemberAccessException
 	 */
 	public function offsetGet($key)
 	{
 		if (!$this->offsetExists($key)) {
-			throw new \MemberAccessException("Cannot read an undeclared item {$class}['{$key}'].");
+			throw new Nette\MemberAccessException("Cannot read an undeclared item {$class}['{$key}'].");
 		}
 
 		return $this->array[$key];

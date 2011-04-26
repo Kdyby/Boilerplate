@@ -14,7 +14,7 @@
 namespace Kdyby\Components;
 
 use Nette;
-use Nette\String;
+use Nette\Utils\Strings;
 use Kdyby;
 
 
@@ -35,11 +35,11 @@ class Helpers extends Nette\Object
 	 * Magicaly searches for Component and if there is one,
 	 * creates, attaches and returns it
 	 *
-	 * @param Nette\Application\PresenterComponent $_this
-	 * @param Nette\Component|NULL $component
+	 * @param Nette\Application\UI\PresenterComponent $_this
+	 * @param Nette\ComponentModel\Component|NULL $component
 	 * @param string $name
 	 * @param string|array $namespacePrefix
-	 * @return Nette\Component
+	 * @return Nette\ComponentModel\Component
 	 */
 	public static function createComponent($_this, $component, $name)
 	{
@@ -47,9 +47,9 @@ class Helpers extends Nette\Object
 			return $component;
 		}
 
-		if ($m = String::match($name, '~^(?P<form>.+)Form$~')) {
+		if ($m = Strings::match($name, '~^(?P<form>.+)Form$~')) {
 			$ns = $_this->reflection->getNamespaceName();
-			if (String::match($ns, '~^[^\\\\]+Module$~')) {
+			if (Strings::match($ns, '~^[^\\\\]+Module$~')) {
 				$formClass = $ns . '\\Form\\' . ucfirst($m['form']);
 				if (class_exists($formClass)) {
 					return $component = new $formClass($_this, $name);

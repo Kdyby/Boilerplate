@@ -10,7 +10,7 @@ use Kdyby;
 /**
  * @author Filip Procházka <hosiplan@kdyby.org>
  */
-class FileTemplate extends Nette\Templates\FileTemplate
+class FileTemplate extends Nette\Templating\FileTemplate
 {
 
 	/**

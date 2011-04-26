@@ -47,7 +47,7 @@ class ServiceContainerBuilder extends Nette\Object implements IServiceContainerB
 			throw new \InvalidArgumentException("ServiceContainer class '$class' does not exist");
 		}
 
-		$ref = new Nette\Reflection\ClassReflection($class);
+		$ref = new Nette\Reflection\ClassType($class);
 		if (!$ref->implementsInterface('Kdyby\DependencyInjection\IServiceContainer')) {
 			throw new \InvalidArgumentException("ServiceContainer class '$class' is not valid 'Kdyby\DependencyInjection\IServiceContainer'");
 		}
@@ -80,8 +80,8 @@ class ServiceContainerBuilder extends Nette\Object implements IServiceContainerB
 
 
 	/**
-	 * @param Nette\Config\Config
-	 * @throws \NotSupportedException
+	 * @param Config
+	 * @throws Nette\NotSupportedException
 	 */
 	protected function loadIni(Config $config)
 	{
@@ -100,7 +100,7 @@ class ServiceContainerBuilder extends Nette\Object implements IServiceContainerB
 
 		foreach ($config as $key => $value) {
 			if (!is_scalar($value)) {
-				throw new \InvalidStateException("Configuration value for directive '$key' is not scalar.");
+				throw new Nette\InvalidStateException("Configuration value for directive '$key' is not scalar.");
 			}
 
 			self::iniSet($key, $value);
@@ -154,7 +154,7 @@ class ServiceContainerBuilder extends Nette\Object implements IServiceContainerB
 
 				default:
 					if (ini_get($key) != $value) { // intentionally ==
-						throw new \NotSupportedException('Required function ini_set() is disabled.');
+						throw new Nette\NotSupportedException('Required function ini_set() is disabled.');
 					}
 			}
 		}
@@ -163,7 +163,7 @@ class ServiceContainerBuilder extends Nette\Object implements IServiceContainerB
 
 
 	/**
-	 * @param Nette\Config\Config $config
+	 * @param Config $config
 	 */
 	protected function loadParameters(Config $config)
 	{
@@ -221,7 +221,7 @@ class ServiceContainerBuilder extends Nette\Object implements IServiceContainerB
 
 
 	/**
-	 * @param Nette\Config\Config $config
+	 * @param Config $config
 	 */
 	protected function loadConstants(Config $config)
 	{
@@ -233,7 +233,7 @@ class ServiceContainerBuilder extends Nette\Object implements IServiceContainerB
 
 
 	/**
-	 * @param Nette\Config\Config $config
+	 * @param Config $config
 	 */
 	protected function loadModes(Config $config)
 	{
@@ -260,8 +260,8 @@ class ServiceContainerBuilder extends Nette\Object implements IServiceContainerB
 
 	/**
 	 * Loads global configuration from file and process it.
-	 * @param  Nette\Config\Config  file name or Config object
-	 * @return Nette\Config\Config
+	 * @param  Config  file name or Config object
+	 * @return Config
 	 *
 	 * @author Patrik Votoček
 	 */
@@ -287,7 +287,7 @@ class ServiceContainerBuilder extends Nette\Object implements IServiceContainerB
 	/**
 	 * Get initial instance of ServiceContainer
 	 *
-	 * @return Kdyby\DependencyInjection\IServiceContainer
+	 * @return IServiceContainer
 	 */
 	public function createServiceContainer()
 	{

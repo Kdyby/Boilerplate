@@ -8,8 +8,8 @@ use Kdyby\Components\Grinder\Actions\BaseAction;
 use Kdyby\Components\Grinder\Columns\BaseColumn;
 use Kdyby\Components\Grinder\Columns\CellRenderer;
 use Nette;
-use Nette\Forms\Button;
-use Nette\Web\Html;
+use Nette\Forms\Controls\Button;
+use Nette\Utils\Html;
 
 
 
@@ -20,7 +20,7 @@ use Nette\Web\Html;
 abstract class BaseRenderer extends CellRenderer implements IGridRenderer
 {
 
-	/** @var Kdyby\Components\Grinder\Grid */
+	/** @var Grid */
 	protected $grid;
 
 
@@ -124,7 +124,7 @@ abstract class BaseRenderer extends CellRenderer implements IGridRenderer
 	public function renderAction(BaseAction $action)
 	{
 		if ($action instanceof SelectAction) {
-			throw new \NotImplementedException;
+			throw new Nette\NotImplementedException;
 
 			// etc?
 			$action->add($button->getLabel());

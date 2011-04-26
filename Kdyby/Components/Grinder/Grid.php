@@ -3,10 +3,10 @@
 namespace Kdyby\Components\Grinder;
 
 use Nette;
-use Nette\IComponent;
-use Nette\ComponentContainer;
+use Nette\ComponentModel\IComponent;
+use Nette\ComponentModel\Container;
 use Nette\Environment;
-use Nette\Paginator;
+use Nette\Utils\Paginator;
 use Kdyby;
 use Kdyby\Components\VisualPaginator\VisualPaginator;
 use Kdyby\Components\Grinder\Renderers\IGridRenderer;
@@ -27,7 +27,7 @@ use Kdyby\Components\Grinder\Renderers\IGridRenderer;
  * @author Filip Procházka
  * @license MIT
  */
-class Grid extends Nette\Application\Control
+class Grid extends Nette\Application\UI\Control
 {
 	const PLACEMENT_TOP = 'top';
 	const PLACEMENT_BOTTOM = 'bottom';
@@ -57,13 +57,13 @@ class Grid extends Nette\Application\Control
 	/** @var mixed */
 	private $data;
 
-	/** @var Nette\Web\SessionNamespace */
+	/** @var Nette\Http\SessionNamespace */
 	private $session;
 
 	/** @var IGridRenderer */
 	private $renderer;
 
-	/** @var string|Nette\Web\Html */
+	/** @var string|Nette\Utils\Html */
 	private $emptyResultMessage;
 
 	/** @var string|callable */
@@ -73,13 +73,13 @@ class Grid extends Nette\Application\Control
 
 	/**
 	 * @param Models\IModel $model
-	 * @param Nette\Web\Session $session
+	 * @param Nette\Http\Session $session
 	 */
 	public function __construct(Models\IModel $model)
 	{
 		parent::__construct(NULL, NULL);
 
-		$this->addComponent(new ComponentContainer, 'columns');
+		$this->addComponent(new Container, 'columns');
 		$this->addComponent(new Actions\ActionsContainer, 'actions');
 		$this->addComponent(new Actions\ToolbarActionsContainer, 'toolbar');
 		$this->addComponent(new Forms\GridForm, 'form');
@@ -96,17 +96,17 @@ class Grid extends Nette\Application\Control
 
 	/**
 	 * @param IComponent $component
-	 * @throws \NotSupportedException
+	 * @throws Nette\NotSupportedException
 	 */
 	final public function removeComponent(IComponent $component)
 	{
-		throw new \NotSupportedException;
+		throw new Nette\NotSupportedException;
 	}
 
 
 
 	/**
-	 * @return Kdyby\Components\Grinder\GridForm
+	 * @return GridForm
 	 */
 	public function getForm()
 	{
@@ -118,7 +118,7 @@ class Grid extends Nette\Application\Control
 
 
 	/**
-	 * @return Kdyby\Components\Grinder\Models\IModel
+	 * @return Models\IModel
 	 */
 	public function getModel()
 	{
@@ -173,14 +173,14 @@ class Grid extends Nette\Application\Control
 
 	/**
 	 * CSRF protection
-	 * @param Nette\Web\Session $session
+	 * @param Nette\Http\Session $session
 	 */
-	public function setUpProtection(Nette\Web\Session $session)
+	public function setUpProtection(Nette\Http\Session $session)
 	{
 		$this->session = $session->getNamespace(__CLASS__);
 
 		if (!$this->session->securityToken) {
-			$this->session->securityToken = Nette\String::random(6);
+			$this->session->securityToken = Nette\Utils\Strings::random(6);
 		}
 	}
 
@@ -200,7 +200,7 @@ class Grid extends Nette\Application\Control
 
 
 	/**
-	 * @return Kdyby\Components\Grinder\Actions\ActionsContainer
+	 * @return Actions\ActionsContainer
 	 */
 	public function getActionsContainer()
 	{
@@ -240,7 +240,7 @@ class Grid extends Nette\Application\Control
 
 
 	/**
-	 * @return Kdyby\Components\Grinder\Actions\ToolbarActionsContainer
+	 * @return Actions\ToolbarActionsContainer
 	 */
 	public function getToolbar()
 	{
@@ -254,7 +254,7 @@ class Grid extends Nette\Application\Control
 	 * @param string button name
 	 * @param string caption
 	 * @param array options
-	 * @return Kdyby\Components\Grinder\Toolbar\ButtonAction
+	 * @return Toolbar\ButtonAction
 	 */
 	public function addToolbarAction($name, $caption = NULL, array $options = array(), $insertBefore = NULL)
 	{
@@ -351,7 +351,7 @@ class Grid extends Nette\Application\Control
 
 	/**
 	 * @param string $name
-	 * @return Kdyby\Components\Grinder\Columns\BaseColumn
+	 * @return Columns\BaseColumn
 	 */
 	public function getColumn($name)
 	{
@@ -367,7 +367,7 @@ class Grid extends Nette\Application\Control
 	 */
 	protected function createComponentFilters($name)
 	{
-		throw new \NotImplementedException();
+		throw new Nette\NotImplementedException();
 	}
 
 
@@ -514,7 +514,7 @@ class Grid extends Nette\Application\Control
 
 	/**
 	 * Get paginator
-	 * @return Nette\Paginator
+	 * @return Paginator
 	 */
 	public function getPaginator()
 	{
@@ -539,12 +539,12 @@ class Grid extends Nette\Application\Control
 
 
 	/**
-	 * @param string|Nette\Web\Html $message
+	 * @param string|Nette\Utils\Html $message
 	 * @return Grid
 	 */
 	public function setEmptyResultMessage($message)
 	{
-		if (!is_string($message) && !$message instanceof Nette\Web\Html) {
+		if (!is_string($message) && !$message instanceof Nette\Utils\Html) {
 			throw new \InvalidArgumentException("Given message must be either string or instance of Nette\\Web\\Html, '" . gettype($message) . "' given.");
 		}
 
@@ -565,7 +565,7 @@ class Grid extends Nette\Application\Control
 
 
 	/**
-	 * @param Kdyby\Components\Grinder\Renderers\IGridRenderer $renderer
+	 * @param IGridRenderer $renderer
 	 * @return Grid
 	 */
 	public function setRenderer(IGridRenderer $renderer)
@@ -577,7 +577,7 @@ class Grid extends Nette\Application\Control
 
 
 	/**
-	 * @return Kdyby\Components\Grinder\Renderers\IGridRenderer
+	 * @return IGridRenderer
 	 */
 	public function getRenderer()
 	{

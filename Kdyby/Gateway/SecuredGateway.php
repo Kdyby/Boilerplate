@@ -21,16 +21,16 @@ use Nette;
 abstract class SecuredGateway extends Gateway
 {
 
-	/** @var Kdyby\Gateway\IGatewayAuthenticator */
+	/** @var IGatewayAuthenticator */
 	private $authenticationHandler;
 
 
 
 	/**
-	 * @param Kdyby\Gateway\IRequest $request
+	 * @param IRequest $request
 	 * @return mixed
 	 */
-	public function openRequest(Kdyby\Gateway\IRequest $request)
+	public function openRequest(IRequest $request)
 	{
 		$request = $this->authenticate($request);
 
@@ -40,10 +40,10 @@ abstract class SecuredGateway extends Gateway
 
 
 	/**
-	 * @param Kdyby\Gateway\ISecuredRequest $request
-	 * @return Kdyby\Gateway\ISecuredRequest
+	 * @param ISecuredRequest $request
+	 * @return ISecuredRequest
 	 */
-	public function authenticate(Kdyby\Gateway\ISecuredRequest $request)
+	public function authenticate(ISecuredRequest $request)
 	{
 		$handler = $this->getAuthenticationHandler();
 
@@ -59,14 +59,14 @@ abstract class SecuredGateway extends Gateway
 
 
 	/**
-	 * @return Kdyby\Gateway\IGatewayAuthenticator
+	 * @return IGatewayAuthenticator
 	 */
 	abstract protected function createAuthenticationHandler();
 
 
 
 	/**
-	 * @return Kdyby\Gateway\IGatewayAuthenticator
+	 * @return IGatewayAuthenticator
 	 */
 	public function getAuthenticationHandler()
 	{
@@ -80,9 +80,9 @@ abstract class SecuredGateway extends Gateway
 
 
 	/**
-	 * @param Kdyby\Gateway\IGatewayAuthentication $authenticationHandler
+	 * @param IGatewayAuthentication $authenticationHandler
 	 */
-	public function setAuthenticationHandler(Kdyby\Gateway\IGatewayAuthenticator $authenticationHandler)
+	public function setAuthenticationHandler(IGatewayAuthenticator $authenticationHandler)
 	{
 		$this->authenticationHandler = $authenticationHandler;
 	}

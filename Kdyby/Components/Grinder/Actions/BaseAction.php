@@ -16,7 +16,7 @@ use Nette;
 abstract class BaseAction extends Kdyby\Components\Grinder\GridComponent
 {
 
-	/** @var Kdyby\Components\Grinder\Columns\ActionsColumn */
+	/** @var ActionsColumn */
 	private $column;
 
 	/** @var string|callable */
@@ -34,7 +34,7 @@ abstract class BaseAction extends Kdyby\Components\Grinder\GridComponent
 
 
 	/**
-	 * @param Kdyby\Components\Grinder\Columns\ActionsColumn $column
+	 * @param ActionsColumn $column
 	 * @return BaseAction
 	 */
 	public function setColumn(ActionsColumn $column)
@@ -46,7 +46,7 @@ abstract class BaseAction extends Kdyby\Components\Grinder\GridComponent
 
 
 	/**
-	 * @return Kdyby\Components\Grinder\Columns\ActionsColumn
+	 * @return ActionsColumn
 	 */
 	public function getColumn()
 	{
@@ -149,7 +149,7 @@ abstract class BaseAction extends Kdyby\Components\Grinder\GridComponent
 	public function setToolbarPlacement($placement)
 	{
 		if ($this->getParent() !== $this->getGrid()->getToolbar()) {
-			throw new \InvalidStateException("Action is not attached to toolbar.");
+			throw new Nette\InvalidStateException("Action is not attached to toolbar.");
 		}
 
 		$this->toolbarPlacement = $placement;
@@ -169,7 +169,7 @@ abstract class BaseAction extends Kdyby\Components\Grinder\GridComponent
 
 
 	/**
-	 * @return Nette\Forms\ISubmitterControl|Nette\Web\Html
+	 * @return Nette\Forms\ISubmitterControl|Nette\Utils\Html
 	 */
 	abstract public function getControl();
 

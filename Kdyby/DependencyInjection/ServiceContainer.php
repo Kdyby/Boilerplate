@@ -10,7 +10,7 @@
 namespace Kdyby\DependencyInjection;
 
 use Nette;
-use Nette\Reflection\ClassReflection;
+use Nette\Reflection\ClassType;
 use Nette\Environment;
 
 
@@ -27,23 +27,23 @@ use Nette\Environment;
  * @property string $environment
  *
  * @property-read Kdyby\Application\Application $application
- * @property-read Nette\Web\HttpContext $httpContext
- * @property-read Nette\Web\HttpRequest $httpRequest
- * @property-read Nette\Web\HttpResponse $httpResponse
+ * @property-read Nette\Http\Context $httpContext
+ * @property-read Nette\Http\Request $httpRequest
+ * @property-read Nette\Http\Response $httpResponse
  * @property-read Nette\Mail\IMailer $mailer
- * @property-read Nette\Web\Session $sessionStorage
+ * @property-read Nette\Http\Session $sessionStorage
  * @property-read Nette\Caching\Cache $cache
  * @property-read Kdyby\Security\Authenticator $authenticator
  * @property-read Kdyby\Security\Authorizator $authorizator
  * @property-read Kdyby\Security\User $user
- * @property-read Nette\Caching\ICacheStorage $memcache
+ * @property-read Nette\Caching\IStorage $memcache
  * @property-read Doctrine\ORM\EntityManager $entityManager
  * @property-read Kdyby\Tools\FreezableArray $namespacePrefixes
  * @property-read Kdyby\Tools\FreezableArray $templateDirs
  * @property-read Kdyby\Templates\TemplateFactory $templateFactory
  * @property-read Kdyby\Application\INavigationManager $navigationManager
  * @property-read Kdyby\Application\RequestManager $requestManager
- * @property-read Nette\ITranslator $translator
+ * @property-read Nette\Localization\ITranslator $translator
  */
 class ServiceContainer extends Nette\FreezableObject implements IServiceContainer, \ArrayAccess
 {
@@ -96,12 +96,12 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 	/**
 	 * @param string
 	 * @return ServiceContainer
-	 * @throws \InvalidStateException
+	 * @throws Nette\InvalidStateException
 	 */
 	public function setEnvironment($environment)
 	{
 		if ($this->isFrozen() && $environment != $this->environment) {
-			throw new \InvalidStateException("Service container is frozen for changes");
+			throw new Nette\InvalidStateException("Service container is frozen for changes");
 		}
 
 		$this->environment = $environment;
@@ -114,13 +114,13 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 	 * @param string
 	 * @param mixed
 	 * @return ServiceContainer
-	 * @throws \InvalidStateException
+	 * @throws Nette\InvalidStateException
 	 * @throws \InvalidArgumentException
 	 */
 	public function setParameter($key, $value)
 	{
 		if ($this->isFrozen()) {
-			throw new \InvalidStateException("Service container is frozen for changes");
+			throw new Nette\InvalidStateException("Service container is frozen for changes");
 		}
 
 		if (!is_string($key)) {
@@ -161,12 +161,12 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 	/**
 	 * @param string
 	 * @return mixed
-	 * @throws \InvalidStateException
+	 * @throws Nette\InvalidStateException
 	 */
 	public function getParameter($key)
 	{
 		if (!$this->hasParameter($key)) {
-			throw new \InvalidStateException("Unknown Service container parameter '$key'.");
+			throw new Nette\InvalidStateException("Unknown Service container parameter '$key'.");
 		}
 
 		return $this->expandParameter($this->parameters[$key]);
@@ -209,7 +209,7 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 					return is_array($resolved) ? $this->expandParameters($resolved) : $this->expandParameter($resolved);
 				}
 
-				foreach (Nette\String::matchAll($data, '~(?P<pattern>\%(?P<varName>[^%]+)\%)~i') as $match) {
+				foreach (Nette\Utils\Strings::matchAll($data, '~(?P<pattern>\%(?P<varName>[^%]+)\%)~i') as $match) {
 					$data = str_replace($match['pattern'], $this->resolveParameterFragment($match['varName']), $data);
 				}
 			}
@@ -231,7 +231,7 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 
 		} elseif (!$this->hasParameter($varName) && strpos($varName, '[') !== FALSE) {
 			// allows to get variables through "%group[key]%"
-			$groupSubKey = Nette\String::match($varName, '~^(?P<group>[^\[]+)(\[(?P<key>[^\[]+)\])?$~i');
+			$groupSubKey = Nette\Utils\Strings::match($varName, '~^(?P<group>[^\[]+)(\[(?P<key>[^\[]+)\])?$~i');
 			if (!isset($groupSubKey['key']) || empty($groupSubKey['key'])) {
 				throw new \InvalidArgumentException("Can't expand given parameter's name '" . $varName . "', right format is '%group[key]%'.");
 			}
@@ -240,7 +240,7 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 				$group = $groupSubKey['group'];
 				$key = $groupSubKey['key'];
 				return isset($this[$group][$key]) ? $this[$group][$key] : NULL;
-			} catch (\InvalidStateException $e) {  }
+			} catch (Nette\InvalidStateException $e) {  }
 		}
 
 		return NULL;
@@ -256,7 +256,7 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 	public function addTag($tag, $service)
 	{
 		if ($this->isFrozen()) {
-			throw new \InvalidStateException("Service container is frozen for changes");
+			throw new Nette\InvalidStateException("Service container is frozen for changes");
 		}
 
 		if (!is_string($tag) || $tag === '') {
@@ -313,7 +313,7 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 	 * @param array
 	 * @return ServiceContainer
 	 * @throws InvalidArgumentException
-	 * @throws Nette\AmbiguousServiceException
+	 * @throws Nette\DI\AmbiguousServiceException
 	 *
 	 * @author Patrik Votoček
 	 * @author David Grudl
@@ -321,7 +321,7 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 	public function addService($name, $service, $singleton = TRUE, array $options = NULL)
 	{
 		if ($this->isFrozen()) {
-			throw new \InvalidStateException("Service container is frozen for changes");
+			throw new Nette\InvalidStateException("Service container is frozen for changes");
 		}
 
 		if (!is_string($name) || $name === '') {
@@ -330,7 +330,7 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 
 		$lower = strtolower($name);
 		if (isset($this->registry[$lower])) { // only for instantiated services?
-			throw new Nette\AmbiguousServiceException("Service named '$name' has already been registered.");
+			throw new Nette\DI\AmbiguousServiceException("Service named '$name' has already been registered.");
 		}
 
 		if ($service instanceof self) {
@@ -410,12 +410,12 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 	 * @param string
 	 * @return ServiceContainer
 	 * @throws InvalidArgumentException
-	 * @throws Nette\AmbiguousServiceException
+	 * @throws Nette\DI\AmbiguousServiceException
 	 */
 	public function addAlias($alias, $service)
 	{
 		if ($this->isFrozen()) {
-			throw new \InvalidStateException("Service container is frozen for changes");
+			throw new Nette\InvalidStateException("Service container is frozen for changes");
 		}
 
 		if (!is_string($alias) || $alias === '') {
@@ -433,7 +433,7 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 
 		$lowerA = strtolower($alias);
 		if (isset($this->aliases[$lowerA]) && $this->aliases[$lowerA] !== $lower) {
-			throw new Nette\AmbiguousServiceException("Service alias named '$alias' has already been registered.");
+			throw new Nette\DI\AmbiguousServiceException("Service alias named '$alias' has already been registered.");
 		}
 
 		$this->aliases[$lowerA] = $lower;
@@ -450,7 +450,7 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 	 * @param array
 	 * @return mixed
 	 * @throws InvalidArgumentException
-	 * @throws Nette\AmbiguousServiceException
+	 * @throws Nette\DI\AmbiguousServiceException
 	 * @throws InvalidStateException
 	 *
 	 * @author Patrik Votoček
@@ -480,7 +480,7 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 			return $service;
 		}
 
-		throw new \InvalidStateException("Service '$name' not found.");
+		throw new Nette\InvalidStateException("Service '$name' not found.");
 	}
 
 
@@ -517,7 +517,7 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 	public function removeService($name)
 	{
 		if ($this->isFrozen()) {
-			throw new \InvalidStateException("Service container is frozen for changes");
+			throw new Nette\InvalidStateException("Service container is frozen for changes");
 		}
 
 		if (!is_string($name) || $name === '') {
@@ -540,7 +540,7 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 	{
 		$lower = strtolower($name);
 		if (!isset($this->factories[$lower])) {
-			throw new \InvalidStateException("Service factory '$name' not found.");
+			throw new Nette\InvalidStateException("Service factory '$name' not found.");
 		}
 
 		$factory = $this->factories[$lower];
@@ -569,12 +569,12 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 	public function addFactory(IServiceFactory $factory)
 	{
 		if ($this->isFrozen()) {
-			throw new \InvalidStateException("Service container is frozen for changes");
+			throw new Nette\InvalidStateException("Service container is frozen for changes");
 		}
 
 		$lower = strtolower($factory->getName());
 		if (isset($this->registry[$lower])) { // only for instantiated services?
-			throw new Nette\AmbiguousServiceException("Service named '{$factory->getName()}' has already been registered.");
+			throw new Nette\DI\AmbiguousServiceException("Service named '{$factory->getName()}' has already been registered.");
 		}
 
 		$this->factories[$lower] = $factory;
@@ -614,7 +614,7 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 	 * Returns property value. Do not call directly.
 	 * @param  string  property name
 	 * @return mixed   property value
-	 * @throws \MemberAccessException if the property is not defined.
+	 * @throws Nette\MemberAccessException if the property is not defined.
 	 */
 	public function &__get($name)
 	{
@@ -632,11 +632,11 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 	/**
 	 * @param string $name
 	 * @param mixed $value
-	 * @throws \NotSupportedException
+	 * @throws Nette\NotSupportedException
 	 */
 	public function __set($name, $value)
 	{
-		throw new \NotSupportedException("For setting aliases use method " . get_class($this) . "::setAlias()");
+		throw new Nette\NotSupportedException("For setting aliases use method " . get_class($this) . "::setAlias()");
 	}
 
 
@@ -660,7 +660,7 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 	 */
 	public function __unset($name)
 	{
-		throw new \NotSupportedException("Unsetting aliases is not supported.");
+		throw new Nette\NotSupportedException("Unsetting aliases is not supported.");
 	}
 
 
@@ -724,7 +724,7 @@ class ServiceContainer extends Nette\FreezableObject implements IServiceContaine
 	 */
 	public function offsetUnset($offset)
 	{
-		throw new \NotSupportedException("Unsetting of Service Container parameters is not supported.");
+		throw new Nette\NotSupportedException("Unsetting of Service Container parameters is not supported.");
 	}
 
 }

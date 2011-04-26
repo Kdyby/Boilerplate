@@ -6,24 +6,24 @@ use Kdyby;
 use Kdyby\Components\Grinder\Grid;
 use Kdyby\Components\Grinder\Renderers\IGridRenderer;
 use Nette;
-use Nette\IComponentContainer;
-use Nette\Web\Html;
+use Nette\ComponentModel\IContainer;
+use Nette\Utils\Html;
 
 
 
 /**
  * @author Filip Procházka
  *
- * @property string|Nette\Web\Html $caption
- * @property Kdyby\Components\Grinder\Renderers\IGridRenderer $renderer
+ * @property string|Html $caption
+ * @property IGridRenderer $renderer
  */
-abstract class GridComponent extends Nette\Application\PresenterComponent
+abstract class GridComponent extends Nette\Application\UI\PresenterComponent
 {
 
-	/** @var string|Nette\Web\Html */
+	/** @var string|Html */
 	private $caption;
 
-	/** @var Kdyby\Components\Grinder\Renderers\IGridRenderer */
+	/** @var IGridRenderer */
 	private $renderer;
 
 
@@ -33,16 +33,16 @@ abstract class GridComponent extends Nette\Application\PresenterComponent
 		parent::__construct(NULL, NULL);
 
 		$this->monitor('Kdyby\Components\Grinder\Grid');
-		$this->monitor('Nette\Application\Presenter');
+		$this->monitor('Nette\Application\UI\Presenter');
 	}
 
 
 
 	/**
-	 * @param IComponentContainer $parent
-	 * @throws \InvalidStateException
+	 * @param IContainer $parent
+	 * @throws Nette\InvalidStateException
 	 */
-	protected function validateParent(IComponentContainer $parent)
+	protected function validateParent(IContainer $parent)
 	{
 		parent::validateParent($parent);
 
@@ -50,7 +50,7 @@ abstract class GridComponent extends Nette\Application\PresenterComponent
 			$grid = $parent->lookup('Kdyby\\Components\\Grinder\\Grid', FALSE);
 
 			if (!$grid instanceof Grid) {
-				throw new \InvalidStateException("Parent or one of ancesors must be instance of Kdyby\\Components\\Grinder\\Grid.");
+				throw new Nette\InvalidStateException("Parent or one of ancesors must be instance of Kdyby\\Components\\Grinder\\Grid.");
 			}
 		}
 	}
@@ -58,7 +58,7 @@ abstract class GridComponent extends Nette\Application\PresenterComponent
 
 
 	/**
-	 * @param string|Nette\Web\Html caption
+	 * @param string|Html caption
 	 * @return GridComponent
 	 */
 	public function setCaption($caption)
@@ -74,7 +74,7 @@ abstract class GridComponent extends Nette\Application\PresenterComponent
 
 
 	/**
-	 * @return string|Nette\Web\Html
+	 * @return string|Html
 	 */
 	public function getCaption()
 	{
@@ -84,7 +84,7 @@ abstract class GridComponent extends Nette\Application\PresenterComponent
 
 
 	/**
-	 * @return Kdyby\Components\Grinder\Renderers\IGridRenderer
+	 * @return IGridRenderer
 	 */
 	public function getRenderer()
 	{
@@ -94,7 +94,7 @@ abstract class GridComponent extends Nette\Application\PresenterComponent
 
 
 	/**
-	 * @param Kdyby\Components\Grinder\Renderers\IGridRenderer $cellRenderer
+	 * @param IGridRenderer $cellRenderer
 	 * @return GridComponent
 	 */
 	public function setRenderer(IGridRenderer $cellRenderer)
@@ -113,7 +113,7 @@ abstract class GridComponent extends Nette\Application\PresenterComponent
 
 
 	/**
-	 * @return Kdyby\Components\Grinder\Grid
+	 * @return Grid
 	 */
 	public function getGrid()
 	{

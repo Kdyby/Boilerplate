@@ -21,7 +21,7 @@ use Kdyby;
 /**
  * @author Filip Procházka <hosiplan@kdyby.org>
  */
-class PresenterGenerator extends\Nette\Object
+class PresenterGenerator extendsNette\Object
 {
 
 	/** @var object */
@@ -145,7 +145,7 @@ class PresenterGenerator extends\Nette\Object
 		}
 
 		$presenterNames = array_map(function($presenter) {
-			return Nette\String::lower($presenter->name);
+			return Nette\Utils\Strings::lower($presenter->name);
 		}, $module->presenters);
 
 		if (isset($module->presenters)) {
@@ -153,7 +153,7 @@ class PresenterGenerator extends\Nette\Object
 				$basePresenter = (object)array(
 					'name' => 'Base',
 					'abstract' => TRUE,
-					'parent' => (count($this->cursor)>1 ? "../Base" : "Nette\\Application\\Presenter")
+					'parent' => (count($this->cursor)>1 ? "../Base" : "Nette\\Application\\UI\\Presenter")
 				);
 
 				$render = $this->renderPresenter($basePresenter, $modulePath);
@@ -251,7 +251,7 @@ class PresenterGenerator extends\Nette\Object
 			$presenter = substr($presenter, 3);
 		} while (substr($presenter, 0, 3) == '../');
 
-		$relativePath = Nette\String::split($presenter, '~:~');
+		$relativePath = Nette\Utils\Strings::split($presenter, '~:~');
 		$presenter = array_pop($relativePath);
 
 		$ns = array_merge((array)$ns, $relativePath);

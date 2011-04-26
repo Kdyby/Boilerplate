@@ -4,7 +4,7 @@ namespace Kdyby\Components\Navigation;
 
 use Kdyby;
 use Nette;
-use Nette\Application\Link;
+use Nette\Application\UI\Link;
 
 
 
@@ -14,13 +14,13 @@ use Nette\Application\Link;
  * @author Jan Marek
  * @license MIT
  */
-class NavigationNode extends Nette\ComponentContainer
+class NavigationNode extends Nette\ComponentModel\Container
 {
 
 	/** @var string */
 	public $label;
 
-	/** @var Nette\Application\Link */
+	/** @var Link */
 	public $url;
 
 	/** @var bool */

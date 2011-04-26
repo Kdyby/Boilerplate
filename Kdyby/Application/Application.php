@@ -97,7 +97,7 @@ final class Application extends Nette\Application\Application
 
 
 	/**
-	 * @return Kdyby\Application\Kdyby
+	 * @return Kdyby
 	 */
 	public function registerPanels()
 	{

@@ -4,7 +4,7 @@ namespace Kdyby\Components\Grinder\Actions;
 
 use Kdyby;
 use Nette;
-use Nette\Forms\SubmitButton;
+use Nette\Forms\Controls\SubmitButton;
 
 
 

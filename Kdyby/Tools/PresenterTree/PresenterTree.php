@@ -15,8 +15,8 @@ namespace Kdyby\Tools\PresenterTree;
 
 use Nette;
 use Nette\Caching\Cache;
-use Nette\Reflection\MethodReflection;
-use Nette\String;
+use Nette\Reflection\Method;
+use Nette\Utils\Strings;
 
 
 
@@ -30,7 +30,7 @@ class PresenterTree extends Nette\Object
 //	const TREE = 'tree'; // what does this mean? bad memmory :(
 
 
-	/** @var Nette\Caching\Cache */
+	/** @var Cache */
 	private $cache;
 
 
@@ -49,7 +49,7 @@ class PresenterTree extends Nette\Object
 
 
 	/**
-	 * @param Nette\Caching\Cache|bool $cache
+	 * @param Cache|bool $cache
 	 * @return bool
 	 */
 	private function isActual($cache = NULL)
@@ -79,7 +79,7 @@ class PresenterTree extends Nette\Object
 		$tree = array();
 
 		foreach ($i = new \RegexIterator(new \ArrayIterator($classes), "~.*Presenter$~") as $class) {
-			$nettePath = String::split(substr($class, 0, -9), '~Module\\\\~i');
+			$nettePath = Strings::split(substr($class, 0, -9), '~Module\\\\~i');
 			$presenter = array_pop($nettePath);
 
 			$module = strlen($module = $this->formatNettePath($nettePath)) ? substr($module, 1) : NULL;
@@ -162,10 +162,10 @@ class PresenterTree extends Nette\Object
 
 			$views = array();
 			foreach ($templateViewPattern as $pattern) {
-				$filePattern = String::split(basename($pattern), '~\*~');
+				$filePattern = Strings::split(basename($pattern), '~\*~');
 				if (is_dir(dirname($pattern))) {
-					foreach (Nette\Finder::findFiles(basename($pattern))->in(dirname($pattern)) as $view) {
-						$views[] = String::replace($view->getFilename(), array(
+					foreach (Nette\Utils\Finder::findFiles(basename($pattern))->in(dirname($pattern)) as $view) {
+						$views[] = Strings::replace($view->getFilename(), array(
 							'~^'.preg_quote($filePattern[0]).'~' => '',
 							'~'.preg_quote($filePattern[1]).'$~' => ''
 						));
@@ -180,7 +180,7 @@ class PresenterTree extends Nette\Object
 
 			$methods = array_map(function($method) {
 				return $method->name;
-			}, $ref->getMethods(MethodReflection::IS_PUBLIC));
+			}, $ref->getMethods(Method::IS_PUBLIC));
 
 			$methods = array_filter($methods, function($method){
 				return in_array(substr($method, 0, 6), array('action', 'render'));
@@ -207,7 +207,7 @@ class PresenterTree extends Nette\Object
 				$tree['byPresenterClass'][$presenter->presenterClass] = array_flip($actions);
 
 				$t =& $tree['byModule'];
-				foreach (String::split($presenter->module, '~:~') as $step) {
+				foreach (Strings::split($presenter->module, '~:~') as $step) {
 					$t[$step] = isset($t[$step]) ? $t[$step] : array();
 					$t =& $t[$step];
 				}
@@ -235,7 +235,7 @@ class PresenterTree extends Nette\Object
 		}
 
 		$tree = $this->cache['presenters']['byModule'];
-		foreach (String::split($nettePath, '~:~') as $step) {
+		foreach (Strings::split($nettePath, '~:~') as $step) {
 			if (!isset($tree[$step])) {
 				return NULL;
 			}
@@ -273,7 +273,7 @@ class PresenterTree extends Nette\Object
 
 		$presenters = array();
 		$tree = $this->cache['actions']['byModule'];
-		foreach (String::split($nettePath, '~:~') as $step) {
+		foreach (Strings::split($nettePath, '~:~') as $step) {
 			if (!isset($tree[$step])) {
 				return NULL;
 			}
@@ -301,7 +301,7 @@ class PresenterTree extends Nette\Object
 
 		$presenters = array();
 		$tree = $this->cache['modules']['byModule'];
-		foreach (String::split($nettePath, '~:~') as $step) {
+		foreach (Strings::split($nettePath, '~:~') as $step) {
 			if (!isset($tree[$step])) {
 				return NULL;
 			}
@@ -327,13 +327,13 @@ class PresenterTree extends Nette\Object
 
 
 	/**
-	 * @return Nette\Caching\Cache
+	 * @return Cache
 	 */
 	private function getCache()
 	{
 		if ($this->cache === NULL) {
 			$dataStorage = Nette\Environment::getApplication()->getService('Kdyby\\Caching\\IDataCacheStorage');
-			$this->cache = new Nette\Caching\Cache($dataStorage, 'Kdyby.Presenter.Tree');
+			$this->cache = new Cache($dataStorage, 'Kdyby.Presenter.Tree');
 		}
 
 		return $this->cache;
@@ -352,7 +352,7 @@ class PresenterTree extends Nette\Object
 
 
 	/**
-	 * @return Nette\Context
+	 * @return Nette\DI\Context
 	 */
 	public function getContext()
 	{

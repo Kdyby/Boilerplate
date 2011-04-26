@@ -14,7 +14,7 @@
 namespace Kdyby\Forms;
 
 use Nette;
-use Nette\Application\AppForm;
+use Nette\Application\UI\Form;
 use Nette\Environment;
 
 
@@ -24,7 +24,7 @@ use Nette\Environment;
  *
  * @author Filip Procházka <hosiplan@kdyby.org>
  */
-class BaseForm extends AppForm
+class BaseForm extends Form
 {
 
 	public $onSuccess = array();
@@ -34,12 +34,12 @@ class BaseForm extends AppForm
 
 
 
-	public function __construct(Nette\IComponentContainer $parent = NULL, $name = NULL)
+	public function __construct(Nette\ComponentModel\IContainer $parent = NULL, $name = NULL)
 	{
 		parent::__construct($parent, $name);
 
 		// translator
-		$this->setTranslator(Environment::getService('Nette\ITranslator'));
+		$this->setTranslator(Environment::getService('Nette\Localization\ITranslator'));
 		$this->addProtection("Ouchie! Please try to submit the form again, the delivery boy forgot something!");
 
 //		$this->addGroup();
@@ -59,7 +59,7 @@ class BaseForm extends AppForm
 
 
 	/**
-	 * @return Nette\Web\User
+	 * @return Nette\Http\User
 	 */
 	protected function getUser()
 	{
@@ -75,7 +75,7 @@ class BaseForm extends AppForm
 	 */
 	public function getUniqueId()
 	{
-		return $this->lookupPath('Nette\Application\Presenter', TRUE);
+		return $this->lookupPath('Nette\Application\UI\Presenter', TRUE);
 	}
 
 
@@ -101,4 +101,4 @@ class BaseForm extends AppForm
 
 }
 
-Nette\Forms\FormContainer::extensionMethod('addCheckboxList', array('Kdyby\Forms\Controls\CheckboxList', 'addCheckboxList'));
+Nette\Forms\Container::extensionMethod('addCheckboxList', array('Kdyby\Forms\Controls\CheckboxList', 'addCheckboxList'));

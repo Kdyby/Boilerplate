@@ -161,7 +161,7 @@ class DefaultServiceFactories extends Nette\Object
 	 */
 	final public function __construct()
 	{
-		throw new \InvalidStateException("Cannot instantiate static class " . __CLASS__ . ".");
+		throw new Nette\InvalidStateException("Cannot instantiate static class " . __CLASS__ . ".");
 	}
 
 
@@ -201,11 +201,11 @@ class DefaultServiceFactories extends Nette\Object
 
 	/**
 	 * @param Doctrine\ORM\EntityManager $em
-	 * @return Nette\Application\MultiRouter
+	 * @return Nette\Application\Routers\RouteList
 	 */
 	public static function createRouter(Doctrine\ORM\EntityManager $em)
 	{
-		$router = new Nette\Application\MultiRouter;
+		$router = new Nette\Application\Routers\RouteList;
 		$router[] = new Kdyby\Application\Routers\SequentialRouter($em);
 
 		return $router;
@@ -246,16 +246,16 @@ class DefaultServiceFactories extends Nette\Object
 
 
 	/**
-	 * @param Nette\Web\Session $session
+	 * @param Nette\Http\Session $session
 	 */
-	public static function createSession(Nette\Web\HttpRequest $httpRequest)
+	public static function createSession(Nette\Http\Request $httpRequest)
 	{
-		$session = new Nette\Web\Session;
+		$session = new Nette\Http\Session;
 
 		// setup session
 		if (!$session->isStarted()) {
-			if (!Nette\Environment::isConsole()){
-				$domainMap = (object)Nette\String::match($httpRequest->uri->host, Kdyby\Web\HttpHelpers::DOMAIN_PATTERN);
+			if (!Environment::isConsole()){
+				$domainMap = (object)Nette\Utils\Strings::match($httpRequest->url->host, Kdyby\Web\HttpHelpers::DOMAIN_PATTERN);
 				$session->setCookieParams('/', '.' . $domainMap->domain);
 			}
 
@@ -271,9 +271,9 @@ class DefaultServiceFactories extends Nette\Object
 
 
 	/**
-	 * @return Nette\Caching\FileJournal
+	 * @return Nette\Caching\Storages\FileJournal
 	 */
-	public static function createCacheStorage(Nette\Caching\ICacheJournal $cacheJournal)
+	public static function createCacheStorage(Nette\Caching\Storages\IJournal $cacheJournal)
 	{
 		$dir = Kdyby\Tools\FileSystem::prepareWritableDir('%varDir%/cache');
 		return new Kdyby\Caching\FileStorage($dir, $cacheJournal);
@@ -287,7 +287,7 @@ class DefaultServiceFactories extends Nette\Object
 	 */
 	public static function createRobotLoader(array $directories)
 	{
-		return Nette\Configurator::createRobotLoader(array(
+		return Nette\DI\Configurator::createRobotLoader(array(
 			'directory' => $directories
 		));
 	}

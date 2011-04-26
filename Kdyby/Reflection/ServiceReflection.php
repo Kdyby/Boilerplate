@@ -11,7 +11,7 @@ use Nette;
  *
  * @method Kdyby\Reflection\ServiceReflection from() from($class)
  */
-class ServiceReflection extends Nette\Reflection\ClassReflection
+class ServiceReflection extends Nette\Reflection\ClassType
 {
 
     /**

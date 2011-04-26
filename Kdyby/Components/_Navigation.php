@@ -3,7 +3,7 @@
 namespace Kdyby\Component;
 
 use Nette;
-use Nette\String;
+use Nette\Utils\Strings;
 use Kdyby;
 
 
@@ -74,8 +74,8 @@ class _Navigation extends Kdyby\Control\LookoutControl
 	{
 		$this->template->classes = array(
 				'navigation',
-				'navigation-'.String::lower(String::webalize($this->view)),
-				'navigation-'.String::lower(String::webalize($menu))
+				'navigation-'.Strings::lower(Strings::webalize($this->view)),
+				'navigation-'.Strings::lower(Strings::webalize($menu))
 			);
 	}
 
@@ -83,7 +83,7 @@ class _Navigation extends Kdyby\Control\LookoutControl
 
 	protected function createComponentTree($name)
 	{
-		$tree = new Kdyby\Component\Tree($this, $name);
+		$tree = new Tree($this, $name);
 
 		return $tree;
 	}

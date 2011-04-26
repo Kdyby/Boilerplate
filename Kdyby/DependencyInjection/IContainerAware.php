@@ -11,13 +11,13 @@ interface IContainerAware
 {
 
 	/**
-	 * @param Kdyby\DependencyInjection\IServiceContainer $serviceContainer
+	 * @param IServiceContainer $serviceContainer
 	 */
-	function setServiceContainer(Kdyby\DependencyInjection\IServiceContainer $serviceContainer);
+	function setServiceContainer(IServiceContainer $serviceContainer);
 
 
 	/**
-	 * @return Kdyby\DependencyInjection\IServiceContainer
+	 * @return IServiceContainer
 	 */
 	function getServiceContainer();
 

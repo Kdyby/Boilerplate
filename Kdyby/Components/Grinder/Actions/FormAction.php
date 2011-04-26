@@ -20,13 +20,13 @@ class FormAction extends BaseAction
 	/** @var array */
 	public $onSubmit = array();
 
-	/** @var Nette\Forms\Button */
+	/** @var Nette\Forms\Controls\Button */
 	private $control;
 
 
 
 	/**
-	 * @param Nette\Forms\ISubmitterControl $control
+	 * @param ISubmitterControl $control
 	 */
 	public function __construct(ISubmitterControl $control)
 	{
@@ -38,7 +38,7 @@ class FormAction extends BaseAction
 
 
 	/**
-	 * @param Nette\ComponentContainer $obj
+	 * @param Nette\ComponentModel\Container $obj
 	 */
 	protected function attached($obj)
 	{
@@ -68,7 +68,7 @@ class FormAction extends BaseAction
 
 
 	/**
-	 * @return Nette\Forms\ISubmitterControl
+	 * @return ISubmitterControl
 	 */
 	public function getControl()
 	{

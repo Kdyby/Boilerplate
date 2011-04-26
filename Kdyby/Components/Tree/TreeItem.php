@@ -3,7 +3,7 @@
 namespace Kdyby\Component;
 
 use Nette;
-use Nette\Web\Html;
+use Nette\Utils\Html;
 use Kdyby;
 
 
@@ -15,25 +15,25 @@ use Kdyby;
  * 
  * @author Filip Procházka <hosiplan@kdyby.org>
  */
-class TreeItem extends Nette\Component
+class TreeItem extends Nette\ComponentModel\Component
 {
 
-	/** @var string|Nette\Web\Html */
+	/** @var string|Html */
 	public $title;
 
-	/** @var Nette\Application\Link */
+	/** @var Nette\Application\UI\Link */
 	public $link;
 
-	/** @var Nette\Web\Html */
+	/** @var Html */
 	public $li;
 
-	/** @var Nette\Web\Html */
+	/** @var Html */
 	public $a;
 
-	/** @var Nette\Web\Html */
+	/** @var Html */
 	public $container;
 
-	/** @var Nette\Web\Html */
+	/** @var Html */
 	private $rendered;
 
 	/** @var array */
@@ -42,7 +42,7 @@ class TreeItem extends Nette\Component
 
 
 	/**
-	 * @param Nette\Application\PresenterComponent $component
+	 * @param Nette\Application\UI\PresenterComponent $component
 	 * @param string $title
 	 * @param string $destination
 	 * @param array $linkParams
@@ -104,7 +104,7 @@ class TreeItem extends Nette\Component
 			$this->container->setText($this->title);
 		}
 
-		$this->a->href(new Nette\Application\Link($this->getPresenter(), $this->link->destination, $this->link->params));
+		$this->a->href(new Nette\Application\UI\Link($this->getPresenter(), $this->link->destination, $this->link->params));
 		$this->a->add($this->container);
 
 		$this->li->add($this->a);
@@ -115,11 +115,11 @@ class TreeItem extends Nette\Component
 
 
 	/**
-	 * @return Nette\Application\Presenter
+	 * @return Nette\Application\UI\Presenter
 	 */
 	public function getPresenter()
 	{
-		return $this->lookup('Nette\Application\Presenter');
+		return $this->lookup('Nette\Application\UI\Presenter');
 	}
 
 

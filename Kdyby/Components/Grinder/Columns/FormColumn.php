@@ -3,8 +3,8 @@
 namespace Kdyby\Components\Grinder\Columns;
 
 use Nette;
-use Nette\Application\Presenter;
-use Nette\Forms\FormContainer;
+use Nette\Application\UI\Presenter;
+use Nette\Forms\Container;
 use Kdyby;
 
 
@@ -17,7 +17,7 @@ use Kdyby;
 class FormColumn extends BaseColumn
 {
 
-	/** @var Nette\Forms\IFormControl */
+	/** @var Nette\Forms\IControl */
 	private $controlPrototype;
 
 	/** @var array */
@@ -26,9 +26,9 @@ class FormColumn extends BaseColumn
 
 
 	/**
-	 * @param Nette\Forms\IFormControl $control
+	 * @param Nette\Forms\IControl $control
 	 */
-	public function __construct(Nette\Forms\IFormControl $control)
+	public function __construct(Nette\Forms\IControl $control)
 	{
 		if ($control->parent) {
 			throw new \InvalidArgumentException("Control " . $control->name . " can't be attached.");
@@ -42,7 +42,7 @@ class FormColumn extends BaseColumn
 
 
 	/**
-	 * @return Nette\Forms\IFormControl
+	 * @return Nette\Forms\IControl
 	 */
 	public function getControlPrototype()
 	{
@@ -52,13 +52,13 @@ class FormColumn extends BaseColumn
 
 
 	/**
-	 * @param Nette\Forms\IFormControl $control
-	 * @return Nette\Forms\IFormControl
+	 * @param Nette\Forms\IControl $control
+	 * @return Nette\Forms\IControl
 	 */
-	protected function addControl(Nette\Forms\IFormControl $control)
+	protected function addControl(Nette\Forms\IControl $control)
 	{
 		if (!$control->parent) {
-			throw new \InvalidStateException("Control named '" . $control->name . "' in column '" . $this->name . "' must have parent.");
+			throw new Nette\InvalidStateException("Control named '" . $control->name . "' in column '" . $this->name . "' must have parent.");
 		}
 
 		return $this->controls[$control->name] = $control;
@@ -77,7 +77,7 @@ class FormColumn extends BaseColumn
 
 
 	/**
-	 * @param Nette\ComponentContainer $obj
+	 * @param Nette\ComponentModel\Container $obj
 	 * @return void
 	 */
 	protected function attached($obj)
@@ -96,7 +96,7 @@ class FormColumn extends BaseColumn
 
 
 	/**
-	 * @return FormContainer
+	 * @return Container
 	 */
 	protected function getContainer()
 	{
@@ -104,7 +104,7 @@ class FormColumn extends BaseColumn
 		$container = $form->getComponent($this->name, FALSE);
 
 		if (!$container) {
-			throw new \InvalidStateException("Column is not yet attached to presenter.");
+			throw new Nette\InvalidStateException("Column is not yet attached to presenter.");
 		}
 
 		return $container;
@@ -113,21 +113,21 @@ class FormColumn extends BaseColumn
 
 
 	/**
-	 * @param FormContainer $container
-	 * @return FormContainer
+	 * @param Container $container
+	 * @return Container
 	 */
-	protected function buildControls(FormContainer $container)
+	protected function buildControls(Container $container)
 	{
 		if ($this->controlPrototype === NULL) {
-			throw new \InvalidStateException("Control prototype cannot be null.");
+			throw new Nette\InvalidStateException("Control prototype cannot be null.");
 		}
 
 		if ($this->controlPrototype->parent) {
-			throw new \InvalidStateException("Control can't be attached.");
+			throw new Nette\InvalidStateException("Control can't be attached.");
 		}
 
 		if ($this->controlPrototype->getRules()->getIterator()->count() > 0) {
-			throw new \NotSupportedException("Bug: rules clonning. Sorry.");
+			throw new Nette\NotSupportedException("Bug: rules clonning. Sorry.");
 		}
 
 		$itemsCount = $this->getGrid()->getPaginator()->getItemsPerPage();
@@ -143,7 +143,7 @@ class FormColumn extends BaseColumn
 
 
 	/**
-	 * @return Nette\Forms\IFormControl
+	 * @return Nette\Forms\IControl
 	 */
 	public function getControl()
 	{

@@ -4,7 +4,7 @@ namespace Kdyby\Components\Navigation;
 
 use Kdyby;
 use Nette;
-use Nette\Application\Link;
+use Nette\Application\UI\Link;
 
 
 
@@ -49,7 +49,7 @@ class NavigationControl extends Kdyby\Application\Control
 	 * Add navigation node as a child
 	 *
 	 * @param string $label
-	 * @param Nette\Application\Link $link
+	 * @param Link $link
 	 * @return NavigationNode
 	 */
 	public function add($label, Link $link)

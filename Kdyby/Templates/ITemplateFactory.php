@@ -11,9 +11,9 @@ interface ITemplateFactory
 {
 
 	/**
-	 * @param Nette\Component $component
-	 * @return Nette\Templates\ITemplate
+	 * @param Nette\ComponentModel\Component $component
+	 * @return Nette\Templating\ITemplate
 	 */
-	function createTemplate(Nette\Component $component);
+	function createTemplate(Nette\ComponentModel\Component $component);
 
 }

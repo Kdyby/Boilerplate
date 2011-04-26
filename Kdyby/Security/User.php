@@ -23,7 +23,7 @@ use Kdyby;
  *
  * @property-read Kdyby\Templates\Theme $theme
  */
-class User extends Nette\Web\User
+class User extends Nette\Http\User
 {
 
 	/** @var Kdyby\Templates\Theme */

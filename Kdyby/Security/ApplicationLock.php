@@ -28,7 +28,7 @@ class ApplicationLock extends Nette\Object
 	/** @var array */
 	private $users;
 
-	/** @var Nette\Web\HttpRequest */
+	/** @var Nette\Http\Request */
 	private $httpRequest;
 
 	/** @var string */
@@ -58,18 +58,18 @@ class ApplicationLock extends Nette\Object
 
 
 	/**
-	 * @return Kdyby\Security\ApplicationLock
+	 * @return ApplicationLock
 	 */
 	public function authorize()
 	{
-		$uri = $this->httpRequest->getUri();
+		$url = $this->httpRequest->getUrl();
 
-		if (!isset($uri->user) || !isset($uri->password)) {
+		if (!isset($url->user) || !isset($url->password)) {
 			$this->kill();
 		}
 
-		$user = $uri->user;
-		$pass = $uri->password;
+		$user = $url->user;
+		$pass = $url->password;
 
 		if (isset($this->users[$user]) && $this->users[$user] === $pass) {
 			header('Content-Type: text/html; charset=utf-8');
@@ -93,7 +93,7 @@ class ApplicationLock extends Nette\Object
 
 	/**
 	 * @param array $options
-	 * @return Kdyby\Security\ApplicationLock
+	 * @return ApplicationLock
 	 */
 	public static function createApplicationLock($options)
 	{

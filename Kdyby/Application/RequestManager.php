@@ -4,7 +4,7 @@ namespace Kdyby\Application;
 
 use Doctrine;
 use Nette;
-use Nette\Application\PresenterRequest;
+use Nette\Application\Request;
 use Nette\Caching\Cache;
 use Kdyby;
 use Kdyby\Application\Presentation\Bundle;
@@ -18,18 +18,18 @@ class RequestManager extends Nette\Object
 	/** @var Doctrine\ORM\EntityManager */
 	private $em;
 
-	/** @var Kdyby\Application\Presentation\SitemapRepository */
+	/** @var Presentation\SitemapRepository */
 	private $sitemapRepository;
 
 	/** @var Doctrine\ORM\EntityRepository */
 	private $maskRepository;
 
-	/** @var Nette\Caching\Cache */
+	/** @var Cache */
 	private $uriCache;
 
 
 
-	public function __construct(Doctrine\ORM\EntityManager $em, Nette\Caching\ICacheStorage $storage)
+	public function __construct(Doctrine\ORM\EntityManager $em, Nette\Caching\IStorage $storage)
 	{
 		$this->em = $em;
 		$this->sitemapRepository = $em->getRepository('Kdyby\Application\Presentation\Sitemap');
@@ -42,12 +42,12 @@ class RequestManager extends Nette\Object
 	/**
 	 * smarter application::storeRequest
 	 *
-	 * @param PresenterRequest $request
+	 * @param Request $request
 	 * @return <type>
 	 */
-	public function storeRequest(PresenterRequest $request)
+	public function storeRequest(Request $request)
 	{
-		throw new \NotImplementedException;
+		throw new Nette\NotImplementedException;
 
 		return $key;
 	}
@@ -61,7 +61,7 @@ class RequestManager extends Nette\Object
 	 */
 	public function restoreRequest($key)
 	{
-		throw new \NotImplementedException;
+		throw new Nette\NotImplementedException;
 	}
 
 
@@ -69,7 +69,7 @@ class RequestManager extends Nette\Object
 	/**
 	 * @param Bundle $bundle
 	 * @param object $request
-	 * @return Nette\Application\PresenterRequest
+	 * @return Request
 	 */
 	public function prepareRequest(Bundle $bundle, $request)
 	{
@@ -84,7 +84,7 @@ class RequestManager extends Nette\Object
 
 		foreach ($targetSitemap->mapSequence as $param) {
 			if (!isset($params[$param])) {
-				throw new \MemberAccessException("Parameter " . $param . " is missing.");
+				throw new Nette\MemberAccessException("Parameter " . $param . " is missing.");
 			}
 
 			$sequences[] = $params[$param];
@@ -135,7 +135,7 @@ class RequestManager extends Nette\Object
 		$key = serialize($request);
 
 		if (!isset($this->uriCache[$sitemap->id][$key])) {
-			throw new \MemberAccessException("Given request for sitemap " . implode('/', $sitemap->getSequencePathUp()) . " was not found.");
+			throw new Nette\MemberAccessException("Given request for sitemap " . implode('/', $sitemap->getSequencePathUp()) . " was not found.");
 		}
 
 		return $this->uriCache[$sitemap->id][$key];

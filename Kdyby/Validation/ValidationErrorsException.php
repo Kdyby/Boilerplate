@@ -47,7 +47,7 @@ class ValidationErrorsException extends \RuntimeException
 
 
 	/**
-	 * @param Kdyby\Validation\ErrorsException $errors
+	 * @param ErrorsException $errors
 	 */
 	public function import(self $errors)
 	{
@@ -62,8 +62,8 @@ class ValidationErrorsException extends \RuntimeException
 
 	/**
 	 * @param array $entity
-	 * @param Kdyby\Validation\ErrorsException $errors
-	 * @return Kdyby\Validation\ErrorsException
+	 * @param ErrorsException $errors
+	 * @return ErrorsException
 	 */
 	public static function notValid($entity, self $errors)
 	{

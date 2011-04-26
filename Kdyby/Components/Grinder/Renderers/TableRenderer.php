@@ -8,7 +8,7 @@ use Kdyby\Components\Grinder\Grid;
 use Kdyby\Components\Grinder\Columns\BaseColumn;
 use Kdyby\Components\Grinder\Columns\Renderer;
 use Nette;
-use Nette\Web\Html;
+use Nette\Utils\Html;
 
 
 

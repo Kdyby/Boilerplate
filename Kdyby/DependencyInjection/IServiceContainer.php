@@ -19,14 +19,14 @@ use Kdyby;
  * 
  * @author	Patrik Votoček
  */
-interface IServiceContainer extends Nette\IContext
+interface IServiceContainer extends Nette\DI\IContext
 {
 
 	/**
 	 * @param string
 	 * @param mixed
 	 * @return ServiceContainer
-	 * @throws \InvalidStateException
+	 * @throws Nette\InvalidStateException
 	 */
 	public function setParameter($key, $value);
 	

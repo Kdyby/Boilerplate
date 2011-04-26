@@ -51,7 +51,7 @@ class File extends Nette\Object
 	public function getFileInfo()
 	{
 		if ($this->info === NULL) {
-			$this->info = new \SplFileInfo($this->dir . '/' . $this->filename);
+			$this->info = new SplFileInfo($this->dir . '/' . $this->filename);
 		}
 
 		return $this->info;
@@ -76,7 +76,7 @@ class File extends Nette\Object
 	{
 		$contents = @file_get_contents($this->getFileInfo()->getPathname());
 		if ($contents === FALSE) {
-			throw new \IOException("Reading from " . $this->filename . " failed.");
+			throw new Nette\IOException("Reading from " . $this->filename . " failed.");
 		}
 
 		return $contents;
@@ -91,7 +91,7 @@ class File extends Nette\Object
 	public function setContents($contents, $flags = 0)
 	{
 		if (!file_put_contents($this->getFileInfo()->getPathname(), $contents, $flags)) {
-			throw new \IOException("Writting to " . $this->filename . " failed.");
+			throw new Nette\IOException("Writting to " . $this->filename . " failed.");
 		}
 	}
 

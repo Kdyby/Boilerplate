@@ -30,7 +30,7 @@ final class ServiceFactory extends Nette\Object
 	 */
 	final public function __construct()
 	{
-		throw new \InvalidStateException("Cannot instantiate static class " . get_called_class());
+		throw new Nette\InvalidStateException("Cannot instantiate static class " . get_called_class());
 	}
 
 
@@ -64,7 +64,7 @@ final class ServiceFactory extends Nette\Object
 
 	/**
 	 * @param array $dirs
-	 * @return \Doctrine\ORM\Configuration
+	 * @return Doctrine\ORM\Configuration
 	 */
 	public static function createConfiguration(array $dirs = array())
 	{

@@ -10,9 +10,9 @@ use Kdyby\Application\Presentation\Bundle;
 
 /**
  * @property Kdyby\DependencyInjection\ServiceContainer $serviceContainer
- * @property Kdyby\Application\Presentation\Bundle $applicationBundle
+ * @property Bundle $applicationBundle
  */
-class Presenter extends Nette\Application\Presenter implements Kdyby\DependencyInjection\IContainerAware
+class Presenter extends Nette\Application\UI\Presenter implements Kdyby\DependencyInjection\IContainerAware
 {
 
 	/** @persistent */
@@ -37,8 +37,8 @@ class Presenter extends Nette\Application\Presenter implements Kdyby\DependencyI
 	{
 		parent::afterRender();
 
-		if (Nette\Debug::isEnabled()) { // todo: as panel
-			Nette\Debug::barDump($this->template->getParams(), 'Template variables');
+		if (Nette\Diagnostics\Debugger::isEnabled()) { // todo: as panel
+			Nette\Diagnostics\Debugger::barDump($this->template->getParams(), 'Template variables');
 		}
 	}
 
@@ -81,7 +81,7 @@ class Presenter extends Nette\Application\Presenter implements Kdyby\DependencyI
 
 	/**
 	 * @param string|NULL $class
-	 * @return Nette\Templates\ITemplate
+	 * @return Nette\Templating\ITemplate
 	 */
 	protected function createTemplate($class = NULL)
 	{
@@ -101,7 +101,7 @@ class Presenter extends Nette\Application\Presenter implements Kdyby\DependencyI
 		}
 
 		if (!file_exists($file)) {
-			throw new \FileNotFoundException("Requested template '".$file."' is missing.");
+			throw new Nette\FileNotFoundException("Requested template '".$file."' is missing.");
 		}
 
 		$this->layout = FALSE;
@@ -151,7 +151,7 @@ class Presenter extends Nette\Application\Presenter implements Kdyby\DependencyI
 
 		$files = array();
 		foreach ($this->getServiceContainer()->templateDirs as $dir) {
-			if (!Nette\String::startsWith($moduleDir, $dir)) {
+			if (!Nette\Utils\Strings::startsWith($moduleDir, $dir)) {
 				continue;
 			}
 
@@ -187,7 +187,7 @@ class Presenter extends Nette\Application\Presenter implements Kdyby\DependencyI
 
 		$files = array();
 		foreach ($this->getServiceContainer()->templateDirs as $dir) {
-			if (!Nette\String::startsWith($moduleDir, $dir)) {
+			if (!Nette\Utils\Strings::startsWith($moduleDir, $dir)) {
 				continue;
 			}
 

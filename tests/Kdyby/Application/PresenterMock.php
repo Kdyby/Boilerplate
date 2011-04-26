@@ -23,18 +23,24 @@ class PresenterMock extends Kdyby\Application\Presenter
 
 namespace Kdyby;
 
-class MyPresenter extends \Kdyby\Application\Presenter { }
+class MyPresenter extends Application\Presenter { }
 
 namespace Kdyby\FooModule;
 
-class MyPresenter extends \Kdyby\Application\Presenter { }
+use Kdyby;
+
+class MyPresenter extends Kdyby\Application\Presenter { }
 
 namespace App;
 
-class FooPresenter extends \Kdyby\Application\Presenter { }
-abstract class BarPresenter extends \Kdyby\Application\Presenter { }
+use Kdyby;
+
+class FooPresenter extends Kdyby\Application\Presenter { }
+abstract class BarPresenter extends Kdyby\Application\Presenter { }
 class BazPresenter { }
 
 namespace App\BarModule;
 
-class FooPresenter extends \Kdyby\Application\Presenter { }
+use Kdyby;
+
+class FooPresenter extends Kdyby\Application\Presenter { }

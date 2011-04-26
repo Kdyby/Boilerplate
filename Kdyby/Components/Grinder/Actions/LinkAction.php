@@ -4,8 +4,8 @@ namespace Kdyby\Components\Grinder\Actions;
 
 use Kdyby;
 use Nette;
-use Nette\Application\Link;
-use Nette\Web\Html;
+use Nette\Application\UI\Link;
+use Nette\Utils\Html;
 
 
 
@@ -65,7 +65,7 @@ class LinkAction extends BaseAction
 					$args[$argName] = $record->$paramName;
 
 				} else {
-					throw new \InvalidStateException("Record " . (is_object($record) ? "of entity " . get_class($record) . ' ' : NULL) . "has no parameter named '" . $paramName . "'.");
+					throw new Nette\InvalidStateException("Record " . (is_object($record) ? "of entity " . get_class($record) . ' ' : NULL) . "has no parameter named '" . $paramName . "'.");
 				}
 			}
 
@@ -124,13 +124,13 @@ class LinkAction extends BaseAction
 	public function handleClick($id = NULL)
 	{
 		if (!is_callable($this->getHandler())) {
-			throw new \InvalidStateException("Handler for action '" . $this->name . "' is not callable.");
+			throw new Nette\InvalidStateException("Handler for action '" . $this->name . "' is not callable.");
 		}
 
 		$id = $id ?: NULL;
 		if ($this->handlerPassEntity === TRUE) {
 			if (!$id) {
-				throw new \InvalidStateException("Missing argument 'id' in action '" . $this->name . "'.");
+				throw new Nette\InvalidStateException("Missing argument 'id' in action '" . $this->name . "'.");
 			}
 
 			$id = $this->getGrid()->getModel()->getItemByUniqueId($id);
@@ -142,7 +142,7 @@ class LinkAction extends BaseAction
 
 
 	/**
-	 * @return Nette\Web\Html
+	 * @return Html
 	 */
 	public function getControl()
 	{

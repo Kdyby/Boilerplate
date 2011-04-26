@@ -15,9 +15,9 @@ namespace Kdyby\Tools;
 
 use Nette;
 use Nette\Environment;
-use Nette\Context;
-use Nette\Reflection\ClassReflection;
-use Nette\String;
+use Nette\DI\Context;
+use Nette\Reflection\ClassType;
+use Nette\Utils\Strings;
 use Kdyby;
 
 
@@ -140,7 +140,7 @@ class CachingClassContainer extends Nette\Object
 	private function getMemcache()
 	{
 		if ($this->memcache === NULL) {
-			$namespace = 'Kdyby.MethodCache.'.trim(String::webalize(get_class($this->object)), '-');
+			$namespace = 'Kdyby.MethodCache.'.trim(Strings::webalize(get_class($this->object)), '-');
 			$storage = $this->createMemcacheStorage($namespace);
 			$this->memcache = new Nette\Caching\Cache($storage, $namespace);
 		}
@@ -157,7 +157,7 @@ class CachingClassContainer extends Nette\Object
 	private function getClassPropertiesAnnotations($class)
 	{
 		$properties = array();
-		$class = new ClassReflection($class);
+		$class = new ClassType($class);
 		foreach ($class->getProperties() as $property) {
 			$properties[$property->getName()] = $property->getAnnotations();
 		}
