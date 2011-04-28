@@ -170,7 +170,7 @@ class Replicator extends Nette\Forms\Container
 			$_this[$name] = $replicator = new Replicator($factory);
 
 			if (is_numeric($createDefault) && $createDefault > 0) {
-				foreach (range(1, $createDefault) as $key) {
+				foreach (range(0, $createDefault-1) as $key) {
 					$replicator->touch($key);
 				}
 			}
