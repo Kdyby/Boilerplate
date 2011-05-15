@@ -11,6 +11,9 @@
  * @package CMF Kdyby-Common
  */
 
+use Nette\Diagnostics\Debugger;
+use Kdyby\DependencyInjection as DI;
+
 @header('X-Generated-By: Kdyby CMF ;url=www.kdyby.org'); // @ - headers may be sent
 
 define('KDYBY', TRUE);
@@ -28,15 +31,15 @@ if (!defined('NETTE')) {
 // helper
 function cd() {
 	foreach (func_get_args() as $arg) {
-		Nette\Diagnostics\Debugger::barDump($arg);
+		Debugger::barDump($arg);
 	}
 }
 
 // Configure environment
 // enable Nette\Debug for better exception and error visualisation
 //Nette\Debug::enable(Nette\Debug::DEVELOPMENT, TEMP_DIR . '/log');
-Nette\Diagnostics\Debugger::enable();
-Nette\Diagnostics\Debugger::$strictMode = TRUE;
+Debugger::enable();
+Debugger::$strictMode = TRUE;
 //Debug::$maxDepth = 10;
 //Debug::$maxLen = 2024;
 
@@ -47,4 +50,4 @@ Kdyby\Loaders\KdybyLoader::getInstance()->register();
 
 
 // Create Configurator
-Nette\Environment::setConfigurator(new Kdyby\DependencyInjection\Configurator);
+Nette\Environment::setConfigurator(new DI\Configurator);
