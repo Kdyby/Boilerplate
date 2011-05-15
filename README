@@ -1,0 +1,17 @@
+CMF Kdyby-Common
+==================
+
+Current version: 8.1-dev
+
+Common libraries of Content Managing Framework (CMF) Kdyby
+
+
+WARNING:
+========
+
+This package is under active development, and shouldn't be used at all!
+
+It's safe and permitted to copy & paste & use & learn how solve things the bad way,
+but for Christ sake don't use it in your live applications!
+
+

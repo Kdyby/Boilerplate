@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<phpunit
+	stopOnError="false"
+	stopOnFailure="false"
+	stopOnIncomplete="false"
+	stopOnSkipped="false"
+
+	convertErrorsToExceptions="true"
+	convertNoticesToExceptions="true"
+	convertWarningsToExceptions="true"
+
+	bootstrap="bootstrap.php" colors="true"
+	>
+	<testsuites>
+		<testsuite name="Kdyby Framework Test Suite">
+			<directory suffix="Test.php">./</directory>
+		</testsuite>
+	</testsuites>
+
+	<filter>
+	  <whitelist>
+		<directory suffix=".php">./../Kdyby</directory>
+	  </whitelist>
+	</filter>
+</phpunit>

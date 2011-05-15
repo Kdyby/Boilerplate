@@ -1,0 +1,74 @@
+#!/bin/bash
+# @see https://github.com/symfony/symfony-sandbox/blob/master/bin/vendors.sh
+
+DIR="$(dirname "$(readlink -f "$0")")/.."
+VENDORS_DIR="$DIR/libs/vendors"
+
+cd $VENDORS_DIR
+
+# initialization
+if [ "$1" = "--reinstall" ]; then
+	# preserves .gitignore, we don't want them in repo :)
+	rmdir "$VENDORS_DIR/*" &> /dev/null
+fi
+
+mkdir -p $VENDORS_DIR && cd $VENDORS_DIR
+
+##
+# @param destination directory (e.g. "doctrine")
+# @param URL of the git remote (e.g. git://github.com/doctrine/doctrine2.git)
+# @param revision to point the head (e.g. origin/HEAD)
+#
+install_git()
+{
+	INSTALL_DIR=$1
+	SOURCE_URL=$2
+	REV=$3
+
+	echo
+	echo "Installing $INSTALL_DIR ..."
+
+	if [ -z $REV ]; then
+		REV=origin/master
+	fi
+
+	if [ ! -d $INSTALL_DIR ]; then
+		git clone $SOURCE_URL $INSTALL_DIR
+	fi
+
+	cd $INSTALL_DIR
+	git fetch origin
+	git reset --hard $REV
+	cd ..
+}
+
+
+# Nette Framework
+install_git nette git://github.com/Kdyby/Nette.git
+
+# Doctrine ORM
+install_git doctrine git://github.com/Kdyby/DoctrineORM.git #2.0.2
+
+# Doctrine DBAL
+install_git doctrine-dbal git://github.com/Kdyby/DoctrineDBAL.git #2.0.2
+
+# Doctrine Common
+install_git doctrine-common git://github.com/Kdyby/DoctrineCommon.git
+
+# Doctrine Berberlei Extensions
+install_git doctrine-berberlei-extensions git://github.com/Kdyby/DoctrineBeberleiExtensions.git
+
+# Doctrine Gedmo Extensions
+install_git doctrine-gedmo-extensions git://github.com/Kdyby/DoctrineGedmoExtensions.git
+
+# Doctrine Migrations
+install_git doctrine-migrations git://github.com/Kdyby/DoctrineMigrations.git
+
+# Doctrine Data Fixtures Extension
+install_git doctrine-data-fixtures git://github.com/Kdyby/DoctrineDataFixtures.git
+
+# Texy!
+install_git texy git://github.com/Kdyby/Texy.git
+
+# Nette Apigen
+install_git apigen git://github.com/Kdyby/Apigen.git
