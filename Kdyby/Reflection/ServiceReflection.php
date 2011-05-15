@@ -27,13 +27,20 @@ class ServiceReflection extends Nette\Reflection\ClassType
                 return array();
         }
 
-        $classes = array();
+        $args = array();
         foreach ($constructorReflection->getParameters() as $paramReflection) {
-                $paramClass = $paramReflection->getClass();
-                $classes[] = $paramClass ? $paramClass->getName() : NULL;
+				if ($paramReflection->isDefaultValueAvailable()) {
+					$args[] = $paramReflection->getDefaultValue();
+
+				} elseif ($paramReflection->getClass()) {
+					$args[] = $container->getServiceByType($paramReflection->getClass()->getName());
+
+				} else {
+					$args[] = $param->isArray() && !$param->allowsNull() ? array() : NULL;
+				}
         }
 
-        return $classes;
+        return $args;
     }
 
 }
