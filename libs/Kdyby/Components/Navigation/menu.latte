@@ -1,0 +1,15 @@
+<ul class="control menu">
+	<li n:if="$useHomepage">
+		<a href="{$homepage->url}" n:class="$homepage->isCurrent ? 'active'">{$homepage->label}</a>
+	</li>
+
+	{block #menu}
+	<li n:foreach="$children as $item">
+		<a href="{$item->url}" n:class="$item->isCurrent ? 'active'">{$item->label}</a>
+
+		<ul n:if="$renderChildren && count($item->getComponents()) > 0">
+			{include #menu, children => $item->getComponents()}
+		</ul>
+	</li>
+	{/block}
+</ul>
