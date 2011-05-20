@@ -50,14 +50,14 @@ class Configurator extends Nette\Configurator
 		$context->addService('httpResponse', $container->httpResponse);
 		$context->addService('session', $container->session);
 		$context->addService('presenterFactory', $container->presenterFactory);
-		$context->addService('router', 'Nette\Application\Routers\RouteList');
+		$context->addService('router', $container->router);
 		$context->addService('console', $container->console);
 
-		Presenter::$invalidLinkMode = $container->getParam('productionMode')
+		Presenter::$invalidLinkMode = $container->getParam('productionMode', TRUE)
 			? Presenter::INVALID_LINK_SILENT : Presenter::INVALID_LINK_WARNING;
 
 		$application = new Kdyby\Application\Application($context);
-		$application->catchExceptions = $container->getParam('productionMode');
+		$application->catchExceptions = $container->getParam('productionMode', TRUE);
 		$application->errorPresenter = 'Error';
 
 		return $application;
