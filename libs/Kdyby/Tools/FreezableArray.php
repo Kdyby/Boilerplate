@@ -28,6 +28,29 @@ class FreezableArray extends Nette\FreezableObject implements \ArrayAccess, \Cou
 
 
 	/**
+	 * @param array $array
+	 */
+	public function __construct(array $array = NULL)
+	{
+		if ($array) {
+			$this->array = $array;
+		}
+	}
+
+
+
+	/**
+	 * @return FreezableArray
+	 */
+	public function freeze()
+	{
+		parent::freeze();
+		return $this;
+	}
+
+
+
+	/**
 	 * Returns an iterator over all items.
 	 *
 	 * @return \ArrayIterator
