@@ -124,7 +124,7 @@ class Container extends Kdyby\DI\Container
 	 */
 	protected function createServiceMysqlSessionInitListener()
 	{
-		$database = $this->container->config->database;
+		$database = $this->container->getParam('database', array());
 		return new Doctrine\DBAL\Event\Listeners\MysqlSessionInit($database['charset']);
 	}
 
@@ -150,7 +150,7 @@ class Container extends Kdyby\DI\Container
 	 */
 	protected function createServiceEntityManager()
 	{
-		$database = $this->container->config->database;
+		$database = $this->container->getParam('database', array());
 
 		if (key_exists('driver', $database) && $database['driver'] == "pdo_mysql" && key_exists('charset', $database)) {
 			$this->eventManager->addEventSubscriber($this->mysqlSessionInitListener);
