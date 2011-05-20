@@ -20,6 +20,7 @@ namespace Kdyby\Doctrine;
 
 use Doctrine;
 use Kdyby;
+use Nette;
 use Nette\Caching\Cache AS NCache;
 
 
