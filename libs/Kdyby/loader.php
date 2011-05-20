@@ -42,4 +42,4 @@ Kdyby\Loaders\KdybyLoader::getInstance()->register();
 
 
 // Create Configurator
-Nette\Environment::setConfigurator(new Kdyby\DI\Configurator);
+$configrator = new Kdyby\DI\Configurator;
