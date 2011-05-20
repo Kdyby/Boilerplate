@@ -29,7 +29,7 @@ class Application extends Nette\Application\Application
 		$this->context->freeze();
 
 		if (PHP_SAPI == "cli") {
-			return $this->context->getService('console')->run();
+			return $this->context->console->run();
 		}
 
 		return parent::run();
