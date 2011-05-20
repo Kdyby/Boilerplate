@@ -30,7 +30,7 @@ use Nette;
  * @property-read Doctrine\Common\EventManager $eventManager
  * @property-read Doctrine\ORM\EntityManager $entityManager
  */
-class Container extends Nette\DI\Container
+class Container extends Kdyby\DI\Container
 {
 
 	/** @var array */
@@ -83,7 +83,7 @@ class Container extends Nette\DI\Container
 		$reader->setDefaultAnnotationNamespace('Doctrine\ORM\Mapping\\');
 		// $reader->setAnnotationNamespaceAlias('Kdyby\Doctrine\Mapping\\', 'Kdyby');
 
-		$dirs = $this->getParam('entityDirs', array(APP_DIR, KDYBY_DIR));
+		$dirs = $this->getParam('entityDirs', $this->container->getParam('entityDirs', array(APP_DIR, KDYBY_DIR)));
 		return new Doctrine\ORM\Mapping\Driver\AnnotationDriver($reader, (array)$dirs);
 	}
 
