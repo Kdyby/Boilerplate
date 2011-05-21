@@ -103,6 +103,7 @@ class Container extends Kdyby\DI\Container
 		$config->setQueryCacheImpl($this->hasService('queryCache') ? $this->queryCache : $this->cache);
 
 		// Metadata
+		$config->setClassMetadataFactoryName('\Kdyby\Doctrine\Mapping\ClassMetadataFactory');
 		$config->setMetadataDriverImpl($this->annotationDriver);
 
 		// Proxies
