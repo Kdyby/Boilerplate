@@ -14,7 +14,7 @@ use Nette\Application\UI\Link;
  * @author Jan Marek
  * @license MIT
  */
-class NavigationControl extends Kdyby\Application\Control
+class NavigationControl extends Nette\Application\UI\Control
 {
 
 	/** @var NavigationNode */
