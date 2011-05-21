@@ -104,7 +104,8 @@ class Container extends Kdyby\DI\Container
 		$config->setMetadataDriverImpl($this->annotationDriver);
 
 		// Proxies
-		$config->setProxyDir($this->getParam('proxyDir', $this->container->expand("%appDir%/proxies")));
+		$proxiesDirDefault = $this->container->getParam('proxiesDir', $this->container->expand("%tempDir%/proxies"));
+		$config->setProxyDir($this->getParam('proxiesDir', $proxiesDirDefault));
 		$config->setProxyNamespace($this->getParam('proxyNamespace', 'Kdyby\Models\Proxies'));
 		if ($this->container->getParam('productionMode')) {
 			$config->setAutoGenerateProxyClasses(FALSE);
