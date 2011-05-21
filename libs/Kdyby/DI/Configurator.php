@@ -71,10 +71,7 @@ class Configurator extends Nette\Configurator
 	 */
 	public static function createServiceDoctrine(DI\Container $container)
 	{
-		$doctrine = new Kdyby\Doctrine\Container;
-		$doctrine->addService('container', $container);
-
-		return $doctrine;
+		return new Kdyby\Doctrine\Container($container);
 	}
 
 

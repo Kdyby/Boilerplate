@@ -21,7 +21,7 @@ use Nette;
  * @author Patrik Votoček
  * @author Filip Procházka
  *
- * @property-read Nette\DI\Container $container
+ * @property-read Nette\DI\Container $context
  * @property-read Cache $cache
  * @property-read Panel $logger
  * @property-read Doctrine\ORM\Configuration $configurator
@@ -43,8 +43,10 @@ class Container extends Kdyby\DI\Container
 	/**
 	 * Registers doctrine types
 	 */
-	public function __construct()
+	public function __construct(DI\Container $context)
 	{
+		$this->addService('context', $context);
+
 		foreach (self::$types as $name => $className) {
 			if (!DoctrineTypes::hasType($name)) {
 				DoctrineTypes::addType($name, $className);
@@ -59,7 +61,7 @@ class Container extends Kdyby\DI\Container
 	 */
 	protected function createServiceCache()
 	{
-		return new Cache($this->container->cacheStorage);
+		return new Cache($this->context->cacheStorage);
 	}
 
 
@@ -104,10 +106,10 @@ class Container extends Kdyby\DI\Container
 		$config->setMetadataDriverImpl($this->annotationDriver);
 
 		// Proxies
-		$proxiesDirDefault = $this->container->getParam('proxiesDir', $this->container->expand("%tempDir%/proxies"));
+		$proxiesDirDefault = $this->context->getParam('proxiesDir', $this->context->expand("%tempDir%/proxies"));
 		$config->setProxyDir($this->getParam('proxiesDir', $proxiesDirDefault));
 		$config->setProxyNamespace($this->getParam('proxyNamespace', 'Kdyby\Models\Proxies'));
-		if ($this->container->getParam('productionMode')) {
+		if ($this->context->getParam('productionMode')) {
 			$config->setAutoGenerateProxyClasses(FALSE);
 
 		} else {
@@ -125,7 +127,7 @@ class Container extends Kdyby\DI\Container
 	 */
 	protected function createServiceMysqlSessionInitListener()
 	{
-		$database = $this->container->getParam('database', array());
+		$database = $this->context->getParam('database', array());
 		return new Doctrine\DBAL\Event\Listeners\MysqlSessionInit($database['charset']);
 	}
 
@@ -151,7 +153,7 @@ class Container extends Kdyby\DI\Container
 	 */
 	protected function createServiceEntityManager()
 	{
-		$database = $this->container->getParam('database', array());
+		$database = $this->context->getParam('database', array());
 
 		if (key_exists('driver', $database) && $database['driver'] == "pdo_mysql" && key_exists('charset', $database)) {
 			$this->eventManager->addEventSubscriber($this->mysqlSessionInitListener);
