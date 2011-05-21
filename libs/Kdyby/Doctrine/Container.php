@@ -84,7 +84,7 @@ class Container extends Kdyby\DI\Container
 		// $reader->setAnnotationNamespaceAlias('Kdyby\Doctrine\Mapping\\', 'Kdyby');
 
 		$dirs = $this->getParam('entityDirs', $this->container->getParam('entityDirs', array(APP_DIR, KDYBY_DIR)));
-		return new Doctrine\ORM\Mapping\Driver\AnnotationDriver($reader, (array)$dirs);
+		return new Kdyby\Doctrine\Mapping\Driver\AnnotationDriver($reader, (array)$dirs);
 	}
 
 
