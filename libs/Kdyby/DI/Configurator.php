@@ -116,7 +116,7 @@ class Configurator extends Nette\Configurator
 	 */
 	public static function createServiceConsoleCommands(DI\IContainer $container)
 	{
-		$commands = new Kdyby\Tools\FreezableArray(array(
+		return new Kdyby\Tools\FreezableArray(array(
 			// DBAL Commands
 			new DbalCommand\RunSqlCommand(),
 			new DbalCommand\ImportCommand(),
@@ -128,8 +128,6 @@ class Configurator extends Nette\Configurator
 			new OrmCommand\GenerateProxiesCommand(),
 			new OrmCommand\RunDqlCommand(),
 		));
-
-		return $commands->freeze();
 	}
 
 
@@ -145,7 +143,7 @@ class Configurator extends Nette\Configurator
 
 		$cli->setCatchExceptions(TRUE);
 		$cli->setHelperSet($container->consoleHelpers);
-		$cli->addCommands($container->consoleCommands->iterator->getArrayCopy());
+		$cli->addCommands($container->consoleCommands->freeze()->iterator->getArrayCopy());
 
 		return $cli;
 	}
