@@ -24,7 +24,7 @@ use Nette\Utils\Finder;
 class AnnotationDriver extends Doctrine\ORM\Mapping\Driver\AnnotationDriver
 {
 
-	const IGNORE_FOLDERS = '.noentities';
+	const IGNORE_FOLDERS = 'noentities';
 
 
 
