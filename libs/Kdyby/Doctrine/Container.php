@@ -14,6 +14,7 @@ use Doctrine;
 use Doctrine\DBAL\Types\Type as DoctrineTypes;
 use Kdyby;
 use Nette;
+use Nette\DI;
 
 
 
@@ -85,7 +86,7 @@ class Container extends Kdyby\DI\Container
 		$reader->setDefaultAnnotationNamespace('Doctrine\ORM\Mapping\\');
 		// $reader->setAnnotationNamespaceAlias('Kdyby\Doctrine\Mapping\\', 'Kdyby');
 
-		$dirs = $this->getParam('entityDirs', $this->container->getParam('entityDirs', array(APP_DIR, KDYBY_DIR)));
+		$dirs = $this->getParam('entityDirs', $this->context->getParam('entityDirs', array(APP_DIR, KDYBY_DIR)));
 		return new Kdyby\Doctrine\Mapping\Driver\AnnotationDriver($reader, (array)$dirs);
 	}
 
