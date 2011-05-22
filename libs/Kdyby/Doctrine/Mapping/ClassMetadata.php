@@ -22,12 +22,12 @@ use Nette;
 class ClassMetadata extends Doctrine\ORM\Mapping\ClassMetadata
 {
 
-    /**
-     * The name of the custom repository class used for the entity class.
-     * (Optional).
-     *
-     * @var string
-     */
+	/**
+	 * The name of the custom repository class used for the entity class.
+	 * (Optional).
+	 *
+	 * @var string
+	 */
 	public $customRepositoryClassName = '\Kdyby\Model\EntityRepository';
 
 }
