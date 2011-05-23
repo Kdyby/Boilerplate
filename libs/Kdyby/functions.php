@@ -10,6 +10,7 @@
 
 use Nette\Callback;
 use Nette\Diagnostics\Debugger;
+use Nette\Diagnostics\Helpers;
 
 
 
@@ -28,19 +29,35 @@ function bd($var, $title = NULL) {
  * @author Filip Procházka
  *
  * @param int $level
+ * @param bool $return
+ * @param bool $fullTrace
  */
-function wc($level = 1) {
-	if (\Nette\Debug::$productionMode) { return; }
+function wc($level = 1, $return = FALSE, $fullTrace = FALSE) {
+	if (Debugger::$productionMode) { return; }
 
 	$o = function ($t) { return (isset($t->class) ? htmlspecialchars($t->class) . "->" : NULL) . htmlspecialchars($t->function) . '()'; };
 	$f = function ($t) {
 		$file = defined('APP_DIR') ? 'app' . str_replace(realpath(APP_DIR), '', realpath($t->file)) : $t->file;
-		return '<a href="' . \Nette\DebugHelpers::editorLink($t->file, $t->line) . '">' . htmlspecialchars($file) . ':' . (int)$t->line . '</a>';
+		return '<a href="' . Helpers::editorLink($t->file, $t->line) . '">' . htmlspecialchars($file) . ':' . (int)$t->line . '</a>';
 	};
 
 	$trace = debug_backtrace();
 	$target = (object)$trace[$level];
 	$caller = (object)$trace[$level+1];
+	$message = NULL;
 
-	echo "<pre class='nette-dump'>" . $o($target) . " called from " . $o($caller) . " (" . $f($caller) . ")</pre>";
+	if ($fullTrace) {
+		array_shift($trace);
+		foreach ($trace as $call) {
+			$message .= $o((object)$call) . " \n";
+		}
+
+	} else {
+		$message = $o($target) . " called from " . $o($caller) . " (" . $f($caller) . ")";
+	}
+
+	if ($return) {
+		return strip_tags($message);
+	}
+	echo "<pre class='nette-dump'>" . nl2br($message) . "</pre>";
 }
