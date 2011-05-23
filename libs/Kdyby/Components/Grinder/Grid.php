@@ -1,8 +1,17 @@
 <?php
 
+/**
+ * This file is part of the Kdyby (http://www.kdyby.org)
+ *
+ * Copyright (c) 2008, 2011 Filip Procházka (filip.prochazka@kdyby.org)
+ *
+ * @license http://www.kdyby.org/license
+ */
+
 namespace Kdyby\Components\Grinder;
 
 use Nette;
+use Nette\Application\UI\Presenter;
 use Nette\ComponentModel\IComponent;
 use Nette\ComponentModel\Container;
 use Nette\Environment;
@@ -42,6 +51,9 @@ class Grid extends Nette\Application\UI\Control
 	/** @persistent string */
 	public $sortType = NULL;
 
+	/** @persistent array */
+	public $filter = array();
+
 	/** @var int */
 	public $defaultItemsPerPage = 20;
 
@@ -61,7 +73,7 @@ class Grid extends Nette\Application\UI\Control
 	private $session;
 
 	/** @var IGridRenderer */
-	private $renderer;
+	private $renderer = FALSE;
 
 	/** @var string|Nette\Utils\Html */
 	private $emptyResultMessage;
@@ -78,6 +90,7 @@ class Grid extends Nette\Application\UI\Control
 	public function __construct(Models\IModel $model)
 	{
 		parent::__construct(NULL, NULL);
+		$this->monitor('Nette\Application\UI\Presenter');
 
 		$this->addComponent(new Container, 'columns');
 		$this->addComponent(new Actions\ActionsContainer, 'actions');
@@ -92,6 +105,29 @@ class Grid extends Nette\Application\UI\Control
 		$this->getPaginator()->setItemsPerPage($this->defaultItemsPerPage);
 	}
 
+
+
+	/**
+	 * @param Container $obj
+	 */
+	protected function attached($obj)
+	{
+		parent::attached($obj);
+
+		if (!$obj instanceof Presenter) {
+			return;
+		}
+
+		if ($this->filter) {
+			foreach ($this->getFilters()->getFiltersMap() as $filter) {
+				if (!$filter->getControl() instanceof Nette\Forms\IControl) {
+					continue;
+				}
+
+				$filter->getControl()->setDefaultValue($filter->getValue());
+			}
+		}
+	}
 
 
 	/**
@@ -363,21 +399,36 @@ class Grid extends Nette\Application\UI\Control
 
 
 	/**
-	 * @param string $name
+	 * @return GridFilters
 	 */
-	protected function createComponentFilters($name)
+	protected function createComponentFilters()
 	{
-		throw new Nette\NotImplementedException();
+		$filters = new GridFilters($this->model);
+
+		$this->addComponent($form = new Filters\Form($filters->getFiltersMap()), 'filtersForm');
+		$filters->setFormContainer($form->getComponent('filters'));
+
+		return $filters;
 	}
 
 
 
 	/**
-	 * @return
+	 * @return GridFilters
 	 */
 	public function getFilters()
 	{
 		return $this->getComponent('filters');
+	}
+
+
+
+	/**
+	 * @return boolean
+	 */
+	public function hasFilters()
+	{
+		return (bool)$this->getFilters()->getFiltersMap()->getIterator()->count();
 	}
 
 
@@ -581,6 +632,10 @@ class Grid extends Nette\Application\UI\Control
 	 */
 	public function getRenderer()
 	{
+		if ($this->renderer === FALSE) {
+			$this->renderer = new Renderers\TableRenderer;
+		}
+
 		return $this->renderer;
 	}
 
@@ -606,15 +661,22 @@ class Grid extends Nette\Application\UI\Control
 			return;
 		}
 
+		// filter
+		$this->getModel()->applyFilters($this->getFilters()->getFiltersMap());
+
+		// count pages
 		$this->getPaginator()->setItemCount($this->getModel()->count());
 
+		// set limit & offset
 		$this->getModel()->setLimit($this->getPaginator()->getLength());
 		$this->getModel()->setOffset($this->getPaginator()->getOffset());
 
+		// sorting
 		if ($this->sortColumn && $this->getColumn($this->sortColumn)->isSortable()) {
 			$this->getModel()->setSorting($this->sortColumn, $this->sortType);
 		}
 
+		// spread renderer
 		foreach ($this->getColumns() as $column) {
 			$column->setRenderer($this->getRenderer());
 		}

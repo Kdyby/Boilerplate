@@ -1,7 +1,19 @@
 <?php
 
+/**
+ * This file is part of the Kdyby (http://www.kdyby.org)
+ *
+ * Copyright (c) 2008, 2011 Filip Procházka (filip.prochazka@kdyby.org)
+ *
+ * @license http://www.kdyby.org/license
+ */
+
 namespace Kdyby\Components\Grinder\Models;
 
+use Kdyby;
+use Kdyby\Components\Grinder\Filters;
+use Nette;
+use Doctrine;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 
@@ -16,14 +28,15 @@ use Doctrine\ORM\QueryBuilder;
  */
 class DoctrineQueryBuilderModel extends AbstractModel
 {
-	/** @var Doctrine\ORM\QueryBuilder */
+
+	/** @var QueryBuilder */
 	private $qb;
 
 
 
 	/**
 	 * Construct
-	 * @param Doctrine\ORM\QueryBuilder query builder
+	 * @param QueryBuilder query builder
 	 */
 	public function __construct(QueryBuilder $qb)
 	{
@@ -33,13 +46,43 @@ class DoctrineQueryBuilderModel extends AbstractModel
 
 
 	/**
+	 * @param Filters\FiltersMap $filters
+	 */
+	public function applyFilters(Filters\FiltersMap $filters)
+	{
+		// for safe parameters
+		$filters->getFragmentsBuilder()->setQueryBuilder($this->qb);
+
+		foreach ($filters as $filter) {
+			$filter->apply($this->qb);
+		}
+	}
+
+
+
+	/**
+	 * @return Filters\IFragmentsBuilder
+	 */
+	public function createFragmentsBuilder()
+	{
+		return new Filters\Fragments\DoctrineQueryBuilder();
+	}
+
+
+
+	/**
 	 * @return int
 	 */
 	protected function doCount()
 	{
-		$qb = clone $this->qb;
-		$qb->select('count(' . $qb->getRootAlias() . ') fullcount');
-		return $qb->getQuery()->getSingleResult(Query::HYDRATE_SINGLE_SCALAR);
+		try {
+			$qb = clone $this->qb;
+			$qb->select('count(' . $qb->getRootAlias() . ') fullcount');
+			return $qb->getQuery()->getSingleResult(Query::HYDRATE_SINGLE_SCALAR);
+
+		} catch (Doctrine\ORM\ORMException $e) {
+			throw new Kdyby\Doctrine\QueryException($e->getMessage(), $this->qb->getQuery(), $e);
+		}
 	}
 
 
@@ -86,5 +129,5 @@ class DoctrineQueryBuilderModel extends AbstractModel
 		return $qb->andWhere($qb->expr()->in($this->qb->getRootAlias() . '.' . $this->getPrimaryKey(), $uniqueIds))
 			->getQuery()->getResult();
 	}
-	
+
 }

@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the Kdyby (http://www.kdyby.org)
+ *
+ * Copyright (c) 2008, 2011 Filip Procházka (filip.prochazka@kdyby.org)
+ *
+ * @license http://www.kdyby.org/license
+ */
+
 namespace Kdyby\Components\Grinder\Renderers;
 
 use Kdyby;
@@ -46,8 +54,6 @@ abstract class BaseRenderer extends CellRenderer implements IGridRenderer
 
 		$s->add($this->renderFlashes());
 
-		// TODO: render filters
-
 		$s->add($this->renderForm('begin'));
 		$s->add($this->renderToolbar(Grid::PLACEMENT_TOP));
 		$s->add($this->renderPaginator(Grid::PLACEMENT_TOP));
@@ -89,6 +95,20 @@ abstract class BaseRenderer extends CellRenderer implements IGridRenderer
 		}
 
 		return count($flashes) ? $flashes : "";
+	}
+
+
+
+	/**
+	 * @return Html
+	 */
+	public function renderFilters()
+	{
+		$form = $this->grid->getFilters()->getForm();
+
+		ob_start();
+			$form->render();
+		return Html::el()->setHtml(ob_get_clean());
 	}
 
 
