@@ -1,17 +1,19 @@
 <?php
 
+use Nette\Diagnostics\Debugger;
+
 // required constants
 define('APP_DIR', __DIR__);
-define('VENDORS_DIR', __DIR__ . '/../libs/vendors');
+define('VENDORS_DIR', APP_DIR . '/../libs/vendors');
 
 // Take care of autoloading
 require_once VENDORS_DIR . '/autoload.php';
-require_once APP_DIR . '/../Kdyby/loader.php';
+require_once APP_DIR . '/../libs/Kdyby/loader.php';
 
 // Setup Nette debuger
-Nette\Diagnostics\Debugger::enable(Nette\Diagnostics\Debugger::PRODUCTION);
-Nette\Diagnostics\Debugger::$logDirectory = APP_DIR;
-Nette\Diagnostics\Debugger::$maxLen = 4096;
+Debugger::enable(Debugger::PRODUCTION);
+Debugger::$logDirectory = APP_DIR;
+Debugger::$maxLen = 4096;
 
 // Init Nette Framework robot loader
 $loader = new Nette\Loaders\RobotLoader;
