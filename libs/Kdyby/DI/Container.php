@@ -10,6 +10,7 @@
 
 namespace Kdyby\DI;
 
+use Symfony\Component\Console;
 use Kdyby;
 use Nette;
 
@@ -17,6 +18,24 @@ use Nette;
 
 /**
  * @author Filip Procházka
+ *
+ * @property-read Kdyby\Doctrine\Container $doctrine
+ * @property-read Nette\Application\IRouter $router
+ * @property-read Console\Helper\HelperSet $consoleHelpers
+ * @property-read Kdyby\Tools\FreezableArray $consoleCommands
+ * @property-read Console\Application $console
+ * @property-read Nette\Application\Application $application
+ * @property-read Nette\Application\IPresenterFactory $presenterFactory
+ * @property-read Nette\Http\Request $httpRequest
+ * @property-read Nette\Http\Response $httpResponse
+ * @property-read Nette\Http\Context $httpContext
+ * @property-read Nette\Http\Session $session
+ * @property-read Nette\Http\User $user
+ * @property-read Nette\Caching\IStorage $cacheStorage
+ * @property-read Nette\Caching\Storages\PhpFileStorage $templateCacheStorage
+ * @property-read Nette\Caching\Storages\IJournal $cacheJournal
+ * @property-read Nette\Mail\IMailer $mailer
+ * @property-read Nette\Loaders\RobotLoader $robotLoader
  */
 class Container extends Nette\DI\Container
 {
