@@ -19,6 +19,7 @@
 namespace Kdyby\Doctrine;
 
 use Doctrine;
+use Kdyby;
 use Nette;
 use Nette\Diagnostics\Debugger;
 use Nette\Database\Connection;
@@ -112,10 +113,7 @@ class Panel extends \Nette\Object implements \Nette\Diagnostics\IBarPanel, \Doct
 		}
 
 		$s .= '</td><td>';
-		foreach ($params as $param) {
-			$s .= Debugger::dump($param, TRUE) . "<br>";
-		}
-
+		$s .= Debugger::dump($params, TRUE);
 		$s .= '</td><td>' . $rows . '</td></tr>';
 		return $s;
 	}
@@ -146,6 +144,27 @@ class Panel extends \Nette\Object implements \Nette\Diagnostics\IBarPanel, \Doct
 			$s .= '</table>';
 			return array(
 				'tab' => 'SQL',
+				'panel' => $this->renderStyles() . '<div class="nette-inner nette-Doctrine2Panel">' . $s . '</div>',
+			);
+		}
+
+		if ($e instanceof Kdyby\Doctrine\QueryException) {
+			$h = 'htmlSpecialChars';
+
+			// query
+			$s = '<p><b>Query</b></p><table><tr><td class="nette-Doctrine2Panel-sql">';
+			$s .= Connection::highlightSql($e->getQuery()->getDQL());
+			$s .= '</td></tr></table>';
+
+			// parameters
+			$s .= '<p><b>Parameters</b></p><table>';
+			foreach ($e->getQuery()->getParameters() as $name => $value) {
+				$s .= '<tr><td width="200">' . $h($name) . '</td><td>' . $h($value) . '</td></tr>';
+			}
+			$s .= '</table>';
+
+			return array(
+				'tab' => 'DQL',
 				'panel' => $this->renderStyles() . '<div class="nette-inner nette-Doctrine2Panel">' . $s . '</div>',
 			);
 		}
