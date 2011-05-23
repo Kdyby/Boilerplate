@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the Kdyby (http://www.kdyby.org)
+ *
+ * Copyright (c) 2008, 2011 Filip Procházka (filip.prochazka@kdyby.org)
+ *
+ * @license http://www.kdyby.org/license
+ */
+
 namespace Kdyby\Components\Grinder;
 
 use Kdyby;
@@ -60,5 +68,5 @@ class GridPaginator extends Kdyby\Components\VisualPaginator\VisualPaginator
 	{
 		return $this->getPlacement() === self::PLACEMENT_BOTH || $this->getPlacement() === self::PLACEMENT_BOTTOM;
 	}
-	
+
 }
