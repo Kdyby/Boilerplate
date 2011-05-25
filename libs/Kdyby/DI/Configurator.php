@@ -78,6 +78,36 @@ class Configurator extends Nette\Configurator
 
 	/**
 	 * @param DI\Container $container
+	 * @return Nette\Application\IPresenterFactory
+	 */
+	public static function createServicePresenterFactory(DI\Container $container)
+	{
+		return new Kdyby\Application\PresenterFactory($container->moduleRegister, $container);
+	}
+
+
+
+	/**
+	 * @param DI\Container $container
+	 * @return Kdyby\Tools\FreezableArray
+	 */
+	public static function createServiceModuleRegister(DI\Container $container)
+	{
+		$register = new Kdyby\Tools\FreezableArray(array(
+			'Kdyby\Modules' => KDYBY_DIR . '/Modules'
+		));
+
+		foreach ($container->getParam('modules', array()) as $namespace => $path) {
+			$register[$namespace] = $container->expand($path);
+		}
+
+		return $register;
+	}
+
+
+
+	/**
+	 * @param DI\Container $container
 	 * @return Nette\Application\Routers\RouteList
 	 */
 	public static function createServiceRouter(DI\Container $container)
