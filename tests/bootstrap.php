@@ -4,6 +4,7 @@ use Nette\Diagnostics\Debugger;
 
 // required constants
 define('APP_DIR', __DIR__);
+define('TESTS_DIR', __DIR__);
 define('VENDORS_DIR', APP_DIR . '/../libs/vendors');
 
 // Take care of autoloading
