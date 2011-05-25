@@ -74,9 +74,10 @@ abstract class BaseColumn extends Kdyby\Components\Grinder\GridComponent
 		} elseif (is_object($record)) {
 			if (isset($record->{$this->name})) {
 				$value = $record->{$this->name};
-			}
 
-			$value = $record->{'get' . ucfirst($this->name)}();
+			} else {
+				$value = $record->{'get' . ucfirst($this->name)}();
+			}
 
 		} elseif (is_array($record)) {
 			$value = $record[$this->name];

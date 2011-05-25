@@ -10,8 +10,6 @@
 
 namespace Kdyby\Components\Grinder\Filters;
 
-use Doctrine\ORM\QueryBuilder;
-
 
 
 /**
@@ -24,6 +22,6 @@ interface IFilter
 
 	public function getColumn();
 
-	public function apply(QueryBuilder $qb);
+	public function createFragments();
 
 }

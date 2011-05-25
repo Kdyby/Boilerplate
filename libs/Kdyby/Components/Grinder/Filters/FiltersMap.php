@@ -10,7 +10,6 @@
 
 namespace Kdyby\Components\Grinder\Filters;
 
-use Doctrine\ORM\QueryBuilder;
 use Kdyby;
 use Nette;
 

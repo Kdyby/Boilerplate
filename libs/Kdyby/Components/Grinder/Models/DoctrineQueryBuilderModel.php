@@ -16,6 +16,7 @@ use Nette;
 use Doctrine;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\ORM\Query\Expr;
 
 
 
@@ -54,7 +55,18 @@ class DoctrineQueryBuilderModel extends AbstractModel
 		$filters->getFragmentsBuilder()->setQueryBuilder($this->qb);
 
 		foreach ($filters as $filter) {
-			$filter->apply($this->qb);
+			$method = $filter->createFragments();
+			if ($method) {
+				if ($method instanceof Expr\Select) {
+					$this->qb->add('select', $method, TRUE);
+
+				} elseif ($method instanceof Expr\Join) {
+					$this->qb->add('join', $method, TRUE);
+
+				} else {
+					$this->qb->andWhere($method);
+				}
+			}
 		}
 	}
 

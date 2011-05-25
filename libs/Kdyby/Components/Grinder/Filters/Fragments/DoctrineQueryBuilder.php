@@ -55,7 +55,7 @@ class DoctrineQueryBuilder extends Nette\Object implements Filters\IFragmentsBui
 	/**
 	 * @param string|array $value
 	 * @param Filter $filter
-	 * @return array
+	 * @return Expr
 	 */
 	public function buildEquals($value, Filter $filter)
 	{
@@ -66,10 +66,10 @@ class DoctrineQueryBuilder extends Nette\Object implements Filters\IFragmentsBui
 		$this->qb->setParameter($filter->getParameterName(), $value);
 
 		if (is_array($value)) {
-			return array($this->expr->in($filter->column, ':' . $filter->getParameterName()));
+			return $this->expr->in($filter->column, ':' . $filter->getParameterName());
 		}
 
-		return array($this->expr->eq($filter->column, ':' . $filter->getParameterName()));
+		return $this->expr->eq($filter->column, ':' . $filter->getParameterName());
 	}
 
 
@@ -77,7 +77,7 @@ class DoctrineQueryBuilder extends Nette\Object implements Filters\IFragmentsBui
 	/**
 	 * @param string|array $value
 	 * @param Filter $filter
-	 * @return array
+	 * @return Expr
 	 */
 	public function buildLike($value, Filter $filter)
 	{
@@ -86,7 +86,7 @@ class DoctrineQueryBuilder extends Nette\Object implements Filters\IFragmentsBui
 		}
 
 		$this->qb->setParameter($filter->getParameterName(), '%' . $value . '%');
-		return array($this->expr->like($filter->column, ':' . $filter->getParameterName()));
+		return $this->expr->like($filter->column, ':' . $filter->getParameterName());
 	}
 
 
@@ -94,7 +94,7 @@ class DoctrineQueryBuilder extends Nette\Object implements Filters\IFragmentsBui
 	/**
 	 * @param string|array $value
 	 * @param Filter $filter
-	 * @return array
+	 * @return Expr
 	 */
 	public function buildHigherOrEqualThan($value, Filter $filter)
 	{
@@ -103,7 +103,7 @@ class DoctrineQueryBuilder extends Nette\Object implements Filters\IFragmentsBui
 		}
 
 		$this->qb->setParameter($filter->getParameterName(), $value);
-		return array($this->expr->lte($filter->column, ':' . $filter->getParameterName()));
+		return $this->expr->lte($filter->column, ':' . $filter->getParameterName());
 	}
 
 
@@ -111,7 +111,7 @@ class DoctrineQueryBuilder extends Nette\Object implements Filters\IFragmentsBui
 	/**
 	 * @param string|array $value
 	 * @param Filter $filter
-	 * @return array
+	 * @return Expr
 	 */
 	public function buildHigherThan($value, Filter $filter)
 	{
@@ -120,7 +120,7 @@ class DoctrineQueryBuilder extends Nette\Object implements Filters\IFragmentsBui
 		}
 
 		$this->qb->setParameter($filter->getParameterName(), $value);
-		return array($this->expr->gt($filter->column, ':' . $filter->getParameterName()));
+		return $this->expr->gt($filter->column, ':' . $filter->getParameterName());
 	}
 
 
@@ -128,7 +128,7 @@ class DoctrineQueryBuilder extends Nette\Object implements Filters\IFragmentsBui
 	/**
 	 * @param string|array $value
 	 * @param Filter $filter
-	 * @return array
+	 * @return Expr
 	 */
 	public function buildLowerOrEqualThan($value, Filter $filter)
 	{
@@ -137,7 +137,7 @@ class DoctrineQueryBuilder extends Nette\Object implements Filters\IFragmentsBui
 		}
 
 		$this->qb->setParameter($filter->getParameterName(), $value);
-		return array($this->expr->lte($filter->column, ':' . $filter->getParameterName()));
+		return $this->expr->lte($filter->column, ':' . $filter->getParameterName());
 	}
 
 
@@ -145,7 +145,7 @@ class DoctrineQueryBuilder extends Nette\Object implements Filters\IFragmentsBui
 	/**
 	 * @param string|array $value
 	 * @param Filter $filter
-	 * @return array
+	 * @return Expr
 	 */
 	public function buildLowerThan($value, Filter $filter)
 	{
@@ -154,7 +154,7 @@ class DoctrineQueryBuilder extends Nette\Object implements Filters\IFragmentsBui
 		}
 
 		$this->qb->setParameter($filter->getParameterName(), $value);
-		return array($this->expr->lt($filter->column, ':' . $filter->getParameterName()));
+		return $this->expr->lt($filter->column, ':' . $filter->getParameterName());
 	}
 
 
@@ -162,7 +162,7 @@ class DoctrineQueryBuilder extends Nette\Object implements Filters\IFragmentsBui
 	/**
 	 * @param string|array $value
 	 * @param Filter $filter
-	 * @return array
+	 * @return Expr
 	 */
 	public function buildNull($value, Filter $filter)
 	{
@@ -171,10 +171,10 @@ class DoctrineQueryBuilder extends Nette\Object implements Filters\IFragmentsBui
 		}
 
 		if ($value) {
-			return array($this->expr->isNull($filter->column));
+			return $this->expr->isNull($filter->column);
 		}
 
-		return array($this->expr->isNotNull($filter->column));
+		return $this->expr->isNotNull($filter->column);
 	}
 
 }

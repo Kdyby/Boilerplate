@@ -10,8 +10,6 @@
 
 namespace Kdyby\Components\Grinder\Filters;
 
-use Doctrine\ORM\QueryBuilder;
-use Doctrine\ORM\Query\Expr;
 use Kdyby;
 use Nette;
 use Nette\ComponentModel\IComponent;
@@ -56,6 +54,9 @@ class Filter extends Nette\Object implements IFilter
 
 	/** @var string */
 	private $type;
+
+	/** @var string */
+	private $sqlType = 's';
 
 
 
@@ -194,6 +195,28 @@ class Filter extends Nette\Object implements IFilter
 
 
 	/**
+	 * @param string $sqlType
+	 * @return Filter
+	 */
+	public function setSqlType($sqlType)
+	{
+		$this->sqlType = $sqlType;
+		return $this;
+	}
+
+
+
+	/**
+	 * @return string
+	 */
+	public function getSqlType()
+	{
+		return $this->sqlType;
+	}
+
+
+
+	/**
 	 * @return string
 	 */
 	public function getParameterName()
@@ -237,9 +260,9 @@ class Filter extends Nette\Object implements IFilter
 
 
 	/**
-	 * @param QueryBuilder $qb
+	 * @return array
 	 */
-	public function apply(QueryBuilder $qb)
+	public function createFragments()
 	{
 		if (!is_callable($this->sourceCallback)) {
 			throw new Nette\InvalidStateException("Given datasource is not callable, in filter " . $this->getName() . ".");
@@ -249,17 +272,7 @@ class Filter extends Nette\Object implements IFilter
 			throw new Nette\InvalidStateException("Given fragment builder method is not callable, in filter " . $this->getName() . ".");
 		}
 
-		foreach ((array)call_user_func($this->methodCallback, $this->getValue(), $this, $qb) as $method) {
-			if ($method instanceof Expr\Select) {
-				$qb->add('select', $method, TRUE);
-
-			} elseif ($method instanceof Expr\Join) {
-				$qb->add('join', $method, TRUE);
-
-			} else {
-				$qb->andWhere($method);
-			}
-		}
+		return call_user_func($this->methodCallback, $this->getValue(), $this);
 	}
 
 }
