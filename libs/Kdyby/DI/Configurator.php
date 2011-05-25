@@ -114,8 +114,17 @@ class Configurator extends Nette\Configurator
 	{
 		$router = new Nette\Application\Routers\RouteList;
 
-		$router[] = new Route('index.php', 'Homepage:default', Route::ONE_WAY);
-		$router[] = new Route('<presenter>/<action>[/<id>]', 'Homepage:default');
+		$router[] = new Route('index.php', array(
+			'module' => 'Front',
+			'presenter' => 'Homepage',
+			'action' => 'default',
+		), Route::ONE_WAY);
+
+		$router[] = new Route('<presenter>/<action>[/<id>]', array(
+			'module' => 'Front',
+			'presenter' => 'Homepage',
+			'action' => 'default',
+		));
 
 		return $router;
 	}
