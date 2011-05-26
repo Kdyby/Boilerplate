@@ -11,6 +11,7 @@
 namespace Kdyby\Application\UI;
 
 use Nette;
+use Nette\Diagnostics\Debugger;
 use Kdyby;
 use Kdyby\Application\Presentation\Bundle;
 
@@ -41,14 +42,24 @@ class Presenter extends Nette\Application\UI\Presenter
 
 
 	/**
+	 * @return Nette\Templating\ITemplate
+	 */
+	protected function createTemplate()
+	{
+		return $this->getContext()->templateFactory->createTemplate($this);
+	}
+
+
+
+	/**
 	 * If Debugger is enabled, print template variables to debug bar
 	 */
 	protected function afterRender()
 	{
 		parent::afterRender();
 
-		if (Nette\Diagnostics\Debugger::isEnabled()) { // todo: as panel
-			Nette\Diagnostics\Debugger::barDump($this->template->getParams(), 'Template variables');
+		if (Debugger::isEnabled()) { // todo: as panel
+			Debugger::barDump($this->template->getParams(), 'Template variables');
 		}
 	}
 
