@@ -85,12 +85,12 @@ abstract class BaseRenderer extends CellRenderer implements IGridRenderer
 		$flashesId  = $this->grid->getParamId('flash');
 		$messages = (array)$this->grid->getPresenter()->getFlashSession()->{$flashesId};
 		foreach ($messages as $message) {
-			$flash = Html::el('span')->addClass('grinder-flash')->addClass($message->type);
+			$flash = Html::el('div')->class('flash grinder-flash ' . $message->type);
 			$flashes->add($flash->{$message->message instanceof Html ? 'add' : 'setText'}($message->message));
 		}
 
 		foreach ($this->grid->getForm()->getErrors() as $error) {
-			$flash = Html::el('span')->addClass('grinder-flash')->addClass('error');
+			$flash = Html::el('div')->class('flash grinder-flash error');
 			$flashes->add($flash->{$error instanceof Html ? 'add' : 'setText'}($error));
 		}
 
@@ -105,10 +105,7 @@ abstract class BaseRenderer extends CellRenderer implements IGridRenderer
 	public function renderFilters()
 	{
 		$form = $this->grid->getFilters()->getForm();
-
-		ob_start();
-			$form->render();
-		return Html::el()->setHtml(ob_get_clean());
+		return Html::el()->setHtml($form->__toString());
 	}
 
 
@@ -183,9 +180,8 @@ abstract class BaseRenderer extends CellRenderer implements IGridRenderer
 	 */
 	protected function renderForm($partName = NULL)
 	{
-		ob_start();
-			$this->grid->getForm()->render($partName);
-		return Html::el()->setHtml(ob_get_clean());
+		$form = $this->grid->getForm();
+		return Html::el()->setHtml($form->getRenderer()->render($form, $partName));
 	}
 
 

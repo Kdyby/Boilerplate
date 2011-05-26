@@ -188,7 +188,17 @@ abstract class BaseAction extends Kdyby\Components\Grinder\GridComponent
 	 */
 	public function render()
 	{
-		echo call_user_func(array($this->renderer, 'renderAction'), $this);
+		echo $this->__toString();
+	}
+
+
+
+	/**
+	 * @return string
+	 */
+	public function __toString()
+	{
+		return call_user_func(array($this->renderer, 'renderAction'), $this);
 	}
 
 }

@@ -27,9 +27,6 @@ abstract class BaseColumn extends Kdyby\Components\Grinder\GridComponent
 	/** @var mixed */
 	private $value;
 
-	/** @var array */
-	private $filters = array();
-
 	/** @var bool */
 	protected $sortable = FALSE;
 
@@ -39,55 +36,15 @@ abstract class BaseColumn extends Kdyby\Components\Grinder\GridComponent
 
 
 	/**
-	 * @param callback $filter
-	 * @return BaseColumn
-	 */
-	public function addFilter($filter)
-	{
-		$this->filters[] = callback($filter);
-		return $this;
-	}
-
-
-
-	/**
-	 * @return array
-	 */
-	public function getFilters()
-	{
-		return $this->filters;
-	}
-
-
-
-	/**
 	 * @return mixed
 	 */
 	public function getValue()
 	{
-		$record = $this->getGrid()->getCurrentRecord();
-		$value = NULL;
-
 		if ($this->value) {
-			$value = $this->value;
-
-		} elseif (is_object($record)) {
-			if (isset($record->{$this->name})) {
-				$value = $record->{$this->name};
-
-			} else {
-				$value = $record->{'get' . ucfirst($this->name)}();
-			}
-
-		} elseif (is_array($record)) {
-			$value = $record[$this->name];
+			return $this->value;
 		}
 
-		foreach ($this->getFilters() as $filter) {
-			$value = $filter($value, $record);
-		}
-
-		return $value;
+		return $this->getGrid()->getRecordProperty($this->name);
 	}
 
 
@@ -170,11 +127,28 @@ abstract class BaseColumn extends Kdyby\Components\Grinder\GridComponent
 
 
 	/**
+	 * @return Nette\Utils\Html
+	 */
+	abstract function getControl();
+
+
+
+	/**
 	 * @return void
 	 */
 	public function render()
 	{
-		echo call_user_func(array($this->renderer, 'renderCell'), $this);
+		echo $this->__toString();
+	}
+
+
+
+	/**
+	 * @return string
+	 */
+	public function __toString()
+	{
+		return call_user_func(array($this->renderer, 'renderCell'), $this);
 	}
 
 }

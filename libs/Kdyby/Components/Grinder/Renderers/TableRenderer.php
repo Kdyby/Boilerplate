@@ -92,10 +92,7 @@ class TableRenderer extends BaseRenderer
 
 		foreach ($this->grid->getColumns() as $column) {
 			$cell = Html::el('td')->addClass($column->getCellHtmlClass($iterator));
-
-			ob_start();
-				$column->render();
-			$item->add($cell->setHtml(ob_get_clean()));
+			$item->add($cell->setHtml($column->__toString()));
 		}
 
 		if (count($unattachedActions) > 0) {

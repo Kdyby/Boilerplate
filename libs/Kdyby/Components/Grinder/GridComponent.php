@@ -24,6 +24,7 @@ use Nette\Utils\Html;
  *
  * @property string|Html $caption
  * @property IGridRenderer $renderer
+ * @property Grid $grid
  */
 abstract class GridComponent extends Nette\Application\UI\PresenterComponent
 {

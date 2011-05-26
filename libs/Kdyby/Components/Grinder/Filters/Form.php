@@ -34,7 +34,6 @@ class Form extends UIForm
 	public function __construct(FiltersMap $filtersMap)
 	{
 		parent::__construct(NULL, NULL);
-		$this->monitor('Nette\Application\UI\Presenter');
 
 		$this->addContainer('filters');
 		$this->filtersMap = $filtersMap;

@@ -81,6 +81,9 @@ class Grid extends Nette\Application\UI\Control
 	/** @var string|callable */
 	private $rowHtmlClass;
 
+	/** @var Kdyby\DI\Container */
+	private $context;
+
 
 
 	/**
@@ -118,6 +121,10 @@ class Grid extends Nette\Application\UI\Control
 			return;
 		}
 
+		// steal the context from presenter :)
+		$this->context = $obj->getContext();
+
+		// fill the defaults into filters
 		if ($this->filter) {
 			foreach ($this->getFilters()->getFiltersMap() as $filter) {
 				if (!$filter->getControl() instanceof Nette\Forms\IControl) {
@@ -128,6 +135,21 @@ class Grid extends Nette\Application\UI\Control
 			}
 		}
 	}
+
+
+
+	/**
+	 * @return Kdyby\DI\Container
+	 */
+	public function getContext()
+	{
+		if (!$this->context) {
+			throw new Nette\InvalidStateException("Grid was not yet attached to presenter, therefore you cannot access to context.");
+		}
+
+		return $this->context;
+	}
+
 
 
 	/**
@@ -254,7 +276,7 @@ class Grid extends Nette\Application\UI\Control
 	 */
 	public function addAction($name, $caption = NULL, array $options = array(), $insertBefore = NULL)
 	{
-		$action = $this->add(new Actions\LinkAction, $name, $insertBefore);
+		$action = $this->add($link = new Actions\LinkAction, $name, $insertBefore);
 		$this->setOptions($action, array('caption' => $caption) + $options);
 
 		return $action;
@@ -286,11 +308,11 @@ class Grid extends Nette\Application\UI\Control
 
 
 	/**
-	 * Add action button to toolbar
-	 * @param string button name
-	 * @param string caption
-	 * @param array options
-	 * @return Toolbar\ButtonAction
+	 * @param string $name
+	 * @param string $caption
+	 * @param array $options
+	 * @param string|int $insertBefore
+	 * @return Actions\ButtonAction
 	 */
 	public function addToolbarAction($name, $caption = NULL, array $options = array(), $insertBefore = NULL)
 	{
@@ -305,10 +327,10 @@ class Grid extends Nette\Application\UI\Control
 
 
 	/**
-	 * Add column
-	 * @param string name
-	 * @param string caption
-	 * @param array options
+	 * @param string $name
+	 * @param string $caption
+	 * @param array $options
+	 * @param string|int $insertBefore
 	 * @return Columns\Column
 	 */
 	public function addColumn($name, $caption = NULL, array $options = array(), $insertBefore = NULL)
@@ -322,10 +344,10 @@ class Grid extends Nette\Application\UI\Control
 
 
 	/**
-	 * Add column
-	 * @param string name
-	 * @param string caption
-	 * @param array options
+	 * @param string $name
+	 * @param string $caption
+	 * @param array $options
+	 * @param string|int $insertBefore
 	 * @return Columns\CheckColumn
 	 */
 	public function addCheckColumn($name, $caption = NULL, array $options = array(), $insertBefore = NULL)
@@ -339,13 +361,32 @@ class Grid extends Nette\Application\UI\Control
 
 
 	/**
-	 * Add column
-	 * @param string name
-	 * @param string caption
-	 * @param array options
+	 * @param string $name
+	 * @param string|callback|Html $image
+	 * @param string $caption
+	 * @param array $options
+	 * @param string|int $insertBefore
+	 * @return Columns\ImageColumn
+	 */
+	public function addImageColumn($name, $image, $caption = NULL, array $options = array(), $insertBefore = NULL)
+	{
+		$column = $this->add(new Columns\ImageColumn($image), $name, $insertBefore);
+		$this->setOptions($column, array('caption' => $caption) + $options);
+
+		return $column;
+	}
+
+
+
+	/**
+	 * @param string $name
+	 * @param Nette\Forms\IControl $control
+	 * @param string $caption
+	 * @param array $options
+	 * @param string|int $insertBefore
 	 * @return Columns\FormColumn
 	 */
-	public function addFormColumn($name, $control, $caption = NULL, array $options = array(), $insertBefore = NULL)
+	public function addFormColumn($name, Nette\Forms\IControl $control, $caption = NULL, array $options = array(), $insertBefore = NULL)
 	{
 		$column = $this->add(new Columns\FormColumn($control), $name, $insertBefore);
 		$this->setOptions($column, array('caption' => $caption) + $options);
@@ -356,10 +397,10 @@ class Grid extends Nette\Application\UI\Control
 
 
 	/**
-	 * Add column
-	 * @param string name
-	 * @param string caption
-	 * @param array options
+	 * @param string $name
+	 * @param string $caption
+	 * @param array $options
+	 * @param string|int $insertBefore
 	 * @return Columns\ActionsColumn
 	 */
 	public function addActionsColumn($name, $caption = NULL, array $options = array(), $insertBefore = NULL)
@@ -532,6 +573,33 @@ class Grid extends Nette\Application\UI\Control
 				throw new \InvalidArgumentException("Option with name $option does not exist.");
 			}
 		}
+	}
+
+
+
+	/**
+	 * @param string $paramName
+	 * @param bool $need
+	 * @return mixed|NULL
+	 */
+	public function getRecordProperty($paramName, $need = TRUE)
+	{
+		$record = $this->getCurrentRecord();
+
+		if (isset($record->$paramName)) {
+			return $record->$paramName;
+
+		} elseif (method_exists($record, $method = 'get' . ucfirst($paramName))) {
+			return $record->$method();
+
+		} elseif (method_exists($record, $method = 'is' . ucfirst($paramName))) {
+			return $record->$method();
+
+		} elseif ($need) {
+			throw new Nette\InvalidStateException("Record " . (is_object($record) ? "of entity " . get_class($record) . ' ' : NULL) . "has no parameter named '" . $paramName . "'.");
+		}
+
+		return NULL;
 	}
 
 

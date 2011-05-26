@@ -13,6 +13,7 @@ namespace Kdyby\Components\Grinder\Columns;
 use DateTime;
 use Kdyby;
 use Nette;
+use Nette\Utils\Html;
 use Nette\Templating\DefaultHelpers;
 
 
@@ -27,7 +28,7 @@ abstract class CellRenderer extends Nette\Object
 	 * Render boolean
 	 * @param bool value
 	 */
-	protected function renderBoolean($value)
+	public function renderBoolean($value)
 	{
 		return $value ? "ano" : "ne";
 	}
@@ -39,7 +40,7 @@ abstract class CellRenderer extends Nette\Object
 	 * @param DateTime value
 	 * @param string datetime format
 	 */
-	protected function renderDateTime(DateTime $date, $format = 'j.n.Y G:i')
+	public function renderDateTime(DateTime $date, $format = 'j.n.Y G:i')
 	{
 		return $date->format($format);
 	}
@@ -50,21 +51,10 @@ abstract class CellRenderer extends Nette\Object
 	 * @param FormColumn $column
 	 * @return Html
 	 */
-	protected function renderFormCell(FormColumn $column)
+	public function renderFormCell(FormColumn $column)
 	{
 		// column control -> IFormControl control
 		return $column->getControl()->getControl();
-	}
-
-
-
-	/**
-	 * @param ActionsColumn $column
-	 * @return Nette\Utils\Html
-	 */
-	protected function renderActionsCell(ActionsColumn $column)
-	{
-		return $column->getControl();
 	}
 
 
@@ -81,21 +71,7 @@ abstract class CellRenderer extends Nette\Object
 			return $this->renderFormCell($column);
 		}
 
-		if ($column instanceof ActionsColumn) {
-			return $this->renderActionsCell($column);
-		}
-
-		$value = $column->getValue();
-
-		if (is_bool($value)) {
-			return $this->renderBoolean($value);
-
-		} elseif ($value instanceof DateTime) {
-			return $this->renderDateTime($value, $column->dateTimeFormat);
-		}
-
-		// other
-		return DefaultHelpers::escapeHtml($value);
+		return $column->getControl();
 	}
 
 }
