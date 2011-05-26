@@ -60,6 +60,9 @@ class Configurator extends Nette\Configurator
 		$application->catchExceptions = $container->getParam('productionMode', TRUE);
 		$application->errorPresenter = 'Error';
 
+		$container->params['baseUrl'] = $baseUrl = rtrim($container->httpRequest->getUrl()->getBaseUrl(), '/');
+		$container->params['basePath'] = preg_replace('#https?://[^/]+#A', '', $baseUrl);
+
 		return $application;
 	}
 
@@ -83,6 +86,28 @@ class Configurator extends Nette\Configurator
 	public static function createServicePresenterFactory(DI\Container $container)
 	{
 		return new Kdyby\Application\PresenterFactory($container->moduleRegister, $container);
+	}
+
+
+
+	/**
+	 * @param DI\Container $container
+	 * @return Kdyby\Templates\ITemplateFactory
+	 */
+	public static function createServiceTemplateFactory(DI\Container $container)
+	{
+		return new Kdyby\Templates\TemplateFactory($container->latteEngine);
+	}
+
+
+
+	/**
+	 * @param DI\Container $container
+	 * @return Nette\Latte\Engine
+	 */
+	public static function createServiceLatteEngine(DI\Container $container)
+	{
+		return new Nette\Latte\Engine;
 	}
 
 
