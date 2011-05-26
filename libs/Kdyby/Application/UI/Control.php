@@ -29,6 +29,58 @@ use Nette\Utils\Strings;
 class Control extends Nette\Application\UI\Control
 {
 
-	
+	/** @var Nette\DI\Container */
+	private $context;
+
+
+
+	/**
+	 * @param Nette\ComponentModel\Container $obj
+	 * @return type
+	 */
+	protected function attached($obj)
+	{
+		parent::attached($obj);
+
+		if (!$obj instanceof Nette\Application\UI\Presenter) {
+			return;
+		}
+
+		$this->setContext($obj->getContext());
+	}
+
+
+
+	/**
+	 * @param Nette\DI\Container $context
+	 */
+	public function setContext(Nette\DI\Container $context)
+	{
+		$this->context = $context;
+	}
+
+
+
+	/**
+	 * @return Kdyby\DI\Container
+	 */
+	public function getContext()
+	{
+		if (!$this->context) {
+			throw new Nette\InvalidStateException("Missing context, component wasn't yet attached to presenter.");
+		}
+
+		return $this->context;
+	}
+
+
+
+	/**
+	 * @return Nette\Templating\ITemplate
+	 */
+	protected function createTemplate()
+	{
+		return $this->getContext()->templateFactory->createTemplate($this);
+	}
 
 }
