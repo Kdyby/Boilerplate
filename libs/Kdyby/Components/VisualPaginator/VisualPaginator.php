@@ -58,6 +58,16 @@ class VisualPaginator extends Control
 	 */
 	public function render()
 	{
+		echo $this->__toString();
+	}
+
+
+
+	/**
+	 * @return string
+	 */
+	public function __toString()
+	{
 		$paginator = $this->getPaginator();
 		$page = $paginator->page;
 		if ($paginator->pageCount < 2) {
@@ -77,7 +87,7 @@ class VisualPaginator extends Control
 		$this->template->steps = $steps;
 		$this->template->paginator = $paginator;
 		$this->template->setFile(dirname(__FILE__) . '/template.phtml');
-		$this->template->render();
+		return (string)$this->template;
 	}
 
 
