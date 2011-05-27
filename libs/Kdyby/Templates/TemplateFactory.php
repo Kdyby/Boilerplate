@@ -62,10 +62,10 @@ class TemplateFactory extends Nette\Object implements ITemplateFactory
 
 		// stuff from presenter
 		if ($presenter instanceof Presenter) {
-			$template->setCacheStorage($presenter->getContext()->templateCacheStorage);
+			$template->setCacheStorage($presenter->getContext()->getService('templateCacheStorage'));
 			$template->user = $presenter->getUser();
-			$template->netteHttpResponse = $presenter->getHttpResponse();
-			$template->netteCacheStorage = $presenter->getContext()->cacheStorage;
+			$template->netteHttpResponse = $presenter->getContext()->getService('httpResponse');
+			$template->netteCacheStorage = $presenter->getContext()->getService('cacheStorage');
 			$template->baseUri = $template->baseUrl = $presenter->getContext()->getParam('baseUrl');
 			$template->basePath = $presenter->getContext()->getParam('basePath');
 
