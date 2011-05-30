@@ -67,13 +67,6 @@ class EntityRepository extends Doctrine\ORM\EntityRepository
 
 
 
-	public function __call($name, $args)
-	{
-		return ObjectMixin::call($this, $name, $args);
-	}
-
-
-
 	public function &__get($name)
 	{
 		return ObjectMixin::get($this, $name);
