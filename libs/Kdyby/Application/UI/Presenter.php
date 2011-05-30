@@ -20,7 +20,7 @@ use Kdyby\Application\Presentation\Bundle;
 /**
  * @author Filip Procházka
  *
- * @property Kdyby\DependencyInjection\ServiceContainer $serviceContainer
+ * @property-read Kdyby\DI\Container $context
  * @property Bundle $applicationBundle
  */
 class Presenter extends Nette\Application\UI\Presenter
