@@ -36,7 +36,8 @@ class Container extends Kdyby\DI\Container
 
 	/** @var array */
 	private static $types = array(
-		'callback' => '\Kdyby\Doctrine\Types\Callback'
+		'callback' => '\Kdyby\Doctrine\Types\Callback',
+		'password' => '\Kdyby\Doctrine\Types\Password'
 	);
 
 
