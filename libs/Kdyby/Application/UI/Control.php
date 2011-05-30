@@ -76,11 +76,11 @@ class Control extends Nette\Application\UI\Control
 
 
 	/**
-	 * @return Nette\Templating\ITemplate
+	 * @return Kdyby\Templating\FileTemplate
 	 */
-	protected function createTemplate()
+	protected function createTemplate($class = NULL)
 	{
-		return $this->getContext()->templateFactory->createTemplate($this);
+		return $this->getContext()->templateFactory->createTemplate($this, $class);
 	}
 
 }

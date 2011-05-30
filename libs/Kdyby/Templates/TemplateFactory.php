@@ -39,22 +39,16 @@ class TemplateFactory extends Nette\Object implements ITemplateFactory
 
 
 	/**
-	 * @return Kdyby\Templates\FileTemplate
-	 */
-	protected function createTemplateInstance()
-	{
-		return new FileTemplate;
-	}
-
-
-
-	/**
 	 * @param Nette\ComponentModel\Component $component
+	 * @param string $class
 	 * @return Kdyby\Templates\FileTemplate
 	 */
-	public function createTemplate(Nette\ComponentModel\Component $component)
+	public function createTemplate(Nette\ComponentModel\Component $component, $class = NULL)
 	{
-		$template = $this->createTemplateInstance();
+		$class = $class ?: 'Kdyby\Templates\FileTemplate';
+		$template = new $class;
+
+		// find presenter
 		$presenter = $component instanceof Presenter
 			? $component : $component->getPresenter(FALSE);
 
@@ -66,7 +60,7 @@ class TemplateFactory extends Nette\Object implements ITemplateFactory
 		$template->presenter = $presenter;
 
 		// helpers
-		$this->registerHelpers($template);
+		$template->registerHelperLoader('Nette\Templating\DefaultHelpers::loader');
 
 		// stuff from presenter
 		if ($presenter instanceof Presenter) {
@@ -102,26 +96,6 @@ class TemplateFactory extends Nette\Object implements ITemplateFactory
 	{
 		// default filters
 		$template->registerFilter($this->latteEngine);
-	}
-
-
-
-	/**
-	 * @param ITemplate $template
-	 */
-	public function registerHelpers(ITemplate $template)
-	{
-		// default helpers
-		$template->registerHelper('escape', 'Nette\Templating\DefaultHelpers::escapeHtml');
-		$template->registerHelper('escapeUrl', 'rawurlencode');
-		$template->registerHelper('stripTags', 'strip_tags');
-		$template->registerHelper('nl2br', 'nl2br');
-		$template->registerHelper('substr', 'iconv_substr');
-		$template->registerHelper('repeat', 'str_repeat');
-		$template->registerHelper('replaceRE', 'Nette\Utils\Strings::replace');
-		$template->registerHelper('implode', 'implode');
-		$template->registerHelper('number', 'number_format');
-		$template->registerHelperLoader('Nette\Templating\DefaultHelpers::loader');
 	}
 
 }

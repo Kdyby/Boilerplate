@@ -42,11 +42,11 @@ class Presenter extends Nette\Application\UI\Presenter
 
 
 	/**
-	 * @return Nette\Templating\ITemplate
+	 * @return Kdyby\Templating\FileTemplate
 	 */
-	protected function createTemplate()
+	protected function createTemplate($class = NULL)
 	{
-		return $this->getContext()->templateFactory->createTemplate($this);
+		return $this->getContext()->templateFactory->createTemplate($this, $class);
 	}
 
 
