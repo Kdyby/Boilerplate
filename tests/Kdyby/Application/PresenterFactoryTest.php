@@ -32,16 +32,16 @@ class PresenterFactoryTest extends \PHPUnit_Framework_TestCase
 	public function setUp()
 	{
 		$this->context = new Nette\DI\Container;
-		$this->context->addService('moduleRegister', function () {
-			return new Kdyby\Tools\FreezableArray(array(
-				'Kdyby\Module' => KDYBY_DIR . '/Modules',
-				'App' => APP_DIR,
-				'Foo' => APP_DIR,
-			));
+		$this->context->addService('moduleRegistry', function () {
+			$registry = new Kdyby\Application\ModuleCascadeRegistry;
+			$registry->add('Kdyby\Module', KDYBY_DIR . '/Modules');
+			$registry->add('App', APP_DIR);
+			$registry->add('Foo', APP_DIR);
+			return $registry;
 		});
 
-		$this->context->moduleRegister->freeze();
-		$this->factory = new Kdyby\Application\PresenterFactory($this->context->moduleRegister, $this->context);
+		$this->context->moduleRegistry->freeze();
+		$this->factory = new Kdyby\Application\PresenterFactory($this->context->moduleRegistry, $this->context);
 	}
 
 

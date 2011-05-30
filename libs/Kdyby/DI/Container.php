@@ -26,6 +26,7 @@ use Nette;
  * @property-read Console\Application $console
  * @property-read Nette\Application\Application $application
  * @property-read Nette\Application\IPresenterFactory $presenterFactory
+ * @property-read Kdyby\Application\ModuleCascadeRegistry $moduleRegistry
  * @property-read Kdyby\Templates\ITemplateFactory $templateFactory
  * @property-read Nette\Latte\Engine $latteEngine
  * @property-read Nette\Http\Request $httpRequest

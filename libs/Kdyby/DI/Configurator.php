@@ -13,6 +13,7 @@ namespace Kdyby\DI;
 use Doctrine\DBAL\Tools\Console\Command as DbalCommand;
 use Doctrine\ORM\Tools\Console\Command as OrmCommand;
 use Kdyby;
+use Kdyby\Application\ModuleCascadeRegistry;
 use Nette;
 use Nette\Application\Routers\Route;
 use Nette\Application\UI\Presenter;
@@ -85,7 +86,7 @@ class Configurator extends Nette\Configurator
 	 */
 	public static function createServicePresenterFactory(DI\Container $container)
 	{
-		return new Kdyby\Application\PresenterFactory($container->moduleRegister, $container);
+		return new Kdyby\Application\PresenterFactory($container->moduleRegistry, $container);
 	}
 
 
@@ -114,16 +115,15 @@ class Configurator extends Nette\Configurator
 
 	/**
 	 * @param DI\Container $container
-	 * @return Kdyby\Tools\FreezableArray
+	 * @return ModuleCascadeRegistry
 	 */
-	public static function createServiceModuleRegister(DI\Container $container)
+	public static function createServiceModuleRegistry(DI\Container $container)
 	{
-		$register = new Kdyby\Tools\FreezableArray(array(
-			'Kdyby\Modules' => KDYBY_DIR . '/Modules'
-		));
+		$register = new ModuleCascadeRegistry;
+		$register->add('Kdyby\Modules', KDYBY_DIR . '/Modules');
 
 		foreach ($container->getParam('modules', array()) as $namespace => $path) {
-			$register[$namespace] = $container->expand($path);
+			$register->add($namespace, $container->expand($path));
 		}
 
 		return $register;

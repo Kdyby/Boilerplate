@@ -11,7 +11,6 @@
 namespace Kdyby\Application;
 
 use Kdyby;
-use Kdyby\Tools\FreezableArray;
 use Nette;
 
 
@@ -31,19 +30,19 @@ class PresenterFactory extends Nette\Object implements Nette\Application\IPresen
 	/** @var Nette\DI\IContainer */
 	private $context;
 
-	/** @var FreezableArray */
-	private $moduleRegister;
+	/** @var ModuleCascadeRegistry */
+	private $modules;
 
 
 
 	/**
-	 * @param FreezableArray $moduleRegister
+	 * @param ModuleCascadeRegistry $modules
 	 * @param Nette\DI\IContainer $context
 	 */
-	public function __construct(FreezableArray $moduleRegister, Nette\DI\IContainer $context)
+	public function __construct(ModuleCascadeRegistry $modules, Nette\DI\IContainer $context)
 	{
 		$this->context = $context;
-		$this->moduleRegister = $moduleRegister;
+		$this->modules = $modules;
 	}
 
 
@@ -65,11 +64,11 @@ class PresenterFactory extends Nette\Object implements Nette\Application\IPresen
 		}
 
 		$exception = NULL;
-		foreach ($this->moduleRegister as $ns => $baseDir) {
+		foreach ($this->modules->namespaces as $ns) {
 			$class = (!is_numeric($ns) ? $ns . '\\' : NULL) . $this->formatPresenterClass($name);
 
-			if (!class_exists($class))  { // internal autoloading
-				$file = $this->formatPresenterFile($name, $baseDir);
+			if (!class_exists($class)) { // internal autoloading
+				$file = $this->formatPresenterFile($name, $this->modules->getNamespaceDirectory($ns));
 				if (is_file($file) && is_readable($file)) {
 					Nette\Utils\LimitedScope::load($file);
 				}
