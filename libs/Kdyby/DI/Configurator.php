@@ -108,7 +108,13 @@ class Configurator extends Nette\Configurator
 	 */
 	public static function createServiceLatteEngine(DI\Container $container)
 	{
-		return new Nette\Latte\Engine;
+		$engine = new Nette\Latte\Engine;
+
+		foreach ($container->getParam('macros', array()) as $macroSet) {
+			call_user_func(callback($macroSet), $engine->parser);
+		}
+
+		return $engine;
 	}
 
 
