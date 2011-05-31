@@ -46,9 +46,18 @@ class EntityRepository extends Doctrine\ORM\EntityRepository
 	 */
 	public function createQueryBuilder($alias)
 	{
-		$qb = new QueryBuilder($this->getEntityManager());
-		return $qb->select($alias)
+		return $this->doCreateQueryBuilder()->select($alias)
 			->from($this->_entityName, $alias);
+	}
+
+
+
+	/**
+	 * @return QueryBuilder
+	 */
+	protected function doCreateQueryBuilder()
+	{
+		return new QueryBuilder($this->getEntityManager());
 	}
 
 
