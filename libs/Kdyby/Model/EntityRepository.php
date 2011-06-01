@@ -29,7 +29,7 @@ class EntityRepository extends Doctrine\ORM\EntityRepository
 	public function save($entity)
 	{
 		if (!$entity instanceof $this->_entityName) {
-			throw new \Nette\InvalidArgumentException("Entity is not " . $this->_entityName . ', ' . get_class($entity) . ' given.');
+			throw new Nette\InvalidArgumentException("Entity is not instanceof " . $this->_entityName . ', ' . get_class($entity) . ' given.');
 		}
 
 		$this->_em->persist($entity);
