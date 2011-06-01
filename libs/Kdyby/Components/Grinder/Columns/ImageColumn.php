@@ -68,15 +68,14 @@ class ImageColumn extends Column
 			return $expand(substr_count($value, '%') ? $value : '%basePath%/' . $value);
 		};
 
-		if (is_callable($this->image)) {
-			return $expand(call_user_func($this->image, $this));
+		$image = is_callable($this->image) ? call_user_func($this->image, $this) : $this->image;
 
-		} elseif ($this->image instanceof Html) {
-			return clone $this->image;
+		if ($image instanceof Html) {
+			return clone $image;
 		}
 
 		return Html::el('img', array(
-				'src' => $expand($this->image),
+				'src' => $expand($image),
 				'alt' => $this->getCaption()
 			));
 	}
