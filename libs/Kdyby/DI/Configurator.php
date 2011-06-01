@@ -215,4 +215,24 @@ class Configurator extends Nette\Configurator
 		return $cli;
 	}
 
+
+
+	/**
+	 * @return Kdyby\Http\User
+	 */
+	public static function createServiceUser(DI\Container $container)
+	{
+		$context = new DI\Container;
+		// copies services from $container and preserves lazy loading
+		$context->addService('authenticator', function() use ($container) {
+			return $container->authenticator;
+		});
+		$context->addService('authorizator', function() use ($container) {
+			return $container->authorizator;
+		});
+		$context->addService('session', $container->session);
+
+		return new Kdyby\Http\User($context);
+	}
+
 }
