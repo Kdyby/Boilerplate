@@ -49,8 +49,7 @@ class TemplateFactory extends Nette\Object implements ITemplateFactory
 		$template = new $class;
 
 		// find presenter
-		$presenter = $component instanceof Presenter
-			? $component : $component->getPresenter(FALSE);
+		$presenter = $component->lookup('Nette\Application\UI\Presenter');
 
 		// latte
 		$template->onPrepareFilters[] = callback($this, 'templatePrepareFilters');
