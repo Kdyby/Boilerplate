@@ -26,6 +26,9 @@ class GridForm extends Form
 	{
 		parent::__construct(NULL, NULL);
 		$this->addContainer('toolbar');
+
+		// Allways - your every-day protection
+		$this->addProtection("Ouchie! Please try to submit the form again, the delivery boy forgot something!");
 	}
 
 }

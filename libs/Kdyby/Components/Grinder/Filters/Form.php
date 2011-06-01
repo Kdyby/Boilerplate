@@ -11,7 +11,7 @@
 namespace Kdyby\Components\Grinder\Filters;
 
 use Kdyby;
-use Kdyby\Application\UI\Form as UIForm;
+use Nette\Application\UI\Form as UIForm;
 use Nette;
 use Nette\Forms\Controls\SubmitButton;
 
@@ -39,6 +39,9 @@ class Form extends UIForm
 		$this->filtersMap = $filtersMap;
 
 		$this->onSubmit[] = callback($this, 'ProcessFilters');
+
+		// Allways - your every-day protection
+		$this->addProtection("Ouchie! Please try to submit the form again, the delivery boy forgot something!");
 	}
 
 
