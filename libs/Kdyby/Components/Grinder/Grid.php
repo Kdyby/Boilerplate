@@ -316,7 +316,7 @@ class Grid extends Nette\Application\UI\Control
 	 */
 	public function addToolbarAction($name, $caption = NULL, array $options = array(), $insertBefore = NULL)
 	{
-		$this->getToolbar()->addComponent($action = new Actions\ButtonAction, $name, $insertBefore);
+		$this->getToolbar()->addComponent($action = new Actions\ButtonAction($caption), $name, $insertBefore);
 		$this->setOptions($action, array('caption' => $caption) + $options);
 
 		return $action;
