@@ -25,7 +25,8 @@ use Kdyby\Components\Grinder\Renderers\IGridRenderer;
 /**
  * Grid
  *
- * @todo filtry
+ * @todo storage na filtry a page
+ * @todo saveState & loadState (filtry, page, ..)
  * @todo inline editation
  * @todo nested nodes manipulation (column + renderer)
  * @todo column s indexem záznamu
