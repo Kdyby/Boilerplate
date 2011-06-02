@@ -236,7 +236,7 @@ class Grid extends Nette\Application\UI\Control
 	 */
 	public function setUpProtection(Nette\Http\Session $session)
 	{
-		$this->session = $session->getNamespace(__CLASS__);
+		$this->session = $session->getSection(__CLASS__);
 
 		if (!$this->session->securityToken) {
 			$this->session->securityToken = Nette\Utils\Strings::random(6);
