@@ -71,6 +71,19 @@ class DibiFluentModel extends AbstractModel
 
 
 	/**
+	 * @param object $item
+	 * @return mixed
+	 */
+	public function getUniqueId($item)
+	{
+		$dot = strpos($this->getPrimaryKey(), '.');
+		$idColumn = substr($this->getPrimaryKey(), ($dot ? $dot+1 : 0));
+		return $item->$idColumn;
+	}
+
+
+
+	/**
 	 * @param int $uniqueId
 	 * @return \DibiRow
 	 */
