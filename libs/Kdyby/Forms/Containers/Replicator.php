@@ -24,17 +24,22 @@ class Replicator extends Nette\Forms\Container
 	/** @var callback */
 	private $factoryCallback;
 
+	/** @var int */
+	private $createDefault;
+
 
 
 	/**
 	 * @param callable $factory
+	 * @param int $createDefault
 	 */
-	public function __construct($factory)
+	public function __construct($factory, $createDefault = 0)
 	{
 		parent::__construct();
 
 		$this->monitor('Nette\Application\UI\Presenter');
 		$this->factoryCallback = callback($factory);
+		$this->createDefault = (int)$createDefault;
 	}
 
 
@@ -53,6 +58,11 @@ class Replicator extends Nette\Forms\Container
 		}
 
 		$this->loadHttpData();
+		if (!$this->getForm()->isSubmitted() && $this->createDefault > 0) {
+			foreach (range(0, $this->createDefault-1) as $key) {
+				$this->createComponent($key);
+			}
+		}
 	}
 
 
@@ -69,17 +79,6 @@ class Replicator extends Nette\Forms\Container
 		$this->factoryCallback->invoke($component);
 
 		return $component;
-	}
-
-
-
-	/**
-	 * @param string $name
-	 * @return Nette\Forms\Container
-	 */
-	public function touch($name)
-	{
-		return $this->createComponent($name);
 	}
 
 
@@ -176,15 +175,7 @@ class Replicator extends Nette\Forms\Container
 	public static function register($methodName = 'addDynamic')
 	{
 		Nette\Forms\Container::extensionMethod($methodName, function ($_this, $name, $factory, $createDefault = 0) {
-			$_this[$name] = $replicator = new Replicator($factory);
-
-			if (is_numeric($createDefault) && $createDefault > 0) {
-				foreach (range(0, $createDefault-1) as $key) {
-					$replicator->touch($key);
-				}
-			}
-
-			return $replicator;
+			return $_this[$name] = new Replicator($factory, $createDefault);
 		});
 	}
 
