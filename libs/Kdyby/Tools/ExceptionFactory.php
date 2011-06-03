@@ -21,26 +21,25 @@ use Nette;
 class ExceptionFactory extends Nette\Object
 {
 
-    /**
-     * @param integer $argument
-     * @param string $type
-     * @param mixed $value
+	/**
+	 * @param integer $argument
+	 * @param string $type
+	 * @param mixed $value
 	 * @return Nette\InvalidArgumentException
-     */
-    public static function invalidArgument($argument, $type, $value = NULL)
-    {
-        $stack = debug_backtrace(FALSE);
+	 */
+	public static function invalidArgument($argument, $type, $value = NULL)
+	{
+		$stack = debug_backtrace(FALSE);
 
-        return new Nette\InvalidArgumentException(
-          sprintf(
-            'Argument #%d%sof %s::%s() must be a %s',
-            $argument,
-            $value !== NULL ? ' (' . $value . ')' : ' ',
-            $stack[1]['class'],
-            $stack[1]['function'],
-            $type
-          )
-        );
-    }
+		return new Nette\InvalidArgumentException(
+			sprintf('Argument #%d%sof %s::%s() must be a %s',
+				$argument,
+				$value !== NULL ? ' (' . $value . ')' : ' ',
+				$stack[1]['class'],
+				$stack[1]['function'],
+				$type
+			)
+		);
+	}
 
 }
