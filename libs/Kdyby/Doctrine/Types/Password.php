@@ -12,7 +12,7 @@ namespace Kdyby\Doctrine\Types;
 
 use Doctrine;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Types;
+use Doctrine\DBAL\Types\StringType;
 use Kdyby;
 use Kdyby\Tools\Mixed;
 use Nette;
@@ -22,7 +22,7 @@ use Nette;
 /**
  * @author Filip Procházka
  */
-class Password extends Types\StringType
+class Password extends StringType
 {
 
     /**
@@ -36,7 +36,7 @@ class Password extends Types\StringType
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
 		if (!$value instanceof Kdyby\Types\Password) {
-			throw new Nette\InvalidArgumentException('Expected instanceof Kdyby\Types\Password, ' . Mixed::getType($value)) . ' given';
+			throw new Nette\InvalidArgumentException('Expected instanceof Kdyby\Types\Password, ' . Mixed::getType($value) . ' given');
 		}
 
         return $value->getHash();
