@@ -44,22 +44,6 @@ class EntityContainer extends Nette\Forms\Container
 
 
 	/**
-	 * Is called by a component when it is about to be set new parent. Descendant can
-	 * override this method to disallow a parent change by throwing an Nette\InvalidStateException
-	 *
-	 * @param  IContainer
-	 * @return void
-	 * @throws Nette\InvalidStateException
-	 */
-	protected function validateParent(IContainer $parent)
-	{
-		parent::validateParent($parent);
-		$parent->lookup('Kdyby\Forms\EntityForm');
-	}
-
-
-
-	/**
 	 * @return object
 	 */
 	public function getEntity()
