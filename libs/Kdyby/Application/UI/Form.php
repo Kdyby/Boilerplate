@@ -23,6 +23,10 @@ use Nette;
 class Form extends Nette\Application\UI\Form
 {
 
+	/**
+	 * @param Nette\ComponentModel\IContainer $parent
+	 * @param string $name
+	 */
 	public function __construct(Nette\ComponentModel\IContainer $parent = NULL, $name = NULL)
 	{
 		parent::__construct($parent, $name);
