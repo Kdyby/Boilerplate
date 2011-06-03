@@ -176,4 +176,15 @@ class Container extends Kdyby\DI\Container
 		return $this->entityManager;
 	}
 
+
+
+	/**
+	 * @param string $entityName
+	 * @return Kdyby\Model\EntityRepository
+	 */
+	public function getRepository($entityName)
+	{
+		return $this->getEntityManager()->getRepository($entityName);
+	}
+
 }
