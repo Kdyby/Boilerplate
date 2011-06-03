@@ -29,7 +29,7 @@ class TextType extends Nette\Object implements Mapping\IFieldType
 	 */
 	public function load($value, $current)
 	{
-		return (string)$value;
+		return $value ?: NULL;
 	}
 
 
@@ -40,7 +40,7 @@ class TextType extends Nette\Object implements Mapping\IFieldType
 	 */
 	public function save($value)
 	{
-		return (string)$value;
+		return $value ?: NULL;
 	}
 
 }
