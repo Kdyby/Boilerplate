@@ -20,7 +20,7 @@ use Nette\ObjectMixin;
 /**
  * @author Filip Procházka
  */
-class EntityRepository extends Doctrine\ORM\EntityRepository
+class EntityRepository extends Doctrine\ORM\EntityRepository implements Kdyby\Validation\IStorage
 {
 
 	/**
@@ -58,6 +58,32 @@ class EntityRepository extends Doctrine\ORM\EntityRepository
 	protected function doCreateQueryBuilder()
 	{
 		return new QueryBuilder($this->getEntityManager());
+	}
+
+
+
+	/********************* Kdyby\Validation\IStorage *********************/
+
+
+
+	/**
+	 * @param string $attribute
+	 * @param mixed $value
+	 * @return int
+	 */
+	public function countByAttribute($attribute, $value)
+	{
+		$qb = $this->createQueryBuilder('e')
+			->select('count(e) fullcount')
+			->where('e.' . $attribute . ' = :value')
+			->setParameter('value', $value);
+
+		try {
+			return (int)$qb->getQuery()->getSingleResult(Query::HYDRATE_SINGLE_SCALAR);
+
+		} catch (Doctrine\ORM\ORMException $e) {
+			throw new Kdyby\Doctrine\QueryException($e->getMessage(), $this->qb->getQuery(), $e);
+		}
 	}
 
 
