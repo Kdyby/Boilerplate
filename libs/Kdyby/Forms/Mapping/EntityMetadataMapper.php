@@ -154,7 +154,7 @@ class EntityMetadataMapper extends BaseMapper
 	public function getAssocation($entity, $assocation)
 	{
 		$meta = $this->getEntityMetadata($entity);
-		$propMapping = $meta->getAssociationMapping($fieldName);
+		$propMapping = $meta->getAssociationMapping($assocation);
 		$propRef = $meta->getReflectionProperty($assocation);
 
 		return $propRef->getValue($entity);
