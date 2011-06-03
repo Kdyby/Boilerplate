@@ -36,4 +36,32 @@ class Mixed extends Nette\Object
 		return is_object($value) ? get_class($value) : gettype($value);
 	}
 
+
+
+	/**
+	 * @param mixed $value
+	 * @param boolean $short
+	 * @return strng
+	 */
+	public static function toString($value, $short = FALSE)
+	{
+		if (is_array($value) || is_object($value)) {
+			if (!$short) {
+				return "\n" . print_r($value, TRUE);
+			}
+
+			return is_array($value) ? 'array(' . count($value) . ')' : get_class($value);
+		}
+
+		if (is_string($value) && strpos($value, "\n") !== FALSE) {
+			return 'text';
+		}
+
+		$value = is_null($value) ? 'NULL' : $value;
+		$value = $value === TRUE ? 'TRUE' : $value;
+		$value = $value === FALSE ? 'FALSE' : $value;
+
+		return $value . (!is_null($value) ? ' (' . gettype($value) . ')' : '');
+	}
+
 }
