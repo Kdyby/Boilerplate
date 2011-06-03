@@ -64,4 +64,15 @@ class Mixed extends Nette\Object
 		return $value . (!is_null($value) ? ' (' . gettype($value) . ')' : '');
 	}
 
+
+
+	/**
+	 * @param mixed $value
+	 * @return boolean
+	 */
+	public static function isSerializable($value)
+	{
+		return is_scalar($value);
+	}
+
 }
