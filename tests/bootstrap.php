@@ -13,7 +13,7 @@ require_once APP_DIR . '/../libs/Kdyby/loader.php';
 
 // Setup Nette debuger
 Debugger::enable(Debugger::PRODUCTION);
-Debugger::$logDirectory = APP_DIR;
+Debugger::$logDirectory = APP_DIR . '/log';
 Debugger::$maxLen = 4096;
 
 // Init Nette Framework robot loader
