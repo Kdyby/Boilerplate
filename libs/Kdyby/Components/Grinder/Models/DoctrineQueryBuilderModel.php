@@ -89,8 +89,9 @@ class DoctrineQueryBuilderModel extends AbstractModel
 	{
 		try {
 			$qb = clone $this->qb;
-			$qb->select('count(' . $qb->getRootAlias() . ') fullcount');
-			return $qb->getQuery()->getSingleResult(Query::HYDRATE_SINGLE_SCALAR);
+			return $qb->select('count(' . $qb->getRootAlias() . ') fullcount')
+				->getQuery()
+				->getSingleScalarResult();
 
 		} catch (Doctrine\ORM\ORMException $e) {
 			throw new Kdyby\Doctrine\QueryException($e->getMessage(), $this->qb->getQuery(), $e);

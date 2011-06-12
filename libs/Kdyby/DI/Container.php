@@ -39,6 +39,7 @@ use Nette;
  * @property-read Nette\Caching\Storages\IJournal $cacheJournal
  * @property-read Nette\Mail\IMailer $mailer
  * @property-read Nette\Loaders\RobotLoader $robotLoader
+ * @property-read Kdyby\Components\Grinder\GridFactory $grinderFactory
  */
 class Container extends Nette\DI\Container
 {

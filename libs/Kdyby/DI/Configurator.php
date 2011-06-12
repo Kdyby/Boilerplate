@@ -235,4 +235,15 @@ class Configurator extends Nette\Configurator
 		return new Kdyby\Http\User($context);
 	}
 
+
+
+	/**
+	 * @param DI\Container $container
+	 * @return Kdyby\Components\Grinder\GridFactory
+	 */
+	public static function createServiceGrinderFactory(DI\Container $container)
+	{
+		return new Kdyby\Components\Grinder\GridFactory($container->doctrine->entityManager, $container->session);
+	}
+
 }
