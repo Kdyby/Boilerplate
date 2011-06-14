@@ -106,8 +106,13 @@ class VisualPaginator extends Control
 		$this->getPaginator()->page = $this->page;
 	}
 	
+	/**
+	 * @param string
+	 * @return VisualPaginator
+	 */
 	public function setTemplateFile($file){
 		$this->getTemplate()->setFile($file);
+		return $this;
 	}
 
 }
