@@ -86,7 +86,10 @@ class VisualPaginator extends Control
 
 		$this->template->steps = $steps;
 		$this->template->paginator = $paginator;
-		$this->template->setFile(dirname(__FILE__) . '/template.phtml');
+		
+		if($this->template->getFile() === NULL){
+			$this->template->setFile(dirname(__FILE__) . '/template.phtml');
+		}
 		return (string)$this->template;
 	}
 
@@ -101,6 +104,10 @@ class VisualPaginator extends Control
 	{
 		parent::loadState($params);
 		$this->getPaginator()->page = $this->page;
+	}
+	
+	public function setTemplateFile($file){
+		$this->getTemplate()->setFile($file);
 	}
 
 }
