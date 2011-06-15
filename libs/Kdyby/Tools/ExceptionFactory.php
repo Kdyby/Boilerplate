@@ -22,9 +22,9 @@ class ExceptionFactory extends Nette\Object
 {
 
 	/**
-	 * @param integer $argument
-	 * @param string $type
-	 * @param mixed $value
+	 * @param integer $argument number of argument
+	 * @param string $type required type of argument
+	 * @param mixed|NULL $value the given value
 	 * @return Nette\InvalidArgumentException
 	 */
 	public static function invalidArgument($argument, $type, $value = NULL)
@@ -34,7 +34,7 @@ class ExceptionFactory extends Nette\Object
 		return new Nette\InvalidArgumentException(
 			sprintf('Argument #%d%sof %s::%s() must be a %s',
 				$argument,
-				$value !== NULL ? ' (' . $value . ')' : ' ',
+				$value !== NULL ? ' (' . $value . ') ' : ' ',
 				$stack[1]['class'],
 				$stack[1]['function'],
 				$type
