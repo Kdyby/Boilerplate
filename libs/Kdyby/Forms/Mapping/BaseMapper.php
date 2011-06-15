@@ -13,6 +13,7 @@ namespace Kdyby\Forms\Mapping;
 use Doctrine;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Kdyby;
+use Kdyby\Forms\EntityForm;
 use Kdyby\Validation;
 use Nette;
 use Nette\Forms\Container;
@@ -47,6 +48,21 @@ abstract class BaseMapper extends Nette\Object
 	{
 		$this->assignment->attach($entity, $container);
 		return $this;
+	}
+
+
+
+	/**
+	 * @param object $entity
+	 * @return Container
+	 */
+	public function getContainer($entity)
+	{
+		if (!$this->assignment->contains($entity)) {
+			return NULL;
+		}
+
+		return $this->assignment->offsetGet($entity);
 	}
 
 
@@ -97,34 +113,33 @@ abstract class BaseMapper extends Nette\Object
 
 
 
+	/************************ validation ************************/
+
+
+
 	/**
-	 * @param array $entityValidators
-	 * @return Validation\Result
+	 * @param Validation\Result $result
+	 * @param EntityForm $entityForm
 	 */
-	public function validate(array $entityValidators)
+	public function assignResult(Validation\Result $validationResult, EntityForm $entityForm)
 	{
-		$result = new Validation\Result;
-		foreach ($this->assignment as $entity) {
-			$container = $this->assignment->offsetGet($entity);
-			$entityClass = get_class($entity);
-			if (!isset($entityValidators[$entityClass])) {
-				continue;
-			}
+		foreach ($validationResult as $error) {
+			if ($error->getInvalidObject()) {
+				$container = $this->getContainer($error->getInvalidObject());
 
-			$validationResult = $entityValidators[$entityClass]->validate($entity);
-			foreach ($validationResult as $error) {
-				if ($error->field && $control = $container->getComponent($error->field, FALSE)) {
-					$control->addError($error->message);
+				if ($container) {
+					if ($error->getPropertyName() && $control = $container->getComponent($error->getPropertyName(), FALSE)) {
+						$control->addError($error->getMessage());
+						continue;
+					}
 
-				} else {
-					$container->getForm()->addError(($error->field ? $error->field . ': ' : NULL) . $error->message);
+					$container->getForm()->addError('Error in ' . get_class($entity) . ': ' . $error->getMessage());
+					continue;
 				}
 			}
 
-			$result->import($validationResult);
+			$entityForm->addError('Error in ' . get_class($entity) . ': ' . $error->getMessage());
 		}
-
-		return $result;
 	}
 
 

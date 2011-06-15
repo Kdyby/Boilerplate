@@ -27,16 +27,16 @@ class Error extends \Exception
 	private $invalidObject;
 
 	/** @var string */
-	private $name;
+	private $propertyName;
 
 
 
 	/**
 	 * @param string $message
 	 * @param object|NULL $invalidObject
-	 * @param string|NULL $name
+	 * @param string|NULL $propertyName
 	 */
-	public function __construct($message, $invalidObject = NULL, $name = NULL)
+	public function __construct($message, $invalidObject = NULL, $propertyName = NULL)
 	{
 		if (!is_string($message) || $message == "") {
 			throw ExceptionFactory::invalidArgument(1, 'non-empty string', Mixed::getType($message));
@@ -46,14 +46,14 @@ class Error extends \Exception
 			throw ExceptionFactory::invalidArgument(2, 'object', Mixed::getType($invalidObject));
 		}
 
-		if (!is_string($name) && $name !== NULL) {
-			throw ExceptionFactory::invalidArgument(2, 'object', Mixed::getType($name));
+		if (!is_string($propertyName) && $propertyName !== NULL) {
+			throw ExceptionFactory::invalidArgument(2, 'string', Mixed::getType($propertyName));
 		}
 
 		parent::__construct($message);
 
 		$this->invalidObject = $invalidObject;
-		$this->name = $name;
+		$this->propertyName = $propertyName;
 	}
 
 
@@ -71,9 +71,9 @@ class Error extends \Exception
 	/**
 	 * @return string|NULL
 	 */
-	public function getName()
+	public function getPropertyName()
 	{
-		return $this->name;
+		return $this->propertyName;
 	}
 
 }

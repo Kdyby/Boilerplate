@@ -46,9 +46,6 @@ class EntityForm extends UI\Form
 	/** @var EntityManager */
 	private $entityManager;
 
-	/** @var string */
-	private $entityValidators = array();
-
 	/** @var Mapping\EntityMetadataMapper */
 	private $mapper;
 
@@ -192,22 +189,34 @@ class EntityForm extends UI\Form
 			return;
 		}
 
-		// load data to entity
-		$entities = $this->getMapper()->load();
+		// flush unrelated changes
+		// todo: ORLY?
+		$this->getEntityManager()->flush();
 
 		// validation
-		if (!$this->validateEntity()->isValid() || !$this->isValid()) {
+		if (!$this->isValid()) {
 			return;
 		}
 
-		// ensure all in entity manager
-		foreach ($entities as $entity) {
-			$this->getEntityManager()->persist($entity);
-		}
+		try {
+			// load data to entity
+			$entities = $this->getMapper()->load();
 
-		// last touch before persisting
-		$this->onSave($this, $this->getEntity());
-		$this->getEntityManager()->flush();
+			// last touch before persisting
+			$this->onSave($this, $this->getEntity());
+
+			// ensure all in entity manager
+			foreach ($entities as $entity) {
+				$this->getEntityManager()->persist($entity);
+			}
+
+			// flush and optionaly raise exception
+			$this->getEntityManager()->flush();
+
+		} catch (Validation\Result $result) {
+			// validation errors occurred
+			return $this->getMapper()->assignResult($result, $this);
+		}
 
 		if ($this->onSaveRestore) {
 			$this->getPresenter()->getApplication()->restoreRequest($this->onSaveRestore);
@@ -218,45 +227,6 @@ class EntityForm extends UI\Form
 		}
 
 		$this->getPresenter()->redirect('this');
-	}
-
-
-
-	/******************** validation ********************/
-
-
-
-	/**
-	 * @param string $entityClass
-	 * @param IValidator $validator
-	 * @return EntityForm
-	 */
-	public function addEntityValidator($entityClass, IValidator $validator)
-	{
-		$this->entityValidators[$entityClass] = $validator;
-		return $this;
-	}
-
-
-
-	/**
-	 * @return array
-	 */
-	public function getEntityValidators()
-	{
-		return $this->entityValidators;
-	}
-
-
-
-	/**
-	 * Validates form & entities
-	 *
-	 * @return Validation\Result
-	 */
-	public function validateEntity()
-	{
-		return $this->getMapper()->validate($this->getEntityValidators());
 	}
 
 

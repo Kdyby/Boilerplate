@@ -40,15 +40,19 @@ class Result extends \Exception implements Nette\IFreezable, \IteratorAggregate
 
 
 	/**
-	 * @param string $message
+	 * @param string|Error $error
 	 * @param string|NULL $name
 	 * @param object|NULL $invalidObject
 	 * @return Result
 	 */
-	public function addError($message, $name = NULL, $invalidObject = NULL)
+	public function addError($error, $name = NULL, $invalidObject = NULL)
 	{
 		$this->updating();
-		$this->errors[] = new Error($message, $invalidObject, $name);
+
+		$this->errors[] = $error instanceof Error
+			? $error
+			: new Error($error, $invalidObject, $name);
+
 		return $this;
 	}
 

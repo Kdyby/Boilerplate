@@ -10,19 +10,15 @@
 
 namespace Kdyby\Validation;
 
+use Kdyby;
+use Nette;
+
 
 
 /**
  * @author Filip Procházka
  */
-interface IValidator
+interface IHelper
 {
-
-	/**
-	 * @param IPropertyDecorator $decorator
-	 * @param string|NULL $event
-	 * @return Result
-	 */
-	function validate(IPropertyDecorator $decorator, $event = NULL);
 
 }
