@@ -14,22 +14,22 @@ if (is_dir(VENDORS_DIR . '/texy')) {
 if (is_dir(VENDORS_DIR . '/doctrine') && is_dir(VENDORS_DIR . '/doctrine-common') && is_dir(VENDORS_DIR . '/doctrine-dbal')) {
 	require_once VENDORS_DIR . '/doctrine-common/lib/Doctrine/Common/ClassLoader.php';
 
-	$loader = new Doctrine\Common\ClassLoader('Doctrine\Common', VENDORS_DIR . '/doctrine-common/lib/Doctrine/Common');
+	$loader = new Doctrine\Common\ClassLoader('Doctrine\Common', VENDORS_DIR . '/doctrine-common/lib');
 	$loader->register();
 
-	$loader = new Doctrine\Common\ClassLoader('Doctrine\DBAL', VENDORS_DIR . '/doctrine-dbal/lib/Doctrine/DBAL');
+	$loader = new Doctrine\Common\ClassLoader('Doctrine\DBAL', VENDORS_DIR . '/doctrine-dbal/lib');
 	$loader->register();
 
-	$loader = new Doctrine\Common\ClassLoader('Doctrine\ORM', VENDORS_DIR . '/doctrine/lib/Doctrine/ORM');
+	$loader = new Doctrine\Common\ClassLoader('Doctrine\ORM', VENDORS_DIR . '/doctrine/lib');
 	$loader->register();
 
 	if (is_dir(VENDORS_DIR . '/doctrine-beberlei-extensions')) {
-		$loader = new Doctrine\Common\ClassLoader('DoctrineExtensions', VENDORS_DIR . '/doctrine-berberlei-extensions/lib/DoctrineExtensions');
+		$loader = new Doctrine\Common\ClassLoader('DoctrineExtensions', VENDORS_DIR . '/doctrine-berberlei-extensions/lib');
 		$loader->register();
 	}
 
 	if (is_dir(VENDORS_DIR . '/doctrine-gedmo-extensions')) {
-		$loader = new Doctrine\Common\ClassLoader('Gedmo', VENDORS_DIR . '/doctrine-gedmo-extensions/lib/Gedmo');
+		$loader = new Doctrine\Common\ClassLoader('Gedmo', VENDORS_DIR . '/doctrine-gedmo-extensions/lib');
 		$loader->register();
 	}
 }
