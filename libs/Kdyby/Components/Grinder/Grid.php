@@ -749,6 +749,9 @@ class Grid extends Nette\Application\UI\Control
 		foreach ($this->getColumns() as $column) {
 			$column->setRenderer($this->getRenderer());
 		}
+		foreach ($this->getComponents(TRUE, 'Kdyby\Components\Grinder\Actions\BaseAction') as $action) {
+			$action->setRenderer($this->getRenderer());
+		}
 
 		$this->isModelSetted = TRUE;
 	}
