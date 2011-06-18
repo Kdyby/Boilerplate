@@ -73,7 +73,7 @@ class TemplateFactory extends Nette\Object implements ITemplateFactory
 
 			// flash message
 			if ($presenter->hasFlashSession()) {
-				$id = $presenter->getParamId('flash');
+				$id = $component->getParamId('flash');
 				$template->flashes = $presenter->getFlashSession()->$id;
 			}
 		}
