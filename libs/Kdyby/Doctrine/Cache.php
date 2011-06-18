@@ -21,6 +21,7 @@ namespace Kdyby\Doctrine;
 use Doctrine;
 use Kdyby;
 use Nette;
+use Nette\Reflection\ClassType;
 use Nette\Caching\Cache AS NCache;
 
 
@@ -139,12 +140,20 @@ class Cache extends Doctrine\Common\Cache\AbstractCache
 	 */
 	protected function _doSave($id, $data, $lifeTime = 0)
 	{
+		$files = array();
+		if ($data instanceof Doctrine\ORM\Mapping\ClassMetadata) {
+			$files[] = ClassType::from($data->name)->getFileName();
+			foreach ($data->parentClasses as $class) {
+				$files[] = ClassType::from($class)->getFileName();
+			}
+		}
+
 		if ($lifeTime != 0) {
-			$this->data->save($id, $data, array('expire' => time() + $lifeTime, 'tags' => array("doctrine")));
+			$this->data->save($id, $data, array('expire' => time() + $lifeTime, 'tags' => array("doctrine"), 'files' => $files));
 			$this->addCacheKey($id, time() + $lifeTime);
 
 		} else {
-			$this->data->save($id, $data, array('tags' => array("doctrine")));
+			$this->data->save($id, $data, array('tags' => array("doctrine"), 'files' => $files));
 			$this->addCacheKey($id);
 		}
 
