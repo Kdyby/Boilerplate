@@ -15,3 +15,13 @@ It's safe and permitted to copy & paste & use & learn how solve things the bad w
 but for Christ sake don't use it in your live applications!
 
 
+Dependecies:
+============
+
+- Nette 2.0b https://github.com/nette/nette
+- Doctrine ORM > 2.0.1 https://github.com/doctrine/doctrine2
+- Doctrine DBAL https://github.com/doctrine/dbal
+- Doctrine Common https://github.com/doctrine/common
+- Symfony2 Console https://github.com/symfony/symfony/tree/master/src/Symfony/Component/Console
+- Gedmo Doctrine extensions https://github.com/l3pp4rd/DoctrineExtensions
+- Beberlei Doctrine extensions https://github.com/beberlei/DoctrineExtensions
