@@ -58,7 +58,7 @@ class InstallWizard extends Nette\Object
 			$classesIndexCreated = $this->robotLoader->getIndexCreateTime();
 
 			if (!$this->cache->load('installers') || $installersCreated < $classesIndexCreated) {
-				$this->cache->save('installers', callback($this, 'doSearchInstallers'));
+				$this->cache->save('installers', $this->doSearchInstallers());
 			}
 
 			foreach ((array)$this->cache->load('installers') as $installer) {
