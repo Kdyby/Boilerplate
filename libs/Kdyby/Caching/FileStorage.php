@@ -24,11 +24,11 @@ class FileStorage extends Nette\Caching\Storages\FileStorage implements ArrayAcc
 
 	/**
 	 * @param string $key
-	 * @return \DateTime
+	 * @return Nette\DateTime|NULL
 	 */
     public function getCreateTime($key)
     {
-        return new DateTime(filemtime($this->getCacheFile($key)));
+		return Nette\DateTime::createFromFormat('U', @filemtime($this->getCacheFile($key))) ?: NULL;
     }
 
 
