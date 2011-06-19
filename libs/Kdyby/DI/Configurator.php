@@ -71,6 +71,17 @@ class Configurator extends Nette\Configurator
 
 	/**
 	 * @param DI\Container $container
+	 * @return Kdyby\Application\RequestManager
+	 */
+	public static function createServiceRequestManager(DI\Container $container)
+	{
+		return new Kdyby\Application\RequestManager($container->application);
+	}
+
+
+
+	/**
+	 * @param DI\Container $container
 	 * @return Kdyby\Doctrine\Container
 	 */
 	public static function createServiceDoctrine(DI\Container $container)

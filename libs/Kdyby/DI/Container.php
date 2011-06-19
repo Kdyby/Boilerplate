@@ -40,6 +40,7 @@ use Nette;
  * @property-read Nette\Mail\IMailer $mailer
  * @property-read Nette\Loaders\RobotLoader $robotLoader
  * @property-read Kdyby\Components\Grinder\GridFactory $grinderFactory
+ * @property-read Kdyby\Application\RequestManager $requestManager
  */
 class Container extends Nette\DI\Container
 {
