@@ -33,4 +33,9 @@ interface IInstaller
 	 */
 	function installServices(Container $container);
 
+	/**
+	 * @return string
+	 */
+	function getModuleName();
+
 }

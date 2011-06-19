@@ -31,6 +31,9 @@ class InstallWizard extends Nette\Object
 	/** @var Cache */
 	private $cache;
 
+	/** @var array of IInstaller */
+	private $installers;
+
 
 
 	/**
@@ -45,18 +48,41 @@ class InstallWizard extends Nette\Object
 
 
 	/**
-	 * @return array
+	 * @return array of IInstaller
 	 */
 	public function getInstallers()
 	{
-		$installersCreated = $this->cache->getStorage()->getCreateTime('installers');
-		$classesIndexCreated = $this->robotLoader->getIndexCreateTime();
+		if ($this->installers === NULL) {
+			$installersKey = $this->cache->getNamespace() . Cache::NAMESPACE_SEPARATOR . md5('installers');
+			$installersCreated = $this->cache->getStorage()->getCreateTime($installersKey);
+			$classesIndexCreated = $this->robotLoader->getIndexCreateTime();
 
-		if (!$this->cache->load('installers') && $installersCreated > $classesIndexCreated) {
-			$this->cache->save('installers', callback($this, 'doSearchInstallers'));
+			if (!$this->cache->load('installers') || $installersCreated < $classesIndexCreated) {
+				$this->cache->save('installers', callback($this, 'doSearchInstallers'));
+			}
+
+			foreach ((array)$this->cache->load('installers') as $installer) {
+				$this->installers[] = new $installer;
+			}
 		}
 
-		return $this->cache->load('installers');
+		return (array)$this->installers;
+	}
+
+
+
+	/**
+	 * @param string $module
+	 * @return array of IInstaller
+	 */
+	public function getModuleInstallers($module)
+	{
+		$installers = new \ArrayIterator($this->getInstallers());
+		$moduleInstallers = new Filter($installers, function (Filter $iterator) use ($module) {
+			return $iterator->current()->getModuleName() === $module;
+		});
+
+		return iterator_to_array($moduleInstallers);
 	}
 
 
