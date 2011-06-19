@@ -69,7 +69,7 @@ class PresenterFactory extends Nette\Object implements Nette\Application\IPresen
 
 			if (!class_exists($class)) { // internal autoloading
 				$file = $this->formatPresenterFile($name, $this->modules->getNamespaceDirectory($ns));
-				if (is_file($file) && is_readable($file)) {
+				if (is_file($file) && is_readable($file) && !in_array($file, get_included_files())) {
 					Nette\Utils\LimitedScope::load($file);
 				}
 
