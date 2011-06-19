@@ -12,6 +12,7 @@ namespace Kdyby\Loaders;
 
 use Kdyby;
 use Nette;
+use Nette\Caching\Cache;
 
 
 
@@ -21,12 +22,17 @@ use Nette;
 class RobotLoader extends Nette\Loaders\RobotLoader
 {
 
+	const CACHE_NAMESPACE = 'Nette.RobotLoader';
+
+
+
 	/**
 	 * @return \DateTime
 	 */
 	public function getIndexCreateTime()
 	{
-		return $this->getCacheStorage()->getCreateTime($this->getKey());
+		$key = self::CACHE_NAMESPACE . Cache::NAMESPACE_SEPARATOR . md5($this->getKey());
+		return $this->getCacheStorage()->getCreateTime($key);
 	}
 
 }
