@@ -294,6 +294,16 @@ class Configurator extends Nette\Configurator
 
 
 	/**
+	 * @param DI\IContainer $container
+	 */
+	public static function createServiceAuthenticator(DI\Container $container)
+	{
+		return new \Kdyby\Security\Authenticator($container->doctrine->getRepository('Kdyby\Security\Identity'));
+	}
+
+
+
+	/**
 	 * @return Kdyby\Http\User
 	 */
 	public static function createServiceUser(DI\Container $container)
@@ -312,6 +322,16 @@ class Configurator extends Nette\Configurator
 		$context->addService('session', $container->session);
 
 		return new Kdyby\Security\User($context);
+	}
+
+
+
+	/**
+	 * @return Kdyby\Security\IIdentityRepository
+	 */
+	public static function createServiceUsers(DI\Container $container)
+	{
+		return $container->doctrine->getRepository('Kdyby\Security\Identity');
 	}
 
 
