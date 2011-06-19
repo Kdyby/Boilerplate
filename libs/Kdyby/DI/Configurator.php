@@ -118,6 +118,45 @@ class Configurator extends Nette\Configurator
 
 
 	/**
+	 * @return Kdyby\Caching\FileStorage
+	 */
+	public static function createServiceCacheStorage(DI\Container $container)
+	{
+		if (!isset($container->params['tempDir'])) {
+			throw new Nette\InvalidStateException("Service cacheStorage requires that parameter 'tempDir' contains path to temporary directory.");
+		}
+		$dir = $container->expand('%tempDir%/cache');
+		umask(0000);
+		@mkdir($dir, 0777); // @ - directory may exists
+		return new Kdyby\Caching\FileStorage($dir, $container->cacheJournal);
+	}
+
+
+
+	/**
+	 * @return Kdyby\Loaders\RobotLoader
+	 */
+	public static function createServiceRobotLoader(DI\Container $container, array $options = NULL)
+	{
+		$loader = new Kdyby\Loaders\RobotLoader;
+		$loader->autoRebuild = isset($options['autoRebuild']) ? $options['autoRebuild'] : !$container->params['productionMode'];
+		$loader->setCacheStorage($container->cacheStorage);
+		if (isset($options['directory'])) {
+			$loader->addDirectory($options['directory']);
+		} else {
+			foreach (array('appDir', 'libsDir') as $var) {
+				if (isset($container->params[$var])) {
+					$loader->addDirectory($container->params[$var]);
+				}
+			}
+		}
+		$loader->register();
+		return $loader;
+	}
+
+
+
+	/**
 	 * @param DI\Container $container
 	 * @return Nette\Latte\Engine
 	 */
