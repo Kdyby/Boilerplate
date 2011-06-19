@@ -21,7 +21,7 @@ use Kdyby\Application\Presentation\Bundle;
  * @author Filip Procházka
  *
  * @property-read Kdyby\DI\Container $context
- * @property Bundle $applicationBundle
+ * @property Kdyby\Templates\ITheme $theme
  */
 class Presenter extends Nette\Application\UI\Presenter
 {
@@ -32,11 +32,15 @@ class Presenter extends Nette\Application\UI\Presenter
 	/** @persistent */
 	public $backlink;
 
+	/** @var Kdyby\Templates\ITheme */
+	private $theme;
+
 
 
 	public function __construct()
 	{
 		parent::__construct(NULL, NULL);
+		$this->theme = new Kdyby\Templates\Theme();
 	}
 
 
@@ -46,7 +50,29 @@ class Presenter extends Nette\Application\UI\Presenter
 	 */
 	protected function createTemplate($class = NULL)
 	{
-		return $this->getContext()->templateFactory->createTemplate($this, $class);
+		$template = $this->getContext()->templateFactory->createTemplate($this, $class);
+		$this->theme->setupTemplate($template);
+		return $template;
+	}
+
+
+
+	/**
+	 * @return Kdyby\Templates\ITheme
+	 */
+	public function getTheme()
+	{
+		return $this->theme;
+	}
+
+
+
+	/**
+	 * @param Kdyby\Templates\ITheme $theme
+	 */
+	public function setTheme(Kdyby\Templates\ITheme $theme)
+	{
+		$this->theme = $theme;
 	}
 
 
