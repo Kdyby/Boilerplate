@@ -14,6 +14,7 @@ use Kdyby;
 use Kdyby\Components\Navigation\NavigationControl;
 use Kdyby\DI\Container;
 use Nette;
+use Nette\Application\Routers\RouteList;
 
 
 
@@ -32,6 +33,11 @@ interface IInstaller
 	 * @param Container $container
 	 */
 	function installServices(Container $container);
+
+	/**
+	 * @param RouteList $container
+	 */
+	function installRoutes(RouteList $router);
 
 	/**
 	 * @return string
