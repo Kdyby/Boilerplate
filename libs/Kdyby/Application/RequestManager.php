@@ -65,7 +65,7 @@ class RequestManager extends Nette\Object
 			throw new Nette\InvalidStateException("Only one request was server during application life cycle");
 		}
 
-		return $this->storeRequest(array_slice($this->application->getRequests(), -2, 1), $expiration);
+		return $this->storeRequest(current(array_slice($this->application->getRequests(), -2, 1)), $expiration);
 	}
 
 
@@ -96,11 +96,22 @@ class RequestManager extends Nette\Object
 	 */
 	public function restoreRequest($key)
 	{
+		$presenter = $this->application->getPresenter();
+
 		if (isset($this->session[$key])) {
 			$request = clone $this->session[$key];
 			unset($this->session[$key]);
 			$request->setFlag(Nette\Application\Request::RESTORED, TRUE);
-			$this->application->getPesenter()->sendResponse(new Nette\Application\Responses\ForwardResponse($request));
+
+			$params = $request->params;
+			unset($params['backlink']);
+
+			if ($presenter->hasFlashSession()) {
+				$params[$presenter::FLASH_KEY] = $presenter->getParam($presenter::FLASH_KEY);
+			}
+
+			$request->params = $params;
+			$presenter->sendResponse(new Nette\Application\Responses\ForwardResponse($request));
 		}
 	}
 

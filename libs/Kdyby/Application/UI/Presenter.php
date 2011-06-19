@@ -52,6 +52,16 @@ class Presenter extends Nette\Application\UI\Presenter
 
 
 	/**
+	 * @return string
+	 */
+	public function getModuleName()
+	{
+		return substr($this->getName(), 0, strpos($this->getName(), ':'));
+	}
+
+
+
+	/**
 	 * If Debugger is enabled, print template variables to debug bar
 	 */
 	protected function afterRender()

@@ -24,6 +24,21 @@ use Nette;
 class Application extends Nette\Application\Application
 {
 
+	/**
+	 * @param Nette\DI\IContainer $context
+	 */
+	public function __construct(Nette\DI\IContainer $context)
+	{
+		parent::__construct($context);
+
+		$this->onError[] = callback($this, 'handleForbiddenRequestException');
+	}
+
+
+
+	/**
+	 * @return void
+	 */
 	public function run()
 	{
 		$this->context->freeze();
@@ -33,6 +48,22 @@ class Application extends Nette\Application\Application
 		}
 
 		return parent::run();
+	}
+
+
+
+	/**
+	 * @param Nette\Application\Application $application
+	 * @param Nette\Application\ForbiddenRequestException $exception
+	 */
+	public function handleForbiddenRequestException(Nette\Application\Application $application, \Exception $exception)
+	{
+		if (!$exception instanceof Nette\Application\ForbiddenRequestException) {
+			return;
+		}
+
+		$application->catchExceptions = TRUE;
+		$application->errorPresenter = $application->getPresenter()->getModuleName() . ':Sign';
 	}
 
 }
