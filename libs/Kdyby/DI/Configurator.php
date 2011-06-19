@@ -25,6 +25,8 @@ use Symfony\Component\Console;
 /**
  * @author Patrik Votoček
  * @author Filip Procházka
+ *
+ * @property-read Container $container
  */
 class Configurator extends Nette\Configurator
 {
@@ -35,6 +37,11 @@ class Configurator extends Nette\Configurator
 	public function __construct($containerClass = 'Kdyby\DI\Container')
 	{
 		parent::__construct($containerClass);
+
+		$baseUrl = rtrim($this->container->httpRequest->getUrl()->getBaseUrl(), '/');
+		$this->container->params['baseUrl'] = $baseUrl;
+		$this->container->params['basePath'] = preg_replace('#https?://[^/]+#A', '', $baseUrl);
+		$this->container->params['kdybyDir'] = realpath(KDYBY_DIR);
 	}
 
 
@@ -60,9 +67,6 @@ class Configurator extends Nette\Configurator
 		$application = new Kdyby\Application\Application($context);
 		$application->catchExceptions = $container->getParam('productionMode', TRUE);
 		$application->errorPresenter = 'Error';
-
-		$container->params['baseUrl'] = $baseUrl = rtrim($container->httpRequest->getUrl()->getBaseUrl(), '/');
-		$container->params['basePath'] = preg_replace('#https?://[^/]+#A', '', $baseUrl);
 
 		return $application;
 	}
