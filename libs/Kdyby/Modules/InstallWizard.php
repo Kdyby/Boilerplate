@@ -94,6 +94,11 @@ class InstallWizard extends Nette\Object
 	{
 		$classes = new \ArrayIterator($this->robotLoader->getIndexedClasses());
 		$installers = new Filter($classes, function (Filter $iterator) {
+			$class = $iterator->getInnerIterator()->key();
+			if (!class_exists($class)) {
+				return FALSE;
+			}
+
 			$classRef = Nette\Reflection\ClassType::from($iterator->getInnerIterator()->key());
 			return in_array('Kdyby\Modules\IInstaller', $classRef->getInterfaceNames());
 		});
