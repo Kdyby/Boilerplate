@@ -39,4 +39,14 @@ class Theme extends Nette\Object implements ITheme
 		$template->themePath = $this->path;
 	}
 
+
+
+	/**
+	 * @param Nette\Latte\Parser $parser
+	 */
+	public function installMacros(Nette\Latte\Parser $parser)
+	{
+
+	}
+
 }

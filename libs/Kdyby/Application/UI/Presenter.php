@@ -77,6 +77,14 @@ class Presenter extends Nette\Application\UI\Presenter
 
 
 
+	protected function beforeRender()
+	{
+		parent::beforeRender();
+		$this->theme->installMacros($this->context->latteEngine->parser);
+	}
+
+
+
 	/**
 	 * @return string
 	 */

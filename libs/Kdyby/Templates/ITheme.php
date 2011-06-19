@@ -26,4 +26,9 @@ interface ITheme
 	 */
 	function setupTemplate(Nette\Templating\ITemplate $template);
 
+	/**
+	 * @param Nette\Latte\Parser $parser
+	 */
+	function installMacros(Nette\Latte\Parser $parser);
+
 }
