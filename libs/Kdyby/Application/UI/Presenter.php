@@ -107,4 +107,67 @@ class Presenter extends Nette\Application\UI\Presenter
 		}
 	}
 
+
+
+	/**
+	 * Formats layout template file names.
+	 * @return array
+	 */
+	public function formatLayoutTemplateFiles()
+	{
+		$name = trim($this->getName(), ':');
+		$presenter = substr($name, strrpos(':' . $name, ':'));
+		$layout = $this->layout ? $this->layout : 'layout';
+
+		$mapper = function ($dir) use ($presenter, $layout, $name) {
+			$list = array(
+				"$dir/templates/$presenter/@$layout.latte",
+				"$dir/templates/$presenter.@$layout.latte",
+			);
+			do {
+				$list[] = "$dir/templates/@$layout.latte";
+				$dir = dirname($dir);
+			} while ($dir && ($name = substr($name, 0, strrpos($name, ':'))));
+			return $list;
+		};
+
+		$list = array();
+		$directories = $this->getContext()->moduleRegistry->getDirectories();
+		foreach ($directories as $directory) {
+			$dir = str_replace(':', '/', substr($name, 0, strrpos($name, ':')));
+			$list = array_merge($list, $mapper($directory . '/' . $dir));
+		}
+
+		return $list;
+	}
+
+
+
+	/**
+	 * Formats view template file names.
+	 * @return array
+	 */
+	public function formatTemplateFiles()
+	{
+		$name = trim($this->getName(), ':');
+		$presenter = substr($name, strrpos(':' . $name, ':'));
+		$view = $this->view;
+
+		$mapper = function ($dir) use ($presenter, $view, $name) {
+			return array(
+				"$dir/templates/$presenter/$view.latte",
+				"$dir/templates/$presenter.$view.latte",
+			);
+		};
+
+		$list = array();
+		$directories = $this->getContext()->moduleRegistry->getDirectories();
+		foreach ($directories as $directory) {
+			$dir = str_replace(':', '/', substr($name, 0, strrpos($name, ':')));
+			$list = array_merge($list, $mapper($directory . '/' . $dir));
+		}
+
+		return $list;
+	}
+
 }
