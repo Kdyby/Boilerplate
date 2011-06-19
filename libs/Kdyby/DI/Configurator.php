@@ -86,6 +86,17 @@ class Configurator extends Nette\Configurator
 
 	/**
 	 * @param DI\Container $container
+	 * @return Kdyby\Modules\InstallWizard
+	 */
+	public static function createServiceInstallWizard(DI\Container $container)
+	{
+		return new Kdyby\Modules\InstallWizard($container->robotLoader, $container->cacheStorage);
+	}
+
+
+
+	/**
+	 * @param DI\Container $container
 	 * @return Kdyby\Doctrine\Container
 	 */
 	public static function createServiceDoctrine(DI\Container $container)

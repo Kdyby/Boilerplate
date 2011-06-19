@@ -41,6 +41,7 @@ use Nette;
  * @property-read Nette\Loaders\RobotLoader $robotLoader
  * @property-read Kdyby\Components\Grinder\GridFactory $grinderFactory
  * @property-read Kdyby\Application\RequestManager $requestManager
+ * @property-read Kdyby\Modules\InstallWizard $installWizard
  */
 class Container extends Nette\DI\Container
 {
