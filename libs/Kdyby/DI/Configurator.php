@@ -306,9 +306,12 @@ class Configurator extends Nette\Configurator
 		$context->addService('authorizator', function() use ($container) {
 			return $container->authorizator;
 		});
+		$context->addService('doctrine', function() use ($container) {
+			return $container->doctrine;
+		});
 		$context->addService('session', $container->session);
 
-		return new Kdyby\Http\User($context);
+		return new Kdyby\Security\User($context);
 	}
 
 
