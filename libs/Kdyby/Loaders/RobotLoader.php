@@ -31,7 +31,8 @@ class RobotLoader extends Nette\Loaders\RobotLoader
 	 */
 	public function getIndexCreateTime()
 	{
-		$key = self::CACHE_NAMESPACE . Cache::NAMESPACE_SEPARATOR . md5($this->getKey());
+		$key = is_scalar($key = $this->getKey()) ? $key : serialize($key);
+		$key = self::CACHE_NAMESPACE . Cache::NAMESPACE_SEPARATOR . md5($key);
 		return $this->getCacheStorage()->getCreateTime($key);
 	}
 
