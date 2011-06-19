@@ -17,7 +17,7 @@ use Nette\Application\UI\Link;
 class NavigationNode extends Nette\ComponentModel\Container
 {
 
-	/** @var string */
+	/** @var string|Nette\Utils\Html */
 	public $label;
 
 	/** @var Link|NULL */
