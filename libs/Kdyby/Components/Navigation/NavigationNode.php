@@ -20,7 +20,7 @@ class NavigationNode extends Nette\ComponentModel\Container
 	/** @var string */
 	public $label;
 
-	/** @var Link */
+	/** @var Link|NULL */
 	public $url;
 
 	/** @var bool */
@@ -35,11 +35,11 @@ class NavigationNode extends Nette\ComponentModel\Container
 	 * @param string $url
 	 * @return NavigationNode
 	 */
-	public function add($label, Link $url)
+	public function add($label, Link $url = NULL)
 	{
 		$navigationNode = new self;
 		$navigationNode->label = $label;
-		$navigationNode->url = $url;
+		$navigationNode->url = $url ?: '#';
 
 		static $counter;
 		$this->addComponent($navigationNode, ++$counter);

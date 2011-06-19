@@ -26,6 +26,12 @@ class NavigationControl extends Nette\Application\UI\Control
 	/** @var bool */
 	private $useHomepage = false;
 
+	/** @var string */
+	private $menuTemplate;
+
+	/** @var string */
+	private $breadcrumbsTemplate;
+
 
 
 	/**
@@ -52,7 +58,7 @@ class NavigationControl extends Nette\Application\UI\Control
 	 * @param Link $link
 	 * @return NavigationNode
 	 */
-	public function add($label, Link $link)
+	public function add($label, Link $link = NULL)
 	{
 		return $this->getComponent("homepage")->add($label, $link);
 	}
@@ -101,6 +107,26 @@ class NavigationControl extends Nette\Application\UI\Control
 
 
 	/**
+	 * @return string
+	 */
+	public function getMenuTemplate()
+	{
+		return $this->menuTemplate;
+	}
+
+
+
+	/**
+	 * @param string $menuTemplate
+	 */
+	public function setMenuTemplate($menuTemplate)
+	{
+		$this->menuTemplate = $menuTemplate;
+	}
+
+
+
+	/**
 	 * Render menu
 	 *
 	 * @param bool $renderChildren
@@ -110,7 +136,7 @@ class NavigationControl extends Nette\Application\UI\Control
 	public function renderMenu($renderChildren = TRUE, $base = NULL, $renderHomepage = TRUE)
 	{
 		$template = $this->createTemplate()
-			->setFile(__DIR__ . "/menu.latte");
+			->setFile($this->menuTemplate ?: __DIR__ . "/menu.latte");
 
 		$template->homepage = $base ? $base : $this->getComponent("homepage");
 		$template->useHomepage = $this->useHomepage && $renderHomepage;
@@ -143,6 +169,26 @@ class NavigationControl extends Nette\Application\UI\Control
 
 
 	/**
+	 * @return string
+	 */
+	public function getBreadcrumbsTemplate()
+	{
+		return $this->breadcrumbsTemplate;
+	}
+
+
+
+	/**
+	 * @param string $breadcrumbsTemplate
+	 */
+	public function setBreadcrumbsTemplate($breadcrumbsTemplate)
+	{
+		$this->breadcrumbsTemplate = $breadcrumbsTemplate;
+	}
+
+
+
+	/**
 	 * Render breadcrumbs
 	 */
 	public function renderBreadcrumbs()
@@ -161,7 +207,7 @@ class NavigationControl extends Nette\Application\UI\Control
 		}
 
 		$template = $this->createTemplate()
-			->setFile(__DIR__ . "/breadcrumbs.latte");
+			->setFile($this->breadcrumbsTemplate ?: __DIR__ . "/breadcrumbs.latte");
 
 		$template->items = $items;
 		$template->render();
