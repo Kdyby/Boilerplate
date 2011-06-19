@@ -210,12 +210,6 @@ class Configurator extends Nette\Configurator
 	{
 		$router = new Nette\Application\Routers\RouteList;
 
-		$router[] = new Route('index.php', array(
-			'module' => 'Front',
-			'presenter' => 'Homepage',
-			'action' => 'default',
-		), Route::ONE_WAY);
-
 		$router[] = $backend = new Nette\Application\Routers\RouteList('Backend');
 
 			$backend[] = new Route('admin/[sign/in]', array(
@@ -227,11 +221,9 @@ class Configurator extends Nette\Configurator
 				'action' => 'default',
 			));
 
-		$router[] = new Route('<presenter>/<action>[/<id>]', array(
-			'module' => 'Front',
-			'presenter' => 'Homepage',
-			'action' => 'default',
-		));
+		foreach ($container->installWizard->getInstallers() as $installer) {
+			$installer->installRoutes($router);
+		}
 
 		return $router;
 	}
