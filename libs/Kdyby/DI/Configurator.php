@@ -205,6 +205,17 @@ class Configurator extends Nette\Configurator
 			'action' => 'default',
 		), Route::ONE_WAY);
 
+		$router[] = $backend = new Nette\Application\Routers\RouteList('Backend');
+
+			$backend[] = new Route('admin/[sign/in]', array(
+				'presenter' => 'Sign',
+				'action' => 'in',
+			));
+
+			$backend[] = new Route('admin/<presenter>[/<action>]', array(
+				'action' => 'default',
+			));
+
 		$router[] = new Route('<presenter>/<action>[/<id>]', array(
 			'module' => 'Front',
 			'presenter' => 'Homepage',
