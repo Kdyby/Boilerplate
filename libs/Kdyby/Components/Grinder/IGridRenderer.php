@@ -8,13 +8,10 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Components\Grinder\Renderers;
+namespace Kdyby\Components\Grinder;
 
-use Kdyby;
-use Kdyby\Components\Grinder\Grid;
 use Kdyby\Components\Grinder\Columns\BaseColumn;
 use Kdyby\Components\Grinder\Actions\BaseAction;
-use Nette;
 
 
 

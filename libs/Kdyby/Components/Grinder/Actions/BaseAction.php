@@ -13,7 +13,6 @@ namespace Kdyby\Components\Grinder\Actions;
 use Kdyby;
 use Kdyby\Components\Grinder\Grid;
 use Kdyby\Components\Grinder\Columns\ActionsColumn;
-use Kdyby\Components\Grinder\Renderers\IGridRenderer;
 use Nette;
 
 

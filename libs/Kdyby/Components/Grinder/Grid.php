@@ -18,7 +18,6 @@ use Nette\Environment;
 use Nette\Utils\Paginator;
 use Kdyby;
 use Kdyby\Components\VisualPaginator\VisualPaginator;
-use Kdyby\Components\Grinder\Renderers\IGridRenderer;
 
 
 

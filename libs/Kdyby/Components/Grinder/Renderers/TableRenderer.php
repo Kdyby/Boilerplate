@@ -11,6 +11,7 @@
 namespace Kdyby\Components\Grinder\Renderers;
 
 use Kdyby;
+use Kdyby\Components\Grinder;
 use Kdyby\Components\Grinder\Grid;
 use Kdyby\Components\Grinder\Columns\BaseColumn;
 use Kdyby\Components\Grinder\Columns\Renderer;
@@ -22,7 +23,7 @@ use Nette\Utils\Html;
 /**
  * @author Filip Procházka
  */
-class TableRenderer extends BaseRenderer
+class TableRenderer extends BaseObjectRenderer implements Grinder\IGridRenderer
 {
 
 	/**
@@ -93,6 +94,12 @@ class TableRenderer extends BaseRenderer
 		foreach ($this->grid->getColumns() as $column) {
 			$cell = Html::el('td')->addClass($column->getCellHtmlClass($iterator));
 			$item->add($cell->setHtml($column->__toString()));
+			if (isset($column->getControl()->control) && $column->getControl()->control->type === 'checkbox') {
+				$cell->width('25');
+			}
+			if ($column instanceof Grinder\Columns\ActionsColumn) {
+				$cell->addClass('actions');
+			}
 		}
 
 		if (count($unattachedActions) > 0) {
