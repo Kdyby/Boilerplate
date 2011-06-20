@@ -37,11 +37,11 @@ class Cache extends Doctrine\Common\Cache\AbstractCache
 	/** @var string */
 	const CACHED_KEYS_KEY = 'Kdyby.Doctrine.Cache.Keys';
 
-	/** @var array */
-	private $data = array();
+	/** @var NCache */
+	private $data;
 
-	/** @var array */
-	private $keys = array();
+	/** @var NCache */
+	private $keys;
 
 
 
@@ -77,10 +77,10 @@ class Cache extends Doctrine\Common\Cache\AbstractCache
 	 */
 	private function addCacheKey($key, $lifetime = 0)
 	{
-		$keys = $this->keys[self::CACHED_KEYS_KEY];
+		$keys = $this->keys->load(self::CACHED_KEYS_KEY);
 		if (!isset($keys[$key]) || $keys[$key] !== ($lifetime ?: TRUE)) {
 			$keys[$key] = $lifetime ?: TRUE;
-			$this->keys[self::CACHED_KEYS_KEY] = $keys;
+			$this->keys->save(self::CACHED_KEYS_KEY, $keys);
 		}
 
 		return $keys;
@@ -93,7 +93,7 @@ class Cache extends Doctrine\Common\Cache\AbstractCache
 	 */
 	public function getIds()
 	{
-		$keys = (array)$this->keys[self::CACHED_KEYS_KEY];
+		$keys = (array)$this->keys->load(self::CACHED_KEYS_KEY);
 		$keys = array_filter($keys, function($expire) {
 			if ($expire > 0 && $expire < time()) {
 				return FALSE;
@@ -102,8 +102,8 @@ class Cache extends Doctrine\Common\Cache\AbstractCache
 			return TRUE;
 		});
 
-		if ($keys !== $this->keys[self::CACHED_KEYS_KEY]) {
-			$this->keys[self::CACHED_KEYS_KEY] = $keys;
+		if ($keys !== $this->keys->load(self::CACHED_KEYS_KEY)) {
+			$this->keys->save(self::CACHED_KEYS_KEY, $keys);
 		}
 
 		return array_keys($keys);
@@ -116,11 +116,7 @@ class Cache extends Doctrine\Common\Cache\AbstractCache
 	 */
 	protected function _doFetch($id)
 	{
-		if (isset($this->data[$id])) {
-			return $this->data[$id];
-		}
-
-		return FALSE;
+		return $this->data->load($id) ?: FALSE;
 	}
 
 
@@ -130,7 +126,7 @@ class Cache extends Doctrine\Common\Cache\AbstractCache
 	 */
 	protected function _doContains($id)
 	{
-		return isset($this->ids[$id]) && isset($this->data[$id]);
+		return $this->ids->load($id) !== NULL && $this->data->load($id) !== NULL;
 	}
 
 
