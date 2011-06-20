@@ -41,12 +41,22 @@ class NavigationControl extends Nette\Application\UI\Control
 	 */
 	public function setCurrent(NavigationNode $node)
 	{
-		if (isset($this->current)) {
+		if ($this->current) {
 			$this->current->isCurrent = FALSE;
 		}
 
-		$node->isCurrent = true;
+		$node->isCurrent = TRUE;
 		$this->current = $node;
+	}
+
+
+
+	/**
+	 * @return NavigationNode
+	 */
+	protected function getCurrent()
+	{
+		return $this->current;
 	}
 
 
