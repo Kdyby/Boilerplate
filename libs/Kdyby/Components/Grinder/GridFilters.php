@@ -48,14 +48,6 @@ class GridFilters extends PresenterComponent
 
 
 
-	protected function attached($obj)
-	{
-		parent::attached($obj);
-		dump(get_class($this) . ' on ' . get_class($obj));
-	}
-
-
-
 	/**
 	 * @param IContainer $parent
 	 * @throws Nette\InvalidStateException
