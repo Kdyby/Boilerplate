@@ -3,6 +3,7 @@
 namespace Kdyby\Components\Navigation;
 
 use Kdyby;
+use Kdyby\Application\PresenterComponentHelpers;
 use Nette;
 use Nette\Application\UI\Link;
 use Nette\Application\UI\Presenter;
@@ -51,6 +52,13 @@ class NavigationNode extends Nette\ComponentModel\Container
 
 		if (!$obj instanceof Presenter || !$this->url instanceof Link) {
 			return ;
+		}
+
+		static $nulledParams; // speedup
+		$nulledParams = $nulledParams ?: PresenterComponentHelpers::nullLinkParams($obj);
+
+		foreach ($nulledParams as $param => $value) {
+			$this->url->setParam($param, $value);
 		}
 
 		$request = explode(':', trim($obj->getAction(TRUE), ':'));
