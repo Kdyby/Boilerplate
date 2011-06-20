@@ -37,22 +37,24 @@ class Presenter extends Nette\Application\UI\Presenter
 
 
 
-	public function __construct()
-	{
-		parent::__construct(NULL, NULL);
-		$this->theme = new Kdyby\Templates\Theme();
-	}
-
-
-
 	/**
 	 * @return Kdyby\Templating\FileTemplate
 	 */
 	protected function createTemplate($class = NULL)
 	{
 		$template = $this->getContext()->templateFactory->createTemplate($this, $class);
-		$this->theme->setupTemplate($template);
+		$this->getTheme()->setupTemplate($template);
 		return $template;
+	}
+
+
+
+	/**
+	 * @return Kdyby\Templates\Theme
+	 */
+	protected function doCreateTheme()
+	{
+		return new Kdyby\Templates\Theme($this->context);
 	}
 
 
@@ -62,25 +64,20 @@ class Presenter extends Nette\Application\UI\Presenter
 	 */
 	public function getTheme()
 	{
+		if (!$this->theme) {
+			$this->theme = $this->doCreateTheme();
+		}
+
 		return $this->theme;
 	}
 
-
-
-	/**
-	 * @param Kdyby\Templates\ITheme $theme
-	 */
-	public function setTheme(Kdyby\Templates\ITheme $theme)
-	{
-		$this->theme = $theme;
-	}
 
 
 
 	protected function beforeRender()
 	{
 		parent::beforeRender();
-		$this->theme->installMacros($this->context->latteEngine->parser);
+		$this->getTheme()->installMacros($this->context->latteEngine->parser);
 	}
 
 
