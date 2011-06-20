@@ -19,6 +19,8 @@ use Nette\ComponentModel\IComponent;
 /**
  * @author Filip Procházka
  *
+ * @property bool $skipEmpty
+ * @property string $type
  * @property-read FiltersMap $map
  * @property-read string $name
  * @property-read string $column
@@ -45,6 +47,9 @@ class Filter extends Nette\Object implements IFilter
 
 	/** @var IComponent */
 	private $control;
+
+	/** @var bool */
+	private $skipEmpty = TRUE;
 
 	/** @var mixed */
 	private $value = FALSE;
@@ -146,6 +151,28 @@ class Filter extends Nette\Object implements IFilter
 	public function getControl()
 	{
 		return $this->control;
+	}
+
+
+
+	/**
+	 * @return bool
+	 */
+	public function getSkipEmpty()
+	{
+		return $this->skipEmpty;
+	}
+
+
+
+	/**
+	 * @param bool $skipEmpty
+	 * @return Filter
+	 */
+	public function setSkipEmpty($skipEmpty)
+	{
+		$this->skipEmpty = (bool)$skipEmpty;
+		return $this;
 	}
 
 

@@ -60,7 +60,7 @@ class DoctrineQueryBuilder extends Nette\Object implements Filters\IFragmentsBui
 	public function buildEquals($value, Filter $filter)
 	{
 		if ($value === NULL) {
-			return NULL;
+			return $filter->skipEmpty ? NULL : $filter->column . ' IS NULL';
 		}
 
 		$this->qb->setParameter($filter->getParameterName(), $value);
@@ -82,7 +82,7 @@ class DoctrineQueryBuilder extends Nette\Object implements Filters\IFragmentsBui
 	public function buildLike($value, Filter $filter)
 	{
 		if ($value === NULL) {
-			return NULL;
+			return $filter->skipEmpty ? NULL : $filter->column . ' IS NULL';
 		}
 
 		$this->qb->setParameter($filter->getParameterName(), '%' . $value . '%');
@@ -99,7 +99,7 @@ class DoctrineQueryBuilder extends Nette\Object implements Filters\IFragmentsBui
 	public function buildHigherOrEqualThan($value, Filter $filter)
 	{
 		if ($value === NULL) {
-			return NULL;
+			return $filter->skipEmpty ? NULL : $filter->column . ' IS NULL';
 		}
 
 		$this->qb->setParameter($filter->getParameterName(), $value);
@@ -116,7 +116,7 @@ class DoctrineQueryBuilder extends Nette\Object implements Filters\IFragmentsBui
 	public function buildHigherThan($value, Filter $filter)
 	{
 		if ($value === NULL) {
-			return NULL;
+			return $filter->skipEmpty ? NULL : $filter->column . ' IS NULL';
 		}
 
 		$this->qb->setParameter($filter->getParameterName(), $value);
@@ -133,7 +133,7 @@ class DoctrineQueryBuilder extends Nette\Object implements Filters\IFragmentsBui
 	public function buildLowerOrEqualThan($value, Filter $filter)
 	{
 		if ($value === NULL) {
-			return NULL;
+			return $filter->skipEmpty ? NULL : $filter->column . ' IS NULL';
 		}
 
 		$this->qb->setParameter($filter->getParameterName(), $value);
@@ -150,7 +150,7 @@ class DoctrineQueryBuilder extends Nette\Object implements Filters\IFragmentsBui
 	public function buildLowerThan($value, Filter $filter)
 	{
 		if ($value === NULL) {
-			return NULL;
+			return $filter->skipEmpty ? NULL : $filter->column . ' IS NULL';
 		}
 
 		$this->qb->setParameter($filter->getParameterName(), $value);
@@ -167,7 +167,7 @@ class DoctrineQueryBuilder extends Nette\Object implements Filters\IFragmentsBui
 	public function buildNull($value, Filter $filter)
 	{
 		if ($value === NULL) {
-			return NULL;
+			return $filter->skipEmpty ? NULL : $filter->column . ' IS NULL';
 		}
 
 		if ($value) {
