@@ -25,7 +25,7 @@ class FormAction extends BaseAction
 {
 
 	/** @var array */
-	public $onSubmit = array();
+	public $onSuccess = array();
 
 	/** @var Nette\Forms\Controls\Button */
 	private $control;
@@ -59,7 +59,7 @@ class FormAction extends BaseAction
 		$toolbar = $form->getComponent('toolbar');
 		$toolbar[$this->name] = $this->control;
 
-		$form->onSubmit[] = array($this, 'fireEvents');
+		$form->onSuccess[] = array($this, 'fireEvents');
 	}
 
 
@@ -68,7 +68,7 @@ class FormAction extends BaseAction
 	{
 		$form = $this->getGrid()->getForm();
 		if ($form->isSubmitted() === $this->control) {
-			$this->onSubmit($this);
+			$this->onSuccess($this);
 		}
 	}
 

@@ -38,7 +38,7 @@ class Form extends UIForm
 		$this->addContainer('filters');
 		$this->filtersMap = $filtersMap;
 
-		$this->onSubmit[] = callback($this, 'ProcessFilters');
+		$this->onSuccess[] = callback($this, 'ProcessFilters');
 
 		// Allways - your every-day protection
 		$this->addProtection("Ouchie! Please try to submit the form again, the delivery boy forgot something!");
