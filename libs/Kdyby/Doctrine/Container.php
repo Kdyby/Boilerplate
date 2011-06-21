@@ -11,6 +11,8 @@
 namespace Kdyby\Doctrine;
 
 use Doctrine;
+use Doctrine\ORM\EntityManager;
+use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Types\Type as DoctrineTypes;
 use Kdyby;
 use Nette;
@@ -24,12 +26,12 @@ use Nette\DI;
  *
  * @property-read Nette\DI\Container $context
  * @property-read Cache $cache
- * @property-read Panel $logger
+ * @property-read Diagnostics\Panel $logger
  * @property-read Doctrine\ORM\Configuration $configurator
  * @property-read Doctrine\ORM\Mapping\Driver\AnnotationDriver $annotationDriver
  * @property-read Doctrine\DBAL\Event\Listeners\MysqlSessionInit $mysqlSessionInitListener
- * @property-read Doctrine\Common\EventManager $eventManager
- * @property-read Doctrine\ORM\EntityManager $entityManager
+ * @property-read EventManager $eventManager
+ * @property-read EntityManager $entityManager
  */
 class Container extends Kdyby\DI\Container
 {
@@ -69,11 +71,11 @@ class Container extends Kdyby\DI\Container
 
 
 	/**
-	 * @return Panel
+	 * @return Diagnostics\Panel
 	 */
 	protected function createServiceLogger()
 	{
-		return Panel::register();
+		return Diagnostics\Panel::register();
 	}
 
 
@@ -137,22 +139,23 @@ class Container extends Kdyby\DI\Container
 
 
 	/**
-	 * @return Doctrine\Common\EventManager
+	 * @return EventManager
 	 */
 	protected function createServiceEventManager()
 	{
-		$evm = new Doctrine\Common\EventManager;
+		$evm = new EventManager;
 		foreach ($this->getParam('listeners', array()) as $listener) {
 			$evm->addEventSubscriber($this->getService($listener));
 		}
 
+		$evm->addEventSubscriber(new Kdyby\Media\Listeners\Mediable($this->context));
 		return $evm;
 	}
 
 
 
 	/**
-	 * @return Doctrine\ORM\EntityManager
+	 * @return EntityManager
 	 */
 	protected function createServiceEntityManager()
 	{
@@ -163,13 +166,13 @@ class Container extends Kdyby\DI\Container
 		}
 
 		$this->freeze();
-		return Doctrine\ORM\EntityManager::create((array)$database, $this->configuration, $this->eventManager);
+		return EntityManager::create((array)$database, $this->configuration, $this->eventManager);
 	}
 
 
 
 	/**
-	 * @return Doctrine\ORM\EntityManager
+	 * @return EntityManager
 	 */
 	public function getEntityManager()
 	{
