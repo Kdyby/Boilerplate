@@ -1,6 +1,6 @@
 <?php
 
-namespace Kdyby\Model;
+namespace Kdyby\Doctrine;
 
 use Doctrine;
 use Kdyby;
