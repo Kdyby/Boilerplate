@@ -11,6 +11,7 @@
 namespace Kdyby\Forms\Containers;
 
 use Nette;
+use Nette\Forms\Container;
 
 
 
@@ -18,7 +19,7 @@ use Nette;
  * @author Filip Procházka
  * @author Jan Tvrdík
  */
-class Replicator extends Nette\Forms\Container
+class Replicator extends Container
 {
 
 	/** @var callback */
@@ -26,6 +27,9 @@ class Replicator extends Nette\Forms\Container
 
 	/** @var int */
 	private $createDefault;
+
+	/** @var boolean */
+	private $submittedBy = FALSE;
 
 
 
@@ -68,17 +72,151 @@ class Replicator extends Nette\Forms\Container
 
 
 	/**
+	 * @param boolean $recursive
+	 * @return \ArrayIterator
+	 */
+	public function getContainers($recursive = FALSE)
+	{
+		return $this->getComponents($recursive, 'Nette\Forms\Container');
+	}
+
+
+
+	/**
+	 * @param boolean $recursive
+	 * @return \ArrayIterator
+	 */
+	public function getButtons($recursive = FALSE)
+	{
+		return $this->getComponents($recursive, 'Nette\Forms\ISubmitterControl');
+	}
+
+
+
+	/**
 	 * Magická továrna na komponenty
 	 *
-	 * @param    string
-	 * @return   object
+	 * @param string $name
+	 * @return Container
 	 */
 	protected function createComponent($name)
 	{
-		$component = $this->addContainer($name);
-		$this->factoryCallback->invoke($component);
+		$controls = iterator_to_array($this->getComponents(FALSE, 'Nette\Forms\IControl'));
+		$firstControl = reset($controls);
+		$firstControlName = $firstControl ? $firstControl->name : NULL;
 
-		return $component;
+		$container = new Container;
+		$container->currentGroup = $this->currentGroup;
+		$this->addComponent($container, $name, $firstControlName);
+
+		$this->factoryCallback->invoke($container);
+
+		return $container;
+	}
+
+
+
+	/**
+	 * @return boolean
+	 */
+	public function isSubmittedBy()
+	{
+		if ($this->submittedBy) {
+			return TRUE;
+		}
+
+		foreach ($this->getButtons(TRUE) as $button) {
+			if ($button->isSubmittedBy()) {
+				return TRUE;
+			}
+		}
+
+		return FALSE;
+	}
+
+
+
+	/**
+	 * Vytvoří nový container
+	 *
+	 * @return Container
+	 */
+	public function createOne()
+	{
+		$buttons = array_map(function ($control) {
+				return $control->getName();
+			}, iterator_to_array($this->getButtons()));
+
+		$containers = iterator_to_array($this->getContainers());
+		$lastContainer = end($containers);
+
+		if ($lastContainer) {
+			return $this[$lastContainer->name + 1];
+		}
+
+		return $this[0];
+	}
+
+
+
+	/**
+	 * @param Container $container
+	 * @param boolean $cleanUpGroups
+	 * @throws Nette\InvalidArgumentException
+	 */
+	public function remove(Container $container, $cleanUpGroups = FALSE)
+	{
+		if (!$container->parent === $this) {
+			throw new Nette\InvalidArgumentException('Given component ' . $container->name . ' is not children of ' . $this->name . '.');
+		}
+
+		// to check if form was submitted by this one
+		foreach ($container->getComponents(TRUE, 'Nette\Forms\ISubmitterControl') as $button) {
+			if ($button->isSubmittedBy()) {
+				$this->submittedBy = TRUE;
+				break;
+			}
+		}
+
+		// get components
+		$components = $container->getComponents(TRUE);
+		$this->removeComponent($container);
+
+		// reflection is required to hack form groups
+		$groupRefl = Nette\Reflection\ClassType::from('Nette\Forms\ControlGroup');
+		$controlsProperty = $groupRefl->getProperty('controls');
+		$controlsProperty->setAccessible(TRUE);
+
+		// walk groups and clean then from removed components
+		$affected = array();
+		foreach ($this->getForm()->getGroups() as $group) {
+			$groupControls = $controlsProperty->getValue($group);
+
+			foreach ($components as $control) {
+				if ($groupControls->contains($control)) {
+					$groupControls->detach($control);
+
+					if (!in_array($group, $affected, TRUE)) {
+						$affected[] = $group;
+					}
+				}
+			}
+		}
+
+		// remove affected & empty groups
+		if ($cleanUpGroups && $affected) {
+			foreach ($this->getForm()->getComponents(FALSE, 'Nette\Forms\Container') as $container) {
+				if ($index = array_search($container->currentGroup, $affected, TRUE)) {
+					unset($affected[$index]);
+				}
+			}
+
+			foreach ($affected as $group) {
+				if (!$group->getControls() && in_array($group, $this->getForm()->getGroups(), TRUE)) {
+					$this->getForm()->removeGroup($group);
+				}
+			}
+		}
 	}
 
 
@@ -163,8 +301,7 @@ class Replicator extends Nette\Forms\Container
 	 */
 	private function getHttpRequest()
 	{
-		/// return $this->getForm()->getPresenter()->getContext()->getService('Nette\Http\IRequest');
-		return Nette\Environment::getHttpRequest();
+		return $this->getForm()->getPresenter()->getContext()->getService('httpRequest');
 	}
 
 
@@ -174,7 +311,7 @@ class Replicator extends Nette\Forms\Container
 	 */
 	public static function register($methodName = 'addDynamic')
 	{
-		Nette\Forms\Container::extensionMethod($methodName, function ($_this, $name, $factory, $createDefault = 0) {
+		Container::extensionMethod($methodName, function ($_this, $name, $factory, $createDefault = 0) {
 			return $_this[$name] = new Replicator($factory, $createDefault);
 		});
 	}
