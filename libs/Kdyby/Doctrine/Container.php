@@ -113,7 +113,7 @@ class Container extends Kdyby\DI\Container
 		// Proxies
 		$proxiesDirDefault = $this->context->getParam('proxiesDir', $this->context->expand("%tempDir%/proxies"));
 		$config->setProxyDir($this->getParam('proxiesDir', $proxiesDirDefault));
-		$config->setProxyNamespace($this->getParam('proxyNamespace', 'Kdyby\Models\Proxies'));
+		$config->setProxyNamespace($this->getParam('proxyNamespace', 'Kdyby\Domain\Proxies'));
 		if ($this->context->getParam('productionMode')) {
 			$config->setAutoGenerateProxyClasses(FALSE);
 
