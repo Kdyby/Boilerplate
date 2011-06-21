@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Model;
+namespace Kdyby\Doctrine;
 
 use Doctrine;
 use Kdyby;
@@ -20,20 +20,38 @@ use Nette\ObjectMixin;
 /**
  * @author Filip Procházka
  */
-class EntityRepository extends Doctrine\ORM\EntityRepository implements Kdyby\Validation\IStorage
+class EntityRepository extends Doctrine\ORM\EntityRepository
 {
 
 	/**
 	 * @param object $entity
+	 * @param bool $validate
 	 */
-	public function save($entity)
+	public function save($entity, $validate = TRUE)
 	{
 		if (!$entity instanceof $this->_entityName) {
 			throw new Nette\InvalidArgumentException("Entity is not instanceof " . $this->_entityName . ', ' . get_class($entity) . ' given.');
 		}
 
+		// TODO: validate
+
 		$this->_em->persist($entity);
-		$this->_em->flush();
+		$this->_em->flush(); // TODO: orly?
+	}
+
+
+
+	/**
+	 * @param object $entity
+	 */
+	public function delete($entity)
+	{
+		if (!$entity instanceof $this->_entityName) {
+			throw new Nette\InvalidArgumentException("Entity is not instanceof " . $this->_entityName . ', ' . get_class($entity) . ' given.');
+		}
+
+		$this->_em->remove($entity);
+		$this->_em->flush(); // TODO: orly?
 	}
 
 
@@ -62,13 +80,10 @@ class EntityRepository extends Doctrine\ORM\EntityRepository implements Kdyby\Va
 
 
 
-	/********************* Kdyby\Validation\IStorage *********************/
-
-
-
 	/**
 	 * @param string $attribute
 	 * @param mixed $value
+	 * @throws QueryException
 	 * @return int
 	 */
 	public function countByAttribute($attribute, $value)
@@ -82,7 +97,7 @@ class EntityRepository extends Doctrine\ORM\EntityRepository implements Kdyby\Va
 			return (int)$qb->getQuery()->getSingleResult(Query::HYDRATE_SINGLE_SCALAR);
 
 		} catch (Doctrine\ORM\ORMException $e) {
-			throw new Kdyby\Doctrine\QueryException($e->getMessage(), $this->qb->getQuery(), $e);
+			throw new QueryException($e->getMessage(), $this->qb->getQuery(), $e);
 		}
 	}
 

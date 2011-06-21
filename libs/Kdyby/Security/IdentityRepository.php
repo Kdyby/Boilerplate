@@ -21,7 +21,7 @@ use Nette;
 /**
  * @author Filip Procházka
  */
-class IdentityRepository extends Kdyby\Model\EntityRepository implements IIdentityRepository
+class IdentityRepository extends Kdyby\Doctrine\EntityRepository implements IIdentityRepository
 {
 
 	/**
