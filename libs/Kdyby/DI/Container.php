@@ -46,6 +46,12 @@ use Nette;
 class Container extends Nette\DI\Container
 {
 
+	/**
+	 * @param string $key
+	 * @param string|NULL $default
+	 * @throws Nette\OutOfRangeException
+	 * @return mixed
+	 */
 	public function getParam($key, $default = NULL)
 	{
 		if (isset($this->params[$key])) {
@@ -56,6 +62,19 @@ class Container extends Nette\DI\Container
 		}
 
 		throw new Nette\OutOfRangeException("Missing key $key in " . get_class($this) . '->params');
+	}
+
+
+
+	/**
+	 * @param string $name
+	 * @param Nette\DI\IContainer $container
+	 */
+	public function lazyCopy($name, Nette\DI\IContainer $container)
+	{
+		$this->addService($name, function() use ($name, $container) {
+			return $container->getService($name);
+		});
 	}
 
 }
