@@ -29,8 +29,7 @@ require_once KDYBY_DIR . '/functions.php';
 
 
 // Configure environment
-//Nette\Debug::enable(Nette\Debug::DEVELOPMENT, TEMP_DIR . '/log');
-Debugger::enable();
+Debugger::enable(Debugger::PRODUCTION);
 Debugger::$strictMode = TRUE;
 //Debug::$maxDepth = 10;
 //Debug::$maxLen = 2024;
@@ -43,3 +42,4 @@ Kdyby\Loaders\KdybyLoader::getInstance()->register();
 
 // Create Configurator
 $configurator = new Kdyby\DI\Configurator;
+Nette\Environment::setConfigurator(new Kdyby\DI\Configurator);
