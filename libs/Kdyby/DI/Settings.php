@@ -21,9 +21,9 @@ use Nette\Caching\IStorage;
 /**
  * @author Filip Procházka
  *
- * @property-read Kdyby\Doctrine\EntityRepository $repository
+ * @property-read Kdyby\Doctrine\ORM\EntityRepository $repository
  */
-class Settings extends Kdyby\Doctrine\BaseService
+class Settings extends Kdyby\Doctrine\ORM\BaseService
 {
 
 	const CACHE_NAMESPACE = 'Kdyby.Configurator';
@@ -49,7 +49,7 @@ class Settings extends Kdyby\Doctrine\BaseService
 
 
 	/**
-	 * @return Kdyby\Doctrine\EntityRepository
+	 * @return Kdyby\Doctrine\ORM\EntityRepository
 	 */
 	public function getRepository()
 	{

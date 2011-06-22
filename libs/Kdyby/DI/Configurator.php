@@ -96,12 +96,12 @@ class Configurator extends Nette\Configurator
 
 	/**
 	 * @param Container $container
-	 * @return Kdyby\Doctrine\Container
+	 * @return Kdyby\Doctrine\ORM\Container
 	 */
 	public static function createServiceDoctrine(Container $container)
 	{
 		$container->doctrineLoader;
-		return new Kdyby\Doctrine\Container($container);
+		return new Kdyby\Doctrine\ORM\Container($container);
 	}
 
 
@@ -255,14 +255,14 @@ class Configurator extends Nette\Configurator
 
 
 	/**
-	 * @param DI\IContainer $container
+	 * @param Container $container
 	 * @return Console\Helper\HelperSet
 	 */
-	public static function createServiceConsoleHelpers(DI\IContainer $container)
+	public static function createServiceConsoleHelpers(Container $container)
 	{
 		$helperSet = new Console\Helper\HelperSet;
 		$helperSet->set(new ContainerHelper($container), 'container');
-		$helperSet->set(new Kdyby\Doctrine\EntityManagerHelper($container), 'em');
+		$helperSet->set(new Kdyby\Doctrine\ORM\EntityManagerHelper($container), 'em');
 
 		return $helperSet;
 	}
@@ -270,10 +270,10 @@ class Configurator extends Nette\Configurator
 
 
 	/**
-	 * @param DI\IContainer $container
+	 * @param Container $container
 	 * @return Kdyby\Tools\FreezableArray
 	 */
-	public static function createServiceConsoleCommands(DI\IContainer $container)
+	public static function createServiceConsoleCommands(Container $container)
 	{
 		return new Kdyby\Tools\FreezableArray(array(
 			// DBAL Commands
@@ -292,7 +292,7 @@ class Configurator extends Nette\Configurator
 
 
 	/**
-	 * @param DI\IContainer $container
+	 * @param Container $container
 	 * @return Console\Application
 	 */
 	public static function createServiceConsole(Container $container)
@@ -310,7 +310,7 @@ class Configurator extends Nette\Configurator
 
 
 	/**
-	 * @param DI\IContainer $container
+	 * @param Container $container
 	 * @return Kdyby\Security\Authenticator
 	 */
 	public static function createServiceAuthenticator(Container $container)
@@ -339,6 +339,7 @@ class Configurator extends Nette\Configurator
 
 
 	/**
+	 * @param Container $container
 	 * @return Kdyby\Security\Users
 	 */
 	public static function createServiceUsers(Container $container)

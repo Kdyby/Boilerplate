@@ -19,7 +19,7 @@ use Nette;
 /**
  * @author Filip Procházka
  *
- * @property-read Kdyby\Doctrine\Container $doctrine
+ * @property-read Kdyby\Doctrine\ORM\Container $doctrine
  * @property-read Nette\Application\IRouter $router
  * @property-read Console\Helper\HelperSet $consoleHelpers
  * @property-read Kdyby\Tools\FreezableArray $consoleCommands
