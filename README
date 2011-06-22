@@ -19,7 +19,7 @@ Dependecies:
 ============
 
 - Nette 2.0b https://github.com/nette/nette
-- Doctrine ORM > 2.0.1 https://github.com/doctrine/doctrine2
+- Doctrine ORM > 2.1.0RC1 https://github.com/doctrine/doctrine2
 - Doctrine DBAL https://github.com/doctrine/dbal
 - Doctrine Common https://github.com/doctrine/common
 - Symfony2 Console https://github.com/symfony/symfony/tree/master/src/Symfony/Component/Console
