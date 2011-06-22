@@ -13,7 +13,6 @@ namespace Kdyby\Doctrine;
 use Doctrine;
 use Doctrine\ORM\EntityManager;
 use Doctrine\Common\EventManager;
-use Doctrine\DBAL\Types\Type as DoctrineTypes;
 use Kdyby;
 use Nette;
 use Nette\DI;
@@ -52,8 +51,8 @@ class Container extends Kdyby\DI\Container
 		$this->addService('context', $context);
 
 		foreach (self::$types as $name => $className) {
-			if (!DoctrineTypes::hasType($name)) {
-				DoctrineTypes::addType($name, $className);
+			if (!Type::hasType($name)) {
+				Type::addType($name, $className);
 			}
 		}
 	}
