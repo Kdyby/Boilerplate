@@ -12,10 +12,10 @@ namespace Kdyby\Doctrine\ORM;
 
 use Doctrine;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityRepository;
 use Doctrine\Common\EventManager;
 use Kdyby;
 use Nette;
-use Nette\DI;
 
 
 
@@ -23,7 +23,7 @@ use Nette\DI;
  * @author Patrik Votoček
  * @author Filip Procházka
  *
- * @property-read Nette\DI\Container $context
+ * @property-read Kdyby\DI\Container $context
  * @property-read Cache $cache
  * @property-read Diagnostics\Panel $logger
  * @property-read Doctrine\ORM\Configuration $configurator
@@ -32,7 +32,7 @@ use Nette\DI;
  * @property-read EventManager $eventManager
  * @property-read EntityManager $entityManager
  */
-class Container extends Kdyby\DI\Container
+class Container extends Kdyby\DI\Container implements Kdyby\Doctrine\IContainer
 {
 
 	/** @var array */
@@ -45,8 +45,10 @@ class Container extends Kdyby\DI\Container
 
 	/**
 	 * Registers doctrine types
+	 *
+	 * @param Kdyby\DI\Container $context
 	 */
-	public function __construct(DI\Container $context)
+	public function __construct(Kdyby\DI\Container $context)
 	{
 		$this->addService('context', $context);
 
@@ -190,11 +192,22 @@ class Container extends Kdyby\DI\Container
 
 	/**
 	 * @param string $entityName
-	 * @return Kdyby\Model\EntityRepository
+	 * @return EntityRepository
 	 */
 	public function getRepository($entityName)
 	{
 		return $this->getEntityManager()->getRepository($entityName);
+	}
+
+
+
+	/**
+	 * @param string $className
+	 * @return bool
+	 */
+	public function isManaging($className)
+	{
+		return $this->getEntityManager()->getMetadataFactory()->hasMetadataFor($className);
 	}
 
 }
