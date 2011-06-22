@@ -17,7 +17,6 @@ use Kdyby\Application\ModuleCascadeRegistry;
 use Nette;
 use Nette\Application\Routers\Route;
 use Nette\Application\UI\Presenter;
-use Nette\DI;
 use Symfony\Component\Console;
 
 
@@ -47,19 +46,19 @@ class Configurator extends Nette\Configurator
 
 
 	/**
-	 * @param DI\Container $container
+	 * @param Nette\DI\Container $container
 	 * @param array $options
 	 * @return Kdyby\Application\Application
 	 */
-	public static function createServiceApplication(DI\Container $container, array $options = NULL)
+	public static function createServiceApplication(Nette\DI\Container $container, array $options = NULL)
 	{
-		$context = new Kdyby\DI\Container;
+		$context = new Container;
 		$context->addService('httpRequest', $container->httpRequest);
 		$context->addService('httpResponse', $container->httpResponse);
 		$context->addService('session', $container->session);
 		$context->addService('presenterFactory', $container->presenterFactory);
 		$context->addService('router', $container->router);
-		$context->addService('console', $container->console);
+		$context->lazyCopy('console', $container);
 
 		Presenter::$invalidLinkMode = $container->getParam('productionMode', TRUE)
 			? Presenter::INVALID_LINK_SILENT : Presenter::INVALID_LINK_WARNING;
@@ -74,10 +73,10 @@ class Configurator extends Nette\Configurator
 
 
 	/**
-	 * @param DI\Container $container
+	 * @param Container $container
 	 * @return Kdyby\Application\RequestManager
 	 */
-	public static function createServiceRequestManager(DI\Container $container)
+	public static function createServiceRequestManager(Container $container)
 	{
 		return new Kdyby\Application\RequestManager($container->application);
 	}
@@ -85,10 +84,10 @@ class Configurator extends Nette\Configurator
 
 
 	/**
-	 * @param DI\Container $container
+	 * @param Container $container
 	 * @return Kdyby\Modules\InstallWizard
 	 */
-	public static function createServiceInstallWizard(DI\Container $container)
+	public static function createServiceInstallWizard(Container $container)
 	{
 		return new Kdyby\Modules\InstallWizard($container->robotLoader, $container->cacheStorage);
 	}
@@ -96,21 +95,33 @@ class Configurator extends Nette\Configurator
 
 
 	/**
-	 * @param DI\Container $container
+	 * @param Container $container
 	 * @return Kdyby\Doctrine\Container
 	 */
-	public static function createServiceDoctrine(DI\Container $container)
+	public static function createServiceDoctrine(Container $container)
 	{
+		$container->doctrineLoader;
 		return new Kdyby\Doctrine\Container($container);
 	}
 
 
 
 	/**
-	 * @param DI\Container $container
+	 * @param Container $container
+	 * @return Kdyby\Loaders\DoctrineLoader
+	 */
+	public static function createServiceDoctrineLoader(Container $container)
+	{
+		return Kdyby\Loaders\DoctrineLoader::register();
+	}
+
+
+
+	/**
+	 * @param Nette\DI\Container $container
 	 * @return Nette\Application\IPresenterFactory
 	 */
-	public static function createServicePresenterFactory(DI\Container $container)
+	public static function createServicePresenterFactory(Nette\DI\Container $container)
 	{
 		return new Kdyby\Application\PresenterFactory($container->moduleRegistry, $container);
 	}
@@ -118,10 +129,10 @@ class Configurator extends Nette\Configurator
 
 
 	/**
-	 * @param DI\Container $container
+	 * @param Container $container
 	 * @return Kdyby\Templates\ITemplateFactory
 	 */
-	public static function createServiceTemplateFactory(DI\Container $container)
+	public static function createServiceTemplateFactory(Container $container)
 	{
 		return new Kdyby\Templates\TemplateFactory($container->latteEngine);
 	}
@@ -129,9 +140,10 @@ class Configurator extends Nette\Configurator
 
 
 	/**
+	 * @param Nette\DI\Container $container
 	 * @return Kdyby\Caching\FileStorage
 	 */
-	public static function createServiceCacheStorage(DI\Container $container)
+	public static function createServiceCacheStorage(Nette\DI\Container $container)
 	{
 		if (!isset($container->params['tempDir'])) {
 			throw new Nette\InvalidStateException("Service cacheStorage requires that parameter 'tempDir' contains path to temporary directory.");
@@ -145,9 +157,10 @@ class Configurator extends Nette\Configurator
 
 
 	/**
+	 * @param Nette\DI\Container $container
 	 * @return Kdyby\Loaders\RobotLoader
 	 */
-	public static function createServiceRobotLoader(DI\Container $container, array $options = NULL)
+	public static function createServiceRobotLoader(Nette\DI\Container $container, array $options = NULL)
 	{
 		$loader = new Kdyby\Loaders\RobotLoader;
 		$loader->autoRebuild = isset($options['autoRebuild']) ? $options['autoRebuild'] : !$container->params['productionMode'];
@@ -168,10 +181,21 @@ class Configurator extends Nette\Configurator
 
 
 	/**
-	 * @param DI\Container $container
+	 * @param Container $container
+	 * @return Kdyby\Loaders\DoctrineLoader
+	 */
+	public static function createServiceSymfonyLoader(Container $container)
+	{
+		return Kdyby\Loaders\SymfonyLoader::register();
+	}
+
+
+
+	/**
+	 * @param Container $container
 	 * @return Nette\Latte\Engine
 	 */
-	public static function createServiceLatteEngine(DI\Container $container)
+	public static function createServiceLatteEngine(Container $container)
 	{
 		$engine = new Nette\Latte\Engine;
 
@@ -185,10 +209,10 @@ class Configurator extends Nette\Configurator
 
 
 	/**
-	 * @param DI\Container $container
+	 * @param Container $container
 	 * @return ModuleCascadeRegistry
 	 */
-	public static function createServiceModuleRegistry(DI\Container $container)
+	public static function createServiceModuleRegistry(Container $container)
 	{
 		$register = new ModuleCascadeRegistry;
 		$register->add('Kdyby\Modules', KDYBY_DIR . '/Modules');
@@ -203,10 +227,10 @@ class Configurator extends Nette\Configurator
 
 
 	/**
-	 * @param DI\Container $container
+	 * @param Nette\DI\Container $container
 	 * @return Nette\Application\Routers\RouteList
 	 */
-	public static function createServiceRouter(DI\Container $container)
+	public static function createServiceRouter(Nette\DI\Container $container)
 	{
 		$router = new Nette\Application\Routers\RouteList;
 
@@ -271,7 +295,7 @@ class Configurator extends Nette\Configurator
 	 * @param DI\IContainer $container
 	 * @return Console\Application
 	 */
-	public static function createServiceConsole(DI\Container $container)
+	public static function createServiceConsole(Container $container)
 	{
 		$name = Kdyby\Framework::NAME . " Command Line Interface";
 		$cli = new Console\Application($name, Kdyby\Framework::VERSION);
@@ -287,30 +311,26 @@ class Configurator extends Nette\Configurator
 
 	/**
 	 * @param DI\IContainer $container
+	 * @return Kdyby\Security\Authenticator
 	 */
-	public static function createServiceAuthenticator(DI\Container $container)
+	public static function createServiceAuthenticator(Container $container)
 	{
-		return new \Kdyby\Security\Authenticator($container->doctrine->getRepository('Kdyby\Security\Identity'));
+		return new Kdyby\Security\Authenticator($container->users);
 	}
 
 
 
 	/**
+	 * @param Nette\DI\Container $container
 	 * @return Kdyby\Http\User
 	 */
-	public static function createServiceUser(DI\Container $container)
+	public static function createServiceUser(Nette\DI\Container $container)
 	{
-		$context = new DI\Container;
+		$context = new Container;
 		// copies services from $container and preserves lazy loading
-		$context->addService('authenticator', function() use ($container) {
-			return $container->authenticator;
-		});
-		$context->addService('authorizator', function() use ($container) {
-			return $container->authorizator;
-		});
-		$context->addService('doctrine', function() use ($container) {
-			return $container->doctrine;
-		});
+		$context->lazyCopy('authenticator', $container);
+		$context->lazyCopy('authorizator', $container);
+		$context->lazyCopy('doctrine', $container);
 		$context->addService('session', $container->session);
 
 		return new Kdyby\Security\User($context);
@@ -319,22 +339,36 @@ class Configurator extends Nette\Configurator
 
 
 	/**
-	 * @return Kdyby\Security\IIdentityRepository
+	 * @return Kdyby\Security\Users
 	 */
-	public static function createServiceUsers(DI\Container $container)
+	public static function createServiceUsers(Container $container)
 	{
-		return $container->doctrine->getRepository('Kdyby\Security\Identity');
+		return new Kdyby\Security\Users($container->doctrine->entityManager);
 	}
 
 
 
 	/**
-	 * @param DI\Container $container
+	 * @param Container $container
 	 * @return Kdyby\Components\Grinder\GridFactory
 	 */
-	public static function createServiceGrinderFactory(DI\Container $container)
+	public static function createServiceGrinderFactory(Container $container)
 	{
 		return new Kdyby\Components\Grinder\GridFactory($container->doctrine->entityManager, $container->session);
+	}
+
+
+
+	/**
+	 * @param Container $container
+	 * @return Settings
+	 */
+	public static function createServiceSettings(Container $container)
+	{
+		$settings = new Settings($container->doctrine->entityManager, $container->cacheStorage);
+		$settings->loadAll($container);
+
+		return $settings;
 	}
 
 }
