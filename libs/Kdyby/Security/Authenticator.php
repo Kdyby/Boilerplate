@@ -22,15 +22,15 @@ use Nette\Security\AuthenticationException;
 class Authenticator extends Nette\Object implements Nette\Security\IAuthenticator
 {
 
-	/** @var IIdentityRepository */
+	/** @var Users */
 	private $users;
 
 
 
 	/**
-	 * @param IIdentityRepository $users
+	 * @param Users $users
 	 */
-	public function __construct(IIdentityRepository $users)
+	public function __construct(Users $users)
 	{
 		$this->users = $users;
 	}
@@ -43,13 +43,16 @@ class Authenticator extends Nette\Object implements Nette\Security\IAuthenticato
 	 */
 	public function authenticate(array $credentials)
 	{
-		$identity = $this->users->findByNameOrEmail($credentials[self::USERNAME]);
+		$identity = $this->users->repository->findByNameOrEmail($credentials[self::USERNAME]);
 
 		if (!$identity instanceof Identity) {
 			throw new AuthenticationException('User not found', self::IDENTITY_NOT_FOUND);
 
 		} elseif (!$identity->isPasswordValid($credentials[self::PASSWORD])) {
 			throw new AuthenticationException('Invalid password', self::INVALID_CREDENTIAL);
+
+		} elseif (!$identity->isApproved()) {
+			throw new AuthenticationException('Account is not approved', self::NOT_APPROVED);
 		}
 
 		return $identity;

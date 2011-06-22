@@ -21,19 +21,8 @@ use Nette;
 /**
  * @author Filip Procházka
  */
-class IdentityRepository extends Kdyby\Doctrine\EntityRepository implements IIdentityRepository
+class IdentityRepository extends Kdyby\Doctrine\EntityRepository
 {
-
-	/**
-	 * @param array $data
-	 * @return Identity
-	 */
-	public function createNew(array $data = array())
-	{
-		return new Identity(@$data['username'], @$data['password'], @$data['email']);
-	}
-
-
 
     /**
      * Finds an entity by its primary key / identifier.
