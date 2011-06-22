@@ -34,6 +34,7 @@ use Nette;
  * @property-read Nette\Http\Context $httpContext
  * @property-read Nette\Http\Session $session
  * @property-read Nette\Http\User $user
+ * @property-read Kdyby\Security\Users $users
  * @property-read Nette\Caching\IStorage $cacheStorage
  * @property-read Nette\Caching\Storages\PhpFileStorage $templateCacheStorage
  * @property-read Nette\Caching\Storages\IJournal $cacheJournal
