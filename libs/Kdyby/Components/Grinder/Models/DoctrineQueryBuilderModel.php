@@ -94,7 +94,7 @@ class DoctrineQueryBuilderModel extends AbstractModel
 				->getSingleScalarResult();
 
 		} catch (Doctrine\ORM\ORMException $e) {
-			throw new Kdyby\Doctrine\QueryException($e->getMessage(), $this->qb->getQuery(), $e);
+			throw new Kdyby\Doctrine\ORM\QueryException($e->getMessage(), $this->qb->getQuery(), $e);
 		}
 	}
 

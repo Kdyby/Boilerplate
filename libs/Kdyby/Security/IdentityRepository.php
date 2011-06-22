@@ -21,7 +21,7 @@ use Nette;
 /**
  * @author Filip Procházka
  */
-class IdentityRepository extends Kdyby\Doctrine\EntityRepository
+class IdentityRepository extends Kdyby\Doctrine\ORM\EntityRepository
 {
 
     /**

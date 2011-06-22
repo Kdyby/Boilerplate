@@ -20,7 +20,7 @@ use Nette;
  *
  * @property-read IdentityRepository $repository
  */
-class Users extends Kdyby\Doctrine\BaseService
+class Users extends Kdyby\Doctrine\ORM\BaseService
 {
 
 	/**
