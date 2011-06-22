@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Doctrine\Repositories;
+namespace Kdyby\Doctrine\ORM\Repositories;
 
 use Doctrine;
 use Gedmo;
@@ -29,7 +29,7 @@ class NestedTreeRepository extends Gedmo\Tree\Entity\Repository\NestedTreeReposi
 	 *
 	 * @param int $id
 	 * @param int|NULL $maxLevel
-	 * @return Kdyby\Doctrine\Entities\NestedNode
+	 * @return Kdyby\Doctrine\ORM\Entities\NestedNode
 	 */
 	public function findTreeByRootId($id, $maxLevel = 0)
 	{

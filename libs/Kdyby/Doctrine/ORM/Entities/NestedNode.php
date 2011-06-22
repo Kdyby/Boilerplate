@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Doctrine\Entities;
+namespace Kdyby\Doctrine\ORM\Entities;
 
 use Gedmo;
 use Kdyby;
@@ -18,7 +18,7 @@ use Nette;
 
 /**
  * In descendants requires to set Entity annotation like:
- * Entity(repositoryClass="Kdyby\Doctrine\Repositories\NestedTreeRepository")
+ * Entity(repositoryClass="Kdyby\Doctrine\ORM\Repositories\NestedTreeRepository")
  * @author Filip Procházka
  *
  * @MappedSuperclass

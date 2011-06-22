@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Doctrine;
+namespace Kdyby\Doctrine\ORM;
 
 use Doctrine;
 use Doctrine\ORM\EntityManager;
@@ -37,8 +37,8 @@ class Container extends Kdyby\DI\Container
 
 	/** @var array */
 	private static $types = array(
-		'callback' => '\Kdyby\Doctrine\Types\Callback',
-		'password' => '\Kdyby\Doctrine\Types\Password'
+		'callback' => '\Kdyby\Doctrine\ORM\Types\Callback',
+		'password' => '\Kdyby\Doctrine\ORM\Types\Password'
 	);
 
 
@@ -86,10 +86,18 @@ class Container extends Kdyby\DI\Container
 	{
 		$reader = new Doctrine\Common\Annotations\AnnotationReader();
 		$reader->setDefaultAnnotationNamespace('Doctrine\ORM\Mapping\\');
-		// $reader->setAnnotationNamespaceAlias('Kdyby\Doctrine\Mapping\\', 'Kdyby');
+		// $reader->setAnnotationNamespaceAlias('Kdyby\Doctrine\ORM\Mapping\\', 'Kdyby');
+
+		$reader->setIgnoreNotImportedAnnotations(TRUE);
+		$reader->setEnableParsePhpImports(FALSE);
+
+		$reader = new Doctrine\Common\Annotations\CachedReader(
+			new Doctrine\Common\Annotations\IndexedReader($reader),
+			new Doctrine\Common\Cache\ArrayCache()
+		);
 
 		$dirs = $this->getParam('entityDirs', $this->context->getParam('entityDirs', array(APP_DIR, KDYBY_DIR)));
-		return new Kdyby\Doctrine\Mapping\Driver\AnnotationDriver($reader, (array)$dirs);
+		return new Kdyby\Doctrine\ORM\Mapping\Driver\AnnotationDriver($reader, (array)$dirs);
 	}
 
 
@@ -106,7 +114,7 @@ class Container extends Kdyby\DI\Container
 		$config->setQueryCacheImpl($this->hasService('queryCache') ? $this->queryCache : $this->cache);
 
 		// Metadata
-		$config->setClassMetadataFactoryName('\Kdyby\Doctrine\Mapping\ClassMetadataFactory');
+		$config->setClassMetadataFactoryName('\Kdyby\Doctrine\ORM\Mapping\ClassMetadataFactory');
 		$config->setMetadataDriverImpl($this->annotationDriver);
 
 		// Proxies

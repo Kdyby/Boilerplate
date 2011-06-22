@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Doctrine\Mapping\Driver;
+namespace Kdyby\Doctrine\ORM\Mapping\Driver;
 
 use Doctrine;
 use Doctrine\ORM\Mapping\MappingException;

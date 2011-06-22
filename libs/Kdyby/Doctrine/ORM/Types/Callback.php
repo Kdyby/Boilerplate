@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Doctrine\Types;
+namespace Kdyby\Doctrine\ORM\Types;
 
 use Doctrine;
 use Doctrine\DBAL\Platforms\AbstractPlatform;

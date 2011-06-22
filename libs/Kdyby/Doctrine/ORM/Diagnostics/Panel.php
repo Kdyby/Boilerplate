@@ -16,7 +16,7 @@
  * This source file is subject to the GNU Lesser General Public License. For more information please see http://nella-project.org
  */
 
-namespace Kdyby\Doctrine\Diagnostics;
+namespace Kdyby\Doctrine\ORM\Diagnostics;
 
 use Doctrine;
 use Kdyby;
@@ -148,7 +148,7 @@ class Panel extends \Nette\Object implements \Nette\Diagnostics\IBarPanel, \Doct
 			);
 		}
 
-		if ($e instanceof Kdyby\Doctrine\QueryException) {
+		if ($e instanceof Kdyby\Doctrine\ORM\QueryException) {
 			$h = 'htmlSpecialChars';
 
 			// query

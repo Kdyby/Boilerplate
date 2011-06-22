@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Doctrine\Entities;
+namespace Kdyby\Doctrine\ORM\Entities;
 
 
 

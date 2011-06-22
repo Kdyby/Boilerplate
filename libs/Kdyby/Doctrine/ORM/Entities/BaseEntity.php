@@ -8,34 +8,25 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Doctrine\Entities;
+namespace Kdyby\Doctrine\ORM\Entities;
 
 use Nette;
-use Kdyby;
+use Nette\Environment;
 
 
 
 /**
  * @author Filip Procházka
+ * @author Jan Smitka
  *
- * @MappedSuperClass
+ * @MappedSuperclass
+ * @HasLifecycleCallbacks
  *
  * @property-read int $id
  */
-abstract class IdentifiedEntity extends BaseEntity
+abstract class BaseEntity extends Nette\Object
 {
 
-	/** @Id @Column(type="integer") @GeneratedValue */
-	private $id;
-
-
-
-	/**
-	 * @return int
-	 */
-	public function getId()
-	{
-		return $this->id;
-	}
+	public function __construct() { }
 
 }

@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Doctrine\Mapping;
+namespace Kdyby\Doctrine\ORM\Mapping;
 
 use Doctrine;
 use Kdyby;

@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Doctrine\Mapping;
+namespace Kdyby\Doctrine\ORM\Mapping;
 
 use Doctrine;
 use Kdyby;
@@ -28,6 +28,6 @@ class ClassMetadata extends Doctrine\ORM\Mapping\ClassMetadata
 	 *
 	 * @var string
 	 */
-	public $customRepositoryClassName = 'Kdyby\Doctrine\EntityRepository';
+	public $customRepositoryClassName = 'Kdyby\Doctrine\ORM\EntityRepository';
 
 }
