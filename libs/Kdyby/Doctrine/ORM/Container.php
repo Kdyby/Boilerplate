@@ -36,6 +36,17 @@ class Container extends Kdyby\DI\Container implements Kdyby\Doctrine\IContainer
 {
 
 	/** @var array */
+	public $params = array(
+			'host' => 'localhost',
+			'charset' => 'utf8',
+			'driver' => 'pdo_mysql',
+			'entityDirs' => array('%appDir%', '%kdybyDir%'),
+			'proxiesDir' => '%tempDir%/proxies',
+			'proxyNamespace' => 'Kdyby\Domain\Proxies',
+			'listeners' => array(),
+		);
+
+	/** @var array */
 	private static $types = array(
 		'callback' => '\Kdyby\Doctrine\ORM\Types\Callback',
 		'password' => '\Kdyby\Doctrine\ORM\Types\Password'
@@ -47,10 +58,16 @@ class Container extends Kdyby\DI\Container implements Kdyby\Doctrine\IContainer
 	 * Registers doctrine types
 	 *
 	 * @param Kdyby\DI\Container $context
+	 * @param array $parameters
 	 */
-	public function __construct(Kdyby\DI\Container $context)
+	public function __construct(Kdyby\DI\Container $context, $parameters = array())
 	{
 		$this->addService('context', $context);
+		$this->params += (array)$parameters;
+
+		array_walk_recursive($this->params, function (&$value) use ($context) {
+			$value = $context->expand($value);
+		});
 
 		foreach (self::$types as $name => $className) {
 			if (!Type::hasType($name)) {
@@ -98,8 +115,7 @@ class Container extends Kdyby\DI\Container implements Kdyby\Doctrine\IContainer
 			new Doctrine\Common\Cache\ArrayCache()
 		);
 
-		$dirs = $this->getParam('entityDirs', $this->context->getParam('entityDirs', array(APP_DIR, KDYBY_DIR)));
-		return new Kdyby\Doctrine\ORM\Mapping\Driver\AnnotationDriver($reader, (array)$dirs);
+		return new Kdyby\Doctrine\ORM\Mapping\Driver\AnnotationDriver($reader, $this->params['entityDirs']);
 	}
 
 
@@ -116,14 +132,13 @@ class Container extends Kdyby\DI\Container implements Kdyby\Doctrine\IContainer
 		$config->setQueryCacheImpl($this->hasService('queryCache') ? $this->queryCache : $this->cache);
 
 		// Metadata
-		$config->setClassMetadataFactoryName('\Kdyby\Doctrine\ORM\Mapping\ClassMetadataFactory');
+		$config->setClassMetadataFactoryName('Kdyby\Doctrine\ORM\Mapping\ClassMetadataFactory');
 		$config->setMetadataDriverImpl($this->annotationDriver);
 
 		// Proxies
-		$proxiesDirDefault = $this->context->getParam('proxiesDir', $this->context->expand("%tempDir%/proxies"));
-		$config->setProxyDir($this->getParam('proxiesDir', $proxiesDirDefault));
+		$config->setProxyDir($this->params['proxiesDir']);
 		$config->setProxyNamespace($this->getParam('proxyNamespace', 'Kdyby\Domain\Proxies'));
-		if ($this->context->getParam('productionMode')) {
+		if ($this->context->params['productionMode']) {
 			$config->setAutoGenerateProxyClasses(FALSE);
 
 		} else {
@@ -141,8 +156,7 @@ class Container extends Kdyby\DI\Container implements Kdyby\Doctrine\IContainer
 	 */
 	protected function createServiceMysqlSessionInitListener()
 	{
-		$database = $this->context->getParam('database', array());
-		return new Doctrine\DBAL\Event\Listeners\MysqlSessionInit($database['charset']);
+		return new Doctrine\DBAL\Event\Listeners\MysqlSessionInit($this->params['charset']);
 	}
 
 
@@ -153,11 +167,11 @@ class Container extends Kdyby\DI\Container implements Kdyby\Doctrine\IContainer
 	protected function createServiceEventManager()
 	{
 		$evm = new EventManager;
-		foreach ($this->getParam('listeners', array()) as $listener) {
+		foreach ($this->params['listeners'] as $listener) {
 			$evm->addEventSubscriber($this->getService($listener));
 		}
 
-		$evm->addEventSubscriber(new Kdyby\Media\Listeners\Mediable($this->context));
+		// $evm->addEventSubscriber(new Kdyby\Media\Listeners\Mediable($this->context));
 		return $evm;
 	}
 
@@ -168,14 +182,12 @@ class Container extends Kdyby\DI\Container implements Kdyby\Doctrine\IContainer
 	 */
 	protected function createServiceEntityManager()
 	{
-		$database = $this->context->getParam('database', array());
-
-		if (key_exists('driver', $database) && $database['driver'] == "pdo_mysql" && key_exists('charset', $database)) {
+		if (key_exists('driver', $this->params) && $this->params['driver'] == "pdo_mysql" && key_exists('charset', $this->params)) {
 			$this->eventManager->addEventSubscriber($this->mysqlSessionInitListener);
 		}
 
 		$this->freeze();
-		return EntityManager::create((array)$database, $this->configuration, $this->eventManager);
+		return EntityManager::create($this->params, $this->configuration, $this->eventManager);
 	}
 
 
