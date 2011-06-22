@@ -19,10 +19,17 @@ Dependecies:
 ============
 
 - Nette 2.0b https://github.com/nette/nette
-- Doctrine ORM > 2.1.0RC1 https://github.com/doctrine/doctrine2
+- Doctrine ORM 2.1.0RC1 https://github.com/doctrine/doctrine2
 - Doctrine DBAL https://github.com/doctrine/dbal
 - Doctrine Common https://github.com/doctrine/common
-- Symfony2 Console https://github.com/symfony/symfony/tree/master/src/Symfony/Component/Console
 - Symfony2 Validator https://github.com/symfony/symfony/tree/master/src/Symfony/Component/Validator
+
+
+Optional dependencies
+=====================
+
+- Doctrine Migrations https://github.com/doctrine/migrations
+- Doctrine CouchDB ODM https://github.com/doctrine/couchdb-odm
 - Gedmo Doctrine extensions https://github.com/l3pp4rd/DoctrineExtensions
 - Beberlei Doctrine extensions https://github.com/beberlei/DoctrineExtensions
+- Symfony2 Console https://github.com/symfony/symfony/tree/master/src/Symfony/Component/Console
