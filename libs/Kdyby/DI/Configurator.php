@@ -30,6 +30,11 @@ use Symfony\Component\Console;
 class Configurator extends Nette\Configurator
 {
 
+	/** @var array */
+	public $onAfterLoadConfig = array();
+
+
+
 	/**
 	 * @param string $containerClass
 	 */
@@ -41,6 +46,37 @@ class Configurator extends Nette\Configurator
 		$this->container->params['baseUrl'] = $baseUrl;
 		$this->container->params['basePath'] = preg_replace('#https?://[^/]+#A', '', $baseUrl);
 		$this->container->params['kdybyDir'] = realpath(KDYBY_DIR);
+		$this->container->addService('container', $this->container);
+
+		$this->onAfterLoadConfig[] = callback($this, 'setupDebugger');
+	}
+
+
+
+	/**
+	 * @param Container $container
+	 */
+	public function setupDebugger(Container $container)
+	{
+		$parameters = (array)$container->getParam('debugger', array());
+		foreach ($parameters as $property => $value) {
+			Nette\Utils\LimitedScope::evaluate(
+				'<?php Nette\Diagnostics\Debugger::$' . $property .' = $value; ?>',
+				array('value' => $value));
+		}
+	}
+
+
+
+	/**
+	 * Loads configuration from file and process it.
+	 * @return void
+	 */
+	public function loadConfig($file, $section = NULL)
+	{
+		parent::loadConfig($file, $section);
+
+		$this->onAfterLoadConfig($this->container);
 	}
 
 
@@ -98,21 +134,37 @@ class Configurator extends Nette\Configurator
 	 * @param Container $container
 	 * @return Kdyby\Doctrine\ORM\Container
 	 */
-	public static function createServiceDoctrine(Container $container)
+	public static function createServiceSqldb(Container $container)
 	{
-		$container->doctrineLoader;
-		return new Kdyby\Doctrine\ORM\Container($container);
+		return new Kdyby\Doctrine\ORM\Container($container, $container->params['sqldb']);
 	}
 
 
 
 	/**
 	 * @param Container $container
-	 * @return Kdyby\Loaders\DoctrineLoader
+	 * @return Kdyby\Doctrine\ODM\Container
 	 */
-	public static function createServiceDoctrineLoader(Container $container)
+	public static function createServiceCouchdb(Container $container)
 	{
-		return Kdyby\Loaders\DoctrineLoader::register();
+		return new Kdyby\Doctrine\ODM\Container($container, $container->getParam('couchdb', array()));
+	}
+
+
+
+	/**
+	 * @param Container $container
+	 * @return Kdyby\Doctrine\Workspace
+	 */
+	public static function createServiceWorkspace(Container $container)
+	{
+		$containers = array(
+			'sqldb' => $container->sqldb,
+			'couchdb' => $container->couchdb
+		);
+
+		$containers += $container->getServiceNamesByTag('database');
+		return new Kdyby\Doctrine\Workspace($containers);
 	}
 
 
@@ -176,17 +228,6 @@ class Configurator extends Nette\Configurator
 		}
 		$loader->register();
 		return $loader;
-	}
-
-
-
-	/**
-	 * @param Container $container
-	 * @return Kdyby\Loaders\DoctrineLoader
-	 */
-	public static function createServiceSymfonyLoader(Container $container)
-	{
-		return Kdyby\Loaders\SymfonyLoader::register();
 	}
 
 
@@ -330,7 +371,7 @@ class Configurator extends Nette\Configurator
 		// copies services from $container and preserves lazy loading
 		$context->lazyCopy('authenticator', $container);
 		$context->lazyCopy('authorizator', $container);
-		$context->lazyCopy('doctrine', $container);
+		$context->lazyCopy('sqldb', $container);
 		$context->addService('session', $container->session);
 
 		return new Kdyby\Security\User($context);
@@ -344,7 +385,7 @@ class Configurator extends Nette\Configurator
 	 */
 	public static function createServiceUsers(Container $container)
 	{
-		return new Kdyby\Security\Users($container->doctrine->entityManager);
+		return new Kdyby\Security\Users($container->sqldb->entityManager);
 	}
 
 
@@ -355,7 +396,7 @@ class Configurator extends Nette\Configurator
 	 */
 	public static function createServiceGrinderFactory(Container $container)
 	{
-		return new Kdyby\Components\Grinder\GridFactory($container->doctrine->entityManager, $container->session);
+		return new Kdyby\Components\Grinder\GridFactory($container->workspace, $container->session);
 	}
 
 
@@ -366,7 +407,8 @@ class Configurator extends Nette\Configurator
 	 */
 	public static function createServiceSettings(Container $container)
 	{
-		$settings = new Settings($container->doctrine->entityManager, $container->cacheStorage);
+		$repository = $container->sqldb->getRepository('Kdyby\DI\Setting');
+		$settings = new Settings($repository, $container->cacheStorage);
 		$settings->loadAll($container);
 
 		return $settings;

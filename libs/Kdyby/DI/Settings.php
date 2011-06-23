@@ -12,6 +12,7 @@ namespace Kdyby\DI;
 
 use Doctrine\ORM\EntityManager;
 use Kdyby;
+use Kdyby\Doctrine\ORM\EntityRepository;
 use Nette;
 use Nette\Caching\Cache;
 use Nette\Caching\IStorage;
@@ -21,12 +22,15 @@ use Nette\Caching\IStorage;
 /**
  * @author Filip Procházka
  *
- * @property-read Kdyby\Doctrine\ORM\EntityRepository $repository
+ * @property-read EntityRepository $repository
  */
-class Settings extends Kdyby\Doctrine\ORM\BaseService
+class Settings extends Nette\Object
 {
 
 	const CACHE_NAMESPACE = 'Kdyby.Configurator';
+
+	/** @var EntityRepository */
+	private $repository;
 
 	/** @var Cache */
 	private $cache;
@@ -34,12 +38,12 @@ class Settings extends Kdyby\Doctrine\ORM\BaseService
 
 
 	/**
-	 * @param EntityManager $entityManager
+	 * @param EntityRepository $entityManager
 	 * @param IStorage|NULL $storage
 	 */
-	public function __construct(EntityManager $entityManager, IStorage $storage = NULL)
+	public function __construct(EntityRepository $repository, IStorage $storage = NULL)
 	{
-		parent::__construct($entityManager);
+		$this->repository = $repository;
 
 		if ($storage) {
 			$this->cache = new Cache($storage, self::CACHE_NAMESPACE);
@@ -49,11 +53,11 @@ class Settings extends Kdyby\Doctrine\ORM\BaseService
 
 
 	/**
-	 * @return Kdyby\Doctrine\ORM\EntityRepository
+	 * @return EntityRepository
 	 */
 	public function getRepository()
 	{
-		return $this->getEntityManager()->getRepository('Kdyby\DI\Setting');
+		return $this->repository;
 	}
 
 
@@ -94,9 +98,9 @@ class Settings extends Kdyby\Doctrine\ORM\BaseService
 
 
 	/**
-	 * @param Nette\DI\Container $container
+	 * @param Kdyby\DI\Container $container
 	 */
-	public function loadAll(Nette\DI\Container $container)
+	public function loadAll(Kdyby\DI\Container $container)
 	{
 		if ($this->cache && $this->cache->load('settings')) {
 			$settings = $this->cache->load('settings');
