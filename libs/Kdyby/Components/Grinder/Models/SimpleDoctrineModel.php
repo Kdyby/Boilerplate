@@ -10,7 +10,7 @@
 
 namespace Kdyby\Components\Grinder\Models;
 
-use Doctrine\ORM\EntityManager;
+use Doctrine\Common\Persistence\ObjectManager;
 
 
 
@@ -22,7 +22,7 @@ use Doctrine\ORM\EntityManager;
 class SimpleDoctrineModel extends DoctrineQueryBuilderModel
 {
 
-	public function __construct(EntityManager $em, $entityName)
+	public function __construct(ObjectManager $em, $entityName)
 	{
 		parent::__construct($em->getRepository($entityName)->createQueryBuilder("e"));
 		$this->setPrimaryKey($em->getClassMetadata($entityName)->getSingleIdentifierFieldName());
