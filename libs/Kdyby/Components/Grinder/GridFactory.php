@@ -12,6 +12,7 @@ namespace Kdyby\Components\Grinder;
 
 use Doctrine\ORM\EntityManager;
 use Kdyby;
+use Kdyby\Doctrine\Workspace;
 use Nette;
 use Nette\Http;
 
@@ -23,8 +24,8 @@ use Nette\Http;
 class GridFactory extends Nette\Object
 {
 
-	/** @var EntityManager */
-	private $entityManager;
+	/** @var Workspace */
+	private $workspace;
 
 	/** @var Http\Session */
 	private $session;
@@ -32,24 +33,25 @@ class GridFactory extends Nette\Object
 
 
 	/**
-	 * @param EntityManager $entityManager
+	 * @param Workspace $workspace
 	 * @param Http\Session|NULL $session
 	 */
-	public function __construct(EntityManager $entityManager, Http\Session $session = NULL)
+	public function __construct(Workspace $workspace, Http\Session $session = NULL)
 	{
-		$this->entityManager = $entityManager;
+		$this->workspace = $workspace;
 		$this->session = $session;
 	}
 
 
 
 	/**
-	 * @param string $entity
+	 * @param string $className
 	 * @return Grinder\Grid
 	 */
-	public function createNew($entity)
+	public function createNew($className)
 	{
-		$grid = new Grid(new Models\SimpleDoctrineModel($this->entityManager, $entity));
+		$manager = $this->workspace->getManager($className);
+		$grid = new Grid(new Models\SimpleDoctrineModel($manager, $entity));
 
 		if ($this->session !== NULL) {
 			$grid->setUpProtection($this->session);
