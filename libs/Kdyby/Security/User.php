@@ -131,7 +131,7 @@ class User extends Nette\Object implements Nette\Http\IUser
 		if ($session && $session->identity && $session->identity instanceof Identity) {
 			if (!$session->identity->isLoaded()) {
 				// TODO: super lazy, EntityManager::merge etc
-				$respository = $this->context->doctrine->getRepository(get_class($session->identity));
+				$respository = $this->context->sqldb->getRepository(get_class($session->identity));
 				$session->identity = $respository->find($session->identity->getId());
 			}
 
