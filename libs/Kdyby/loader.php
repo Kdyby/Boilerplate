@@ -31,13 +31,13 @@ require_once KDYBY_DIR . '/functions.php';
 // Configure environment
 Debugger::enable(Debugger::PRODUCTION);
 Debugger::$strictMode = TRUE;
-//Debug::$maxDepth = 10;
-//Debug::$maxLen = 2024;
 
 
 // register kdyby loader
 require_once KDYBY_DIR . '/Loaders/KdybyLoader.php';
 Kdyby\Loaders\KdybyLoader::getInstance()->register();
+Kdyby\Loaders\DoctrineLoader::register();
+Kdyby\Loaders\SymfonyLoader::register();
 
 
 // Create Configurator
