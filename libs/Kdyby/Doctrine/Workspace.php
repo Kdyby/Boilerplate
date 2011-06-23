@@ -24,6 +24,9 @@ use Nette;
 
 /**
  * @author Filip Procházka
+ *
+ * @property-read EntityManager $sqldb
+ * @property-read DocumentManager $couchdb
  */
 class Workspace extends Nette\Object implements Doctrine\Common\Persistence\ObjectManager
 {
@@ -44,7 +47,7 @@ class Workspace extends Nette\Object implements Doctrine\Common\Persistence\Obje
 	 */
 	public function __construct(array $containers)
 	{
-		foreach ($containers as $container) {
+		foreach ($containers as $name => $container) {
 			if (!$container instanceof Nette\DI\IContainer) {
 				throw new Nette\InvalidArgumentException("Given container is not instanceof Nette\\DI\\IContainer");
 			}
@@ -53,17 +56,32 @@ class Workspace extends Nette\Object implements Doctrine\Common\Persistence\Obje
 				throw new Nette\InvalidArgumentException("Given container is not instanceof Kdyby\\Doctrine\\IContainer");
 			}
 
-			$this->containers[] = $container;
+			$this->containers[$name] = $container;
 		}
 	}
 
 
 
 	/**
-	 * @param string $className
-	 * @return EntityManager|DocumentManager
+	 * @param string $name
+	 * @return Doctrine\Common\Persistence\ObjectManager
 	 */
-	protected function doResolveManager($className)
+	public function &__get($name)
+	{
+		if (isset($this->containers[$name])) {
+			return $this->containers[$name];
+		}
+
+		return parent::__get($name);
+	}
+
+
+
+	/**
+	 * @param string $className
+	 * @return Doctrine\Common\Persistence\ObjectManager
+	 */
+	public function getManager($className)
 	{
 		if (isset($this->managers[$className])) {
 			return $this->managers[$className];
@@ -91,7 +109,7 @@ class Workspace extends Nette\Object implements Doctrine\Common\Persistence\Obje
 
 
 	/**
-	 * @return array of DocumentManager|EntityManager
+	 * @return array of Doctrine\Common\Persistence\ObjectManager
 	 */
 	public function getManagers()
 	{
@@ -135,8 +153,7 @@ class Workspace extends Nette\Object implements Doctrine\Common\Persistence\Obje
 			return $this->repositories[$className];
 		}
 
-		$manager = $this->doResolveManager($className);
-		return $this->repositories[$className] = $manager->getRepository($className);
+		return $this->repositories[$className] = $this->getManager($className)->getRepository($className);
 	}
 
 
@@ -148,8 +165,7 @@ class Workspace extends Nette\Object implements Doctrine\Common\Persistence\Obje
 	 */
 	public function getClassMetadata($className)
 	{
-		$manager = $this->doResolveManager($className);
-		return $manager->getMetadataFor($className);
+		return $this->getManager($className)->getMetadataFor($className);
 	}
 
 
@@ -197,8 +213,7 @@ class Workspace extends Nette\Object implements Doctrine\Common\Persistence\Obje
 	 */
 	public function getReference($className, $identifier)
 	{
-		$manager = $this->doResolveManager($className);
-		return $manager->getReference($className, $identifier);
+		return $this->getManager($className)->getReference($className, $identifier);
 	}
 
 
@@ -213,8 +228,7 @@ class Workspace extends Nette\Object implements Doctrine\Common\Persistence\Obje
 			throw new Nette\InvalidArgumentException('Given type ' . gettype($entity) . ' is not object.');
 		}
 
-		$this->doResolveManager(get_class($entity))
-			->persist($entity);
+		$this->getManager(get_class($entity))->persist($entity);
 		return $entity;
 	}
 
@@ -230,8 +244,7 @@ class Workspace extends Nette\Object implements Doctrine\Common\Persistence\Obje
 			throw new Nette\InvalidArgumentException('Given type ' . gettype($entity) . ' is not object.');
 		}
 
-		$this->doResolveManager(get_class($entity))
-			->remove($entity);
+		$this->getManager(get_class($entity))->remove($entity);
 		return $entity;
 	}
 
@@ -247,8 +260,7 @@ class Workspace extends Nette\Object implements Doctrine\Common\Persistence\Obje
 			throw new Nette\InvalidArgumentException('Given type ' . gettype($entity) . ' is not object.');
 		}
 
-		$this->doResolveManager(get_class($entity))
-			->refresh($entity);
+		$this->getManager(get_class($entity))->refresh($entity);
 		return $entity;
 	}
 
@@ -264,8 +276,7 @@ class Workspace extends Nette\Object implements Doctrine\Common\Persistence\Obje
 			throw new Nette\InvalidArgumentException('Given type ' . gettype($entity) . ' is not object.');
 		}
 
-		$this->doResolveManager(get_class($entity))
-			->detach($entity);
+		$this->getManager(get_class($entity))->detach($entity);
 		return $entity;
 	}
 
@@ -281,8 +292,7 @@ class Workspace extends Nette\Object implements Doctrine\Common\Persistence\Obje
 			throw new Nette\InvalidArgumentException('Given type ' . gettype($entity) . ' is not object.');
 		}
 
-		$this->doResolveManager(get_class($entity))
-			->merge($entity);
+		$this->getManager(get_class($entity))->merge($entity);
 		return $entity;
 	}
 
@@ -298,8 +308,7 @@ class Workspace extends Nette\Object implements Doctrine\Common\Persistence\Obje
 			throw new Nette\InvalidArgumentException('Given type ' . gettype($entity) . ' is not object.');
 		}
 
-		return $this->doResolveManager(get_class($entity))
-			->contains($entity);
+		return $this->getManager(get_class($entity))->contains($entity);
 	}
 
 

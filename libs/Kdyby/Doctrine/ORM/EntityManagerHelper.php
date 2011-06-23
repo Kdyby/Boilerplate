@@ -27,7 +27,7 @@ class EntityManagerHelper extends Kdyby\DI\ContainerHelper
      */
     public function getEntityManager()
     {
-        return $this->container->doctrine->getEntityManager();
+        return $this->container->sqldb->getEntityManager();
     }
 
 

@@ -26,15 +26,30 @@ use Nette;
 class Container extends Kdyby\DI\Container implements Kdyby\Doctrine\IContainer
 {
 
+	/** @var array */
+	public $params = array(
+			'entityDirs' => array('%appDir%', '%kdybyDir%'),
+			'listeners' => array(),
+		);
+
+
+
 	/**
 	 * Registers doctrine types
 	 *
 	 * @param Kdyby\DI\Container $context
+	 * @param array $parameters
 	 */
-	public function __construct(Kdyby\DI\Container $context)
+	public function __construct(Kdyby\DI\Container $context, $parameters = array())
 	{
-		throw new Nette\NotImplementedException;
+		throw new Nette\NotImplementedException; // todo: remove
+
 		$this->addService('context', $context);
+		$this->params += (array)$parameters;
+
+		array_walk_recursive($this->params, function (&$value) use ($context) {
+			$value = $context->expand($value);
+		});
 	}
 
 
