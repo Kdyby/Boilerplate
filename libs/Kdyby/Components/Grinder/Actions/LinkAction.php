@@ -32,8 +32,20 @@ class LinkAction extends BaseAction
 	/** @var string|callback */
 	private $link;
 
+	/** @var Html */
+	private $image;
+
 	/** @var array */
 	private $mask = array();
+
+
+
+	public function __construct()
+	{
+		parent::__construct();
+
+		$this->image = Html::el('img');
+	}
 
 
 
@@ -150,15 +162,74 @@ class LinkAction extends BaseAction
 
 
 	/**
-	 * @return Html
+	 * @param string|callable|Html $image
+	 * @return LinkAction
+	 */
+	public function setImage($image)
+	{
+		if (!is_string($image) && !is_callable($image)) {
+			throw new Nette\InvalidArgumentException("Given image must be either path or callback.");
+		}
+
+		$this->image->src = $image;
+		return $this;
+	}
+
+
+
+	/**
+	 * @return string|Html|callable
+	 */
+	public function getImagePrototype()
+	{
+		return $this->image;
+	}
+
+
+
+	/**
+	 * @return string|Html
+	 */
+	public function getImage()
+	{
+		if (!$this->image->src) {
+			return NULL;
+		}
+
+		$image = clone $this->image;
+
+		$expand = callback($this->getGrid()->getContext(), 'expand');
+		$expand = function (Html $image) use ($expand) {
+			$value = is_callable($image->src) ? call_user_func($image->src, $image) : $image->src;
+			return $expand(substr_count($value, '%') ? $value : '%basePath%/' . $value);
+		};
+
+		$image->src = $expand($image);
+		$image->alt = $this->getCaption();
+
+		return $image;
+	}
+
+
+
+	/**
+	 * @return Nette\Utils\Html
 	 */
 	public function getControl()
 	{
-		$link = Html::el('a');
-		$caption = $this->getCaption();
-		$link->{$caption instanceof Html ? 'add' : 'setText'}($caption);
+		$link = Html::el('a', array(
+				'href' => $this->getLink()
+			));
 
-		return $link->setHref($this->getLink());
+		if ($image = $this->getImage()) {
+			$link->add($image);
+
+		} else {
+			$caption = $this->getCaption();
+			$link->{$caption instanceof Html ? 'add' : 'setText'}($caption);
+		}
+
+		return $link;
 	}
 
 }
