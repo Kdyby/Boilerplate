@@ -16,8 +16,6 @@ use Doctrine\ORM\EntityRepository;
 use Doctrine\ODM\CouchDB\DocumentManager;
 use Doctrine\ODM\CouchDB\DocumentRepository;
 use Kdyby;
-use Kdyby\Doctrine\ORM;
-use Kdyby\Doctrine\ODM;
 use Nette;
 
 
@@ -52,8 +50,8 @@ class Workspace extends Nette\Object implements Doctrine\Common\Persistence\Obje
 				throw new Nette\InvalidArgumentException("Given container is not instanceof Nette\\DI\\IContainer");
 			}
 
-			if (!$container instanceof IContainer) {
-				throw new Nette\InvalidArgumentException("Given container is not instanceof Kdyby\\Doctrine\\IContainer");
+			if (!$container instanceof BaseContainer) {
+				throw new Nette\InvalidArgumentException("Given container is not descendant of Kdyby\\Doctrine\\BaseContainer");
 			}
 
 			$this->containers[$name] = $container;
@@ -94,7 +92,11 @@ class Workspace extends Nette\Object implements Doctrine\Common\Persistence\Obje
 
 				} elseif ($container instanceof ODM\Container) {
 					$this->managers[$className] = $container->getDocumentManager();
+
+				} else {
+					throw new Nette\NotImplementedException;
 				}
+
 				break;
 			}
 		}
@@ -165,7 +167,7 @@ class Workspace extends Nette\Object implements Doctrine\Common\Persistence\Obje
 	 */
 	public function getClassMetadata($className)
 	{
-		return $this->getManager($className)->getMetadataFor($className);
+		return $this->getManager($className)->getClassMetadata($className);
 	}
 
 

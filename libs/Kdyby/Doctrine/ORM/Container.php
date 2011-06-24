@@ -24,15 +24,15 @@ use Nette;
  * @author Filip Procházka
  *
  * @property-read Kdyby\DI\Container $context
- * @property-read Cache $cache
  * @property-read Diagnostics\Panel $logger
  * @property-read Doctrine\ORM\Configuration $configurator
+ * @property-read Doctrine\Common\Annotations\AnnotationReader $annotationReader
  * @property-read Doctrine\ORM\Mapping\Driver\AnnotationDriver $annotationDriver
  * @property-read Doctrine\DBAL\Event\Listeners\MysqlSessionInit $mysqlSessionInitListener
  * @property-read EventManager $eventManager
  * @property-read EntityManager $entityManager
  */
-class Container extends Kdyby\DI\Container implements Kdyby\Doctrine\IContainer
+class Container extends Kdyby\Doctrine\BaseContainer
 {
 
 	/** @var array */
@@ -55,35 +55,18 @@ class Container extends Kdyby\DI\Container implements Kdyby\Doctrine\IContainer
 
 
 	/**
-	 * Registers doctrine types
-	 *
 	 * @param Kdyby\DI\Container $context
 	 * @param array $parameters
 	 */
 	public function __construct(Kdyby\DI\Container $context, $parameters = array())
 	{
-		$this->addService('context', $context);
-		$this->params += (array)$parameters;
-
-		array_walk_recursive($this->params, function (&$value) use ($context) {
-			$value = $context->expand($value);
-		});
+		parent::__construct($context, $parameters);
 
 		foreach (self::$types as $name => $className) {
 			if (!Type::hasType($name)) {
 				Type::addType($name, $className);
 			}
 		}
-	}
-
-
-
-	/**
-	 * @return Cache
-	 */
-	protected function createServiceCache()
-	{
-		return new Cache($this->context->cacheStorage);
 	}
 
 
@@ -99,9 +82,9 @@ class Container extends Kdyby\DI\Container implements Kdyby\Doctrine\IContainer
 
 
 	/**
-	 * @return Doctrine\ORM\Mapping\Driver\AnnotationDriver
+	 * @return Doctrine\Common\Annotations\AnnotationReader
 	 */
-	protected function createServiceAnnotationDriver()
+	protected function createServiceAnnotationReader()
 	{
 		$reader = new Doctrine\Common\Annotations\AnnotationReader();
 		$reader->setDefaultAnnotationNamespace('Doctrine\ORM\Mapping\\');
@@ -110,12 +93,22 @@ class Container extends Kdyby\DI\Container implements Kdyby\Doctrine\IContainer
 		$reader->setIgnoreNotImportedAnnotations(TRUE);
 		$reader->setEnableParsePhpImports(FALSE);
 
+		return $reader;
+	}
+
+
+
+	/**
+	 * @return Mapping\Driver\AnnotationDriver
+	 */
+	protected function createServiceAnnotationDriver()
+	{
 		$reader = new Doctrine\Common\Annotations\CachedReader(
-			new Doctrine\Common\Annotations\IndexedReader($reader),
-			new Doctrine\Common\Cache\ArrayCache()
+			new Doctrine\Common\Annotations\IndexedReader($this->annotationReader),
+			$this->hasService('annotationCache') ? $this->annotationCache : $this->cache
 		);
 
-		return new Kdyby\Doctrine\ORM\Mapping\Driver\AnnotationDriver($reader, $this->params['entityDirs']);
+		return new Mapping\Driver\AnnotationDriver($reader, $this->params['entityDirs']);
 	}
 
 
@@ -171,6 +164,7 @@ class Container extends Kdyby\DI\Container implements Kdyby\Doctrine\IContainer
 			$evm->addEventSubscriber($this->getService($listener));
 		}
 
+		$evm->addEventSubscriber(new Mapping\EntityDefaultsListener());
 		// $evm->addEventSubscriber(new Kdyby\Media\Listeners\Mediable($this->context));
 		return $evm;
 	}
@@ -219,7 +213,13 @@ class Container extends Kdyby\DI\Container implements Kdyby\Doctrine\IContainer
 	 */
 	public function isManaging($className)
 	{
-		return $this->getEntityManager()->getMetadataFactory()->hasMetadataFor($className);
+		try {
+			$this->getEntityManager()->getClassMetadata($className);
+			return TRUE;
+
+		} catch (Doctrine\ORM\Mapping\MappingException $e) {
+			return FALSE;
+		}
 	}
 
 }
