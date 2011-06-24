@@ -132,6 +132,17 @@ class Configurator extends Nette\Configurator
 
 	/**
 	 * @param Container $container
+	 * @return Kdyby\Doctrine\Cache
+	 */
+	public static function createServiceDoctrineCache(Container $container)
+	{
+		return new Kdyby\Doctrine\Cache($container->cacheStorage);
+	}
+
+
+
+	/**
+	 * @param Container $container
 	 * @return Kdyby\Doctrine\ORM\Container
 	 */
 	public static function createServiceSqldb(Container $container)
