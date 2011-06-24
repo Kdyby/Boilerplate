@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Forms\Mapping;
+namespace Kdyby\Doctrine\Mapping;
 
 use Kdyby;
 use Kdyby\Doctrine\ORM\Type;
@@ -24,22 +24,22 @@ class TypeMapper extends Nette\Object
 
 	/** @var array */
 	private static $typesMap = array(
-		Type::TARRAY => 'Kdyby\Forms\Mapping\FieldTypes\ArrayType',
-		Type::OBJECT => 'Kdyby\Forms\Mapping\FieldTypes\ObjectType',
-		Type::BOOLEAN => 'Kdyby\Forms\Mapping\FieldTypes\BooleanType',
-		Type::INTEGER => 'Kdyby\Forms\Mapping\FieldTypes\IntegerType',
-		Type::SMALLINT => 'Kdyby\Forms\Mapping\FieldTypes\SmallIntType',
-		Type::BIGINT => 'Kdyby\Forms\Mapping\FieldTypes\BigIntType',
-		Type::STRING => 'Kdyby\Forms\Mapping\FieldTypes\StringType',
-		Type::TEXT => 'Kdyby\Forms\Mapping\FieldTypes\TextType',
-		Type::DATETIME => 'Kdyby\Forms\Mapping\FieldTypes\DateTimeType',
-		Type::DATETIMETZ => 'Kdyby\Forms\Mapping\FieldTypes\DateTimeTzType',
-		Type::DATE => 'Kdyby\Forms\Mapping\FieldTypes\DateType',
-		Type::TIME => 'Kdyby\Forms\Mapping\FieldTypes\TimeType',
-		Type::DECIMAL => 'Kdyby\Forms\Mapping\FieldTypes\DecimalType',
-		Type::FLOAT => 'Kdyby\Forms\Mapping\FieldTypes\FloatType',
-		Type::CALLBACK => 'Kdyby\Forms\Mapping\FieldTypes\CallbackType',
-		Type::PASSWORD => 'Kdyby\Forms\Mapping\FieldTypes\PasswordType'
+		Type::TARRAY => 'Kdyby\Doctrine\Mapping\FieldTypes\ArrayType',
+		Type::OBJECT => 'Kdyby\Doctrine\Mapping\FieldTypes\ObjectType',
+		Type::BOOLEAN => 'Kdyby\Doctrine\Mapping\FieldTypes\BooleanType',
+		Type::INTEGER => 'Kdyby\Doctrine\Mapping\FieldTypes\IntegerType',
+		Type::SMALLINT => 'Kdyby\Doctrine\Mapping\FieldTypes\SmallIntType',
+		Type::BIGINT => 'Kdyby\Doctrine\Mapping\FieldTypes\BigIntType',
+		Type::STRING => 'Kdyby\Doctrine\Mapping\FieldTypes\StringType',
+		Type::TEXT => 'Kdyby\Doctrine\Mapping\FieldTypes\TextType',
+		Type::DATETIME => 'Kdyby\Doctrine\Mapping\FieldTypes\DateTimeType',
+		Type::DATETIMETZ => 'Kdyby\Doctrine\Mapping\FieldTypes\DateTimeTzType',
+		Type::DATE => 'Kdyby\Doctrine\Mapping\FieldTypes\DateType',
+		Type::TIME => 'Kdyby\Doctrine\Mapping\FieldTypes\TimeType',
+		Type::DECIMAL => 'Kdyby\Doctrine\Mapping\FieldTypes\DecimalType',
+		Type::FLOAT => 'Kdyby\Doctrine\Mapping\FieldTypes\FloatType',
+		Type::CALLBACK => 'Kdyby\Doctrine\Mapping\FieldTypes\CallbackType',
+		Type::PASSWORD => 'Kdyby\Doctrine\Mapping\FieldTypes\PasswordType'
 	);
 
 	/** @var array */
@@ -49,7 +49,7 @@ class TypeMapper extends Nette\Object
 
 	/**
 	 * @param string $type
-	 * @return Kdyby\Forms\Mapping\IFieldType
+	 * @return Kdyby\Doctrine\Mapping\IFieldType
 	 */
 	protected function getTypeMapper($type)
 	{

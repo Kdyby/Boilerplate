@@ -8,10 +8,10 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Forms\Mapping\FieldTypes;
+namespace Kdyby\Doctrine\Mapping\FieldTypes;
 
 use Kdyby;
-use Kdyby\Forms\Mapping;
+use Kdyby\Doctrine\Mapping;
 use Nette;
 
 
@@ -19,28 +19,28 @@ use Nette;
 /**
  * @author Filip Procházka
  */
-class BooleanType extends Nette\Object implements Mapping\IFieldType
+class VarDateTimeType extends Nette\Object implements Mapping\IFieldType
 {
 
 	/**
-	 * @param bool $value
-	 * @param bool $current
-	 * @return bool
+	 * @param string $value
+	 * @param mxied $current
+	 * @return Nette\DateTime
 	 */
 	public function load($value, $current)
 	{
-		return $value;
+		return Nette\DateTime::from($value);
 	}
 
 
 
 	/**
-	 * @param bool $value
-	 * @return bool
+	 * @param string $value
+	 * @return Nette\DateTime
 	 */
 	public function save($value)
 	{
-		return $value;
+		return Nette\DateTime::from($value);
 	}
 
 }

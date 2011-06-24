@@ -8,10 +8,10 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Forms\Mapping\FieldTypes;
+namespace Kdyby\Doctrine\Mapping\FieldTypes;
 
 use Kdyby;
-use Kdyby\Forms\Mapping;
+use Kdyby\Doctrine\Mapping;
 use Nette;
 
 
@@ -19,12 +19,12 @@ use Nette;
 /**
  * @author Filip Procházka
  */
-class DateType extends Nette\Object implements Mapping\IFieldType
+class DateTimeType extends Nette\Object implements Mapping\IFieldType
 {
 
 	/**
 	 * @param string $value
-	 * @param string $current
+	 * @param mxied $current
 	 * @return Nette\DateTime
 	 */
 	public function load($value, $current)

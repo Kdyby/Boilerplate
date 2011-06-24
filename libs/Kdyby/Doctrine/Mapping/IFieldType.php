@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Forms\Mapping;
+namespace Kdyby\Doctrine\Mapping;
 
 use Kdyby;
 use Nette;

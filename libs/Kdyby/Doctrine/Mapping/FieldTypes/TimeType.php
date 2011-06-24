@@ -8,25 +8,23 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Forms\Mapping\FieldTypes;
+namespace Kdyby\Doctrine\Mapping\FieldTypes;
 
 use Kdyby;
-use Kdyby\Forms\Mapping;
+use Kdyby\Doctrine\Mapping;
 use Nette;
 
 
 
 /**
- * todo: fix the timezone settings
- *
  * @author Filip Procházka
  */
-class DateTimeTzType extends Nette\Object implements Mapping\IFieldType
+class TimeType extends Nette\Object implements Mapping\IFieldType
 {
 
 	/**
 	 * @param string $value
-	 * @param string $current
+	 * @param mxied $current
 	 * @return Nette\DateTime
 	 */
 	public function load($value, $current)

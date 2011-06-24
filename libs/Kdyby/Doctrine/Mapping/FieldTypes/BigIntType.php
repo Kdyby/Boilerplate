@@ -8,10 +8,10 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Forms\Mapping\FieldTypes;
+namespace Kdyby\Doctrine\Mapping\FieldTypes;
 
 use Kdyby;
-use Kdyby\Forms\Mapping;
+use Kdyby\Doctrine\Mapping;
 use Nette;
 
 
@@ -19,13 +19,13 @@ use Nette;
 /**
  * @author Filip Procházka
  */
-class ArrayType extends Nette\Object implements Mapping\IFieldType
+class BigIntType extends Nette\Object implements Mapping\IFieldType
 {
 
 	/**
-	 * @param array $value
-	 * @param array $current
-	 * @return array
+	 * @param int $value
+	 * @param int $current
+	 * @return int
 	 */
 	public function load($value, $current)
 	{
@@ -35,8 +35,8 @@ class ArrayType extends Nette\Object implements Mapping\IFieldType
 
 
 	/**
-	 * @param array $value
-	 * @return array
+	 * @param int $value
+	 * @return int
 	 */
 	public function save($value)
 	{

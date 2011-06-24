@@ -8,24 +8,29 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Forms\Mapping;
+namespace Kdyby\Doctrine\Mapping;
 
+use Doctrine;
 use Doctrine\ORM\Mapping\ClassMetadata;
-use Doctrine\ORM\EntityManager;
 use Kdyby;
+use Kdyby\Doctrine\Workspace;
 use Nette;
-use Nette\Forms\Container;
+use Nette\ComponentModel\IComponent;
+use SplObjectStorage;
 
 
 
 /**
  * @author Filip Procházka
  */
-class EntityMetadataMapper extends BaseMapper
+abstract class EntityComponentMapper extends Nette\Object
 {
 
-	/** @var EntityManager */
-	private $entityManager;
+	/** @var SplObjectStorage */
+	private $assignment;
+
+	/** @var Workspace */
+	private $workspace;
 
 	/** @var TypeMapper */
 	private $typeMapper;
@@ -33,12 +38,12 @@ class EntityMetadataMapper extends BaseMapper
 
 
 	/**
-	 * @param EntityManager $entityManager
+	 * @param Workspace $workspace
 	 */
-	public function __construct(EntityManager $entityManager)
+	public function __construct(Workspace $workspace)
 	{
-		parent::__construct();
-		$this->entityManager = $entityManager;
+		$this->workspace = $workspace;
+		$this->assignment = new SplObjectStorage();
 	}
 
 
@@ -47,10 +52,10 @@ class EntityMetadataMapper extends BaseMapper
 	 * @param string|object $entity
 	 * @return ClassMetadata
 	 */
-	public function getEntityMetadata($entity)
+	public function getMetadata($entity)
 	{
 		$entity = is_object($entity) ? get_class($entity) : $entity;
-		return $this->entityManager->getClassMetadata($entity);
+		return $this->workspace->getClassMetadata($entity);
 	}
 
 
@@ -79,6 +84,44 @@ class EntityMetadataMapper extends BaseMapper
 
 
 
+	/**
+	 * @param object $entity
+	 * @param IComponent $component
+	 * @return BaseMapper
+	 */
+	public function assing($entity, IComponent $component)
+	{
+		$this->assignment->attach($entity, $component);
+		return $this;
+	}
+
+
+
+	/**
+	 * @return SplObjectStorage
+	 */
+	public function getAssignment()
+	{
+		return $this->assignment;
+	}
+
+
+
+	/**
+	 * @param object $entity
+	 * @return IComponent
+	 */
+	public function getComponent($entity)
+	{
+		if (!$this->assignment->contains($entity)) {
+			return NULL;
+		}
+
+		return $this->assignment->offsetGet($entity);
+	}
+
+
+
 	/************************ fields ************************/
 
 
@@ -91,7 +134,7 @@ class EntityMetadataMapper extends BaseMapper
 	 */
 	public function loadProperty($entity, $property, $data)
 	{
-		$meta = $this->getEntityMetadata($entity);
+		$meta = $this->getMetadata($entity);
 		$propMapping = $meta->getFieldMapping($property);
 		$propRef = $meta->getReflectionProperty($propMapping['fieldName']);
 
@@ -108,7 +151,7 @@ class EntityMetadataMapper extends BaseMapper
 	 */
 	public function saveProperty($entity, $property)
 	{
-		$meta = $this->getEntityMetadata($entity);
+		$meta = $this->getMetadata($entity);
 		$propMapping = $meta->getFieldMapping($property);
 		$propRef = $meta->getReflectionProperty($propMapping['fieldName']);
 
@@ -123,7 +166,7 @@ class EntityMetadataMapper extends BaseMapper
 	 */
 	public function hasProperty($entity, $property)
 	{
-		$meta = $this->getEntityMetadata($entity);
+		$meta = $this->getMetadata($entity);
 		return isset($meta->fieldMappings[$property]);
 	}
 
@@ -140,7 +183,7 @@ class EntityMetadataMapper extends BaseMapper
 	 */
 	public function hasAssocation($entity, $assocation)
 	{
-		$meta = $this->getEntityMetadata($entity);
+		$meta = $this->getMetadata($entity);
 		return isset($meta->associationMappings[$assocation]);
 	}
 
@@ -153,11 +196,28 @@ class EntityMetadataMapper extends BaseMapper
 	 */
 	public function getAssocation($entity, $assocation)
 	{
-		$meta = $this->getEntityMetadata($entity);
+		$meta = $this->getMetadata($entity);
 		$propMapping = $meta->getAssociationMapping($assocation);
 		$propRef = $meta->getReflectionProperty($assocation);
 
 		return $propRef->getValue($entity);
 	}
+
+
+
+	/************************ load & save to component ************************/
+
+
+
+	/**
+	 * @return array
+	 */
+	abstract public function load();
+
+
+	/**
+	 * @return array
+	 */
+	abstract public function save();
 
 }

@@ -11,7 +11,7 @@
 namespace Kdyby\Forms;
 
 use Doctrine;
-use Doctrine\ORM\EntityManager;
+use Kdyby\Doctrine\Workspace;
 use Kdyby;
 use Kdyby\Validation;
 use Kdyby\Validation\IValidator;
@@ -43,24 +43,23 @@ class EntityForm extends UI\Form
 	/** @var object */
 	private $entity;
 
-	/** @var EntityManager */
-	private $entityManager;
+	/** @var Workspace */
+	private $workspace;
 
-	/** @var Mapping\EntityMetadataMapper */
+	/** @var Mapping\EntityFormMapper */
 	private $mapper;
 
 
 
 	/**
 	 * @param object $entity
-	 * @param EntityManager $entityManager
-	 * @param TypeMapper $typeMapper
+	 * @param Workspace $workspace
 	 */
-	public function __construct($entity, EntityManager $entityManager)
+	public function __construct($entity, Workspace $workspace)
 	{
 		parent::__construct(NULL, NULL);
 
-		$this->entityManager = $entityManager;
+		$this->workspace = $workspace;
 		$this->entity = $entity;
 
 		$this->getMapper()->assing($entity, $this);
@@ -83,17 +82,17 @@ class EntityForm extends UI\Form
 
 
 	/**
-	 * @return Mapping\EntityMetadataMapper
+	 * @return Mapping\EntityFormMapper
 	 */
 	protected function doCreateMapper()
 	{
-		return new Mapping\EntityMetadataMapper($this->entityManager);
+		return new Mapping\EntityFormMapper($this->workspace);
 	}
 
 
 
 	/**
-	 * @return Mapping\EntityMetadataMapper
+	 * @return Mapping\EntityFormMapper
 	 */
 	public function getMapper()
 	{
@@ -117,11 +116,11 @@ class EntityForm extends UI\Form
 
 
 	/**
-	 * @return EntityManager
+	 * @return Workspace
 	 */
-	public function getEntityManager()
+	public function getWorkspace()
 	{
-		return $this->entityManager;
+		return $this->workspace;
 	}
 
 
@@ -190,10 +189,9 @@ class EntityForm extends UI\Form
 		}
 
 		// flush unrelated changes
-		// todo: ORLY?
-		$this->getEntityManager()->flush();
+		// $this->getEntityManager()->flush(); // todo: ORLY?
 
-		// validation
+		// forms validation
 		if (!$this->isValid()) {
 			return;
 		}
@@ -207,11 +205,11 @@ class EntityForm extends UI\Form
 
 			// ensure all in entity manager
 			foreach ($entities as $entity) {
-				$this->getEntityManager()->persist($entity);
+				$this->getWorkspace()->persist($entity);
 			}
 
 			// flush and optionaly raise exception
-			$this->getEntityManager()->flush();
+			$this->getWorkspace()->flush();
 
 		} catch (Validation\Result $result) {
 			// validation errors occurred

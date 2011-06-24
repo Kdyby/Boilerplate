@@ -66,16 +66,6 @@ class CollectionContainer extends Nette\Forms\Container
 
 
 	/**
-	 * @return UnitOfWork
-	 */
-	protected function getUnitOfWork()
-	{
-		return $this->getForm()->getEntityManager()->getUnitOfWork();
-	}
-
-
-
-	/**
 	 * @param callback $entityFactory
 	 */
 	public function setEntityFactory($entityFactory)
