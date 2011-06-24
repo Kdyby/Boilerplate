@@ -16,7 +16,7 @@
  * This source file is subject to the GNU Lesser General Public License. For more information please see http://nellacms.com
  */
 
-namespace Kdyby\Doctrine\ORM;
+namespace Kdyby\Doctrine;
 
 use Doctrine;
 use Kdyby;
@@ -34,8 +34,9 @@ use Nette\Caching\Cache AS NCache;
  */
 class Cache extends Doctrine\Common\Cache\AbstractCache
 {
+
 	/** @var string */
-	const CACHED_KEYS_KEY = 'Kdyby.Doctrine.Cache.Keys';
+	const CACHED_KEYS_KEY = 'Doctrine.Cache.Keys';
 
 	/** @var NCache */
 	private $data;
@@ -50,7 +51,7 @@ class Cache extends Doctrine\Common\Cache\AbstractCache
 	 */
 	public function __construct(Nette\Caching\IStorage $storage)
 	{
-		$this->data = $cache = new NCache($storage, "Kdyby.Doctrine");
+		$this->data = $cache = new NCache($storage, "Doctrine");
 		$this->keys = $cache->derive('Keys.List');
 	}
 
