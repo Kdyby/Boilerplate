@@ -10,6 +10,7 @@
 
 namespace Kdyby\Doctrine\ODM;
 
+use Doctrine;
 use Doctrine\ODM\CouchDB\DocumentManager;
 use Doctrine\ODM\CouchDB\DocumentRepository;
 use Kdyby;
@@ -22,34 +23,87 @@ use Nette;
  *
  * @property-read Kdyby\DI\Container $context
  * @property-read DocumentManager documentManager
+ * @property-read Doctrine\CouchDB\HTTP\SocketClient $httpClient
+ * @property-read Doctrine\Common\Annotations\AnnotationReader $annotationReader
+ * @property-read Doctrine\ODM\CouchDB\Mapping\Driver\AnnotationDriver $annotationDriver
+ * @property-read \Doctrine\ODM\CouchDB\Configuration $configuration
  */
-class Container extends Kdyby\DI\Container implements Kdyby\Doctrine\IContainer
+class Container extends Kdyby\Doctrine\BaseContainer
 {
 
 	/** @var array */
 	public $params = array(
-			'entityDirs' => array('%appDir%', '%kdybyDir%'),
+			'documentDirs' => array('%appDir%', '%kdybyDir%'),
 			'listeners' => array(),
 		);
 
 
 
 	/**
-	 * Registers doctrine types
-	 *
-	 * @param Kdyby\DI\Container $context
-	 * @param array $parameters
+	 * @return Doctrine\CouchDB\HTTP\SocketClient
 	 */
-	public function __construct(Kdyby\DI\Container $context, $parameters = array())
+	protected function createServiceHttpClient()
 	{
-		throw new Nette\NotImplementedException; // todo: remove
+		return new Doctrine\CouchDB\HTTP\SocketClient();
+	}
 
-		$this->addService('context', $context);
-		$this->params += (array)$parameters;
 
-		array_walk_recursive($this->params, function (&$value) use ($context) {
-			$value = $context->expand($value);
-		});
+
+	/**
+	 * @return Doctrine\Common\Annotations\AnnotationReader
+	 */
+	protected function createServiceAnnotationReader()
+	{
+		$reader = new Doctrine\Common\Annotations\AnnotationReader();
+		$reader->setDefaultAnnotationNamespace('Doctrine\ODM\CouchDB\Mapping\\');
+
+		return $reader;
+	}
+
+
+
+	/**
+	 * @return Mapping\Driver\AnnotationDriver
+	 */
+	protected function createServiceAnnotationDriver()
+	{
+		$reader = new Doctrine\Common\Annotations\CachedReader(
+			new Doctrine\Common\Annotations\IndexedReader($this->annotationReader),
+			$this->hasService('annotationCache') ? $this->annotationCache : $this->cache
+		);
+
+		return new Mapping\Driver\AnnotationDriver($this->annotationReader, $this->params['documentDirs']);
+	}
+
+
+
+	/**
+	 * @return Doctrine\ODM\CouchDB\Configuration
+	 */
+	protected function createServiceConfiguration()
+	{
+		$config = new Doctrine\ODM\CouchDB\Configuration();
+
+		$config->setDatabase($this->params['database']);
+		$config->setMetadataDriverImpl($this->annotationDriver);
+
+		$config->setHttpClient($this->httpClient);
+		$config->setLuceneHandlerName('_fti');
+
+		$config->setProxyDir($this->params['proxiesDir']);
+		$config->setProxyNamespace($this->getParam('proxyNamespace', 'Kdyby\Domain\Proxies'));
+
+		return $config;
+	}
+
+
+
+	/**
+	 * @return DocumentManager
+	 */
+	protected function createServiceDocumentManager()
+	{
+		return DocumentManager::create($this->configuration);
 	}
 
 
