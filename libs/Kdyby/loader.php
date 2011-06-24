@@ -29,7 +29,7 @@ require_once KDYBY_DIR . '/functions.php';
 
 
 // Configure environment
-Debugger::enable(Debugger::PRODUCTION);
+Debugger::enable(Nette\Configurator::detectProductionMode());
 Debugger::$strictMode = TRUE;
 
 
