@@ -46,7 +46,7 @@ class QueryBuilder extends Doctrine\ORM\QueryBuilder
 		$em = $this->getEntityManager();
 		$identifier = $em->getClassMetadata($this->getRootEntity())->getSingleIdentifierFieldName();
 
-		$grinderModel = new Grinder\DoctrineQueryBuilderModel($this);
+		$grinderModel = new Grinder\Models\DoctrineQueryBuilderModel($this);
 		$grinderModel->setPrimaryKey($identifier);
 
 		return $grinderModel;
