@@ -58,6 +58,10 @@ class NavigationNode extends Nette\ComponentModel\Container
 		$nulledParams = $nulledParams ?: PresenterComponentHelpers::nullLinkParams($obj);
 
 		foreach ($nulledParams as $param => $value) {
+			if (array_key_exists($param, $this->url->getParams())) {
+				continue;
+			}
+
 			$this->url->setParam($param, $value);
 		}
 
