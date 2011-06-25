@@ -41,10 +41,10 @@ class Application extends Nette\Application\Application
 	 */
 	public function run()
 	{
-		$this->context->freeze();
+		$this->getContext()->freeze();
 
 		if (PHP_SAPI == "cli") {
-			return $this->context->console->run();
+			return $this->getContext()->console->run();
 		}
 
 		return parent::run();
