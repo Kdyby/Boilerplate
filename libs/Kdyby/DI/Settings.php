@@ -102,14 +102,18 @@ class Settings extends Nette\Object
 	 */
 	public function loadAll(Kdyby\DI\Container $container)
 	{
-		if ($this->cache && $this->cache->load('settings')) {
+		if ($this->cache && is_array($this->cache->load('settings'))) {
 			$settings = $this->cache->load('settings');
 
 		} else {
 			$settings = $this->repository->findAll();
 
 			if ($this->cache) {
-				$this->cache->save('settings', $settings);
+				$this->cache->save('settings', $settings, array(
+					Cache::TAGS => array('settings'),
+					Cache::EXPIRE => '+1 hour',
+					Cache::SLIDING => TRUE
+				));
 			}
 		}
 
