@@ -32,8 +32,11 @@ class LinkAction extends BaseAction
 	/** @var string|callback */
 	private $link;
 
-	/** @var Html */
+	/** @var string|callback */
 	private $image;
+
+	/** @var Html */
+	private $imagePrototype;
 
 	/** @var array */
 	private $mask = array();
@@ -43,8 +46,7 @@ class LinkAction extends BaseAction
 	public function __construct()
 	{
 		parent::__construct();
-
-		$this->image = Html::el('img');
+		$this->imagePrototype = Html::el('img');
 	}
 
 
@@ -162,27 +164,33 @@ class LinkAction extends BaseAction
 
 
 	/**
-	 * @param string|callable|Html $image
+	 * @param string|callable|array $image
 	 * @return LinkAction
 	 */
 	public function setImage($image)
 	{
+		if (is_array($image)) {
+			$image = function (LinkAction $action) use ($image) {
+				return $image[$action->grid->getRecordProperty($action->name)];
+			};
+		}
+
 		if (!is_string($image) && !is_callable($image)) {
 			throw new Nette\InvalidArgumentException("Given image must be either path or callback.");
 		}
 
-		$this->image->src = $image;
+		$this->image = $image;
 		return $this;
 	}
 
 
 
 	/**
-	 * @return string|Html|callable
+	 * @return Html
 	 */
 	public function getImagePrototype()
 	{
-		return $this->image;
+		return $this->imagePrototype;
 	}
 
 
@@ -192,20 +200,17 @@ class LinkAction extends BaseAction
 	 */
 	public function getImage()
 	{
-		if (!$this->image->src) {
+		if (!$this->image) {
 			return NULL;
 		}
 
-		$image = clone $this->image;
-
-		$expand = callback($this->getGrid()->getContext(), 'expand');
-		$expand = function (Html $image) use ($expand) {
-			$value = is_callable($image->src) ? call_user_func($image->src, $image) : $image->src;
-			return $expand(substr_count($value, '%') ? $value : '%basePath%/' . $value);
-		};
-
-		$image->src = $expand($image);
+		$image = clone $this->imagePrototype;
 		$image->alt = $this->getCaption();
+
+		$src = is_callable($this->image) ? call_user_func($this->image, $this) : $this->image;
+		$image->src = $this->getGrid()->getContext()->expand(
+				substr_count($src, '%') ? $src : '%basePath%/' . $src
+			);
 
 		return $image;
 	}
