@@ -24,6 +24,21 @@ use Nette;
 class IdentityRepository extends Kdyby\Doctrine\ORM\EntityRepository
 {
 
+	/**
+	 * Automaticly joins identity.info
+	 *
+	 * @param string $alias
+	 * @return Kdyby\Doctrine\ORM\QueryBuilder
+	 */
+	public function createQueryBuilder($alias)
+	{
+		return parent::createQueryBuilder($alias)
+			->addSelect('i')
+			->leftJoin($alias . '.info', 'i');
+	}
+
+
+
     /**
      * Finds an entity by its primary key / identifier.
      *
@@ -46,8 +61,6 @@ class IdentityRepository extends Kdyby\Doctrine\ORM\EntityRepository
         }
 
 		$qb = $this->createQueryBuilder('u')
-			->addSelect('i')
-			->leftJoin('u.info', 'i')
 			->where('u.id = :id')
 			->setParameter('id', $id);
 
@@ -68,8 +81,6 @@ class IdentityRepository extends Kdyby\Doctrine\ORM\EntityRepository
 	public function findByNameOrEmail($nameOrEmail)
 	{
 		$qb = $this->createQueryBuilder('u')
-			->addSelect('i')
-			->leftJoin('u.info', 'i')
 			->where('u.username = :nameOrEmail')
 			->orWhere('u.email = :nameOrEmail')
 			->setParameter('nameOrEmail', $nameOrEmail);
