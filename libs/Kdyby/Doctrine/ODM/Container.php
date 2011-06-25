@@ -22,7 +22,7 @@ use Nette;
  * @author Filip Procházka
  *
  * @property-read Kdyby\DI\Container $context
- * @property-read DocumentManager documentManager
+ * @property-read DocumentManager $documentManager
  * @property-read Doctrine\CouchDB\HTTP\SocketClient $httpClient
  * @property-read Doctrine\Common\Annotations\AnnotationReader $annotationReader
  * @property-read Doctrine\ODM\CouchDB\Mapping\Driver\AnnotationDriver $annotationDriver

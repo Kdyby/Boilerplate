@@ -12,6 +12,8 @@ namespace Kdyby\DI;
 
 use Doctrine\DBAL\Tools\Console\Command as DbalCommand;
 use Doctrine\ORM\Tools\Console\Command as OrmCommand;
+use Doctrine\CouchDB\Tools\Console\Command as CouchDBCommand;
+use Doctrine\ODM\CouchDB\Tools\Console\Command as OdmCommand;
 use Kdyby;
 use Kdyby\Application\ModuleCascadeRegistry;
 use Nette;
@@ -312,9 +314,11 @@ class Configurator extends Nette\Configurator
 	 */
 	public static function createServiceConsoleHelpers(Container $container)
 	{
-		$helperSet = new Console\Helper\HelperSet;
-		$helperSet->set(new ContainerHelper($container), 'container');
-		$helperSet->set(new Kdyby\Doctrine\ORM\EntityManagerHelper($container), 'em');
+		$helperSet = new Console\Helper\HelperSet(array(
+			'container' => new ContainerHelper($container),
+			'em' => new Kdyby\Doctrine\ORM\EntityManagerHelper($container->sqldb),
+			'couchdb' => new Kdyby\Doctrine\ODM\CouchDBHelper($container->couchdb),
+		));
 
 		return $helperSet;
 	}
@@ -338,6 +342,15 @@ class Configurator extends Nette\Configurator
 			new OrmCommand\SchemaTool\DropCommand(),
 			new OrmCommand\GenerateProxiesCommand(),
 			new OrmCommand\RunDqlCommand(),
+
+			// ODM
+			new CouchDBCommand\ReplicationStartCommand(),
+			new CouchDBCommand\ReplicationCancelCommand(),
+			new CouchDBCommand\ViewCleanupCommand(),
+			new CouchDBCommand\CompactDatabaseCommand(),
+			new CouchDBCommand\CompactViewCommand(),
+			new CouchDBCommand\MigrationCommand(),
+			new OdmCommand\UpdateDesignDocCommand(),
 		));
 	}
 
