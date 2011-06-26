@@ -116,7 +116,7 @@ class Configurator extends Nette\Configurator
 	 */
 	public static function createServiceRequestManager(Container $container)
 	{
-		return new Kdyby\Application\RequestManager($container->application);
+		return new Kdyby\Application\RequestManager($container->application, $container->session);
 	}
 
 

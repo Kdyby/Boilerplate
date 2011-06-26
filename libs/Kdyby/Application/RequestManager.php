@@ -12,6 +12,8 @@ namespace Kdyby\Application;
 
 use Kdyby;
 use Nette;
+use Nette\Http\Session;
+use Nette\Http\SessionSection;
 
 
 
@@ -23,21 +25,22 @@ class RequestManager extends Nette\Object
 
 	const SESSION_SECTION = 'Nette.Application/requests';
 
-	/** @var Nette\Application\Application */
+	/** @var Application */
 	private $application;
 
-	/** @var Nette\Http\SessionSection */
+	/** @var SessionSection */
 	private $session;
 
 
 
 	/**
-	 * @param Nette\Application\Application $application
+	 * @param Application $application
+	 * @param Session $session
 	 */
-	public function __construct(Nette\Application\Application $application)
+	public function __construct(Application $application, Session $session)
 	{
 		$this->application = $application;
-		$this->session = $application->context->session->getSection(self::SESSION_SECTION);
+		$this->session = $session->getSection(self::SESSION_SECTION);
 	}
 
 
