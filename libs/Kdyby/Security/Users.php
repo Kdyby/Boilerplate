@@ -58,10 +58,31 @@ class Users extends Kdyby\Doctrine\ORM\BaseService
 	/**
 	 * @return Identity $identity
 	 */
+	public function approve(Identity $identity)
+	{
+		$identity->markActive();
+		$this->repository->save($identity);
+	}
+
+
+
+	/**
+	 * @return Identity $identity
+	 */
 	public function delete(Identity $identity)
 	{
 		$identity->markDeleted();
-		$this->repository->save($entity);
+		$this->repository->save($identity);
+	}
+
+
+
+	/**
+	 * @return Identity $identity
+	 */
+	public function deleteForever(Identity $identity)
+	{
+		$this->repository->delete($identity);
 	}
 
 }
