@@ -93,7 +93,10 @@ class Container extends Kdyby\Doctrine\BaseContainer
 		$reader->setIgnoreNotImportedAnnotations(TRUE);
 		$reader->setEnableParsePhpImports(FALSE);
 
-		return $reader;
+		return new Doctrine\Common\Annotations\CachedReader(
+			new Doctrine\Common\Annotations\IndexedReader($reader),
+			$this->hasService('annotationCache') ? $this->annotationCache : $this->cache
+		);
 	}
 
 
@@ -103,12 +106,10 @@ class Container extends Kdyby\Doctrine\BaseContainer
 	 */
 	protected function createServiceAnnotationDriver()
 	{
-		$reader = new Doctrine\Common\Annotations\CachedReader(
-			new Doctrine\Common\Annotations\IndexedReader($this->annotationReader),
-			$this->hasService('annotationCache') ? $this->annotationCache : $this->cache
-		);
-
-		return new Mapping\Driver\AnnotationDriver($reader, $this->params['entityDirs']);
+		return new Mapping\Driver\AnnotationDriver(
+				$this->annotationReader,
+				$this->params['entityDirs']
+			);
 	}
 
 
@@ -164,6 +165,7 @@ class Container extends Kdyby\Doctrine\BaseContainer
 			$evm->addEventSubscriber($this->getService($listener));
 		}
 
+		$evm->addEventSubscriber(new Mapping\DiscriminatorMapDiscoveryListener($this->annotationReader));
 		$evm->addEventSubscriber(new Mapping\EntityDefaultsListener());
 		// $evm->addEventSubscriber(new Kdyby\Media\Listeners\Mediable($this->context));
 		return $evm;
