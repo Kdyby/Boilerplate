@@ -26,8 +26,8 @@ class DoctrineLoader
 
 
 	/**
-	 * @param string|NULL $namespace
 	 * @return Kdyby\Loaders\DoctrineLoader
+	 * @throws Kdyby\Loaders\DoctrineLoaderException
 	 */
 	public static function register()
 	{
