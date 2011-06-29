@@ -28,7 +28,7 @@ use Nette\ArrayHash;
  * @property string $onSaveRestore
  * @property string|UI\Link $onSaveRedirect
  */
-class EntityForm extends UI\Form
+class EntityForm extends Kdyby\Application\UI\Form
 {
 
 	/** @var array of function(Form $form, $entity); Occurs when the form is submitted, valid and entity is saved */
@@ -57,12 +57,12 @@ class EntityForm extends UI\Form
 	 */
 	public function __construct($entity, Workspace $workspace)
 	{
-		parent::__construct(NULL, NULL);
-
 		$this->workspace = $workspace;
 		$this->entity = $entity;
 
 		$this->getMapper()->assing($entity, $this);
+
+		parent::__construct();
 	}
 
 

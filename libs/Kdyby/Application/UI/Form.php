@@ -23,16 +23,13 @@ use Nette;
 class Form extends Nette\Application\UI\Form
 {
 
-	/**
-	 * @param Nette\ComponentModel\IContainer $parent
-	 * @param string $name
-	 */
-	public function __construct(Nette\ComponentModel\IContainer $parent = NULL, $name = NULL)
+	public function __construct()
 	{
-		parent::__construct($parent, $name);
-
-		// Allways - your every-day protection
+		parent::__construct();
 		$this->addProtection("Ouchie! Please try to submit the form again, the delivery boy forgot something!");
+
+		// overriding constructor is ugly...
+		$this->configure();
 	}
 
 
@@ -45,6 +42,16 @@ class Form extends Nette\Application\UI\Form
 	public function getUniqueId()
 	{
 		return $this->lookupPath('Nette\Application\UI\Presenter', TRUE);
+	}
+
+
+
+	/**
+	 * Method get's called on construction
+	 */
+	protected function configure()
+	{
+
 	}
 
 }
