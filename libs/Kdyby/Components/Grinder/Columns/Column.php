@@ -140,8 +140,8 @@ class Column extends BaseColumn
 		if (is_bool($value)) {
 			return $this->getRenderer()->renderBoolean($value);
 
-		} elseif ($value instanceof DateTime) {
-			return $this->getRenderer()->renderDateTime($value, $column->dateTimeFormat);
+		} elseif ($value instanceof \DateTime) {
+			return $this->getRenderer()->renderDateTime($value, $this->dateTimeFormat);
 		}
 
 		$link = $this->getLink();
