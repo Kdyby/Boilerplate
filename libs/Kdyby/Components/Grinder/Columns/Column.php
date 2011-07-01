@@ -73,7 +73,7 @@ class Column extends BaseColumn
 		$value = parent::getValue();
 
 		foreach ($this->getFilters() as $filter) {
-			$value = $filter($value, $record);
+			$value = $filter($value, $this->getGrid()->getCurrentRecord());
 		}
 
 		return $value;
