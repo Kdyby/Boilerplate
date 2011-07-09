@@ -48,7 +48,6 @@ class Configurator extends Nette\Configurator
 		$this->container->params['baseUrl'] = $baseUrl;
 		$this->container->params['basePath'] = preg_replace('#https?://[^/]+#A', '', $baseUrl);
 		$this->container->params['kdybyDir'] = realpath(KDYBY_DIR);
-		$this->container->addService('container', $this->container);
 
 		$this->onAfterLoadConfig[] = callback($this, 'setupDebugger');
 	}
