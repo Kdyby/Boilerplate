@@ -23,7 +23,7 @@ use Kdyby\Application\Presentation\Bundle;
  * @property-read Kdyby\DI\Container $context
  * @property Kdyby\Templates\ITheme $theme
  */
-class Presenter extends Nette\Application\UI\Presenter
+abstract class Presenter extends Nette\Application\UI\Presenter
 {
 
 	/** @persistent */

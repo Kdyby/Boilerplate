@@ -8,21 +8,17 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Application\UI;
+namespace Kdyby\Testing\Templates;
 
 use Kdyby;
 use Nette;
-use Nette\Application;
-use Nette\Application\Responses;
-use Nette\Http;
-use NetteModule;
 
 
 
 /**
  * @author Filip Procházka
  */
-abstract class MicroPresenter extends NetteModule\MicroPresenter
+class ControlMock extends Kdyby\Application\UI\Control
 {
 
 }

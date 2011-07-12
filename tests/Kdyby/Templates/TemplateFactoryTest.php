@@ -18,7 +18,7 @@ use Nette;
 /**
  * @author Filip Procházka
  */
-class TemplateFactoryTest extends \PHPUnit_Framework_TestCase
+class TemplateFactoryTest extends Kdyby\Testing\Test
 {
 	/** @var Nette\Latte\Engine */
 	private $latteEngine;
@@ -39,7 +39,7 @@ class TemplateFactoryTest extends \PHPUnit_Framework_TestCase
 		$this->latteEngine = new Nette\Latte\Engine;
 		$this->templateFactory = new Kdyby\Templates\TemplateFactory($this->latteEngine);
 
-		$this->component = new Kdyby\Application\UI\Control;
+		$this->component = new ControlMock();
 	}
 
 

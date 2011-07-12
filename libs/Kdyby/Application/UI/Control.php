@@ -26,7 +26,7 @@ use Nette\Utils\Strings;
  * @method Presenter getPresenter() getPresenter()
  * @method Kdyby\Templates\FileTemplate getTemplate() getTemplate()
  */
-class Control extends Nette\Application\UI\Control
+abstract class Control extends Nette\Application\UI\Control
 {
 
 	/** @var Nette\DI\Container */
