@@ -1,0 +1,64 @@
+<?php
+
+/**
+ * This file is part of the Kdyby (http://www.kdyby.org)
+ *
+ * Copyright (c) 2008, 2011 Filip Procházka (filip.prochazka@kdyby.org)
+ *
+ * @license http://www.kdyby.org/license
+ */
+
+namespace Kdyby\Tools;
+
+use Kdyby;
+use Nette;
+
+
+
+/**
+ * @author Filip Procházka
+ */
+final class FileSystem extends Nette\Object
+{
+
+	/**
+	 * Static class - cannot be instantiated.
+	 */
+	final public function __construct()
+	{
+		throw new Nette\StaticClassException;
+	}
+
+
+
+	/**
+	 * @param string $path
+	 * @param boolean $preserveSymlink
+	 * @return string|FALSE
+	 */
+	public static function realPath($path, $preserveSymlink = FALSE)
+	{
+		if (!$preserveSymlink || !realpath($path)) {
+			return realpath($path);
+		}
+
+		$absolutes = array();
+		$path = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $path);
+		foreach(explode('/', $path) as $i => $fold){
+			if ($fold == '' || $fold == '.') {
+				continue;
+			}
+
+			if ($fold == '..' && $i > 0 && end($absolutes) != '..') {
+				array_pop($absolutes);
+
+			} else {
+				$absolutes[] = $fold;
+			}
+		}
+
+		return ($path[0] == DIRECTORY_SEPARATOR ? DIRECTORY_SEPARATOR : '') .
+			implode(DIRECTORY_SEPARATOR, $absolutes);
+	}
+
+}
