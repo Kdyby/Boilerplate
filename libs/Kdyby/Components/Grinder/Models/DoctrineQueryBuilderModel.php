@@ -27,7 +27,7 @@ use Doctrine\ORM\Query\Expr;
  * @author Filip Procházka
  * @license MIT
  */
-class DoctrineQueryBuilderModel extends AbstractModel
+class DoctrineQueryBuilderModel extends AbstractModel implements Kdyby\Components\Grinder\IModel
 {
 
 	/** @var QueryBuilder */

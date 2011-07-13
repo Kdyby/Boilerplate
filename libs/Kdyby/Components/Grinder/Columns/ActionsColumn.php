@@ -11,54 +11,44 @@
 namespace Kdyby\Components\Grinder\Columns;
 
 use Nette;
-use Nette\Application\UI\Presenter;
-use Nette\Forms\Container;
+use Nette\ComponentModel\IComponent;
 use Nette\Utils\Html;
 use Kdyby;
-use Kdyby\Components\Grinder\Actions\BaseAction;
+use Kdyby\Components\Grinder;
+use Kdyby\Components\Grinder\Actions;
 
 
 
 /**
- * Grid column
- *
  * @author Filip Procházka
+ *
+ * @property-read \ArrayIterator $actions
+ * @property-read Actions\BaseAction $first
  */
 class ActionsColumn extends BaseColumn
 {
 
-	/** @var BaseAction */
-	private $actions = array();
+	/** @var bool */
+	public $reversed = FALSE;
 
 
 
 	/**
-	 * @param BaseAction $action
-	 * @param string $name
-	 * @return BaseAction
+	 * @return \ArrayIterator
 	 */
-	public function addAction(BaseAction $action, $name = NULL)
+	public function getActions()
 	{
-		if ($column = $action->getColumn()) {
-			throw new \InvalidArgumentException("Action '" . $action->name . "' is already attached to '" . $column->name . "'.");
-		}
-
-		if (!$action->getParent()) {
-			$this->getGrid()->add($action, $name);
-		}
-
-		$action->setColumn($this);
-		return $this->actions[] = $action;
+		return $this->getComponents(FALSE, 'Kdyby\Components\Grinder\Actions\BaseAction');
 	}
 
 
 
 	/**
-	 * @return array
+	 * @return Actions\BaseAction
 	 */
-	public function getActions()
+	public function getFirst()
 	{
-		return $this->actions;
+		return reset(iterator_to_array($this->getActions()));
 	}
 
 
@@ -68,18 +58,86 @@ class ActionsColumn extends BaseColumn
 	 */
 	public function getControl()
 	{
-		$control = Html::el();
+		$actions = iterator_to_array($this->getActions());
+		if ($this->reversed === TRUE) {
+			$actions = array_reverse($actions);
+		}
 
-		foreach ($this->getActions() as $action) {
+		$control = Html::el();
+		foreach ($actions as $action) {
 			if (!$action->isVisible()) {
 				continue;
 			}
 
 			$control->add(' ');
-			$control->add($this->getRenderer()->renderAction($action));
+			$control->add((string)$action);
 		}
 
 		return $control;
+	}
+
+
+	/********************* Actions *********************/
+
+
+	/**
+	 * @param string $name
+	 * @param string $caption
+	 * @param array $options
+	 * @param string $insertBefore
+	 * @return Actions\LinkAction
+	 */
+	public function addLink($name, $caption = NULL, array $options = array(), $insertBefore = NULL)
+	{
+		$options = array('caption' => $caption) + $options;
+		return $this->add(new Actions\LinkAction, $name, $options, $insertBefore);
+	}
+
+
+
+	/**
+	 * @param string $name
+	 * @param string $caption
+	 * @param array $options
+	 * @param string|int $insertBefore
+	 * @return Actions\FormAction
+	 */
+	public function addButton($name, $caption = NULL, array $options = array(), $insertBefore = NULL)
+	{
+		return $this->add(new Actions\FormAction($caption), $name, $options, $insertBefore);
+	}
+
+
+	/********************* Protection *********************/
+
+
+	/**
+	 * @param IComponent
+	 * @throws Nette\InvalidStateException
+	 */
+	protected function validateChildComponent(IComponent $child)
+	{
+		parent::validateChildComponent($child);
+
+		if (!$child instanceof Actions\BaseAction) {
+			throw new Nette\InvalidStateException("Child component of " . $this->name . " must be instanceof Kdyby\\Components\\Grinder\\Actions\\BaseAction.");
+		}
+	}
+
+
+
+	/**
+	 * @param IComponent $component
+	 * @param string $name
+	 * @param array $options
+	 * @param string $insertBefore
+	 * @return IComponent
+	 */
+	public function add(IComponent $component, $name, array $options = array(), $insertBefore = NULL)
+	{
+		$name = $this->getGrid()->getComponentSafeName($component, $name);
+		$this->addComponent($component, $name, $insertBefore);
+		return $this->getGrid()->add($component, NULL, $options);
 	}
 
 }

@@ -39,33 +39,12 @@ class CheckColumn extends FormColumn
 	protected function buildControls(Container $container)
 	{
 		$container = parent::buildControls($container);
-		$itemsIdsContainer = $container->addContainer('ids');
 
-		foreach ($container->getComponents() as $checkbox) {
-			$itemsIdsContainer->addHidden($checkbox->name);
+		foreach ($this->getControls() as $control) {
+			$control->getControlPrototype()->class('grinder-row-check');
 		}
 
 		return $container;
-	}
-
-
-
-	/**
-	 * @return Nette\Forms\IControl
-	 */
-	public function getControl()
-	{
-		$control = parent::getControl();
-		$grid = $this->getGrid();
-
-		$itemsIdsContainer = $this->getContainer()->getComponent('ids');
-		$identifier = $grid->getModel()->getUniqueId($grid->getCurrentRecord());
-
-		if ($identifier) {
-			$itemsIdsContainer->getComponent($control->name)->setValue($identifier);
-		}
-
-		return $control;
 	}
 
 
@@ -86,18 +65,8 @@ class CheckColumn extends FormColumn
 	 */
 	public function getValues()
 	{
-		$itemsIdsContainer = $this->getContainer()->getComponent('ids');
-
-		$values = array();
-		foreach ($this->getControls() as $control) {
-			$id = $itemsIdsContainer[$control->name]->value;
-
-			if ($id) {
-				$values[$id] = $control->value;
-			}
-		}
-
-		return $values;
+		$ids = $this->getGrid()->getForm()->getRecordsIds();
+		return array_combine($ids, array_slice($this->getValues(), 0, count($ids)));
 	}
 
 }

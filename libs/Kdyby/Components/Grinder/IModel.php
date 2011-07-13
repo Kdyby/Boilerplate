@@ -8,10 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Components\Grinder\Models;
-
-use Kdyby\Components\Grinder\Filters;
-
+namespace Kdyby\Components\Grinder;
 
 
 
@@ -27,22 +24,53 @@ interface IModel extends \IteratorAggregate, \Countable
 	const ASC = "asc";
 	const DESC = "desc";
 
+	/**
+	 * @return Filters\IFragmentsBuilder
+	 */
 	public function createFragmentsBuilder();
 
+	/**
+	 * @param Filters\FiltersMap $filters
+	 */
 	public function applyFilters(Filters\FiltersMap $filters);
 
+	/**
+	 * @param array|object $item
+	 * @return scalar
+	 */
 	public function getUniqueId($item);
 
+	/**
+	 * @param scalar $uniqueId
+	 * @return array|object
+	 */
 	public function getItemByUniqueId($uniqueId);
 
+	/**
+	 * @param array $uniqueIds
+	 * @return array
+	 */
 	public function getItemsByUniqueIds(array $uniqueIds);
 
+	/**
+	 * @return array
+	 */
 	public function getItems();
 
+	/**
+	 * @param string $column
+	 * @param string $type
+	 */
 	public function setSorting($column, $type);
 
+	/**
+	 * @param int $limit
+	 */
 	public function setLimit($limit);
 
+	/**
+	 * @param int $limit
+	 */
 	public function setOffset($offset);
 
 }

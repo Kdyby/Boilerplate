@@ -121,7 +121,7 @@ class FiltersMap extends Nette\Object implements \IteratorAggregate
 	 */
 	public function get($name)
 	{
-		if (!isset($this->map[$name])) {
+		if (!$this->has($name)) {
 			throw new Nette\OutOfRangeException("Name " . $name . " is not defined");
 		}
 

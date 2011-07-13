@@ -10,6 +10,8 @@
 
 namespace Kdyby\Components\Grinder\Columns;
 
+use Kdyby;
+use Kdyby\Components\Grinder\Components;
 use Nette;
 use Nette\Application\UI\Link;
 use Nette\Templating\DefaultHelpers;
@@ -22,6 +24,9 @@ use Nette\Utils\Html;
  *
  * @author Filip Procházka
  * @license MIT
+ *
+ * @property bool $sortable
+ * @property bool $editable
  */
 class Column extends BaseColumn
 {
@@ -35,17 +40,37 @@ class Column extends BaseColumn
 	/** @var bool */
 	protected $sortable = TRUE;
 
-	/** @var string|callback */
+	/** @var bool */
+	private $editable = FALSE;
+
+	/** @var Components\Image */
+	private $image;
+
+	/** @var Components\Link */
 	private $link;
 
-	/** @var array */
-	private $mask = array();
+	/** @var Nette\Callback */
+	private $renderer;
+
+
+
+	/**
+	 * @param string $caption
+	 */
+	public function __construct($caption = NULL)
+	{
+		parent::__construct($caption);
+
+		$this->link = new Components\Link($this);
+		$this->image = new Components\Image($this);
+		$this->renderer = callback($this, 'renderValue');
+	}
 
 
 
 	/**
 	 * @param callback $filter
-	 * @return BaseColumn
+	 * @return Column
 	 */
 	public function addFilter($filter)
 	{
@@ -73,7 +98,7 @@ class Column extends BaseColumn
 		$value = parent::getValue();
 
 		foreach ($this->getFilters() as $filter) {
-			$value = $filter($value, $this->getGrid()->getCurrentRecord());
+			$value = $filter($value, $this->getGrid());
 		}
 
 		return $value;
@@ -82,50 +107,194 @@ class Column extends BaseColumn
 
 
 	/**
-	 * When given closure|callback, it will receive arguments mapped according to mask and $column object
-	 * function ($args, Column $column ) { ... }
-	 *
-	 * @param Link $link
-	 * @param array $mask
-	 * @return LinkAction
+	 * @return bool
 	 */
-	public function setLink($link, array $mask = array())
+	public function isSortable()
 	{
-		if (!is_callable($link) && !$link instanceof Link) {
-			throw new Nette\InvalidArgumentException("Link must be callable or instance of Nette\\Application\\UI\\Link");
-		}
+		return $this->sortable;
+	}
 
-		$this->mask = $mask;
-		$this->link = $link;
+
+
+	/**
+	 * Set sortable
+	 * @param bool $sortable
+	 * @return Column
+	 */
+	public function setSortable($sortable)
+	{
+		$this->sortable = (bool)$sortable;
 		return $this;
 	}
 
 
 
 	/**
-	 * @return string
+	 * @return bool
 	 */
-	public function getLink()
+	public function isEditable()
 	{
-		if (!$this->link) {
+		return $this->editable;
+	}
+
+
+
+	/**
+	 * @param bool $editable
+	 * @return Column
+	 */
+	public function setEditable($editable)
+	{
+		$this->editable = (bool)$editable;
+		return $this;
+	}
+
+
+
+	/**
+	 * @return string|null
+	 */
+	public function getSorting()
+	{
+		$grid = $this->getGrid();
+		if ($grid->sortColumn === $this->name) {
+			return $grid->sortType;
+		}
+
+		return NULL;
+	}
+
+
+
+	/**
+	 * @return string|Html
+	 */
+	public function getHeading()
+	{
+		if ($this->image) {
 			return NULL;
 		}
 
-		$args = array();
-		foreach ($this->mask as $argName => $paramName) {
-			$args[$argName] = $this->getGrid()->getRecordProperty($paramName);
+		return $this->getHeading();
+	}
+
+
+
+	/**
+	 * @return Html
+	 */
+	public function getLinkPrototype()
+	{
+		return $this->link->prototype;
+	}
+
+
+
+	/**
+	 * When given callable, it will receive arguments mapped according to mask and $column object
+	 * function (Column $column, array $maskArgs) { ... }
+	 *
+	 * @param callable|Link $url
+	 * @param array $mask
+	 * @return Column
+	 */
+	public function setLink($url, array $mask = array())
+	{
+		$this->link->setUrl($url);
+		$this->link->setMask($mask);
+		return $this;
+	}
+
+
+
+	/**
+	 * @return callable|Link
+	 */
+	public function getUrl()
+	{
+		return $this->link->url;
+	}
+
+
+
+	/**
+	 * @return array
+	 */
+	public function getUrlMask()
+	{
+		return $this->link->urlMask;
+	}
+
+
+
+	/**
+	 * @internal
+	 * @return array
+	 */
+	public function getUrlMaskParams()
+	{
+		return $this->link->urlMaskParams;
+	}
+
+
+
+	/**
+	 * @return Html
+	 */
+	public function getLink()
+	{
+		return $this->link->control;
+	}
+
+
+
+	/**
+	 * @return Html
+	 */
+	public function getImagePrototype()
+	{
+		return $this->image->prototype;
+	}
+
+
+
+	/**
+	 * @param string|callable|array $image
+	 * @return Column
+	 */
+	public function setImage($image)
+	{
+		if (is_array($image)) {
+			$image = function (Column $column) use ($image) {
+				$value = $column->getValue();
+				return isset($image[$value]) ? $image[$value] : reset($image);
+			};
 		}
 
-		if (is_callable($this->link)) {
-			return call_user_func($this->link, $args, $this);
-		}
+		$this->image->setImage($image);
+		return $this;
+	}
 
-		$link = clone $this->link;
-		foreach ($args as $argName => $value) {
-			$link->setParam($argName, $value);
-		}
 
-		return (string)$link;
+
+	/**
+	 * @return Html
+	 */
+	public function getImage()
+	{
+		return $this->image->control;
+	}
+
+
+
+	/**
+	 * @param callable $renderer
+	 * @return Column
+	 */
+	public function setRenderer($renderer)
+	{
+		$this->renderer = callback($renderer);
+		return $this;
 	}
 
 
@@ -135,24 +304,68 @@ class Column extends BaseColumn
 	 */
 	public function getControl()
 	{
-		$value = $this->getValue();
+		$control = $this->getLink();
+		$image = $this->getImage();
 
+		if (!$control) {
+			$control = Html::el();
+		}
+
+		if ($image) {
+			$control->add($image);
+		} else {
+			$value = $this->renderer->invoke($this->getValue(), $this);
+			$control->setText($value);
+		}
+
+		return $control;
+	}
+
+
+
+	/**
+	 * @param mixed $value
+	 * @return mixed
+	 */
+	public function renderValue($value)
+	{
 		if (is_bool($value)) {
-			return $this->getRenderer()->renderBoolean($value);
+			return $this->renderBoolean($value);
 
 		} elseif ($value instanceof \DateTime) {
-			return $this->getRenderer()->renderDateTime($value, $this->dateTimeFormat);
+			return $this->renderDateTime($value);
 		}
 
-		$link = $this->getLink();
-		if ($link) {
-			return Html::el('a', array(
-				'href' => $link
-			))->{$value instanceof Html ? 'add' : 'setText'}($value);
+		return $value;
+	}
+
+
+
+	/**
+	 * @param bool $value
+	 * @return string
+	 */
+	protected function renderBoolean($value)
+	{
+		$value = $value ? 'yes' : 'no';
+
+		if ($this->getGrid()->getContext()->hasService('translator')) {
+			return $this->getGrid()->getContext()->translator->translate($value);
 		}
 
-		// other
-		return Html::el()->setHtml(DefaultHelpers::escapeHtml($value));
+		return $value;
+	}
+
+
+
+	/**
+	 * @param string|\Datetime
+	 * @return string
+	 */
+	protected function renderDatetime($date)
+	{
+		return Nette\DateTime::from($date)
+			->format($this->dateTimeFormat);
 	}
 
 }

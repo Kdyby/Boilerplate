@@ -11,6 +11,7 @@
 namespace Kdyby\Components\Grinder\Models;
 
 use ArrayIterator;
+use Nette;
 
 
 
@@ -20,7 +21,7 @@ use ArrayIterator;
  * @author Jan Marek
  * @license MIT
  */
-abstract class AbstractModel implements IModel
+abstract class AbstractModel extends Nette\Object
 {
 	/** @var int */
 	private $limit;
@@ -87,7 +88,6 @@ abstract class AbstractModel implements IModel
 
 
 	/**
-	 * Set sorting
 	 * @param string column
 	 * @param string asc or desc
 	 */

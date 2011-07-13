@@ -24,21 +24,64 @@ class GridIterator extends \IteratorIterator
 	/** @var Grid */
 	private $grid;
 
-	/** @var Models\IModel */
+	/** @var IModel */
 	private $model;
 
 
 
 	/**
 	 * @param Grid $grid
-	 * @param Models\IModel $model
+	 * @param IModel $this->model
 	 */
-	public function __construct(Grid $grid, Models\IModel $model)
+	public function __construct(Grid $grid, IModel $model)
 	{
 		$this->grid = $grid;
 		$this->model = $model;
 
-		parent::__construct(new \ArrayIterator($model->getItems()), NULL);
+		// filter
+		$this->model->applyFilters($this->grid->getFilters()->getFiltersMap());
+
+		// count pages
+		$this->grid->getPaginator()->setItemCount($this->model->count());
+
+		// set limit & offset
+		$this->model->setLimit($this->grid->getPaginator()->getLength());
+		$this->model->setOffset($this->grid->getPaginator()->getOffset());
+
+		// sorting
+		if ($this->grid->sortColumn && $this->grid->getColumn($this->grid->sortColumn)->isSortable()) {
+			$this->model->setSorting($this->grid->sortColumn, $this->grid->sortType);
+		}
+
+		parent::__construct(new \ArrayIterator($this->model->getItems()), NULL);
+
+		// items ids to form
+		$ids = array_fill(0, $this->grid->getItemsPerPage(), NULL);
+		foreach ($this->getItems() as $i => $item) {
+			$ids[$i] = $this->model->getUniqueId($item);
+		}
+
+		$this->grid->getForm()->getComponent('ids')->setDefaults($ids);
+	}
+
+
+
+	/**
+	 * @return array
+	 */
+	public function getItems()
+	{
+		return array_values(iterator_to_array($this->getInnerIterator()));
+	}
+
+
+
+	/**
+	 * @var int
+	 */
+	public function getTotalCount()
+	{
+		return $this->grid->getPaginator()->getItemCount();
 	}
 
 

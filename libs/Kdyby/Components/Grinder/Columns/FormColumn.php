@@ -39,7 +39,7 @@ class FormColumn extends BaseColumn
 	public function __construct(Nette\Forms\IControl $control)
 	{
 		if ($control->parent) {
-			throw new \InvalidArgumentException("Control " . $control->name . " can't be attached.");
+			throw new Nette\InvalidArgumentException("Control " . $control->name . " can't be attached.");
 		}
 
 		parent::__construct();
@@ -55,6 +55,23 @@ class FormColumn extends BaseColumn
 	public function getControlPrototype()
 	{
 		return $this->controlPrototype;
+	}
+
+
+
+	/**
+	 * @param Nette\ComponentModel\Container $obj
+	 * @return void
+	 */
+	protected function attached($obj)
+	{
+		parent::attached($obj);
+
+		if (!$obj instanceof Presenter) {
+			return;
+		}
+
+		$this->buildControls($this->getContainer());
 	}
 
 
@@ -85,37 +102,11 @@ class FormColumn extends BaseColumn
 
 
 	/**
-	 * @param Nette\ComponentModel\Container $obj
-	 * @return void
-	 */
-	protected function attached($obj)
-	{
-		parent::attached($obj);
-
-		if (!$obj instanceof Presenter) {
-			return;
-		}
-
-		$form = $this->getGrid()->getForm();
-		$container = $form->addContainer($this->name);
-		$this->buildControls($container);
-	}
-
-
-
-	/**
 	 * @return Container
 	 */
 	protected function getContainer()
 	{
-		$form = $this->getGrid()->getForm();
-		$container = $form->getComponent($this->name, FALSE);
-
-		if (!$container) {
-			throw new Nette\InvalidStateException("Column is not yet attached to presenter.");
-		}
-
-		return $container;
+		return $this->getGrid()->getForm()->getColumnContainer($this->name);
 	}
 
 
@@ -126,10 +117,6 @@ class FormColumn extends BaseColumn
 	 */
 	protected function buildControls(Container $container)
 	{
-		if ($this->controlPrototype === NULL) {
-			throw new Nette\InvalidStateException("Control prototype cannot be null.");
-		}
-
 		if ($this->controlPrototype->parent) {
 			throw new Nette\InvalidStateException("Control can't be attached.");
 		}
@@ -138,7 +125,7 @@ class FormColumn extends BaseColumn
 			throw new Nette\NotSupportedException("Bug: rules clonning. Sorry.");
 		}
 
-		$itemsCount = $this->getGrid()->getPaginator()->getItemsPerPage();
+		$itemsCount = $this->getGrid()->getItemsPerPage();
 
 		for ($index = 0; $index < $itemsCount ;$index++) {
 			$container->addComponent($control = clone $this->controlPrototype, $index);
@@ -151,9 +138,19 @@ class FormColumn extends BaseColumn
 
 
 	/**
-	 * @return Nette\Forms\IControl
+	 * @return Nette\Utils\Html
 	 */
 	public function getControl()
+	{
+		return $this->getCurrentControl()->getControl();
+	}
+
+
+
+	/**
+	 * @return Nette\Forms\IControl
+	 */
+	public function getCurrentControl()
 	{
 		$index = $this->getGrid()->getCurrentIndex();
 		return $this->controls[$index];
@@ -167,7 +164,7 @@ class FormColumn extends BaseColumn
 	public function getValues()
 	{
 		$values = array();
-		foreach ($this->getControls() as $control) {
+		foreach ($this->controls as $control) {
 			$values[$control->name] = $control->value;
 		}
 

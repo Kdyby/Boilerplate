@@ -11,8 +11,10 @@
 namespace Kdyby\Components\Grinder\Filters;
 
 use Kdyby;
+use Kdyby\Components\Grinder;
 use Nette\Application\UI\Form as UIForm;
 use Nette;
+use Nette\ComponentModel\IContainer;
 use Nette\Forms\Controls\SubmitButton;
 
 
@@ -47,11 +49,12 @@ class Form extends UIForm
 
 
 	/**
+	 * @param boolean $need
 	 * @return Grid
 	 */
-	public function getGrid()
+	public function getGrid($need = TRUE)
 	{
-		return $this->lookup('Kdyby\\Components\\Grinder\\Grid');
+		return $this->lookup('Kdyby\\Components\\Grinder\\Grid', $need);
 	}
 
 

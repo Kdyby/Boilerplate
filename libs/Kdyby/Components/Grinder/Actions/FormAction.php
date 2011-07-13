@@ -11,10 +11,10 @@
 namespace Kdyby\Components\Grinder\Actions;
 
 use Kdyby;
-use Kdyby\Components\Grinder\Grid;
+use Kdyby\Components\Grinder;
 use Nette;
 use Nette\Forms\Form;
-use Nette\Forms\ISubmitterControl;
+use Nette\Forms\Controls\SubmitButton;
 
 
 
@@ -24,22 +24,21 @@ use Nette\Forms\ISubmitterControl;
 class FormAction extends BaseAction
 {
 
-	/** @var array */
-	public $onSuccess = array();
-
-	/** @var Nette\Forms\Controls\Button */
+	/** @var SubmitButton */
 	private $control;
+
+	/** @var Grinder\Columns\CheckColumn */
+	private $checkColumn;
 
 
 
 	/**
-	 * @param ISubmitterControl $control
+	 * @param string $caption
 	 */
-	public function __construct(ISubmitterControl $control)
+	public function __construct($caption = NULL)
 	{
 		parent::__construct();
-
-		$this->control = $control;
+		$this->control = new SubmitButton($caption);
 	}
 
 
@@ -51,35 +50,83 @@ class FormAction extends BaseAction
 	{
 		parent::attached($obj);
 
-		if (!$obj instanceof Grid) {
+		if (!$obj instanceof Grinder\Grid) {
 			return;
 		}
 
 		$form = $this->getGrid()->getForm();
-		$toolbar = $form->getComponent('toolbar');
-		$toolbar[$this->name] = $this->control;
-
+		$form->getToolbarContainer()->addComponent($this->control, $this->name);
 		$form->onSuccess[] = array($this, 'fireEvents');
 	}
 
 
 
+	/**
+	 * @param Grinder\Columns\CheckColumn $column
+	 * @return FormAction
+	 */
+	public function setCheckColumn(Grinder\Columns\CheckColumn $column)
+	{
+		$this->checkColumn = $column;
+		return $this;
+	}
+
+
+
+	/**
+	 * @return Grinder\Columns\CheckColumn
+	 */
+	public function getCheckColumn()
+	{
+		return $this->checkColumn;
+	}
+
+
+
+	/**
+	 * @internal
+	 * @return void
+	 */
 	public function fireEvents()
 	{
 		$form = $this->getGrid()->getForm();
 		if ($form->isSubmitted() === $this->control) {
-			$this->onSuccess($this);
+			if ($this->checkColumn === NULL) {
+				return $this->handleClick();
+			}
+
+			$this->handleClick(array_keys(array_filter($this->checkColumn->getValues())));
 		}
 	}
 
 
 
 	/**
-	 * @return ISubmitterControl
+	 * @return Html
 	 */
 	public function getControl()
 	{
-		return $this->control;
+		return $this->control->getControl();
+	}
+
+
+
+	/**
+	 * @return Html
+	 */
+	public function getLabel()
+	{
+		return $this->control->getLabel();
+	}
+
+
+
+	/**
+	 * @return Nette\Utils\Html
+	 */
+	public function getControlPrototype()
+	{
+		return $this->control->getControlPrototype();
 	}
 
 }

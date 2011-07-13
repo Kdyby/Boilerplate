@@ -103,7 +103,7 @@ class DoctrineQueryBuilder extends Nette\Object implements Filters\IFragmentsBui
 		}
 
 		$this->qb->setParameter($filter->getParameterName(), $value);
-		return $this->expr->lte($filter->column, ':' . $filter->getParameterName());
+		return $this->expr->gte($filter->column, ':' . $filter->getParameterName());
 	}
 
 
@@ -171,10 +171,10 @@ class DoctrineQueryBuilder extends Nette\Object implements Filters\IFragmentsBui
 		}
 
 		if ($value) {
-			return $this->expr->isNull($filter->column);
+			return $filter->column . ' IS NULL';
 		}
 
-		return $this->expr->isNotNull($filter->column);
+		return $filter->column . ' IS NOT NULL';
 	}
 
 }

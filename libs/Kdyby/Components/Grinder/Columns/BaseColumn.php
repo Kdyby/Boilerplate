@@ -10,8 +10,10 @@
 
 namespace Kdyby\Components\Grinder\Columns;
 
-use Nette;
 use Kdyby;
+use Kdyby\Components\Grinder;
+use Nette;
+use Nette\Utils\Html;
 
 
 
@@ -20,18 +22,95 @@ use Kdyby;
  *
  * @author Jan Marek
  * @author Filip Procházka
- * @license MIT
+ *
+ * @property-read string $realName
+ * @property-read bool $sortable
  */
-abstract class BaseColumn extends Kdyby\Components\Grinder\GridComponent
+abstract class BaseColumn extends Nette\Application\UI\PresenterComponent
 {
+
+	/** @var string|Html */
+	private $caption;
+
 	/** @var mixed */
 	private $value;
 
-	/** @var bool */
-	protected $sortable = FALSE;
-
 	/** @var string|callable */
 	private $cellHtmlClass;
+
+
+
+	/**
+	 * @param string $caption
+	 */
+	public function __construct($caption = NULL)
+	{
+		parent::__construct();
+		$this->monitor('Kdyby\Components\Grinder\Grid');
+		$this->setCaption($caption);
+	}
+
+
+
+	/**
+	 * @param boolean $need
+	 * @return Grid
+	 */
+	public function getGrid($need = TRUE)
+	{
+		return $this->lookup('Kdyby\Components\Grinder\Grid', $need);
+	}
+
+
+
+	/**
+	 * @return string
+	 */
+	public function getRealName()
+	{
+		return $this->getGrid()->getComponentRealName($this);
+	}
+
+
+
+	/**
+	 * @param string|Html caption
+	 * @return BaseColumn
+	 */
+	public function setCaption($caption)
+	{
+		if (!is_string($caption) && !$caption instanceof Html && $caption !== NULL) {
+			throw new Nette\InvalidArgumentException("Given caption must be either string or instance of Nette\\Web\\Html, " . gettype($caption) . " given.");
+		}
+
+		$this->caption = $caption;
+		return $this;
+	}
+
+
+
+	/**
+	 * @return string|Html
+	 */
+	public function getCaption()
+	{
+		return $this->caption;
+	}
+
+
+
+	/**
+	 * @return string|Html
+	 */
+	public function getHeading()
+	{
+		$caption = $this->getCaption();
+		if (!$caption) {
+			return NULL;
+		}
+
+		return $caption;
+	}
 
 
 
@@ -44,17 +123,19 @@ abstract class BaseColumn extends Kdyby\Components\Grinder\GridComponent
 			return $this->value;
 		}
 
-		return $this->getGrid()->getRecordProperty($this->name);
+		return $this->getGrid()->getRecordProperty($this->getRealName());
 	}
 
 
 
 	/**
 	 * @param mixed $value
+	 * @return BaseColumn
 	 */
 	public function setValue($value)
 	{
 		$this->value = $value;
+		return $this;
 	}
 
 
@@ -65,46 +146,42 @@ abstract class BaseColumn extends Kdyby\Components\Grinder\GridComponent
 	 */
 	public function isSortable()
 	{
-		return $this->sortable;
+		return FALSE;
 	}
 
 
 
 	/**
-	 * Set sortable
-	 * @param bool sortable
-	 * @return Column
-	 */
-	public function setSortable($sortable)
-	{
-		$this->sortable = $sortable;
-		return $this;
-	}
-
-
-
-	/**
-	 * Get sorting
-	 * @return string|null asc, desc or null
+	 * @return NULL|string
 	 */
 	public function getSorting()
 	{
-		$grid = $this->getGrid();
-		if ($grid->sortColumn === $this->getName()) {
-			return $grid->sortType;
-		}
-
-		return null;
+		return NULL;
 	}
 
 
 
 	/**
-	 * @param string|callable $class
+	 * @param string|array|callable $class
 	 * @return BaseColumn
 	 */
 	public function setCellHtmlClass($class)
 	{
+		if (is_array($class)) {
+			$class = function (Nette\Iterators\CachingIterator $iterator, $record) use ($class) {
+				if ($iterator->counter === 0) {
+					return NULL;
+				}
+
+				$index = count($class) - ($this->counter % count($class));
+				return $class[$index];
+			};
+		}
+
+		if (!is_string($class) && !is_callable($class) && $class !== NULL) {
+			throw new Nette\InvalidArgumentException("Given class must be either string, array or callback, " . gettype($caption) . " given.");
+		}
+
 	    $this->cellHtmlClass = $class;
 		return $this;
 	}
@@ -113,7 +190,7 @@ abstract class BaseColumn extends Kdyby\Components\Grinder\GridComponent
 
 	/**
 	 * @param \Iterator $iterator
-	 * @return string
+	 * @return string|NULL
 	 */
 	public function getCellHtmlClass(\Iterator $iterator)
 	{
@@ -148,7 +225,57 @@ abstract class BaseColumn extends Kdyby\Components\Grinder\GridComponent
 	 */
 	public function __toString()
 	{
-		return call_user_func(array($this->renderer, 'renderCell'), $this);
+		try {
+			return (string)$this->getControl();
+		} catch (\Exception $e) {
+			Nette\Diagnostics\Debugger::log($e);
+			return 'ERROR';
+		}
+	}
+
+
+
+	/**
+	 * @return Nette\Application\UI\Link
+	 */
+	public function getSortingLink()
+	{
+		if ($this->getSorting() === NULL) {
+			$args = array('sort!', $this->name, 'asc');
+
+		} elseif($this->getSorting() === 'asc') {
+			$args = array('sort!', $this->name, 'desc');
+
+		} else {
+			$args = array('sort!', NULL, NULL);
+		}
+
+		return callback($this->getGrid(), 'lazyLink')->invokeArgs($args);
+	}
+
+
+
+	public function renderHeading()
+	{
+		$heading = $this->getHeading();
+		if (!$this->getHeading()) {
+			return;
+		}
+
+		$span = Html::el('span')->class('grinder-sorting-' . ($this->getSorting() ?: 'no'));
+
+		if ($this->isSortable()) {
+			$span->add(
+					Html::el('a')
+						->href($this->getSortingLink())
+						->setText($this->getHeading())
+				);
+
+		} else {
+			$span->setText($this->getHeading());
+		}
+
+		echo $span;
 	}
 
 }

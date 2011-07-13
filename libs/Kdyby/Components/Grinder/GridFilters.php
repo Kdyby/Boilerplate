@@ -26,7 +26,7 @@ use Nette\Application\UI\PresenterComponent;
 class GridFilters extends PresenterComponent
 {
 
-	/** @var Models\IModel */
+	/** @var IModel */
 	private $model;
 
 	/** @var Filters\FiltersMap */
@@ -38,31 +38,27 @@ class GridFilters extends PresenterComponent
 
 
 	/**
-	 * @param Models\IModel $model
+	 * @param IModel $model
 	 */
-	public function __construct(Models\IModel $model)
+	public function __construct(IModel $model)
 	{
+		parent::__construct();
+
 		$this->model = $model;
 		$this->filtersMap = new Filters\FiltersMap($model->createFragmentsBuilder());
+
+		$this->monitor('Kdyby\Components\Grinder\Grid');
 	}
 
 
 
 	/**
-	 * @param IContainer $parent
-	 * @throws Nette\InvalidStateException
+	 * @param boolean $need
+	 * @return Grid
 	 */
-	protected function validateParent(IContainer $parent)
+	public function getGrid($need = TRUE)
 	{
-		parent::validateParent($parent);
-
-		if (!$parent instanceof Grid) {
-			$grid = $parent->lookup('Kdyby\\Components\\Grinder\\Grid', FALSE);
-
-			if (!$grid instanceof Grid) {
-				throw new Nette\InvalidStateException("Parent or one of ancesors must be instance of Kdyby\\Components\\Grinder\\Grid.");
-			}
-		}
+		return $this->lookup('Kdyby\Components\Grinder\Grid', $need);
 	}
 
 
@@ -104,17 +100,11 @@ class GridFilters extends PresenterComponent
 	 */
 	public function getForm()
 	{
+		if (!$this->formContainer) {
+			throw new Nette\InvalidStateException("Filters has no Form Container. One can be set using method 'setFormContainer'");
+		}
+
 		return $this->formContainer->lookup('Nette\Forms\Form');
-	}
-
-
-
-	/**
-	 * @return Grid
-	 */
-	public function getGrid()
-	{
-		return $this->lookup('Kdyby\\Components\\Grinder\\Grid');
 	}
 
 
@@ -127,9 +117,19 @@ class GridFilters extends PresenterComponent
 		$this->getForm()->addSubmit('filter', "Filtrovat");
 		$this->getForm()->addSubmit('clear', "Zrušit filtr")
 			->setValidationScope(FALSE)
-			->onClick[] = array($this->getForm(), 'ResetFilters');
+			->onClick[] = callback($this->getForm(), 'ResetFilters');
 
 		return $this;
+	}
+
+
+
+	/**
+	 * Renders GridFilters Form
+	 */
+	public function render()
+	{
+		$this->getForm()->render();
 	}
 
 
@@ -146,7 +146,7 @@ class GridFilters extends PresenterComponent
 	{
 		return $this->filtersMap->create($name, $column, function () use ($control, $paramName) {
 			return $control->getParam($paramName);
-		}, $method);
+		}, $method)->setControl($control);
 	}
 
 

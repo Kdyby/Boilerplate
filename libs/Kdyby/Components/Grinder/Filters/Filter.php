@@ -122,6 +122,16 @@ class Filter extends Nette\Object implements IFilter
 
 
 	/**
+	 * @return callback
+	 */
+	public function getMethod()
+	{
+		return $this->methodCallback;
+	}
+
+
+
+	/**
 	 * @param callback $callback
 	 * @return Filter
 	 */
@@ -129,6 +139,16 @@ class Filter extends Nette\Object implements IFilter
 	{
 		$this->sourceCallback = callback($callback);
 		return $this;
+	}
+
+
+
+	/**
+	 * @return callback
+	 */
+	public function getSource()
+	{
+		return $this->sourceCallback;
 	}
 
 
@@ -156,16 +176,6 @@ class Filter extends Nette\Object implements IFilter
 
 
 	/**
-	 * @return bool
-	 */
-	public function getSkipEmpty()
-	{
-		return $this->skipEmpty;
-	}
-
-
-
-	/**
 	 * @param bool $skipEmpty
 	 * @return Filter
 	 */
@@ -178,11 +188,11 @@ class Filter extends Nette\Object implements IFilter
 
 
 	/**
-	 * @return string
+	 * @return bool
 	 */
-	public function getDefaultValue()
+	public function getSkipEmpty()
 	{
-		return $this->defaultValue;
+		return $this->skipEmpty;
 	}
 
 
@@ -195,6 +205,16 @@ class Filter extends Nette\Object implements IFilter
 	{
 		$this->defaultValue = $defaultValue;
 		return $this;
+	}
+
+
+
+	/**
+	 * @return string
+	 */
+	public function getDefaultValue()
+	{
+		return $this->defaultValue;
 	}
 
 
@@ -267,14 +287,7 @@ class Filter extends Nette\Object implements IFilter
 
 		if ($this->getType() !== NULL) {
 			if (is_array($value)) {
-				$type = $this->getType();
-				array_map(function ($value) use ($type) {
-					if ($value !== NULL) {
-						settype($value, $type);
-					}
-
-					return $value;
-				}, $value);
+				$value = array_map($this->typeMapperFactory($this->getType()), $value);
 
 			} elseif ($value !== NULL) {
 				settype($value, $this->getType());
@@ -282,6 +295,23 @@ class Filter extends Nette\Object implements IFilter
 		}
 
 		return $this->value = $value;
+	}
+
+
+
+	/**
+	 * @param string $type
+	 * @return \Closure
+	 */
+	private function typeMapperFactory($type)
+	{
+		return function ($value) use ($type) {
+			if ($value !== NULL) {
+				settype($value, $type);
+			}
+
+			return $value;
+		};
 	}
 
 

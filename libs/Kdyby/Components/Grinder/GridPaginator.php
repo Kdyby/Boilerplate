@@ -11,7 +11,6 @@
 namespace Kdyby\Components\Grinder;
 
 use Kdyby;
-use Kdyby\Components\Grinder\Grid;
 use Nette;
 
 
@@ -20,18 +19,31 @@ use Nette;
  * @author Filip Procházka
  *
  * @property string $placement
+ * @property-read boolean $onTop
+ * @property-read boolean $onBottom
  */
-class GridPaginator extends Kdyby\Components\VisualPaginator\VisualPaginator
+class GridPaginator extends Kdyby\Components\VisualPaginator\ComponentPaginator
 {
 
-	/** @vat string */
+	/** @var string */
 	private $placement = Grid::PLACEMENT_BOTTOM;
 
 
 
 	/**
+	 * @param boolean $need
+	 * @return Grid
+	 */
+	public function getGrid($need = TRUE)
+	{
+		return $this->lookup('Kdyby\Components\Grinder\Grid', $need);
+	}
+
+
+
+	/**
 	 * @param string $placement
-	 * @return BaseAction
+	 * @return GridPaginator
 	 */
 	public function setPlacement($placement)
 	{
@@ -56,7 +68,7 @@ class GridPaginator extends Kdyby\Components\VisualPaginator\VisualPaginator
 	 */
 	public function isOnTop()
 	{
-		return $this->getPlacement() === self::PLACEMENT_BOTH || $this->getPlacement() === self::PLACEMENT_TOP;
+		return $this->getPlacement() === Grid::PLACEMENT_BOTH || $this->getPlacement() === Grid::PLACEMENT_TOP;
 	}
 
 
@@ -66,7 +78,25 @@ class GridPaginator extends Kdyby\Components\VisualPaginator\VisualPaginator
 	 */
 	public function isOnBottom()
 	{
-		return $this->getPlacement() === self::PLACEMENT_BOTH || $this->getPlacement() === self::PLACEMENT_BOTTOM;
+		return $this->getPlacement() === Grid::PLACEMENT_BOTH || $this->getPlacement() === Grid::PLACEMENT_BOTTOM;
+	}
+
+
+
+	public function renderTop()
+	{
+		if ($this->isOnTop()) {
+			$this->render();
+		}
+	}
+
+
+
+	public function renderBottom()
+	{
+		if ($this->isOnTop()) {
+			$this->render();
+		}
 	}
 
 }

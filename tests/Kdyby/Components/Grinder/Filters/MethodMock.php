@@ -8,26 +8,23 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Components\Grinder\Actions;
+namespace Kdyby\Testing\Components\Grinder\Filters;
 
 use Kdyby;
 use Nette;
-use Nette\Forms\Controls\SubmitButton;
 
 
 
 /**
  * @author Filip Procházka
  */
-class ButtonAction extends FormAction
+class MethodMock extends Nette\Object
 {
 
-	/**
-	 * @param string $caption
-	 */
-	public function __construct($caption = NULL)
+	public function method($value, $filter)
 	{
-		parent::__construct(new SubmitButton($caption));
+		return array();
 	}
+
 
 }

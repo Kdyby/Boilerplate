@@ -11,65 +11,72 @@
 namespace Kdyby\Components\Grinder\Actions;
 
 use Kdyby;
-use Kdyby\Components\Grinder\Grid;
-use Kdyby\Components\Grinder\Columns\ActionsColumn;
+use Kdyby\Components\Grinder;
 use Nette;
 
 
 
 /**
  * @author Filip Procházka
+ *
+ * @property-read string $realName
  */
-abstract class BaseAction extends Kdyby\Components\Grinder\GridComponent
+abstract class BaseAction extends Nette\Application\UI\PresenterComponent
 {
 
-	/** @var ActionsColumn */
-	private $column;
+	/** @var boolean */
+	public $handlerPassEntity = FALSE;
+
+	/** @var callback */
+	private $handler;
 
 	/** @var string|callable */
 	private $visible = TRUE;
-
-	/** @var boolean */
-	private $ajax;
 
 	/** @var string|callable */
 	private $confirmationQuestion;
 
 	/** @vat string */
-	private $toolbarPlacement = Grid::PLACEMENT_TOP;
+	private $placement = Grinder\Grid::PLACEMENT_TOP;
 
 
 
-	/**
-	 * @param ActionsColumn $column
-	 * @return BaseAction
-	 */
-	public function setColumn(ActionsColumn $column)
+	public function __construct()
 	{
-		$this->column = $column;
-		return $this;
+		parent::__construct();
+		$this->monitor('Kdyby\Components\Grinder\Grid');
 	}
 
 
 
 	/**
-	 * @return ActionsColumn
+	 * @param boolean $need
+	 * @return Grid
 	 */
-	public function getColumn()
+	public function getGrid($need = TRUE)
 	{
-		return $this->column;
+		return $this->lookup('Kdyby\Components\Grinder\Grid', $need);
 	}
 
 
 
 	/**
-	 * Set visible
+	 * @return string
+	 */
+	public function getRealName()
+	{
+		return $this->getGrid()->getComponentRealName($this);
+	}
+
+
+
+	/**
 	 * @param bool|callback visible
 	 * @return BaseAction
 	 */
 	public function setVisible($visible)
 	{
-		if (!is_bool($visible) && !is_callable($visible)) {
+		if (!is_bool($visible) && !is_callable($visible) && $visible !== NULL) {
 			throw new \InvalidArgumentException("Argument should be callable or boolean.");
 		}
 
@@ -80,7 +87,6 @@ abstract class BaseAction extends Kdyby\Components\Grinder\GridComponent
 
 
 	/**
-	 * Is button visible
 	 * @param mixed row
 	 * @return bool
 	 */
@@ -93,25 +99,49 @@ abstract class BaseAction extends Kdyby\Components\Grinder\GridComponent
 
 
 	/**
-	 * Set ajax mode
-	 * @param bool ajax
+	 * @return callback
+	 */
+	public function getHandler()
+	{
+		return $this->handler;
+	}
+
+
+
+	/**
+	 * @param callable handler
 	 * @return BaseAction
 	 */
-	public function setAjax($ajax)
+	public function setHandler($handler)
 	{
-		$this->ajax = (bool) $ajax;
+		$this->handler = callback($handler);
 		return $this;
 	}
 
 
 
 	/**
-	 * Is ajax?
-	 * @return bool
+	 * @param int $id
 	 */
-	public function isAjax()
+	public function handleClick($id = NULL)
 	{
-		return $this->ajax;
+		if (!is_callable($this->getHandler())) {
+			throw new Nette\InvalidStateException("Handler for action '" . $this->realName . "' is not callable.");
+		}
+
+		$id = $id ?: NULL;
+		if ($this->handlerPassEntity === TRUE) {
+			if (!$id) {
+				throw new Nette\InvalidStateException("Missing argument '\$id' in action '" . $this->realName . "'.");
+			}
+
+			$model = $this->getGrid()->getModel();
+			$id = is_array($id)
+				? $model->getItemsByUniqueIds($id)
+				: $model->getItemByUniqueId($id);
+		}
+
+		call_user_func($this->getHandler(), $this, $id);
 	}
 
 
@@ -123,10 +153,11 @@ abstract class BaseAction extends Kdyby\Components\Grinder\GridComponent
 	 */
 	public function setConfirmationQuestion($question)
 	{
-		if (!is_string($question) && !is_callable($question)) {
+		if (!is_string($question) && !is_callable($question) && $question !== NULL) {
 			throw new \InvalidArgumentException("Confirmation question should be callable or string.");
 		}
 
+		throw new Nette\NotImplementedException("sorry bro");
 		$this->confirmationQuestion = $question;
 		return $this;
 	}
@@ -153,13 +184,13 @@ abstract class BaseAction extends Kdyby\Components\Grinder\GridComponent
 	 * @param string $placement
 	 * @return BaseAction
 	 */
-	public function setToolbarPlacement($placement)
+	public function setPlacement($placement)
 	{
 		if ($this->getParent() !== $this->getGrid()->getToolbar()) {
 			throw new Nette\InvalidStateException("Action is not attached to toolbar.");
 		}
 
-		$this->toolbarPlacement = $placement;
+		$this->placement = $placement;
 		return $this;
 	}
 
@@ -168,15 +199,25 @@ abstract class BaseAction extends Kdyby\Components\Grinder\GridComponent
 	/**
 	 * @return string
 	 */
-	public function getToolbarPlacement()
+	public function getPlacement()
 	{
-		return $this->toolbarPlacement;
+		return $this->placement;
 	}
 
 
 
 	/**
-	 * @return Nette\Forms\ISubmitterControl|Nette\Utils\Html
+	 * @return Nette\Utils\Html|NULL
+	 */
+	public function getLabel()
+	{
+		return NULL;
+	}
+
+
+
+	/**
+	 * @return Nette\Utils\Html|NULL
 	 */
 	abstract public function getControl();
 
@@ -197,7 +238,12 @@ abstract class BaseAction extends Kdyby\Components\Grinder\GridComponent
 	 */
 	public function __toString()
 	{
-		return call_user_func(array($this->renderer, 'renderAction'), $this);
+		try {
+			return (string)$this->getControl();
+		} catch (\Exception $e) {
+			Nette\Diagnostics\Debugger::log($e);
+			return 'ERROR';
+		}
 	}
 
 }

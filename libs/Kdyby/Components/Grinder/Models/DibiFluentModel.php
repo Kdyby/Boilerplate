@@ -22,7 +22,7 @@ use Kdyby\Components\Grinder\Filters;
  * @author Filip Procházka
  * @license MIT
  */
-class DibiFluentModel extends AbstractModel
+class DibiFluentModel extends AbstractModel implements Kdyby\Components\Grinder\IModel
 {
 
 	/** @var DibiFluent */

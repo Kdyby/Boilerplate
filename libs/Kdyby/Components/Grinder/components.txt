@@ -1,0 +1,37 @@
+
+- BaseColumn
+	- filters
+	- value
+	- sorting
+	- heading
+	- renderValue()
+	< FormColumn(IControl $control)
+		- values
+		- building controls
+		- control
+		< CheckColumn
+			- checked
+			- values
+	< Column
+		- filters
+		- value
+		- sorting
+		- heading
+		- link & url
+		- image
+		- control
+		- renderValue()
+		+ editable
+
+- BaseAction
+	- visibility
+	- handler
+	- placement
+	- control
+	< FormAction
+		- bindCheckColumn
+		- control
+		- label	
+	< LinkAction
+		- link & url
+		- image

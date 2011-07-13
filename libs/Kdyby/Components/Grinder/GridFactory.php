@@ -11,8 +11,8 @@
 namespace Kdyby\Components\Grinder;
 
 use Doctrine\ORM\EntityManager;
+use Doctrine\Common\Persistence\ObjectManager;
 use Kdyby;
-use Kdyby\Doctrine\Workspace;
 use Nette;
 use Nette\Http;
 
@@ -24,8 +24,8 @@ use Nette\Http;
 class GridFactory extends Nette\Object
 {
 
-	/** @var Workspace */
-	private $workspace;
+	/** @var ObjectManager */
+	private $manager;
 
 	/** @var Http\Session */
 	private $session;
@@ -33,10 +33,10 @@ class GridFactory extends Nette\Object
 
 
 	/**
-	 * @param Workspace $workspace
+	 * @param ObjectManager $workspace
 	 * @param Http\Session|NULL $session
 	 */
-	public function __construct(Workspace $workspace, Http\Session $session = NULL)
+	public function __construct(ObjectManager $workspace, Http\Session $session = NULL)
 	{
 		$this->workspace = $workspace;
 		$this->session = $session;
@@ -50,7 +50,11 @@ class GridFactory extends Nette\Object
 	 */
 	public function createNew($className)
 	{
-		$manager = $this->workspace->getManager($className);
+		$manager = $this->workspace;
+		if ($this->workspace instanceof Kdyby\Doctrine\Workspace) {
+			$manager = $this->workspace->getManager($className);
+		}
+
 		$grid = new Grid(new Models\SimpleDoctrineModel($manager, $entity));
 
 		if ($this->session !== NULL) {
