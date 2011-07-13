@@ -10,8 +10,9 @@
 
 namespace Kdyby\Testing;
 
-use Nette;
 use Kdyby;
+use Nette;
+use Nette\ObjectMixin;
 
 
 
@@ -64,6 +65,48 @@ class Test extends \PHPUnit_Framework_TestCase
 				$this->assertSame($callback->native[1], $target->native[1], 'Target matches');
 			}
 		}
+	}
+
+
+
+	/********************* Nette\Object behaviour ****************d*g**/
+
+
+
+	/**
+	 * @return Nette\Reflection\ClassType
+	 */
+	public /**/static/**/ function getReflection()
+	{
+		return new Nette\Reflection\ClassType(/*5.2*$this*//**/get_called_class()/**/);
+	}
+
+
+
+	public function &__get($name)
+	{
+		return ObjectMixin::get($this, $name);
+	}
+
+
+
+	public function __set($name, $value)
+	{
+		return ObjectMixin::set($this, $name, $value);
+	}
+
+
+
+	public function __isset($name)
+	{
+		return ObjectMixin::has($this, $name);
+	}
+
+
+
+	public function __unset($name)
+	{
+		ObjectMixin::remove($this, $name);
 	}
 
 }
