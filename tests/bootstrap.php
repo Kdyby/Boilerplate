@@ -22,3 +22,6 @@ $loader = new Nette\Loaders\RobotLoader;
 $loader->setCacheStorage(new Nette\Caching\Storages\MemoryStorage);
 $loader->addDirectory(APP_DIR);
 $loader->register();
+
+// start session on time
+$configurator->container->session->start();
