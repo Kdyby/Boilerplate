@@ -46,22 +46,6 @@ class CheckboxList extends Nette\Forms\Controls\BaseControl
 
 
 	/**
-	 * Form container extension method. Do not call directly.
-	 *
-	 * @param Nette\Forms\Container $form
-	 * @param string $name
-	 * @param string $label
-	 * @param array $items
-	 * @return CheckboxList
-	 */
-	public static function addCheckboxList(Nette\Forms\Container $form, $name, $label, array $items = NULL)
-	{
-		return $form[$name] = new self($label, $items);
-	}
-
-
-
-	/**
 	 * @param string $label
 	 * @param array $items  Options from which to choose
 	 */

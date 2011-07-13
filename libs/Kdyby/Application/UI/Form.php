@@ -58,4 +58,14 @@ class Form extends Nette\Application\UI\Form
 
 
 // extension methods
-Nette\Forms\Container::extensionMethod('addCheckboxList', array('Kdyby\Forms\Controls\CheckboxList', 'addCheckboxList'));
+Nette\Forms\Container::extensionMethod('addCheckboxList', function (Nette\Forms\Container $container, $name, $label, array $items = NULL) {
+	return $container[$name] = new Kdyby\Forms\Controls\CheckboxList($label, $items);
+});
+
+Nette\Forms\Container::extensionMethod('addDate', function (Nette\Forms\Container $container, $name, $label) {
+	return $container[$name] = new Kdyby\Forms\Controls\DateTime($label);
+});
+
+Nette\Forms\Container::extensionMethod('addDatetime', function (Nette\Forms\Container $container, $name, $label) {
+	return $container[$name] = new Kdyby\Forms\Controls\DateTime($label);
+});
