@@ -24,7 +24,7 @@ use Nette\Utils\Html;
  * @property-read Html $prototype
  * @property-read Html $control
  */
-class Image extends Nette\Object implements IImagePlaceholder
+class Icon extends Nette\Object implements IImagePlaceholder
 {
 
 	/** @var Grinder\Columns\BaseColumn|Grinder\Actions\BaseAction */
@@ -40,7 +40,7 @@ class Image extends Nette\Object implements IImagePlaceholder
 
 	public function __construct()
 	{
-		$this->prototype = Html::el('img', array('alt' => ''));
+		$this->prototype = Html::el('span', array('class' => 'icon'));
 	}
 
 
@@ -88,18 +88,13 @@ class Image extends Nette\Object implements IImagePlaceholder
 			return NULL;
 		}
 
-		$image = clone $this->prototype;
-		$image->alt = $this->parent->caption;
+		$icon = clone $this->prototype;
 
-		$src = is_callable($this->image)
+		$class = is_callable($this->image)
 			? call_user_func($this->image, $this->parent)
 			: $this->image;
 
-		$image->src = $this->parent->grid->getContext()->expand(
-				substr_count($src, '%') ? $src : '%basePath%/' . $src
-			);
-
-		return $image;
+		return $icon->addClass($class);
 	}
 
 }

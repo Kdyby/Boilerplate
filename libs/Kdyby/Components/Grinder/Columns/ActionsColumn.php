@@ -84,13 +84,12 @@ class ActionsColumn extends BaseColumn
 	 * @param string $name
 	 * @param string $caption
 	 * @param array $options
-	 * @param string $insertBefore
 	 * @return Actions\LinkAction
 	 */
-	public function addLink($name, $caption = NULL, array $options = array(), $insertBefore = NULL)
+	public function addLink($name, $caption = NULL, array $options = array())
 	{
 		$options = array('caption' => $caption) + $options;
-		return $this->add(new Actions\LinkAction, $name, $options, $insertBefore);
+		return $this->add(new Actions\LinkAction, $name, $options);
 	}
 
 
@@ -99,12 +98,11 @@ class ActionsColumn extends BaseColumn
 	 * @param string $name
 	 * @param string $caption
 	 * @param array $options
-	 * @param string|int $insertBefore
 	 * @return Actions\FormAction
 	 */
-	public function addButton($name, $caption = NULL, array $options = array(), $insertBefore = NULL)
+	public function addButton($name, $caption = NULL, array $options = array())
 	{
-		return $this->add(new Actions\FormAction($caption), $name, $options, $insertBefore);
+		return $this->add(new Actions\FormAction($caption), $name, $options);
 	}
 
 
@@ -130,11 +128,13 @@ class ActionsColumn extends BaseColumn
 	 * @param IComponent $component
 	 * @param string $name
 	 * @param array $options
-	 * @param string $insertBefore
 	 * @return IComponent
 	 */
-	public function add(IComponent $component, $name, array $options = array(), $insertBefore = NULL)
+	public function add(IComponent $component, $name, array $options = array())
 	{
+		$insertBefore = &$options['insertBefore'] ?: NULL;
+		unset($options['insertBefore']);
+
 		$name = $this->getGrid()->getComponentSafeName($component, $name);
 		$this->addComponent($component, $name, $insertBefore);
 		return $this->getGrid()->add($component, NULL, $options);

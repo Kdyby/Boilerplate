@@ -57,12 +57,14 @@ class Column extends BaseColumn
 	/**
 	 * @param string $caption
 	 */
-	public function __construct($caption = NULL)
+	public function __construct($caption = NULL, Components\IImagePlaceholder $imagePlaceholder = NULL)
 	{
 		parent::__construct($caption);
 
+		$this->image = $imagePlaceholder ?: new Components\Image;
+		$this->image->setParent($this);
+
 		$this->link = new Components\Link($this);
-		$this->image = new Components\Image($this);
 		$this->renderer = callback($this, 'renderValue');
 	}
 
@@ -171,11 +173,11 @@ class Column extends BaseColumn
 	 */
 	public function getHeading()
 	{
-		if ($this->image) {
+		if ($this->image->control) {
 			return NULL;
 		}
 
-		return $this->getHeading();
+		return parent::getHeading();
 	}
 
 

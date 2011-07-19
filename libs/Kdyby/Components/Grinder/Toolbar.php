@@ -74,12 +74,11 @@ class Toolbar extends Nette\Application\UI\PresenterComponent
 	 * @param string $name
 	 * @param string $caption
 	 * @param array $options
-	 * @param string|int $insertBefore
 	 * @return Actions\FormAction
 	 */
-	public function addButton($name, $caption = NULL, array $options = array(), $insertBefore = NULL)
+	public function addButton($name, $caption = NULL, array $options = array())
 	{
-		return $this->add(new Actions\FormAction($caption), $name, $options, $insertBefore);
+		return $this->add(new Actions\FormAction($caption), $name, $options);
 	}
 
 
@@ -105,11 +104,13 @@ class Toolbar extends Nette\Application\UI\PresenterComponent
 	 * @param IComponent $component
 	 * @param string $name
 	 * @param array $options
-	 * @param string $insertBefore
 	 * @return IComponent
 	 */
-	public function add(IComponent $component, $name, array $options = array(), $insertBefore = NULL)
+	public function add(IComponent $component, $name, array $options = array())
 	{
+		$insertBefore = &$options['insertBefore'] ?: NULL;
+		unset($options['insertBefore']);
+
 		$name = $this->getGrid()->getComponentSafeName($component, $name);
 		$this->addComponent($component, $name, $insertBefore);
 		return $this->getGrid()->add($component, NULL, $options);
@@ -188,6 +189,9 @@ class Toolbar extends Nette\Application\UI\PresenterComponent
 
 
 
+	/**
+	 * Renders actions that are registered into top toolbar
+	 */
 	public function renderTop()
 	{
 		$toolbar = Html::el('div')->class('grinder-toolbar grinder-toolbar-top');
@@ -199,6 +203,9 @@ class Toolbar extends Nette\Application\UI\PresenterComponent
 
 
 
+	/**
+	 * Renders actions that are registered into bottom toolbar
+	 */
 	public function renderBottom()
 	{
 		$toolbar = Html::el('div')->class('grinder-toolbar grinder-toolbar-bottom');

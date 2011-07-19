@@ -203,11 +203,13 @@ class Grid extends Nette\Application\UI\Control implements \IteratorAggregate
 	 * @param IComponent $component
 	 * @param string $name
 	 * @param array $options
-	 * @param string $insertBefore
 	 * @return IComponent
 	 */
-	public function add(IComponent $component, $name = NULL, $options = array(), $insertBefore = NULL)
+	public function add(IComponent $component, $name = NULL, $options = array())
 	{
+		$insertBefore = &$options['insertBefore'] ?: NULL;
+		unset($options['insertBefore']);
+
 		$name = $this->getComponentSafeName($component, $name);
 		Kdyby\Tools\Objects::setProperties($component, $options);
 
@@ -326,12 +328,11 @@ class Grid extends Nette\Application\UI\Control implements \IteratorAggregate
 	 * @param string $name
 	 * @param string $caption
 	 * @param array $options
-	 * @param string $insertBefore
 	 * @return Actions\LinkAction
 	 */
-	public function addLink($name, $caption = NULL, array $options = array(), $insertBefore = NULL)
+	public function addLink($name, $caption = NULL, array $options = array())
 	{
-		return $this->add(new Actions\LinkAction($caption), $name, $options, $insertBefore);
+		return $this->add(new Actions\LinkAction($caption), $name, $options);
 	}
 
 
@@ -340,12 +341,11 @@ class Grid extends Nette\Application\UI\Control implements \IteratorAggregate
 	 * @param string $name
 	 * @param string $caption
 	 * @param array $options
-	 * @param string $insertBefore
 	 * @return Actions\LinkAction
 	 */
-	public function addSubmit($name, $caption = NULL, array $options = array(), $insertBefore = NULL)
+	public function addSubmit($name, $caption = NULL, array $options = array())
 	{
-		return $this->add(new Actions\ButtonAction($caption), $name, $options, $insertBefore);
+		return $this->add(new Actions\ButtonAction($caption), $name, $options);
 	}
 
 
@@ -354,12 +354,11 @@ class Grid extends Nette\Application\UI\Control implements \IteratorAggregate
 	 * @param string $name
 	 * @param string $caption
 	 * @param array $options
-	 * @param string $insertBefore
 	 * @return Columns\ActionsColumn
 	 */
-	public function addActionsColumn($name, $caption = NULL, array $options = array(), $insertBefore = NULL)
+	public function addActionsColumn($name, $caption = NULL, array $options = array())
 	{
-		return $this->add(new Columns\ActionsColumn($caption), $name, $options, $insertBefore);
+		return $this->add(new Columns\ActionsColumn($caption), $name, $options);
 	}
 
 
@@ -413,12 +412,11 @@ class Grid extends Nette\Application\UI\Control implements \IteratorAggregate
 	 * @param string $name
 	 * @param string $caption
 	 * @param array $options
-	 * @param string|int $insertBefore
 	 * @return Columns\Column
 	 */
-	public function addColumn($name, $caption = NULL, array $options = array(), $insertBefore = NULL)
+	public function addColumn($name, $caption = NULL, array $options = array())
 	{
-		return $this->add(new Columns\Column($caption), $name, $options, $insertBefore);
+		return $this->add(new Columns\Column($caption), $name, $options);
 	}
 
 
@@ -426,12 +424,11 @@ class Grid extends Nette\Application\UI\Control implements \IteratorAggregate
 	/**
 	 * @param string $name
 	 * @param array $options
-	 * @param string|int $insertBefore
 	 * @return Columns\CheckColumn
 	 */
-	public function addCheckColumn($name, array $options = array(), $insertBefore = NULL)
+	public function addCheckColumn($name, array $options = array())
 	{
-		return $this->add(new Columns\CheckColumn, $name, $options, $insertBefore);
+		return $this->add(new Columns\CheckColumn, $name, $options);
 	}
 
 
@@ -440,12 +437,32 @@ class Grid extends Nette\Application\UI\Control implements \IteratorAggregate
 	 * @param string $name
 	 * @param string|callback|Html $image
 	 * @param array $options
-	 * @param string|int $insertBefore
 	 * @return Columns\ImageColumn
 	 */
-	public function addImageColumn($name, $image, array $options = array(), $insertBefore = NULL)
+	public function addImageColumn($name, $image, array $options = array())
 	{
-		return $this->add(new Columns\Column, $name, array('image' => $image) + $options, $insertBefore);
+		return $this->add(
+				new Columns\Column(NULL, new Components\Image),
+				$name,
+				array('image' => $image) + $options
+			);
+	}
+
+
+
+	/**
+	 * @param string $name
+	 * @param string|callback|Html $icon
+	 * @param array $options
+	 * @return Columns\ImageColumn
+	 */
+	public function addIconColumn($name, $icon, array $options = array())
+	{
+		return $this->add(
+				new Columns\Column(NULL, new Components\Icon),
+				$name,
+				array('image' => $image) + $options
+			);
 	}
 
 
@@ -455,12 +472,11 @@ class Grid extends Nette\Application\UI\Control implements \IteratorAggregate
 	 * @param Nette\Forms\IControl $control
 	 * @param string $caption
 	 * @param array $options
-	 * @param string|int $insertBefore
 	 * @return Columns\FormColumn
 	 */
-	public function addFormColumn($name, Nette\Forms\IControl $control, array $options = array(), $insertBefore = NULL)
+	public function addFormColumn($name, Nette\Forms\IControl $control, array $options = array())
 	{
-		return $this->add(new Columns\FormColumn($control), $name, $options, $insertBefore);
+		return $this->add(new Columns\FormColumn($control), $name, $options);
 	}
 
 
