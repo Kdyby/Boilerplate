@@ -41,7 +41,7 @@ class GridForm extends Nette\Application\UI\Form
 	protected function attached($obj)
 	{
 		if ($obj instanceof Nette\Application\UI\Presenter) {
-			$itemsCount = $this->getGrid()->getItemsPerPage();
+			$itemsCount = $this->getGrid()->itemsPerPage;
 
 			for ($index = 0; $index < $itemsCount ;$index++) {
 				$this->getComponent('ids')->addHidden($index);

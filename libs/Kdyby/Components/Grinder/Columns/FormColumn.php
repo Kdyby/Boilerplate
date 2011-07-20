@@ -125,7 +125,7 @@ class FormColumn extends BaseColumn
 			throw new Nette\NotSupportedException("Bug: rules clonning. Sorry.");
 		}
 
-		$itemsCount = $this->getGrid()->getItemsPerPage();
+		$itemsCount = $this->getGrid()->itemsPerPage;
 
 		for ($index = 0; $index < $itemsCount ;$index++) {
 			$container->addComponent($control = clone $this->controlPrototype, $index);

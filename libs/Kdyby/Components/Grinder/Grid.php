@@ -55,8 +55,6 @@ class Grid extends Nette\Application\UI\Control implements \IteratorAggregate
 	const PLACEMENT_BOTTOM = 'bottom';
 	const PLACEMENT_BOTH = 'both';
 
-	const DEFAULT_ITEMS_PER_PAGE = 20;
-
 	/** @persistent int */
 	public $page = 1;
 
@@ -68,6 +66,9 @@ class Grid extends Nette\Application\UI\Control implements \IteratorAggregate
 
 	/** @persistent array */
 	public $filter = array();
+
+	/** @persistent int */
+	public $itemsPerPage = 20;
 
 	/** @var IModel */
 	private $model;
@@ -120,9 +121,6 @@ class Grid extends Nette\Application\UI\Control implements \IteratorAggregate
 
 		// model
 		$this->model = $model;
-
-		// paginator
-		$this->getPaginator()->setItemsPerPage(self::DEFAULT_ITEMS_PER_PAGE);
 	}
 
 
@@ -141,6 +139,9 @@ class Grid extends Nette\Application\UI\Control implements \IteratorAggregate
 		// steal the context from presenter :)
 		// Doing this just for the components!! They need this!
 		$this->context = $obj->getContext();
+
+		// paginator
+		$this->getPaginator()->setItemsPerPage($this->itemsPerPage);
 
 		// configure
 		$this->configure($this->getPresenter());
@@ -690,33 +691,6 @@ class Grid extends Nette\Application\UI\Control implements \IteratorAggregate
 	public function getPaginator()
 	{
 		return $this->getVisualPaginator()->getPaginator();
-	}
-
-
-
-	/**
-	 * Set items per page
-	 * @param int items per page
-	 * @return Grid
-	 */
-	public function setItemsPerPage($itemsPerPage)
-	{
-		if ($this->lookup('Nette\Application\UI\Presenter', FALSE)) {
-			throw new Nette\NotSupportedException("Number of items per page can't be changed after Grid is connected to Presenter. Configure this option in your factory.");
-		}
-
-		$this->getPaginator()->setItemsPerPage($itemsPerPage);
-		return $this;
-	}
-
-
-
-	/**
-	 * @return int
-	 */
-	public function getItemsPerPage()
-	{
-		return $this->getPaginator()->getItemsPerPage();
 	}
 
 

@@ -56,7 +56,7 @@ class GridIterator extends \IteratorIterator
 		parent::__construct(new \ArrayIterator($this->model->getItems()), NULL);
 
 		// items ids to form
-		$ids = array_fill(0, $this->grid->getItemsPerPage(), NULL);
+		$ids = array_fill(0, $this->grid->itemsPerPage, NULL);
 		foreach ($this->getItems() as $i => $item) {
 			$ids[$i] = $this->model->getUniqueId($item);
 		}
