@@ -215,7 +215,7 @@ abstract class BaseColumn extends Nette\Application\UI\PresenterComponent
 	 */
 	public function render()
 	{
-		echo $this->__toString();
+		echo (string)$this->getControl();
 	}
 
 
@@ -229,7 +229,6 @@ abstract class BaseColumn extends Nette\Application\UI\PresenterComponent
 			return (string)$this->getControl();
 		} catch (\Exception $e) {
 			Nette\Diagnostics\Debugger::log($e);
-			return 'ERROR';
 		}
 	}
 
