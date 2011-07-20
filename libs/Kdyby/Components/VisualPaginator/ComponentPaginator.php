@@ -56,7 +56,7 @@ class ComponentPaginator extends Control
 	 */
 	public function __toString()
 	{
-		$this->template->steps = $this->getPaginator()->getPagesListFrienly();
+		$this->template->steps = $this->getPaginator()->getPagesListFriendly();
 		$this->template->paginator = $this->getPaginator();
 
 		if($this->template->getFile() === NULL){

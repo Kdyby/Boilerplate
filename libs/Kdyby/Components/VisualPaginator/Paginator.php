@@ -25,7 +25,7 @@ class Paginator extends Nette\Utils\Paginator
 	/**
 	 * @return array
 	 */
-	public function getPagesListFrienly()
+	public function getPagesListFriendly()
 	{
 		$page = $this->page;
 		if ($this->pageCount < 2) {
