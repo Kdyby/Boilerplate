@@ -16,6 +16,7 @@ use Nette;
 use Nette\Application\UI\Link;
 use Nette\Templating\DefaultHelpers;
 use Nette\Utils\Html;
+use Nette\Utils\Strings;
 
 
 
@@ -33,6 +34,9 @@ class Column extends BaseColumn
 
 	/** @var string */
 	public $dateTimeFormat = "j.n.Y G:i";
+
+	/** @var int */
+	public $maxLength = 0;
 
 	/** @var array */
 	private $filters = array();
@@ -101,6 +105,10 @@ class Column extends BaseColumn
 
 		foreach ($this->getFilters() as $filter) {
 			$value = $filter($value, $this->getGrid());
+		}
+
+		if (is_string($value) && $this->maxLength !== 0) {
+			$value = Strings::truncate($value, $this->maxLength);
 		}
 
 		return $value;
@@ -317,7 +325,7 @@ class Column extends BaseColumn
 			$control->add($image);
 		} else {
 			$value = $this->renderer->invoke($this->getValue(), $this);
-			$control->setText($value);
+			$control->{$value instanceof Html ? 'add' : 'setText'}($value);
 		}
 
 		return $control;
