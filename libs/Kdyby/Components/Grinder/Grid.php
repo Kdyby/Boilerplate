@@ -810,9 +810,9 @@ class Grid extends Nette\Application\UI\Control implements \IteratorAggregate
 	/**
 	 * Renders grid
 	 */
-	public function render($part = NULL, array $args = array())
+	public function render()
 	{
-		$this->getRenderer()->render($part, $args);
+		$this->getRenderer()->render();
 	}
 
 }

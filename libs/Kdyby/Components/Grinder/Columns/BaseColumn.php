@@ -35,6 +35,12 @@ abstract class BaseColumn extends Nette\Application\UI\PresenterComponent
 	/** @var mixed */
 	private $value;
 
+	/** @var Html */
+	private $cellPrototype;
+
+	/** @var Html */
+	private $headingPrototype;
+
 	/** @var string|callable */
 	private $cellHtmlClass;
 
@@ -48,6 +54,8 @@ abstract class BaseColumn extends Nette\Application\UI\PresenterComponent
 		parent::__construct();
 		$this->monitor('Kdyby\Components\Grinder\Grid');
 		$this->setCaption($caption);
+		$this->cellPrototype = Html::el('td');
+		$this->headingPrototype = Html::el('th');
 	}
 
 
@@ -204,6 +212,26 @@ abstract class BaseColumn extends Nette\Application\UI\PresenterComponent
 
 
 	/**
+	 * @return Html
+	 */
+	public function getCellProtype()
+	{
+		return $this->cellPrototype;
+	}
+
+
+
+	/**
+	 * @return Html
+	 */
+	public function getHeadingProtype()
+	{
+		return $this->headingPrototype;
+	}
+
+
+
+	/**
 	 * @return Nette\Utils\Html
 	 */
 	abstract function getControl();
@@ -216,6 +244,17 @@ abstract class BaseColumn extends Nette\Application\UI\PresenterComponent
 	public function render()
 	{
 		echo (string)$this->getControl();
+	}
+
+
+
+	/**
+	 * @return void
+	 */
+	public function renderCell()
+	{
+		$cell = clone $this->cellPrototype;
+		echo $cell->add($this->getControl());
 	}
 
 
@@ -254,11 +293,14 @@ abstract class BaseColumn extends Nette\Application\UI\PresenterComponent
 
 
 
-	public function renderHeading()
+	/**
+	 * @return Html
+	 */
+	public function getHeadingControl()
 	{
 		$heading = $this->getHeading();
-		if (!$this->getHeading()) {
-			return;
+		if (!$heading) {
+			return NULL;
 		}
 
 		$span = Html::el('span')->class('grinder-sorting-' . ($this->getSorting() ?: 'no'));
@@ -267,14 +309,34 @@ abstract class BaseColumn extends Nette\Application\UI\PresenterComponent
 			$span->add(
 					Html::el('a')
 						->href($this->getSortingLink())
-						->setText($this->getHeading())
+						->{$heading instanceof Html ? 'add' : 'setText'}($heading)
 				);
 
 		} else {
-			$span->setText($this->getHeading());
+			$span->{$heading instanceof Html ? 'add' : 'setText'}($heading);
 		}
 
-		echo $span;
+		return $span;
+	}
+
+
+
+	public function renderHeading()
+	{
+		echo $this->getHeadingControl();
+	}
+
+
+
+	public function renderHeadingCell()
+	{
+		$headingCell = clone $this->headingProtype;
+		$control = $this->getHeadingControl();
+		if ($control) {
+			$headingCell->add($control);
+		}
+
+		echo $headingCell;
 	}
 
 }

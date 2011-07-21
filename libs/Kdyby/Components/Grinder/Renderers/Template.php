@@ -58,14 +58,6 @@ class Template extends Nette\Object
 	 */
 	public function render()
 	{
-		$args = func_get_args();
-
-		if (array_filter($args)) {
-			$part = array_shift($args);
-			echo call_user_func_array(array($this, 'render' . $part), (array)current($args));
-			return;
-		}
-
 		$this->template->renderer = $this;
 		$this->template->grid = $this->grid;
 		$this->template->toolbar = $this->grid->getToolbar();
