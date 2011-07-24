@@ -475,11 +475,12 @@ class Grid extends Nette\Application\UI\Control implements \IteratorAggregate
 
 	/**
 	 * @param string $name
+	 * @param boolean $need
 	 * @return Columns\BaseColumn
 	 */
-	public function getColumn($name)
+	public function getColumn($name, $need = TRUE)
 	{
-		return $this->getComponent('columns')->getComponent($name);
+		return $this->getComponent('columns')->getComponent($name, $need);
 	}
 
 
@@ -622,8 +623,9 @@ class Grid extends Nette\Application\UI\Control implements \IteratorAggregate
 	 */
 	public function handleSort($sortColumn, $sortType)
 	{
-		if ($this->getPresenter()->isAjax()) {
-			$this->invalidateControl();
+		$this->invalidateControl();
+		if (!$this->getPresenter()->isAjax()) {
+			$this->redirect('this');
 		}
 	}
 

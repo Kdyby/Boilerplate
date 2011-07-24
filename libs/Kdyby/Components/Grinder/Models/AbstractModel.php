@@ -91,7 +91,7 @@ abstract class AbstractModel extends Nette\Object
 	 * @param string column
 	 * @param string asc or desc
 	 */
-	public function setSorting($column, $type)
+	public function applySorting($column, $type)
 	{
 		return $this->sorting = array($column, $type);
 	}
@@ -101,7 +101,7 @@ abstract class AbstractModel extends Nette\Object
 	/**
 	 * @return array
 	 */
-	public function getSorting()
+	protected function getSorting()
 	{
 		return $this->sorting;
 	}

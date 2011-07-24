@@ -31,7 +31,7 @@ class GridIterator extends \IteratorIterator
 
 	/**
 	 * @param Grid $grid
-	 * @param IModel $this->model
+	 * @param IModel $model
 	 */
 	public function __construct(Grid $grid, IModel $model)
 	{
@@ -49,10 +49,12 @@ class GridIterator extends \IteratorIterator
 		$this->model->setOffset($this->grid->getPaginator()->getOffset());
 
 		// sorting
-		if ($this->grid->sortColumn && $this->grid->getColumn($this->grid->sortColumn)->isSortable()) {
-			$this->model->setSorting($this->grid->sortColumn, $this->grid->sortType);
+		$column = $this->grid->getColumn($this->grid->sortColumn, FALSE);
+		if ($column && $column->isSortable()) {
+			$this->model->applySorting($column->getRealName(), $this->grid->sortType);
 		}
 
+		// read items
 		parent::__construct(new \ArrayIterator($this->model->getItems()), NULL);
 
 		// items ids to form

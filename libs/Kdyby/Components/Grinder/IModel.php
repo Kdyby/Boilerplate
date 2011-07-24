@@ -61,7 +61,7 @@ interface IModel extends \IteratorAggregate, \Countable
 	 * @param string $column
 	 * @param string $type
 	 */
-	public function setSorting($column, $type);
+	public function applySorting($column, $type);
 
 	/**
 	 * @param int $limit
