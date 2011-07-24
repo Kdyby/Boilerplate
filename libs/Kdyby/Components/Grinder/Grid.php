@@ -67,9 +67,6 @@ class Grid extends Nette\Application\UI\Control implements \IteratorAggregate
 	/** @persistent array */
 	public $filter = array();
 
-	/** @persistent int */
-	public $itemsPerPage = 20;
-
 	/** @var IModel */
 	private $model;
 
@@ -140,9 +137,6 @@ class Grid extends Nette\Application\UI\Control implements \IteratorAggregate
 		// Doing this just for the components!! They need this!
 		$this->context = $obj->getContext();
 
-		// paginator
-		$this->getPaginator()->setItemsPerPage($this->itemsPerPage);
-
 		// configure
 		$this->configure($this->getPresenter());
 		$this->configureToolbar($this->getToolbar());
@@ -158,19 +152,6 @@ class Grid extends Nette\Application\UI\Control implements \IteratorAggregate
 				$filter->getControl()->setDefaultValue($filter->getValue());
 			}
 		}
-	}
-
-
-
-	/**
-	 * Loads state informations.
-	 * @param array
-	 * @return void
-	 */
-	public function loadState(array $params)
-	{
-		parent::loadState($params);
-		$this->getVisualPaginator()->setPage($this->page);
 	}
 
 
@@ -691,6 +672,16 @@ class Grid extends Nette\Application\UI\Control implements \IteratorAggregate
 	public function getPaginator()
 	{
 		return $this->getVisualPaginator()->getPaginator();
+	}
+
+
+
+	/**
+	 * @return int
+	 */
+	public function getItemsPerPage()
+	{
+		return $this->getVisualPaginator()->itemsPerPage;
 	}
 
 

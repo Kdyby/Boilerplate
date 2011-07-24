@@ -12,12 +12,14 @@ namespace Kdyby\Components\Grinder;
 
 use Kdyby;
 use Nette;
+use Nette\Application\UI\Presenter;
 
 
 
 /**
  * @author Filip Procházka
  *
+ * @property array $allowedSteps
  * @property string $placement
  * @property-read boolean $onTop
  * @property-read boolean $onBottom
@@ -25,8 +27,48 @@ use Nette;
 class GridPaginator extends Kdyby\Components\VisualPaginator\ComponentPaginator
 {
 
+	/** @persistent int */
+	public $itemsPerPage = 20;
+
+	/** @var array */
+	private $allowedSteps = array(20, 50, 100, 'all');
+
 	/** @var string */
 	private $placement = Grid::PLACEMENT_BOTTOM;
+
+
+
+	/**
+	 * @param Nette\ComponentModel\Container $obj
+	 */
+	protected function attached($obj)
+	{
+		parent::attached($obj);
+
+		if (!$obj instanceof Presenter) {
+			return;
+		}
+
+		$itemsPerPage = in_array($this->itemsPerPage, $this->getAllowedSteps()) ? $this->itemsPerPage : 20;
+		if ($itemsPerPage !== 'all') {
+			$this->getPaginator()->setItemsPerPage($itemsPerPage);
+
+		} else {
+			$this->getGrid()->page = 1;
+		}
+	}
+
+
+
+	/**
+	 * @param array
+	 * @return void
+	 */
+	public function loadState(array $params)
+	{
+		parent::loadState($params);
+		$this->setPage($this->getGrid()->page);
+	}
 
 
 
@@ -37,6 +79,28 @@ class GridPaginator extends Kdyby\Components\VisualPaginator\ComponentPaginator
 	public function getGrid($need = TRUE)
 	{
 		return $this->lookup('Kdyby\Components\Grinder\Grid', $need);
+	}
+
+
+
+	/**
+	 * @param array $steps
+	 * @return GridPaginator
+	 */
+	public function setAllowedSteps(array $steps)
+	{
+		$this->allowedSteps = $steps;
+		return $this;
+	}
+
+
+
+	/**
+	 * @return array
+	 */
+	public function getAllowedSteps()
+	{
+		return $this->allowedSteps;
 	}
 
 
@@ -83,6 +147,9 @@ class GridPaginator extends Kdyby\Components\VisualPaginator\ComponentPaginator
 
 
 
+	/**
+	 * Renders upper paginator
+	 */
 	public function renderTop()
 	{
 		if ($this->isOnTop()) {
@@ -92,6 +159,9 @@ class GridPaginator extends Kdyby\Components\VisualPaginator\ComponentPaginator
 
 
 
+	/**
+	 * Renders bottom paginator
+	 */
 	public function renderBottom()
 	{
 		if ($this->isOnTop()) {
