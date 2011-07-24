@@ -12,8 +12,11 @@ namespace Kdyby\Application;
 
 use Kdyby;
 use Nette;
+use Nette\Application\UI\Presenter;
+use Nette\Application\Request;
 use Nette\Http\Session;
 use Nette\Http\SessionSection;
+use Nette\Utils\Strings;
 
 
 
@@ -75,14 +78,14 @@ class RequestManager extends Nette\Object
 
 	/**
 	 * Stores request to session.
-	 * @param Nette\Application\Request $request
+	 * @param Request $request
 	 * @param mixed $expiration
 	 * @return string
 	 */
-	public function storeRequest(Nette\Application\Request $request, $expiration = '+ 10 minutes')
+	public function storeRequest(Request $request, $expiration = '+ 10 minutes')
 	{
 		do {
-			$key = Nette\Utils\Strings::random(5);
+			$key = Strings::random(5);
 		} while (isset($this->session[$key]));
 
 		$this->session[$key] = $request;
@@ -94,22 +97,24 @@ class RequestManager extends Nette\Object
 
 	/**
 	 * Restores current request to session.
-	 * @param  string key
-	 * @return void
+	 * @param string $key
+	 * @param string $backlinkKeyName
 	 */
-	public function restoreRequest($key)
+	public function restoreRequest($key, $backlinkKeyName = 'backlink')
 	{
 		$presenter = $this->application->getPresenter();
 
 		if (isset($this->session[$key])) {
 			$request = clone $this->session[$key];
 			unset($this->session[$key]);
-			$request->setFlag(Nette\Application\Request::RESTORED, TRUE);
+			$request->setFlag(Request::RESTORED, TRUE);
 
 			$params = $request->params;
-			unset($params['backlink']);
+			if (is_string($backlinkKeyName)) {
+				unset($params[$backlinkKeyName]);
+			}
 
-			if ($presenter->hasFlashSession()) {
+			if ($presenter instanceof Presenter && $presenter->hasFlashSession()) {
 				$params[$presenter::FLASH_KEY] = $presenter->getParam($presenter::FLASH_KEY);
 			}
 
