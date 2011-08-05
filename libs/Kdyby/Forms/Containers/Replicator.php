@@ -31,6 +31,9 @@ class Replicator extends Container
 	/** @var boolean */
 	private $submittedBy = FALSE;
 
+	/** @var array */
+	private $created = array();
+
 
 
 	/**
@@ -111,7 +114,7 @@ class Replicator extends Container
 
 		$this->factoryCallback->invoke($container);
 
-		return $container;
+		return $this->created[$container->name] = $container;
 	}
 
 
@@ -139,10 +142,19 @@ class Replicator extends Container
 	/**
 	 * Vytvoří nový container
 	 *
+	 * @param string|int $name
 	 * @return Container
 	 */
-	public function createOne()
+	public function createOne($name = NULL)
 	{
+		if ($name) {
+			if (isset($this->created[$name])) {
+				throw new Nette\InvalidArgumentException("Container with name '$name' already exists.");
+			}
+
+			return $this[$name];
+		}
+
 		$buttons = array_map(function ($control) {
 				return $control->getName();
 			}, iterator_to_array($this->getButtons()));
