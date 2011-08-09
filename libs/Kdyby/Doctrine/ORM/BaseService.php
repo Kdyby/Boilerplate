@@ -42,7 +42,7 @@ abstract class BaseService extends Nette\Object
 	/**
 	 * @return EntityManager
 	 */
-	public function getEntityManager()
+	protected function getEntityManager()
 	{
 		return $this->entityManager;
 	}
