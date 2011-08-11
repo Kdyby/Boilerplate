@@ -40,7 +40,7 @@ class Container extends Kdyby\Doctrine\BaseContainer
 			'host' => 'localhost',
 			'charset' => 'utf8',
 			'driver' => 'pdo_mysql',
-			'entityDirs' => array('%appDir%', '%kdybyDir%'),
+			'entityDirs' => array('%appDir%', '%kdybyFrameworkDir%'),
 			'proxiesDir' => '%tempDir%/proxies',
 			'proxyNamespace' => 'Kdyby\Domain\Proxies',
 			'listeners' => array(),

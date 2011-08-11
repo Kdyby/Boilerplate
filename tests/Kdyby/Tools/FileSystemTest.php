@@ -25,7 +25,7 @@ class FileSystemTest extends Kdyby\Testing\Test
 	public function setUp()
 	{
 		@unlink(APP_DIR . '/log/symlink');
-		if (!symlink(KDYBY_DIR . '/loader.php', APP_DIR . '/log/symlink')) {
+		if (!symlink(KDYBY_FRAMEWORK_DIR . '/loader.php', APP_DIR . '/log/symlink')) {
 			throw new Nette\IOException("Test suit cannot create symbolic link for testing.");
 		}
 	}

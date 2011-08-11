@@ -33,7 +33,7 @@ class Container extends Kdyby\Doctrine\BaseContainer
 
 	/** @var array */
 	public $params = array(
-			'documentDirs' => array('%appDir%', '%kdybyDir%'),
+			'documentDirs' => array('%appDir%', '%kdybyFrameworkDir%'),
 			'listeners' => array(),
 		);
 

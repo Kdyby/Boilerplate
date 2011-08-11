@@ -47,7 +47,7 @@ class SplClassLoaderTest extends Kdyby\Testing\Test
 	public function setUp()
 	{
 		$this->dirs = array_map('realpath', array(
-				'Kdyby' => KDYBY_DIR,
+				'Kdyby' => KDYBY_FRAMEWORK_DIR,
 				'Doctrine\ORM' => VENDORS_DIR . '/doctrine/lib/Doctrine/ORM',
 				'Doctrine\DBAL' => VENDORS_DIR . '/doctrine-dbal/lib/Doctrine/DBAL',
 				'Doctrine' => __DIR__
@@ -60,7 +60,7 @@ class SplClassLoaderTest extends Kdyby\Testing\Test
 
 	public function testIsSingleton()
 	{
-		$loader1 = SplClassLoader::getInstance(array('Kdyby' => KDYBY_DIR));
+		$loader1 = SplClassLoader::getInstance(array('Kdyby' => KDYBY_FRAMEWORK_DIR));
 		$this->assertSame($loader1, SplClassLoader::getInstance(array()));
 	}
 
@@ -68,13 +68,13 @@ class SplClassLoaderTest extends Kdyby\Testing\Test
 
 	public function testIncludeClassKdybyFramework()
 	{
-		$includedFiles = $this->getIncludedFilesStaringWith(KDYBY_DIR);
+		$includedFiles = $this->getIncludedFilesStaringWith(KDYBY_FRAMEWORK_DIR);
 
 		$this->loader->tryLoad("Kdyby\\Framework");
 		$this->assertTrue(class_exists("Kdyby\\Framework", FALSE), 'Class Kdyby\Framework exists');
 
-		$included = current(array_diff($this->getIncludedFilesStaringWith(KDYBY_DIR), $includedFiles));
-		$this->assertSame(KDYBY_DIR . '/Framework.php', $included);
+		$included = current(array_diff($this->getIncludedFilesStaringWith(KDYBY_FRAMEWORK_DIR), $includedFiles));
+		$this->assertSame(KDYBY_FRAMEWORK_DIR . '/Framework.php', $included);
 	}
 
 

@@ -47,7 +47,7 @@ class Configurator extends Nette\Configurator
 		$baseUrl = rtrim($this->container->httpRequest->getUrl()->getBaseUrl(), '/');
 		$this->container->params['baseUrl'] = $baseUrl;
 		$this->container->params['basePath'] = preg_replace('#https?://[^/]+#A', '', $baseUrl);
-		$this->container->params['kdybyDir'] = realpath(KDYBY_DIR);
+		$this->container->params['kdybyFrameworkDir'] = realpath(KDYBY_FRAMEWORK_DIR);
 
 		$this->onAfterLoadConfig[] = callback($this, 'setupDebugger');
 	}
@@ -268,7 +268,7 @@ class Configurator extends Nette\Configurator
 	public static function createServiceModuleRegistry(Container $container)
 	{
 		$register = new ModuleCascadeRegistry;
-		$register->add('Kdyby\Modules', KDYBY_DIR . '/Modules');
+		$register->add('Kdyby\Modules', KDYBY_FRAMEWORK_DIR . '/Modules');
 
 		foreach ($container->getParam('modules', array()) as $namespace => $path) {
 			$register->add($namespace, $container->expand($path));

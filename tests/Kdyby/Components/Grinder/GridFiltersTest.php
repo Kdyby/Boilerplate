@@ -16,7 +16,7 @@ use Nette;
 
 
 
-require_once KDYBY_DIR . '/Application/UI/Form.php';
+require_once KDYBY_FRAMEWORK_DIR . '/Application/UI/Form.php';
 
 /**
  * @author Filip Procházka

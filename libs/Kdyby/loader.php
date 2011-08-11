@@ -13,7 +13,7 @@ use Nette\Diagnostics\Debugger;
 @header('X-Generated-By: Kdyby ;url=www.kdyby.org'); // @ - headers may be sent
 
 define('KDYBY', TRUE);
-define('KDYBY_DIR', __DIR__);
+define('KDYBY_FRAMEWORK_DIR', __DIR__);
 
 if (!defined('NETTE')) {
 	if (!defined('LIBS_DIR')) {
@@ -25,7 +25,7 @@ if (!defined('NETTE')) {
 }
 
 // Require shorcut functions
-require_once KDYBY_DIR . '/functions.php';
+require_once KDYBY_FRAMEWORK_DIR . '/functions.php';
 
 
 // Configure environment
@@ -34,9 +34,9 @@ Debugger::$strictMode = TRUE;
 
 
 // register Kdyby loader and other (even optional) loaders
-require_once KDYBY_DIR . '/Loaders/SplClassLoader.php';
+require_once KDYBY_FRAMEWORK_DIR . '/Loaders/SplClassLoader.php';
 Kdyby\Loaders\SplClassLoader::getInstance(array(
-	'Kdyby' => KDYBY_DIR,
+	'Kdyby' => KDYBY_FRAMEWORK_DIR,
 	'Doctrine' => LIBS_DIR . '/Doctrine',
 	'DoctrineExtensions' => LIBS_DIR . '/Doctrine/DoctrineExtensions',
 	'Gedmo' => LIBS_DIR . '/Doctrine/Gedmo',

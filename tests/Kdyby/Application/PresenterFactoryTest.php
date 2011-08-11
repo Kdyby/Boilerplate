@@ -34,7 +34,7 @@ class PresenterFactoryTest extends \PHPUnit_Framework_TestCase
 		$this->context = new Nette\DI\Container;
 		$this->context->addService('moduleRegistry', function () {
 			$registry = new Kdyby\Application\ModuleCascadeRegistry;
-			$registry->add('Kdyby\Module', KDYBY_DIR . '/Modules');
+			$registry->add('Kdyby\Module', KDYBY_FRAMEWORK_DIR . '/Modules');
 			$registry->add('App', APP_DIR);
 			$registry->add('Foo', APP_DIR);
 			return $registry;
