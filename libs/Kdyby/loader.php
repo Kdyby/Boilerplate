@@ -10,7 +10,7 @@
 
 use Nette\Diagnostics\Debugger;
 
-@header('X-Generated-By: Kdyby ;url=www.kdyby.org'); // @ - headers may be sent
+@header('X-Powered-By: Nette Framework with Kdyby'); // @ - headers may be sent
 
 define('KDYBY', TRUE);
 define('KDYBY_FRAMEWORK_DIR', __DIR__);
