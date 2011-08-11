@@ -11,6 +11,7 @@
 namespace Kdyby\Loaders;
 
 use Kdyby;
+use Kdyby\Iterators\TypeIterator;
 use Nette;
 use Nette\Caching\Cache;
 
@@ -34,6 +35,17 @@ class RobotLoader extends Nette\Loaders\RobotLoader
 		$key = is_scalar($key = $this->getKey()) ? $key : serialize($key);
 		$key = self::CACHE_NAMESPACE . Cache::NAMESPACE_SEPARATOR . md5($key);
 		return $this->getCacheStorage()->getCreateTime($key);
+	}
+
+
+
+	/**
+	 * @return TypeIterator
+	 */
+	public function createIndexFilter()
+	{
+		$classes = new \ArrayIterator(array_keys($this->getIndexedClasses()));
+		return new TypeIterator($classes);
 	}
 
 }
