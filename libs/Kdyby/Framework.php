@@ -22,7 +22,7 @@ final class Framework
 {
 
 	const NAME = 'Kdyby Framework';
-	const VERSION = '8.1-dev';
+	const VERSION = '2.0a';
 	const REVISION = '$WCREV$ released on $WCDATE$';
 
 
