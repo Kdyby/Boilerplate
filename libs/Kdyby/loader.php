@@ -9,6 +9,7 @@
  */
 
 use Nette\Diagnostics\Debugger;
+use Kdyby\Loaders\SplClassLoader;
 
 @header('X-Powered-By: Nette Framework with Kdyby'); // @ - headers may be sent
 
@@ -33,16 +34,24 @@ Debugger::enable(Nette\Configurator::detectProductionMode());
 Debugger::$strictMode = TRUE;
 
 
-// register Kdyby loader and other (even optional) loaders
+// Kdyby loader and other (even optional) loaders
 require_once KDYBY_FRAMEWORK_DIR . '/Loaders/SplClassLoader.php';
-Kdyby\Loaders\SplClassLoader::getInstance(array(
+$loader = SplClassLoader::getInstance(array(
 	'Kdyby' => KDYBY_FRAMEWORK_DIR,
 	'Doctrine' => LIBS_DIR . '/Doctrine',
 	'DoctrineExtensions' => LIBS_DIR . '/Doctrine/DoctrineExtensions',
 	'Gedmo' => LIBS_DIR . '/Doctrine/Gedmo',
 	'Symfony' => LIBS_DIR . '/Symfony',
 	'Zend' => LIBS_DIR . '/Zend', // Supporst only Zend Framework 2
-))->register();
+));
+
+// optionaly add Kdyby CMS dir to loader
+if (defined('KDYBY_CMS_DIR')) {
+	$loader->addNamespace('Kdyby', KDYBY_CMS_DIR);
+}
+
+// register loader
+$loader->register();
 
 
 // Create Configurator
