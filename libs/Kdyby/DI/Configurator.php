@@ -71,13 +71,13 @@ class Configurator extends Nette\Configurator
 
 	/**
 	 * Loads configuration from file and process it.
-	 * @return void
+	 * @return Container
 	 */
 	public function loadConfig($file, $section = NULL)
 	{
 		parent::loadConfig($file, $section);
-
 		$this->onAfterLoadConfig($this->container);
+		return $this->container;
 	}
 
 
