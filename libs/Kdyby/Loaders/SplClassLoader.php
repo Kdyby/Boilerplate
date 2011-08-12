@@ -28,6 +28,9 @@ class SplClassLoader extends Nette\Loaders\AutoLoader
 	/** @var array */
 	private $namespaces = array();
 
+	/** @var array */
+	private $dirs = array();
+
 
 
 	/**
@@ -35,9 +38,7 @@ class SplClassLoader extends Nette\Loaders\AutoLoader
 	 */
 	protected function __construct(array $namespaces)
 	{
-		$this->namespaces = array_map(function ($namespace) {
-			return trim($namespace, "\\");
-		}, $namespaces);
+		$this->addNamespaces($namespaces);
 	}
 
 
@@ -45,10 +46,27 @@ class SplClassLoader extends Nette\Loaders\AutoLoader
 	/**
 	 * @param string $namespace
 	 * @param string $dir
+	 * @return SplClassLoader
 	 */
-	public function addAlias($namespace, $dir)
+	public function addNamespace($namespace, $dir)
 	{
-		$this->namespaces[trim($namespace, "\\")] = $dir;
+		$this->namespaces[] = trim($namespace, "\\");
+		$this->dirs[] = $dir;
+		return $this;
+	}
+
+
+
+	/**
+	 * @param array $namespaces
+	 * @return SplClassLoader
+	 */
+	public function addNamespaces(array $namespaces)
+	{
+		foreach ($namespaces as $namespace => $dir) {
+			$this->addNamespace($namespace, $dir);
+		}
+
 		return $this;
 	}
 
@@ -74,14 +92,16 @@ class SplClassLoader extends Nette\Loaders\AutoLoader
 	 */
 	public function tryLoad($type)
 	{
-		$matching = $this->getFilteredByType($type);
-		$namespace = $this->getLongestNamespace($matching);
-		if ($namespace) {
-			$type = substr($type, strlen($namespace)+1);
-			$path = $this->namespaces[$namespace] . "/" . str_replace('\\', DIRECTORY_SEPARATOR, $type) . ".php";
+		foreach ($this->getFilteredByType($type) as $i => $namespace) {
+			$path = $this->dirs[$i] . "/" .
+				str_replace('\\', DIRECTORY_SEPARATOR, substr($type, strlen($namespace)+1)) .
+				".php";
 
 			if (file_exists($path)) {
 				Nette\Utils\LimitedScope::load($path);
+				if (class_exists($type, FALSE)) {
+					break;
+				}
 			}
 		}
 	}
@@ -92,25 +112,27 @@ class SplClassLoader extends Nette\Loaders\AutoLoader
 	 * @param string $type
 	 * @return array
 	 */
-	public function getFilteredByType($type)
+	protected function getFilteredByType($type)
 	{
-		return array_filter(array_keys($this->namespaces), function ($namespace) use ($type) {
+		$namespaces = array_filter($this->namespaces, function ($namespace) use ($type) {
 			return Strings::startsWith(strtolower($type), strtolower($namespace));
 		});
+
+		return $this->sortNamespacesByIndentation($namespaces);
 	}
 
 
 
 	/**
 	 * @param array $namespaces
-	 * @return string
+	 * @return array
 	 */
-	public function getLongestNamespace(array $namespaces)
+	protected function sortNamespacesByIndentation(array $namespaces)
 	{
-		usort($namespaces, function ($first, $second) {
+		uasort($namespaces, function ($first, $second) {
 			return substr_count($second, "\\") - substr_count($first, "\\");
 		});
 
-		return reset($namespaces);
+		return $namespaces;
 	}
 }
