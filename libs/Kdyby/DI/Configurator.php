@@ -330,27 +330,33 @@ class Configurator extends Nette\Configurator
 	 */
 	public static function createServiceConsoleCommands(Container $container)
 	{
-		return new Kdyby\Tools\FreezableArray(array(
+		$commands = array();
+
+		if ($container->hasService('sqldb')) {
 			// DBAL Commands
-			new DbalCommand\RunSqlCommand(),
-			new DbalCommand\ImportCommand(),
+			$commands[] = new DbalCommand\RunSqlCommand();
+			$commands[] = new DbalCommand\ImportCommand();
 
 			// ORM Commands
-			new OrmCommand\SchemaTool\CreateCommand(),
-			new OrmCommand\SchemaTool\UpdateCommand(),
-			new OrmCommand\SchemaTool\DropCommand(),
-			new OrmCommand\GenerateProxiesCommand(),
-			new OrmCommand\RunDqlCommand(),
+			$commands[] = new OrmCommand\SchemaTool\CreateCommand();
+			$commands[] = new OrmCommand\SchemaTool\UpdateCommand();
+			$commands[] = new OrmCommand\SchemaTool\DropCommand();
+			$commands[] = new OrmCommand\GenerateProxiesCommand();
+			$commands[] = new OrmCommand\RunDqlCommand();
+		}
 
+		if ($container->hasService('couchdb')) {
 			// ODM
-			new CouchDBCommand\ReplicationStartCommand(),
-			new CouchDBCommand\ReplicationCancelCommand(),
-			new CouchDBCommand\ViewCleanupCommand(),
-			new CouchDBCommand\CompactDatabaseCommand(),
-			new CouchDBCommand\CompactViewCommand(),
-			new CouchDBCommand\MigrationCommand(),
-			new OdmCommand\UpdateDesignDocCommand(),
-		));
+			$commands[] = new CouchDBCommand\ReplicationStartCommand();
+			$commands[] = new CouchDBCommand\ReplicationCancelCommand();
+			$commands[] = new CouchDBCommand\ViewCleanupCommand();
+			$commands[] = new CouchDBCommand\CompactDatabaseCommand();
+			$commands[] = new CouchDBCommand\CompactViewCommand();
+			$commands[] = new CouchDBCommand\MigrationCommand();
+			$commands[] = new OdmCommand\UpdateDesignDocCommand();
+		}
+
+		return new Kdyby\Tools\FreezableArray($commands);
 	}
 
 
