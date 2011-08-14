@@ -75,6 +75,20 @@ class TypeIterator extends SelectIterator
 
 
 	/**
+	 * @return TypeIterator
+	 */
+	public function isInstantiable()
+	{
+		$this->select(function (TypeIterator $iterator) {
+			return $iterator->current()->isInstantiable();
+		});
+
+		return $this;
+	}
+
+
+
+	/**
 	 * @return ClassType
 	 */
 	public function current()

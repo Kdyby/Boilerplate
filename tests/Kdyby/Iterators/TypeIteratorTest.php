@@ -74,6 +74,18 @@ class TypeIteratorTest extends Kdyby\Testing\Test
 		), array_values($this->iterator->isSubclassOf('Kdyby\Testing\Iterators\Mocks\Bar_2')->getResult()));
 	}
 
+
+
+	public function testIsInstantiable()
+	{
+		$this->assertSame(array(
+			'Kdyby\Testing\Iterators\Mocks\Foo_2',
+			'Kdyby\Testing\Iterators\Mocks\Foo_3',
+			'Kdyby\Testing\Iterators\Mocks\Foo_4',
+			'Kdyby\Testing\Iterators\Mocks\Foo_6'
+		), array_values($this->iterator->isInstantiable()->getResult()));
+	}
+
 }
 
 
