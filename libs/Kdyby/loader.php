@@ -43,15 +43,7 @@ $loader = SplClassLoader::getInstance(array(
 	'Gedmo' => LIBS_DIR . '/Doctrine/Gedmo',
 	'Symfony' => LIBS_DIR . '/Symfony',
 	'Zend' => LIBS_DIR . '/Zend', // Supporst only Zend Framework 2
-));
-
-// optionaly add Kdyby CMS dir to loader
-if (defined('KDYBY_CMS_DIR')) {
-	$loader->addNamespace('Kdyby', KDYBY_CMS_DIR);
-}
-
-// register loader
-$loader->register();
+))->register();
 
 
 // Create Configurator
