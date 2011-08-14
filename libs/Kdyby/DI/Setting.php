@@ -26,10 +26,10 @@ use Nette;
 class Setting extends Nette\Object
 {
 
-	/** @Column(type="string", unique=TRUE) @Id */
+	/** @Id @Column(type="string") */
 	private $name;
 
-	/** @Column(type="string", nullable=TRUE) */
+	/** @Id @Column(type="string", nullable=TRUE) */
 	private $section;
 
 	/** @Column(type="string", nullable=TRUE) */
@@ -39,6 +39,7 @@ class Setting extends Nette\Object
 
 	/**
 	 * @param string $name
+	 * @param string $section
 	 * @param mixed $value
 	 */
 	public function __construct($name, $section = NULL, $value = NULL)
@@ -56,6 +57,27 @@ class Setting extends Nette\Object
 	public function getName()
 	{
 		return $this->name;
+	}
+
+
+
+	/**
+	 * @return string
+	 */
+	public function getSection()
+	{
+		return $this->section;
+	}
+
+
+
+	/**
+	 * @param string $section
+	 */
+	public function setSection($section)
+	{
+		$this->section = (string)$section ?: NULL;
+		return $this;
 	}
 
 
