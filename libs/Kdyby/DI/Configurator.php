@@ -40,7 +40,7 @@ class Configurator extends Nette\Configurator
 	/**
 	 * @param string $containerClass
 	 */
-	public function __construct($containerClass = 'Kdyby\DI\Container')
+	public function __construct($containerClass = 'Kdyby\Application\Container')
 	{
 		parent::__construct($containerClass);
 
@@ -49,6 +49,7 @@ class Configurator extends Nette\Configurator
 		$this->container->params['basePath'] = preg_replace('#https?://[^/]+#A', '', $baseUrl);
 		$this->container->params['kdybyFrameworkDir'] = realpath(KDYBY_FRAMEWORK_DIR);
 
+		$this->onAfterLoadConfig[] = callback($this, 'loadDbSettings');
 		$this->onAfterLoadConfig[] = callback($this, 'setupDebugger');
 	}
 
@@ -83,6 +84,55 @@ class Configurator extends Nette\Configurator
 
 
 	/**
+	 * Registers CMS service and container parameters
+	 * @returns Configurator
+	 */
+	public function registerCMS()
+	{
+		if (!defined('KDYBY_CMS_DIR')) {
+			throw new Nette\InvalidStateException("Kdyby CMS is not present in installation.");
+		}
+
+		// make sure loader will take care
+		Kdyby\Loaders\SplClassLoader::getInstance()
+			->addNamespace('Kdyby', KDYBY_CMS_DIR);
+
+		// CMS dir as expandable parameter
+		$this->container->params['kdybyCmsDir'] = realpath(KDYBY_CMS_DIR);
+
+		// register CMS container as service
+		$this->container->addService('cms', new Kdyby\CMS\Container($this->container));
+
+		// register callback for finalising this registration
+		$this->onAfterLoadConfig[] = callback($this, 'finalizeCmsRegisteration');
+
+		return $this; // fluent interface
+	}
+
+
+
+	/**
+	 * Register services
+	 */
+	public function finalizeCmsRegisteration()
+	{
+		// CMS modules: Backend and others
+		$this->container->moduleRegistry->add('Kdyby\Modules', KDYBY_CMS_DIR . '/Modules');
+	}
+
+
+
+	/**
+	 * Loads settings from database
+	 */
+	public function loadDbSettings()
+	{
+		$this->container->settings->loadAll($this->container);
+	}
+
+
+
+	/**
 	 * @param Nette\DI\Container $container
 	 * @param array $options
 	 * @return Kdyby\Application\Application
@@ -111,44 +161,11 @@ class Configurator extends Nette\Configurator
 
 	/**
 	 * @param Container $container
-	 * @return Kdyby\Application\RequestManager
-	 */
-	public static function createServiceRequestManager(Container $container)
-	{
-		return new Kdyby\Application\RequestManager($container->application, $container->session);
-	}
-
-
-
-	/**
-	 * @param Container $container
-	 * @return Kdyby\Modules\InstallWizard
-	 */
-	public static function createServiceInstallWizard(Container $container)
-	{
-		return new Kdyby\Modules\InstallWizard($container->robotLoader, $container->cacheStorage);
-	}
-
-
-
-	/**
-	 * @param Container $container
-	 * @return Kdyby\Doctrine\Cache
-	 */
-	public static function createServiceDoctrineCache(Container $container)
-	{
-		return new Kdyby\Doctrine\Cache($container->cacheStorage);
-	}
-
-
-
-	/**
-	 * @param Container $container
 	 * @return Kdyby\Doctrine\ORM\Container
 	 */
 	public static function createServiceSqldb(Container $container)
 	{
-		return new Kdyby\Doctrine\ORM\Container($container, $container->params['sqldb']);
+		return new Kdyby\Doctrine\ORM\Container($container, $container->getParam('sqldb', array()));
 	}
 
 
@@ -165,18 +182,11 @@ class Configurator extends Nette\Configurator
 
 
 	/**
-	 * @param Container $container
-	 * @return Kdyby\Doctrine\Workspace
+	 * @return Kdyby\DI\Settings
 	 */
-	public static function createServiceWorkspace(Container $container)
+	public static function createServiceSettings(Container $container)
 	{
-		$containers = array(
-			'sqldb' => $container->sqldb,
-			'couchdb' => $container->couchdb
-		);
-
-		$containers += $container->getServiceNamesByTag('database');
-		return new Kdyby\Doctrine\Workspace($containers);
+		return new Kdyby\DI\Settings($container->sqldb->getRepository('Kdyby\DI\Setting'), $container->cacheStorage);
 	}
 
 
@@ -262,24 +272,6 @@ class Configurator extends Nette\Configurator
 
 
 	/**
-	 * @param Container $container
-	 * @return ModuleCascadeRegistry
-	 */
-	public static function createServiceModuleRegistry(Container $container)
-	{
-		$register = new ModuleCascadeRegistry;
-		$register->add('Kdyby\Modules', KDYBY_FRAMEWORK_DIR . '/Modules');
-
-		foreach ($container->getParam('modules', array()) as $namespace => $path) {
-			$register->add($namespace, $container->expand($path));
-		}
-
-		return $register;
-	}
-
-
-
-	/**
 	 * @param Nette\DI\Container $container
 	 * @return Nette\Application\Routers\RouteList
 	 */
@@ -309,78 +301,6 @@ class Configurator extends Nette\Configurator
 
 	/**
 	 * @param Container $container
-	 * @return Console\Helper\HelperSet
-	 */
-	public static function createServiceConsoleHelpers(Container $container)
-	{
-		$helperSet = new Console\Helper\HelperSet(array(
-			'container' => new ContainerHelper($container),
-			'em' => new Kdyby\Doctrine\ORM\EntityManagerHelper($container->sqldb),
-			'couchdb' => new Kdyby\Doctrine\ODM\CouchDBHelper($container->couchdb),
-		));
-
-		return $helperSet;
-	}
-
-
-
-	/**
-	 * @param Container $container
-	 * @return Kdyby\Tools\FreezableArray
-	 */
-	public static function createServiceConsoleCommands(Container $container)
-	{
-		$commands = array();
-
-		if ($container->hasService('sqldb')) {
-			// DBAL Commands
-			$commands[] = new DbalCommand\RunSqlCommand();
-			$commands[] = new DbalCommand\ImportCommand();
-
-			// ORM Commands
-			$commands[] = new OrmCommand\SchemaTool\CreateCommand();
-			$commands[] = new OrmCommand\SchemaTool\UpdateCommand();
-			$commands[] = new OrmCommand\SchemaTool\DropCommand();
-			$commands[] = new OrmCommand\GenerateProxiesCommand();
-			$commands[] = new OrmCommand\RunDqlCommand();
-		}
-
-		if ($container->hasService('couchdb')) {
-			// ODM
-			$commands[] = new CouchDBCommand\ReplicationStartCommand();
-			$commands[] = new CouchDBCommand\ReplicationCancelCommand();
-			$commands[] = new CouchDBCommand\ViewCleanupCommand();
-			$commands[] = new CouchDBCommand\CompactDatabaseCommand();
-			$commands[] = new CouchDBCommand\CompactViewCommand();
-			$commands[] = new CouchDBCommand\MigrationCommand();
-			$commands[] = new OdmCommand\UpdateDesignDocCommand();
-		}
-
-		return new Kdyby\Tools\FreezableArray($commands);
-	}
-
-
-
-	/**
-	 * @param Container $container
-	 * @return Console\Application
-	 */
-	public static function createServiceConsole(Container $container)
-	{
-		$name = Kdyby\Framework::NAME . " Command Line Interface";
-		$cli = new Console\Application($name, Kdyby\Framework::VERSION);
-
-		$cli->setCatchExceptions(TRUE);
-		$cli->setHelperSet($container->consoleHelpers);
-		$cli->addCommands($container->consoleCommands->freeze()->iterator->getArrayCopy());
-
-		return $cli;
-	}
-
-
-
-	/**
-	 * @param Container $container
 	 * @return Kdyby\Security\Authenticator
 	 */
 	public static function createServiceAuthenticator(Container $container)
@@ -404,43 +324,6 @@ class Configurator extends Nette\Configurator
 		$context->addService('session', $container->session);
 
 		return new Kdyby\Security\User($context);
-	}
-
-
-
-	/**
-	 * @param Container $container
-	 * @return Kdyby\Security\Users
-	 */
-	public static function createServiceUsers(Container $container)
-	{
-		return new Kdyby\Security\Users($container->sqldb->entityManager);
-	}
-
-
-
-	/**
-	 * @param Container $container
-	 * @return Kdyby\Components\Grinder\GridFactory
-	 */
-	public static function createServiceGrinderFactory(Container $container)
-	{
-		return new Kdyby\Components\Grinder\GridFactory($container->workspace, $container->session);
-	}
-
-
-
-	/**
-	 * @param Container $container
-	 * @return Settings
-	 */
-	public static function createServiceSettings(Container $container)
-	{
-		$repository = $container->sqldb->getRepository('Kdyby\DI\Setting');
-		$settings = new Settings($repository, $container->cacheStorage);
-		$settings->loadAll($container);
-
-		return $settings;
 	}
 
 }
