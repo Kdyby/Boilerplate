@@ -113,6 +113,7 @@ class Configurator extends Nette\Configurator
 
 	/**
 	 * Register services
+	 * @internal
 	 */
 	public function finalizeCmsRegisteration()
 	{
