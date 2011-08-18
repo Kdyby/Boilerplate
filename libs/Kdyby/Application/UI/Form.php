@@ -12,6 +12,7 @@ namespace Kdyby\Application\UI;
 
 use Kdyby;
 use Nette;
+use Nette\Forms\ISubmitterControl;
 
 
 
@@ -52,6 +53,58 @@ class Form extends Nette\Application\UI\Form
 	protected function configure()
 	{
 
+	}
+
+
+
+	/**
+	 * Fires submit/click events.
+	 * @return void
+	 */
+	public function fireEvents()
+	{
+		if (!$this->isSubmitted()) {
+			return;
+
+		} elseif ($this->submittedBy instanceof ISubmitterControl) {
+			if (!$this->submittedBy->getValidationScope() || $this->isValid()) {
+				$this->dispatchEvent($this->submittedBy->onClick, $this->submittedBy);
+				$valid = TRUE;
+
+			} else {
+				$this->dispatchEvent($this->submittedBy->onInvalidClick, $this->submittedBy);
+			}
+		}
+
+		if (isset($valid) || $this->isValid()) {
+			$this->dispatchEvent($this->onSuccess, $this);
+
+		} else {
+			$this->dispatchEvent($this->onError, $this);
+		}
+	}
+
+
+
+	/**
+	 * @param array|\Traversable $listeners
+	 * @param mixed $arg
+	 * @param mixed $arg2
+	 * @param mixed $arg3
+	 */
+	protected function dispatchEvent($listeners, $arg = NULL)
+	{
+		$args = func_get_args();
+		$listeners = array_shift($args);
+
+		foreach ($listeners as $handler) {
+			if ($handler instanceof Nette\Application\UI\Link) {
+				$this->getPresenter()->redirectUrl($handler);
+
+			} else {
+				callback($handler)->invokeArgs($args);
+			}
+		}
 	}
 
 }
