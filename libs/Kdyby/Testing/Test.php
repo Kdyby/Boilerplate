@@ -19,7 +19,7 @@ use Nette\ObjectMixin;
 /**
  * @author Filip Procházka
  */
-class Test extends \PHPUnit_Framework_TestCase
+abstract class Test extends \PHPUnit_Framework_TestCase
 {
 
 	/**
@@ -53,6 +53,43 @@ class Test extends \PHPUnit_Framework_TestCase
 		if ($count !== NULL) {
 			$this->assertEquals($count, count($targets), 'Listener is in stack ' . $count . ' times');
 		}
+	}
+
+
+
+	/**
+	 * @param string $class
+	 * @return string
+	 */
+	public static function touchTempClass($class = NULL)
+	{
+		// classname
+		$class = $class ?: 'Entity_' . Nette\Utils\Strings::random();
+
+		// file & content
+		$file = self::resolveTempClassFilename($class);
+		$content = '<' . '?php' . "\nclass " . $class . " {  } // " . (string)microtime(TRUE);
+
+		if (!file_put_contents($file, $content)) {
+			throw new Nette\IOException($file . " is not writable");
+		}
+
+		if (!class_exists($class, FALSE)) {
+			Nette\Utils\LimitedScope::load($file);
+		}
+
+		return $class;
+	}
+
+
+
+	/**
+	 * @param string $class
+	 * @return string
+	 */
+	public static function resolveTempClassFilename($class)
+	{
+		return TEMP_DIR . '/cache/' . $class . '.tempclass.php';
 	}
 
 
