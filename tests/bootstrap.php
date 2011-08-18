@@ -5,6 +5,7 @@ use Nette\Diagnostics\Debugger;
 // required constants
 define('APP_DIR', __DIR__);
 define('TESTS_DIR', __DIR__);
+define('TEMP_DIR', __DIR__ . '/temp');
 define('VENDORS_DIR', APP_DIR . '/../libs/vendors');
 define('LIBS_DIR', VENDORS_DIR);
 
