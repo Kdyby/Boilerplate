@@ -61,4 +61,32 @@ final class FileSystem extends Nette\Object
 			implode(DIRECTORY_SEPARATOR, $absolutes);
 	}
 
+
+
+	/**
+	 * @param string $directory
+	 * @return boolean
+	 */
+	public static function rmDir($directory)
+	{
+		self::cleanDir($directory);
+		return @unlink($directory);
+	}
+
+
+
+	/**
+	 * @param string $directory
+	 */
+	public static function cleanDir($directory)
+	{
+		foreach (Nette\Utils\Finder::find('*')->from($directory)->childFirst() as $file) {
+			if ($file->isDir()) {
+				@rmdir($file->getPathname());
+			} else {
+				@unlink($file->getPathname());
+			}
+		}
+	}
+
 }
