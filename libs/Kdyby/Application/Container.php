@@ -10,7 +10,12 @@
 
 namespace Kdyby\Application;
 
+use Doctrine\DBAL\Tools\Console\Command as DbalCommand;
+use Doctrine\ORM\Tools\Console\Command as OrmCommand;
+use Doctrine\CouchDB\Tools\Console\Command as CouchDBCommand;
+use Doctrine\ODM\CouchDB\Tools\Console\Command as OdmCommand;
 use Kdyby;
+use Kdyby\DI\ContainerHelper;
 use Nette;
 use Symfony\Component\Console;
 

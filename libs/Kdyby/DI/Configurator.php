@@ -10,10 +10,6 @@
 
 namespace Kdyby\DI;
 
-use Doctrine\DBAL\Tools\Console\Command as DbalCommand;
-use Doctrine\ORM\Tools\Console\Command as OrmCommand;
-use Doctrine\CouchDB\Tools\Console\Command as CouchDBCommand;
-use Doctrine\ODM\CouchDB\Tools\Console\Command as OdmCommand;
 use Kdyby;
 use Kdyby\Application\ModuleCascadeRegistry;
 use Nette;
