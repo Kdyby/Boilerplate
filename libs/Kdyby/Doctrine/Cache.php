@@ -36,13 +36,10 @@ class Cache extends Doctrine\Common\Cache\AbstractCache
 {
 
 	/** @var string */
-	const CACHED_KEYS_KEY = 'Doctrine.Cache.Keys';
+	const CACHED_KEY = 'Doctrine';
 
 	/** @var NCache */
-	private $data;
-
-	/** @var NCache */
-	private $keys;
+	private $cache;
 
 
 
@@ -51,40 +48,18 @@ class Cache extends Doctrine\Common\Cache\AbstractCache
 	 */
 	public function __construct(Nette\Caching\IStorage $storage)
 	{
-		$this->data = $cache = new NCache($storage, "Doctrine");
-		$this->keys = $cache->derive('Keys.List');
+		$this->cache = new NCache($storage, self::CACHED_KEY);
 	}
 
 
 
 	/**
-	 * @param scalar $key
+	 * @return Nette\Caching\Cache
 	 */
-	private function removeCacheKey($key)
+	private function getCache()
 	{
-		$keys = $this->keys[self::CACHED_KEYS_KEY];
-		if (isset($keys[$key])) {
-			unset($keys[$key]);
-			$this->keys[self::CACHED_KEYS_KEY] = $keys;
-		}
-
-		return $keys;
-	}
-
-
-
-	/**
-	 * @param scalar $key
-	 */
-	private function addCacheKey($key, $lifetime = 0)
-	{
-		$keys = $this->keys->load(self::CACHED_KEYS_KEY);
-		if (!isset($keys[$key]) || $keys[$key] !== ($lifetime ?: TRUE)) {
-			$keys[$key] = $lifetime ?: TRUE;
-			$this->keys->save(self::CACHED_KEYS_KEY, $keys);
-		}
-
-		return $keys;
+		$this->cache->release();
+		return $this->cache;
 	}
 
 
@@ -94,20 +69,19 @@ class Cache extends Doctrine\Common\Cache\AbstractCache
 	 */
 	public function getIds()
 	{
-		$keys = (array)$this->keys->load(self::CACHED_KEYS_KEY);
-		$keys = array_filter($keys, function($expire) {
-			if ($expire > 0 && $expire < time()) {
-				return FALSE;
-			} // otherwise it's still valid
+		return array();
+	}
 
-			return TRUE;
-		});
 
-		if ($keys !== $this->keys->load(self::CACHED_KEYS_KEY)) {
-			$this->keys->save(self::CACHED_KEYS_KEY, $keys);
-		}
 
-		return array_keys($keys);
+	/**
+     * Delete all cache entries.
+     *
+     * @return array $deleted  Array of the deleted cache ids
+     */
+	public function deleteAll()
+	{
+		$this->getCache()->clean(array(NCache::TAGS => array('doctrine')));
 	}
 
 
@@ -117,7 +91,7 @@ class Cache extends Doctrine\Common\Cache\AbstractCache
 	 */
 	protected function _doFetch($id)
 	{
-		return $this->data->load($id) ?: FALSE;
+		return $this->getCache()->load($id) ?: FALSE;
 	}
 
 
@@ -127,7 +101,7 @@ class Cache extends Doctrine\Common\Cache\AbstractCache
 	 */
 	protected function _doContains($id)
 	{
-		return $this->ids->load($id) !== NULL && $this->data->load($id) !== NULL;
+		return $this->getCache()->load($id) !== NULL;
 	}
 
 
@@ -145,14 +119,12 @@ class Cache extends Doctrine\Common\Cache\AbstractCache
 			}
 		}
 
+		$dp = array(NCache::TAGS => array("doctrine"), NCache::FILES => $files);
 		if ($lifeTime != 0) {
-			$this->data->save($id, $data, array('expire' => time() + $lifeTime, 'tags' => array("doctrine"), 'files' => $files));
-			$this->addCacheKey($id, time() + $lifeTime);
-
-		} else {
-			$this->data->save($id, $data, array('tags' => array("doctrine"), 'files' => $files));
-			$this->addCacheKey($id);
+			$dp[NCache::EXPIRE] = time() + $lifeTime;
 		}
+
+		$this->getCache()->save($id, $data, $dp);
 
 		return TRUE;
 	}
@@ -164,8 +136,7 @@ class Cache extends Doctrine\Common\Cache\AbstractCache
 	 */
 	protected function _doDelete($id)
 	{
-		unset($this->data[$id]);
-		$this->removeCacheKey($id);
+		$this->getCache()->save($id, NULL);
 		return TRUE;
 	}
 
