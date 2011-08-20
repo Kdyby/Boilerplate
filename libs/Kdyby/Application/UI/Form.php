@@ -66,13 +66,13 @@ class Form extends Nette\Application\UI\Form
 		if (!$this->isSubmitted()) {
 			return;
 
-		} elseif ($this->submittedBy instanceof ISubmitterControl) {
-			if (!$this->submittedBy->getValidationScope() || $this->isValid()) {
-				$this->dispatchEvent($this->submittedBy->onClick, $this->submittedBy);
+		} elseif ($this->isSubmitted() instanceof ISubmitterControl) {
+			if (!$this->isSubmitted()->getValidationScope() || $this->isValid()) {
+				$this->dispatchEvent($this->isSubmitted()->onClick, $this->isSubmitted());
 				$valid = TRUE;
 
 			} else {
-				$this->dispatchEvent($this->submittedBy->onInvalidClick, $this->submittedBy);
+				$this->dispatchEvent($this->isSubmitted()->onInvalidClick, $this->isSubmitted());
 			}
 		}
 
@@ -97,7 +97,7 @@ class Form extends Nette\Application\UI\Form
 		$args = func_get_args();
 		$listeners = array_shift($args);
 
-		foreach ($listeners as $handler) {
+		foreach ((array)$listeners as $handler) {
 			if ($handler instanceof Nette\Application\UI\Link) {
 				$this->getPresenter()->redirectUrl($handler);
 
