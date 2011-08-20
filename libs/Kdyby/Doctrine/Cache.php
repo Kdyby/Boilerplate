@@ -111,21 +111,12 @@ class Cache extends Doctrine\Common\Cache\AbstractCache
 	 */
 	protected function _doSave($id, $data, $lifeTime = 0)
 	{
-		$files = array();
-		if ($data instanceof Doctrine\ORM\Mapping\ClassMetadata) {
-			$files[] = ClassType::from($data->name)->getFileName();
-			foreach ($data->parentClasses as $class) {
-				$files[] = ClassType::from($class)->getFileName();
-			}
-		}
-
-		$dp = array(NCache::TAGS => array("doctrine"), NCache::FILES => $files);
+		$dp = array(NCache::TAGS => array("doctrine"));
 		if ($lifeTime != 0) {
 			$dp[NCache::EXPIRE] = time() + $lifeTime;
 		}
 
 		$this->getCache()->save($id, $data, $dp);
-
 		return TRUE;
 	}
 

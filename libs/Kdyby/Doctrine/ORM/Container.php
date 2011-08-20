@@ -14,6 +14,7 @@ use Doctrine;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\Common\EventManager;
+use Doctrine\Common\Annotations\AnnotationRegistry;
 use Kdyby;
 use Nette;
 
@@ -86,6 +87,9 @@ class Container extends Kdyby\Doctrine\BaseContainer
 	 */
 	protected function createServiceAnnotationReader()
 	{
+		AnnotationRegistry::registerFile(LIBS_DIR . '/Doctrine/ORM/Mapping/Driver/DoctrineAnnotations.php');
+		AnnotationRegistry::registerFile(KDYBY_FRAMEWORK_DIR . '/Doctrine/ORM/Mapping/Driver/DoctrineAnnotations.php');
+
 		$reader = new Doctrine\Common\Annotations\AnnotationReader();
 		$reader->setDefaultAnnotationNamespace('Doctrine\ORM\Mapping\\');
 		// $reader->setAnnotationNamespaceAlias('Kdyby\Doctrine\ORM\Mapping\\', 'Kdyby');

@@ -24,6 +24,7 @@ use Nette;
  * @property-read Kdyby\DI\Container $context
  * @property-read DocumentManager $documentManager
  * @property-read Doctrine\CouchDB\HTTP\SocketClient $httpClient
+ * @property-read Doctrine\CouchDB\CouchDBClient $couchClient
  * @property-read Doctrine\Common\Annotations\AnnotationReader $annotationReader
  * @property-read Doctrine\ODM\CouchDB\Mapping\Driver\AnnotationDriver $annotationDriver
  * @property-read \Doctrine\ODM\CouchDB\Configuration $configuration
@@ -78,16 +79,23 @@ class Container extends Kdyby\Doctrine\BaseContainer
 
 
 	/**
+	 * @return Doctrine\CouchDB\CouchDBClient
+	 */
+	protected function createServiceCouchClient()
+	{
+		return new Doctrine\CouchDB\CouchDBClient($this->httpClient, $this->params['database']);
+	}
+
+
+
+	/**
 	 * @return Doctrine\ODM\CouchDB\Configuration
 	 */
 	protected function createServiceConfiguration()
 	{
 		$config = new Doctrine\ODM\CouchDB\Configuration();
 
-		$config->setDatabase($this->params['database']);
 		$config->setMetadataDriverImpl($this->annotationDriver);
-
-		$config->setHttpClient($this->httpClient);
 		$config->setLuceneHandlerName('_fti');
 
 		$config->setProxyDir($this->params['proxiesDir']);
@@ -103,7 +111,7 @@ class Container extends Kdyby\Doctrine\BaseContainer
 	 */
 	protected function createServiceDocumentManager()
 	{
-		return DocumentManager::create($this->configuration);
+		return DocumentManager::create($this->couchClient, $this->configuration);
 	}
 
 

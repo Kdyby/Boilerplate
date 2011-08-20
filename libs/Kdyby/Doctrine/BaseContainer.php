@@ -35,7 +35,7 @@ abstract class BaseContainer extends Container
 	{
 		$this->addService('context', $context);
 		$this->addService('cache', $context->doctrineCache);
-		$this->params += (array)$parameters;
+		$this->params = (array)$parameters + $this->params;
 
 		array_walk_recursive($this->params, function (&$value) use ($context) {
 			$value = $context->expand($value);
