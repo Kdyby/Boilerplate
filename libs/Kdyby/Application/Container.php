@@ -157,6 +157,7 @@ class Container extends Kdyby\DI\Container
 			$commands[] = new OrmCommand\SchemaTool\CreateCommand();
 			$commands[] = new OrmCommand\SchemaTool\UpdateCommand();
 			$commands[] = new OrmCommand\SchemaTool\DropCommand();
+			$commands[] = new OrmCommand\ValidateSchemaCommand();
 			$commands[] = new OrmCommand\GenerateProxiesCommand();
 			$commands[] = new OrmCommand\RunDqlCommand();
 		}
