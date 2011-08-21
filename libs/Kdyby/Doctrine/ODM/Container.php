@@ -11,6 +11,7 @@
 namespace Kdyby\Doctrine\ODM;
 
 use Doctrine;
+use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\ODM\CouchDB\DocumentManager;
 use Doctrine\ODM\CouchDB\DocumentRepository;
 use Kdyby;
@@ -25,9 +26,9 @@ use Nette;
  * @property-read DocumentManager $documentManager
  * @property-read Doctrine\CouchDB\HTTP\SocketClient $httpClient
  * @property-read Doctrine\CouchDB\CouchDBClient $couchClient
- * @property-read Doctrine\Common\Annotations\AnnotationReader $annotationReader
+ * @property-read Kdyby\Doctrine\Annotations\CachedReader $annotationReader
  * @property-read Doctrine\ODM\CouchDB\Mapping\Driver\AnnotationDriver $annotationDriver
- * @property-read \Doctrine\ODM\CouchDB\Configuration $configuration
+ * @property-read Doctrine\ODM\CouchDB\Configuration $configuration
  */
 class Container extends Kdyby\Doctrine\BaseContainer
 {
@@ -55,10 +56,15 @@ class Container extends Kdyby\Doctrine\BaseContainer
 	 */
 	protected function createServiceAnnotationReader()
 	{
+		AnnotationRegistry::registerFile(LIBS_DIR . '/Doctrine/ODM/CouchDB/Mapping/Driver/DoctrineAnnotations.php');
+
 		$reader = new Doctrine\Common\Annotations\AnnotationReader();
 		$reader->setDefaultAnnotationNamespace('Doctrine\ODM\CouchDB\Mapping\\');
 
-		return $reader;
+		return new Kdyby\Doctrine\Annotations\CachedReader(
+			new Doctrine\Common\Annotations\IndexedReader($reader),
+			$this->hasService('annotationCache') ? $this->annotationCache : $this->cache
+		);
 	}
 
 
@@ -68,12 +74,10 @@ class Container extends Kdyby\Doctrine\BaseContainer
 	 */
 	protected function createServiceAnnotationDriver()
 	{
-		$reader = new Doctrine\Common\Annotations\CachedReader(
-			new Doctrine\Common\Annotations\IndexedReader($this->annotationReader),
-			$this->hasService('annotationCache') ? $this->annotationCache : $this->cache
-		);
-
-		return new Mapping\Driver\AnnotationDriver($this->annotationReader, $this->params['documentDirs']);
+		return new Mapping\Driver\AnnotationDriver(
+				$this->annotationReader,
+				$this->params['documentDirs']
+			);
 	}
 
 
@@ -83,7 +87,10 @@ class Container extends Kdyby\Doctrine\BaseContainer
 	 */
 	protected function createServiceCouchClient()
 	{
-		return new Doctrine\CouchDB\CouchDBClient($this->httpClient, $this->params['database']);
+		return new Doctrine\CouchDB\CouchDBClient(
+				$this->httpClient,
+				$this->params['database']
+			);
 	}
 
 

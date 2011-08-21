@@ -97,7 +97,7 @@ class Container extends Kdyby\Doctrine\BaseContainer
 		$reader->setIgnoreNotImportedAnnotations(TRUE);
 		$reader->setEnableParsePhpImports(FALSE);
 
-		return new Doctrine\Common\Annotations\CachedReader(
+		return new Kdyby\Doctrine\Annotations\CachedReader(
 			new Doctrine\Common\Annotations\IndexedReader($reader),
 			$this->hasService('annotationCache') ? $this->annotationCache : $this->cache
 		);
