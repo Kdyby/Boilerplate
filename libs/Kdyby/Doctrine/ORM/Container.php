@@ -169,7 +169,7 @@ class Container extends Kdyby\Doctrine\BaseContainer
 			$evm->addEventSubscriber($this->getService($listener));
 		}
 
-		$evm->addEventSubscriber(new Mapping\DiscriminatorMapDiscoveryListener($this->annotationReader));
+		$evm->addEventSubscriber(new Mapping\DiscriminatorMapDiscoveryListener($this->annotationReader, $this->annotationDriver));
 		$evm->addEventSubscriber(new Mapping\EntityDefaultsListener());
 		// $evm->addEventSubscriber(new Kdyby\Media\Listeners\Mediable($this->context));
 		return $evm;

@@ -15,8 +15,10 @@ use Doctrine\Common\Annotations\Reader;
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Doctrine\ORM\Mapping\Driver\Driver;
 use Kdyby;
 use Nette;
+use Nette\Reflection\ClassType;
 
 
 
@@ -27,16 +29,24 @@ class DiscriminatorMapDiscoveryListener extends Nette\Object implements Doctrine
 {
 
 	/** @var Reader */
-	private $annotationsReader;
+	private $reader;
+
+	/** @var Driver */
+	private $driver;
+
+	/** @var Doctrine\ORM\EntityManager */
+	private $em;
 
 
 
 	/**
 	 * @param Reader $reader
+	 * @param Driver $driver
 	 */
-	public function __construct(Reader $reader)
+	public function __construct(Reader $reader, Driver $driver)
 	{
-		$this->annotationsReader = $reader;
+		$this->reader = $reader;
+		$this->driver = $driver;
 	}
 
 
@@ -58,31 +68,55 @@ class DiscriminatorMapDiscoveryListener extends Nette\Object implements Doctrine
 	 */
 	public function loadClassMetadata(LoadClassMetadataEventArgs $args)
 	{
+		$this->em = $args->getEntityManager();
 		$meta = $args->getClassMetadata();
-		$entry = $this->annotationsReader->getClassAnnotation(
-				$meta->getReflectionClass(),
-				'Doctrine\ORM\Mapping\DiscriminatorEntry'
-			);
 
-		if ($entry === NULL) {
+		if ($meta->isInheritanceTypeNone()) {
 			return;
 		}
 
-		$em = $args->getEntityManager();
-		foreach ($meta->parentClasses as $parent) {
-			$parentMeta = $em->getClassMetadata($parent);
-			$map = $parentMeta->discriminatorMap + array(
-				$entry->name => $meta->name
-			);
+		$map = $meta->discriminatorMap;
+		foreach ($this->getChildClasses($meta->name) as $className) {
+			if (!in_array($className, $meta->discriminatorMap) && $entry = $this->getEntryName($className)) {
+				$map[$entry->name] = $className;
+			}
+		}
 
-			if ($parentMeta->inheritanceType === ClassMetadataInfo::INHERITANCE_TYPE_NONE) {
+		$meta->setDiscriminatorMap($map);
+		$meta->subClasses = array_unique($meta->subClasses);
+	}
+
+
+
+	/**
+	 * @param string $currentClass
+	 * @return array
+	 */
+	private function getChildClasses($currentClass)
+	{
+		$classes = array();
+		foreach ($this->driver->getAllClassNames() as $className) {
+			if (!ClassType::from($className)->isSubclassOf($currentClass)) {
 				continue;
 			}
 
-			$parentMeta->setDiscriminatorMap($map);
-			$meta->setDiscriminatorMap($map);
-			$parentMeta->subClasses = array_unique($parentMeta->subClasses);
+			$classes[] = $className;
 		}
+		return $classes;
+	}
+
+
+
+	/**
+	 * @param string $className
+	 * @return string|NULL
+	 */
+	private function getEntryName($className)
+	{
+		return $this->reader->getClassAnnotation(
+				ClassType::from($className),
+				'Doctrine\ORM\Mapping\DiscriminatorEntry'
+			) ?: NULL;
 	}
 
 }
