@@ -160,6 +160,26 @@ class Container extends Kdyby\Doctrine\BaseContainer
 
 
 	/**
+	 * @return Mapping\DiscriminatorMapDiscoveryListener
+	 */
+	protected function createServiceDiscriminatorMapDiscoveryListener()
+	{
+		return new Mapping\DiscriminatorMapDiscoveryListener($this->annotationReader, $this->annotationDriver);
+	}
+
+
+
+	/**
+	 * @return Mapping\EntityDefaultsListener
+	 */
+	protected function createServiceEntityDefaultsListener()
+	{
+		return new Mapping\EntityDefaultsListener();
+	}
+
+
+
+	/**
 	 * @return EventManager
 	 */
 	protected function createServiceEventManager()
@@ -169,8 +189,8 @@ class Container extends Kdyby\Doctrine\BaseContainer
 			$evm->addEventSubscriber($this->getService($listener));
 		}
 
-		$evm->addEventSubscriber(new Mapping\DiscriminatorMapDiscoveryListener($this->annotationReader, $this->annotationDriver));
-		$evm->addEventSubscriber(new Mapping\EntityDefaultsListener());
+		$evm->addEventSubscriber($this->discriminatorMapDiscoveryListener);
+		$evm->addEventSubscriber($this->entityDefaultsListener);
 		// $evm->addEventSubscriber(new Kdyby\Media\Listeners\Mediable($this->context));
 		return $evm;
 	}
