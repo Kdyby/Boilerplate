@@ -14,7 +14,6 @@ use Doctrine;
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 use Doctrine\ORM\Events;
-use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\ORM\Mapping\Driver\Driver;
 use Kdyby;
 use Nette;
@@ -33,9 +32,6 @@ class DiscriminatorMapDiscoveryListener extends Nette\Object implements Doctrine
 
 	/** @var Driver */
 	private $driver;
-
-	/** @var Doctrine\ORM\EntityManager */
-	private $em;
 
 
 
@@ -68,7 +64,6 @@ class DiscriminatorMapDiscoveryListener extends Nette\Object implements Doctrine
 	 */
 	public function loadClassMetadata(LoadClassMetadataEventArgs $args)
 	{
-		$this->em = $args->getEntityManager();
 		$meta = $args->getClassMetadata();
 
 		if ($meta->isInheritanceTypeNone()) {
