@@ -31,7 +31,7 @@ use Nette\Security\IIdentity;
  * @property-read array $roles
  * @property-read bool $authenticated
  */
-class User extends Nette\Object implements IUser
+class NetteUser extends Nette\Object implements Nette\Http\IUser
 {
 	/** log-out reason {@link User::getLogoutReason()} */
 	const MANUAL = 1,
@@ -64,6 +64,16 @@ class User extends Nette\Object implements IUser
 	public function __construct(Nette\DI\IContainer $context)
 	{
 		$this->context = $context;
+	}
+
+
+
+	/**
+	 * @return Nette\DI\Container
+	 */
+	protected function getContext()
+	{
+		return $this->context;
 	}
 
 
@@ -113,7 +123,7 @@ class User extends Nette\Object implements IUser
 	 * Is this user authenticated?
 	 * @return bool
 	 */
-	final public function isLoggedIn()
+	public function isLoggedIn()
 	{
 		$session = $this->getSessionSection(FALSE);
 		return $session && $session->authenticated;
@@ -125,7 +135,7 @@ class User extends Nette\Object implements IUser
 	 * Returns current user identity, if any.
 	 * @return Nette\Security\IIdentity
 	 */
-	final public function getIdentity()
+	public function getIdentity()
 	{
 		$session = $this->getSessionSection(FALSE);
 		return $session ? $session->identity : NULL;
@@ -229,7 +239,7 @@ class User extends Nette\Object implements IUser
 	 * Why was user logged out?
 	 * @return int
 	 */
-	final public function getLogoutReason()
+	public function getLogoutReason()
 	{
 		$session = $this->getSessionSection(FALSE);
 		return $session ? $session->reason : NULL;
