@@ -70,6 +70,10 @@ abstract class Test extends \PHPUnit_Framework_TestCase
 		$file = self::resolveTempClassFilename($class);
 		$content = '<' . '?php' . "\nclass " . $class . " {  } // " . (string)microtime(TRUE);
 
+		if (!is_dir($dir = dirname($file))) {
+			@mkdir($dir, 0777, TRUE);
+		}
+
 		if (!file_put_contents($file, $content)) {
 			throw new Nette\IOException($file . " is not writable");
 		}
