@@ -70,7 +70,7 @@ final class FileSystem extends Nette\Object
 	public static function rmDir($directory)
 	{
 		self::cleanDir($directory);
-		return @unlink($directory);
+		return @rmdir($directory);
 	}
 
 
@@ -80,6 +80,10 @@ final class FileSystem extends Nette\Object
 	 */
 	public static function cleanDir($directory)
 	{
+		if (!file_exists($directory)) {
+			return;
+		}
+
 		foreach (Nette\Utils\Finder::find('*')->from($directory)->childFirst() as $file) {
 			if ($file->isDir()) {
 				@rmdir($file->getPathname());
