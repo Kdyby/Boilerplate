@@ -12,7 +12,6 @@ namespace Kdyby\DI;
 
 use Doctrine\ORM\EntityManager;
 use Kdyby;
-use Kdyby\Doctrine\ORM\EntityRepository;
 use Nette;
 use Nette\Caching\Cache;
 use Nette\Caching\IStorage;
@@ -22,14 +21,14 @@ use Nette\Caching\IStorage;
 /**
  * @author Filip Procházka
  *
- * @property-read EntityRepository $repository
+ * @property-read SettingsRepository $repository
  */
 class Settings extends Nette\Object
 {
 
 	const CACHE_NAMESPACE = 'Kdyby.Configurator';
 
-	/** @var EntityRepository */
+	/** @var SettingsRepository */
 	private $repository;
 
 	/** @var Cache */
@@ -38,10 +37,10 @@ class Settings extends Nette\Object
 
 
 	/**
-	 * @param EntityRepository $entityManager
+	 * @param SettingsRepository $entityManager
 	 * @param IStorage|NULL $storage
 	 */
-	public function __construct(EntityRepository $repository, IStorage $storage = NULL)
+	public function __construct(SettingsRepository $repository, IStorage $storage = NULL)
 	{
 		$this->repository = $repository;
 
@@ -53,7 +52,7 @@ class Settings extends Nette\Object
 
 
 	/**
-	 * @return EntityRepository
+	 * @return SettingsRepository
 	 */
 	public function getRepository()
 	{
@@ -64,35 +63,34 @@ class Settings extends Nette\Object
 
 	/**
 	 * @param string $name
-	 * @param string|NULL $section
-	 * @param string|NULL $value
-	 * @return Setting
+	 * @param mixed $value
+	 * @param string $section
 	 */
-	public function createNew($name, $section = NULL)
+	public function set($name, $value, $section = NULL)
 	{
-		return new Setting($name, $section);
+		$setting = $this->getRepository()->findOneByNameAndSection($name, $section);
+		if ($setting === NULL) {
+			$setting = new Setting($name, $section);
+		}
+
+		$setting->setValue($value);
+		$this->getRepository()->save($setting);
 	}
 
 
 
 	/**
-	 * @param Setting $setting
-	 * @return Setting
+	 * @param string $name
+	 * @param string $section
 	 */
-	public function save(Setting $setting)
+	public function delete($name, $section = NULL)
 	{
-		$this->repository->save($setting);
-		return $setting;
-	}
+		$setting = $this->getRepository()->findOneByNameAndSection($name, $section);
+		if ($setting == NULL) {
+			return;
+		}
 
-
-
-	/**
-	 * @param Setting $setting
-	 */
-	public function delete(Setting $setting)
-	{
-		$this->repository->delete($setting);
+		$this->getRepository()->delete($setting);
 	}
 
 

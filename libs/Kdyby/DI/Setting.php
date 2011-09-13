@@ -18,7 +18,8 @@ use Nette;
 /**
  * @author Filip Procházka
  *
- * @Entity @Table(name="settings")
+ * @Entity(repositoryClass="Kdyby\DI\SettingsRepository")
+ * @Table(name="settings")
  *
  * @property-read string $name
  * @property-read string $value
