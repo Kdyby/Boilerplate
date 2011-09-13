@@ -54,6 +54,27 @@ class QueryBuilder extends Doctrine\ORM\QueryBuilder
 
 
 
+	/**
+	 * @param string $alias
+	 * @param array $values
+	 * @return QueryBuilder
+	 */
+	public function andWhereEquals($alias, array $values)
+	{
+		$suffix = Nette\Utils\Strings::random(4);
+
+		foreach ($values as $key => $value) {
+			$paramName = $key . '_' . $suffix;
+
+			$this->andWhere($alias . '.' . $key . ' = :' . $paramName);
+			$this->setParameter($paramName, $value);
+		}
+
+		return $this;
+	}
+
+
+
 	/********************* Nette\Object behaviour ****************d*g**/
 
 
