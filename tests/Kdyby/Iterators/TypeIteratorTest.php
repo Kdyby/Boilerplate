@@ -19,7 +19,7 @@ use Nette;
 /**
  * @author Filip Procházka
  */
-class TypeIteratorTest extends Kdyby\Testing\Test
+class TypeIteratorTest extends Kdyby\Testing\TestCase
 {
 
 	/** @var TypeIterator */

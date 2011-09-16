@@ -20,7 +20,7 @@ use Nette;
 /**
  * @author Filip Procházka
  */
-class SplClassLoaderTest extends Kdyby\Testing\Test
+class SplClassLoaderTest extends Kdyby\Testing\TestCase
 {
 
 	/** @var SplClassLoader */

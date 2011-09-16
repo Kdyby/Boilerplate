@@ -19,7 +19,7 @@ use Nette;
 /**
  * @author Filip Procházka
  */
-class FileSystemTest extends Kdyby\Testing\Test
+class FileSystemTest extends Kdyby\Testing\TestCase
 {
 
 	public function setUp()

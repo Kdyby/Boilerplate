@@ -18,7 +18,7 @@ use Nette;
 /**
  * @author Filip Procházka
  */
-class TemplateFactoryTest extends Kdyby\Testing\Test
+class TemplateFactoryTest extends Kdyby\Testing\TestCase
 {
 	/** @var Nette\Latte\Engine */
 	private $latteEngine;

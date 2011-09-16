@@ -19,7 +19,7 @@ use Nette;
 /**
  * @author Filip Procházka
  */
-class EventArgsTest extends Kdyby\Testing\Test
+class EventArgsTest extends Kdyby\Testing\TestCase
 {
 
 	public function testImplementsDoctrineEventArgs()

@@ -18,7 +18,7 @@ use Nette;
 /**
  * @author Filip Procházka
  */
-class TestTest extends Kdyby\Testing\Test
+class TestTest extends Kdyby\Testing\TestCase
 {
 
 	public function testMatchingCallbacks()

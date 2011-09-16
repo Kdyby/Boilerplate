@@ -18,7 +18,7 @@ use Kdyby;
 /**
  * @author Filip Procházka
  */
-class RepositoryTest extends Test
+class RepositoryTest extends TestCase
 {
 
 }

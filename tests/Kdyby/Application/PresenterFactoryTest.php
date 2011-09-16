@@ -18,7 +18,7 @@ use Nette;
 /**
  * @author Filip Procházka
  */
-class PresenterFactoryTest extends \PHPUnit_Framework_TestCase
+class PresenterFactoryTest extends Kdyby\Testing\TestCase
 {
 
 	/** @var Kdyby\Application\PresenterFactory */

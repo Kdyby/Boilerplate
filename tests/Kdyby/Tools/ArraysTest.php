@@ -19,7 +19,7 @@ use Nette;
 /**
  * @author Filip Procházka
  */
-class ArraysTest extends Kdyby\Testing\Test
+class ArraysTest extends Kdyby\Testing\TestCase
 {
 
 	public function testNetteGet()

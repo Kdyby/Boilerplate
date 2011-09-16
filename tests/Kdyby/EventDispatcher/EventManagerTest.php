@@ -19,7 +19,7 @@ use Nette;
 /**
  * @author Filip Procházka
  */
-class EventManagerTest extends Kdyby\Testing\Test
+class EventManagerTest extends Kdyby\Testing\TestCase
 {
 
 	/** @var EventManager */
