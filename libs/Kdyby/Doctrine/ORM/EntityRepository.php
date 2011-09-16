@@ -90,6 +90,39 @@ class EntityRepository extends Doctrine\ORM\EntityRepository
 
 
 	/**
+	 * @param IQueryObject $queryObject
+	 * @return integer
+	 */
+	public function count(IQueryObject $queryObject)
+	{
+		return $queryObject->count($this);
+	}
+
+
+
+	/**
+	 * @param IQueryObject $queryObject
+	 * @return array
+	 */
+	public function fetch(IQueryObject $queryObject)
+	{
+		return $queryObject->fetch($this);
+	}
+
+
+
+	/**
+	 * @param IQueryObject $queryObject
+	 * @return object
+	 */
+	public function fetchOne(IQueryObject $queryObject)
+	{
+		return $queryObject->fetchOne($this);
+	}
+
+
+
+	/**
 	 * Create a new QueryBuilder instance that is prepopulated for this entity name
 	 *
 	 * @param string $alias
