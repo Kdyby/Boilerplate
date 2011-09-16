@@ -103,6 +103,21 @@ class EntityRepository extends Doctrine\ORM\EntityRepository
 
 
 
+	/**
+	 * @param object $entity
+	 * @return array
+	 */
+	public function getIdentifierValues($entity)
+	{
+		if (!is_object($entity)) {
+			return $entity;
+		}
+
+		return $this->_em->getClassMetadata(get_class($entity))->getIdentifierValues($entity);
+	}
+
+
+
 	/********************* Nette\Object behaviour ****************d*g**/
 
 
