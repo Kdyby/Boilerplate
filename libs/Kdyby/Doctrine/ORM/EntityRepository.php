@@ -11,6 +11,7 @@
 namespace Kdyby\Doctrine\ORM;
 
 use Doctrine;
+use Doctrine\Common\Collections\Collection;
 use Kdyby;
 use Nette;
 use Nette\ObjectMixin;
@@ -24,11 +25,24 @@ class EntityRepository extends Doctrine\ORM\EntityRepository
 {
 
 	/**
-	 * @param object $entity
-	 * @param bool $validate
+	 * @param object|array|Collection $entity
+	 * @param boolean $validate
+	 * @param boolean $withoutFlush
+	 * @return object|array
 	 */
-	public function save($entity, $validate = TRUE)
+	public function save($entity, $validate = TRUE, $withoutFlush = FALSE)
 	{
+		if ($entity instanceof Collection) {
+			return $this->save($entity->toArray(), $validate, $withoutFlush);
+		}
+
+		if (is_array($entity)) {
+			$repository = $this;
+			return array_map(function ($entity) use ($repository, $validate, $withoutFlush) {
+				return $repository->save($entity, $validate, $withoutFlush);
+			}, $entity);
+		}
+
 		if (!$entity instanceof $this->_entityName) {
 			throw new Nette\InvalidArgumentException("Entity is not instanceof " . $this->_entityName . ', ' . get_class($entity) . ' given.');
 		}
@@ -36,22 +50,41 @@ class EntityRepository extends Doctrine\ORM\EntityRepository
 		// TODO: validate
 
 		$this->_em->persist($entity);
-		$this->_em->flush(); // TODO: orly?
+		if ($withoutFlush === FALSE) {
+			$this->_em->flush();
+		}
+
+		return $entity;
 	}
 
 
 
 	/**
-	 * @param object $entity
+	 * @param object|array|Collection $entity
+	 * @param boolean $withoutFlush
 	 */
-	public function delete($entity)
+	public function delete($entity, $withoutFlush = FALSE)
 	{
+		if ($entity instanceof Collection) {
+			return $this->delete($entity->toArray(), $withoutFlush);
+		}
+
+		if (is_array($entity)) {
+			$repository = $this;
+			array_map(function ($entity) use ($repository, $withoutFlush) {
+				return $repository->delete($entity, $withoutFlush);
+			}, $entity);
+			return;
+		}
+
 		if (!$entity instanceof $this->_entityName) {
 			throw new Nette\InvalidArgumentException("Entity is not instanceof " . $this->_entityName . ', ' . get_class($entity) . ' given.');
 		}
 
 		$this->_em->remove($entity);
-		$this->_em->flush(); // TODO: orly?
+		if ($withoutFlush === FALSE) {
+			$this->_em->flush();
+		}
 	}
 
 
