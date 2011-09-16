@@ -1,0 +1,18 @@
+RBAC - Role Based Access Control
+================================
+
+$user = $container->user;
+$division = $container->divisionsRepository->findByName($user->getNamespace()); // namespace bude vždy název aplikace (divize)
+$session = $container->session->getSection('Kdyby.Security.Permission/' . $division->name);
+$identity = $user->identity;
+
+pokud nebude mít uživatel nastavený namespace, zabit
+pokud je uživatel přihlášen, cache permission existuje a identita se nezměnila vrať $session['permission'], jinak vytvořit
+$permission = new Nette\Security\Permission;
+- naplnit jednotlivé resources do $permission
+
+pokud je uživatel přihlášen
+- naplnit do $permission role z identity, najít všechny pravidla pro role, které jsou z dané divize a nastavit do $permission
+- projít všechna pravidla pro uživatele, podle UserPermission a naplnit do $permission
+- uložit do session $permission i $identity
+
