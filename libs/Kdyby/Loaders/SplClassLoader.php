@@ -34,16 +34,6 @@ class SplClassLoader extends Nette\Loaders\AutoLoader
 
 
 	/**
-	 * @param array $namespaces
-	 */
-	protected function __construct(array $namespaces)
-	{
-		$this->addNamespaces($namespaces);
-	}
-
-
-
-	/**
 	 * @param string $namespace
 	 * @param string $dir
 	 * @return SplClassLoader
@@ -73,13 +63,29 @@ class SplClassLoader extends Nette\Loaders\AutoLoader
 
 
 	/**
+	 * @param string $type
+	 * @return array
+	 */
+	public function getTypeDirs($type)
+	{
+		$dirs = array();
+		foreach ($this->getFilteredByType($type) as $i => $namespace) {
+			$dirs[] = $this->dirs[$i];
+		}
+
+		return array_filter($dirs, 'file_exists');
+	}
+
+
+
+	/**
 	 * @param array
 	 * @return SplClassLoader
 	 */
-	public static function getInstance(array $map = array())
+	public static function getInstance()
 	{
 		if (self::$instance === NULL) {
-			self::$instance = new self($map);
+			self::$instance = new self();
 		}
 		return self::$instance;
 	}
@@ -98,7 +104,7 @@ class SplClassLoader extends Nette\Loaders\AutoLoader
 				".php";
 
 			if (file_exists($path)) {
-				Nette\Utils\LimitedScope::load($path);
+				require_once $path;
 				if (class_exists($type, FALSE)) {
 					break;
 				}

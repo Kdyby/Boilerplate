@@ -34,15 +34,10 @@ Debugger::enable(Nette\Configurator::detectProductionMode());
 Debugger::$strictMode = TRUE;
 
 
-// Kdyby loader and other (even optional) loaders
+// Kdyby loader
 require_once KDYBY_FRAMEWORK_DIR . '/Loaders/SplClassLoader.php';
-$loader = SplClassLoader::getInstance(array(
+$loader = SplClassLoader::getInstance()->addNamespaces(array(
 	'Kdyby' => KDYBY_FRAMEWORK_DIR,
-	'Doctrine' => LIBS_DIR . '/Doctrine',
-	'DoctrineExtensions' => LIBS_DIR . '/Doctrine/DoctrineExtensions',
-	'Gedmo' => LIBS_DIR . '/Doctrine/Gedmo',
-	'Symfony' => LIBS_DIR . '/Symfony',
-	'Zend' => LIBS_DIR . '/Zend', // Supporst only Zend Framework 2
 ))->register();
 
 

@@ -11,7 +11,6 @@ define('LIBS_DIR', VENDORS_DIR);
 
 // Take care of autoloading
 require_once VENDORS_DIR . '/autoload.php';
-require_once APP_DIR . '/../libs/Kdyby/loader.php';
 
 // Setup Nette debuger
 Debugger::enable(Debugger::PRODUCTION);

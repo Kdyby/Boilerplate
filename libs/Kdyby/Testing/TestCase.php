@@ -22,6 +22,43 @@ use Nette\ObjectMixin;
 abstract class TestCase extends \PHPUnit_Framework_TestCase
 {
 
+	/** @var Kdyby\Application\Container */
+	private $context;
+
+	/** @var Kdyby\DI\Configurator */
+	private $configurator;
+
+
+
+	public function __construct()
+	{
+		$this->configurator = Nette\Environment::getConfigurator();
+		$this->context = $this->configurator->getContainer();
+		parent::__construct();
+	}
+
+
+
+	/**
+	 * @return Kdyby\DI\Configurator
+	 */
+	public function getConfigurator()
+	{
+		return $this->configurator;
+	}
+
+
+
+	/**
+	 * @return Kdyby\Application\Container
+	 */
+	public function getContext()
+	{
+		return $this->context;
+	}
+
+
+
 	/**
 	 * @param array|\Nette\Callback|\Closure $callback
 	 * @param Nette\Object $object
