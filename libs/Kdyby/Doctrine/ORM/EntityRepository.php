@@ -38,16 +38,20 @@ class EntityRepository extends Doctrine\ORM\EntityRepository
 
 		if (is_array($entity)) {
 			$repository = $this;
-			return array_map(function ($entity) use ($repository, $validate, $withoutFlush) {
-				return $repository->save($entity, $validate, $withoutFlush);
+			$result = array_map(function ($entity) use ($repository, $validate) {
+				return $repository->save($entity, $validate, TRUE);
 			}, $entity);
+
+			if ($withoutFlush === FALSE) {
+				$this->_em->flush();
+			}
+
+			return $result;
 		}
 
 		if (!$entity instanceof $this->_entityName) {
 			throw new Nette\InvalidArgumentException("Entity is not instanceof " . $this->_entityName . ', ' . get_class($entity) . ' given.');
 		}
-
-		// TODO: validate
 
 		$this->_em->persist($entity);
 		if ($withoutFlush === FALSE) {
@@ -71,9 +75,13 @@ class EntityRepository extends Doctrine\ORM\EntityRepository
 
 		if (is_array($entity)) {
 			$repository = $this;
-			array_map(function ($entity) use ($repository, $withoutFlush) {
-				return $repository->delete($entity, $withoutFlush);
+			array_map(function ($entity) use ($repository) {
+				return $repository->delete($entity, TRUE);
 			}, $entity);
+
+			if ($withoutFlush === FALSE) {
+				$this->_em->flush();
+			}
 			return;
 		}
 
