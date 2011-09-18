@@ -12,6 +12,8 @@ namespace Kdyby\Doctrine\ORM;
 
 use Doctrine;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\NonUniqueResultException;
 use Kdyby;
 use Nette;
 use Nette\ObjectMixin;
@@ -125,7 +127,15 @@ class EntityRepository extends Doctrine\ORM\EntityRepository
 	 */
 	public function fetchOne(IQueryObject $queryObject)
 	{
-		return $queryObject->fetchOne($this);
+		try {
+			return $queryObject->fetchOne($this);
+
+		} catch (NoResultException $e) {
+			return NULL;
+
+		} catch (NonUniqueResultException $e) {
+			return NULL;
+		}
 	}
 
 

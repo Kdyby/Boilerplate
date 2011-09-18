@@ -11,11 +11,10 @@
 namespace Kdyby\Doctrine\ORM;
 
 use Doctrine;
-use Doctrine\ORM\NoResultException;
-use Doctrine\ORM\NonUniqueResultException;
 use DoctrineExtensions\Paginate\Paginate;
 use Kdyby;
 use Nette;
+use Nette\ObjectMixin;
 use Nette\Utils\Paginator;
 
 
@@ -28,9 +27,6 @@ abstract class QueryObjectBase implements IQueryObject
 
 	/** @var Paginator */
 	private $paginator;
-
-	/** @var Doctrine\ORM\Query */
-	private $query;
 
 
 
@@ -63,18 +59,23 @@ abstract class QueryObjectBase implements IQueryObject
 
 
 	/**
+	 * @param EntityRepository $repository
 	 * @return Doctrine\ORM\Query
 	 */
-	protected function getQuery()
+	protected function getQuery(EntityRepository $repository)
 	{
-		if ($this->query === NULL) {
-			$this->query = $this->doCreateQuery($repository);
-			if ($this->query instanceof Doctrine\ORM\QueryBuilder) {
-				$this->query = $this->query->getQuery();
-			}
+		$query = $this->doCreateQuery($repository);
+		if ($query instanceof Doctrine\ORM\QueryBuilder) {
+			return $query->getQuery();
+
+		} elseif ($query instanceof Doctrine\ORM\Query) {
+			return $query;
 		}
 
-		return $this->query;
+		$class = $this->getReflection()->getMethod('doCreateQuery')->getDeclaringClass();
+		throw new Nette\InvalidStateException("Method " . $class . "::doCreateQuery() must return" .
+				" instanceof Doctrine\\ORM\\Query or instaceof Doctrine\\ORM\\QueryBuilder, " .
+				Kdyby\Tools\Mixed::getType($query) . " given.");
 	}
 
 
@@ -85,7 +86,7 @@ abstract class QueryObjectBase implements IQueryObject
 	 */
 	public function count(EntityRepository $repository)
 	{
-		return Paginate::getTotalQueryResults($this->getQuery());
+		return Paginate::getTotalQueryResults($this->getQuery($repository));
 	}
 
 
@@ -96,11 +97,13 @@ abstract class QueryObjectBase implements IQueryObject
 	 */
 	public function fetch(EntityRepository $repository)
 	{
+		$query = $this->getQuery($repository);
+
 		if ($this->paginator) {
-			$query = Paginate::getPaginateQuery($this->getQuery(), $this->paginator->getOffset(), $this->paginator->getLength()); // Step 2 and 3
+			$query = Paginate::getPaginateQuery($query, $this->paginator->getOffset(), $this->paginator->getLength()); // Step 2 and 3
 
 		} else {
-			$query = $this->getQuery()->setMaxResults(NULL)->setFirstResult(NULL);
+			$query = $query->setMaxResults(NULL)->setFirstResult(NULL);
 		}
 
 		return $query->getResult();
@@ -114,16 +117,52 @@ abstract class QueryObjectBase implements IQueryObject
 	 */
 	public function fetchOne(EntityRepository $repository)
 	{
-		try {
-			$query = $this->getQuery()->setFirstResult(NULL)->setMaxResults(1);
-			return $query->getSingleResult();
+		return $this->getQuery($repository)
+			->setFirstResult(NULL)
+			->setMaxResults(1)
+			->getSingleResult();
+	}
 
-		} catch (NoResultException $e) {
-			return NULL;
 
-		} catch (NonUniqueResultException $e) {
-			return NULL;
-		}
+
+	/********************* Nette\Object behaviour ****************d*g**/
+
+
+
+	/**
+	 * @return Nette\Reflection\ClassType
+	 */
+	public /**/static/**/ function getReflection()
+	{
+		return new Nette\Reflection\ClassType(/*5.2*$this*//**/get_called_class()/**/);
+	}
+
+
+
+	public function &__get($name)
+	{
+		return ObjectMixin::get($this, $name);
+	}
+
+
+
+	public function __set($name, $value)
+	{
+		return ObjectMixin::set($this, $name, $value);
+	}
+
+
+
+	public function __isset($name)
+	{
+		return ObjectMixin::has($this, $name);
+	}
+
+
+
+	public function __unset($name)
+	{
+		ObjectMixin::remove($this, $name);
 	}
 
 }

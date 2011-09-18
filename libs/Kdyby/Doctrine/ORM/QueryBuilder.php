@@ -6,6 +6,7 @@ use Doctrine;
 use Kdyby;
 use Kdyby\Components\Grinder;
 use Nette;
+use Nette\ObjectMixin;
 
 
 

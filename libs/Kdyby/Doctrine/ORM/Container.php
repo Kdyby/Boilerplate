@@ -32,6 +32,9 @@ use Nette;
  * @property-read Doctrine\DBAL\Event\Listeners\MysqlSessionInit $mysqlSessionInitListener
  * @property-read EventManager $eventManager
  * @property-read EntityManager $entityManager
+ * @property-read Doctrine\Common\DataFixtures\Loader $fixturesLoader
+ * @property-read Doctrine\Common\DataFixtures\Purger\PurgerInterface $fixturesPurger
+ * @property-read Doctrine\Common\DataFixtures\Executor\AbstractExecutor $fixturesExecutor
  */
 class Container extends Kdyby\Doctrine\BaseContainer
 {
@@ -87,8 +90,7 @@ class Container extends Kdyby\Doctrine\BaseContainer
 	 */
 	protected function createServiceAnnotationReader()
 	{
-		AnnotationRegistry::registerFile(LIBS_DIR . '/Doctrine/ORM/Mapping/Driver/DoctrineAnnotations.php');
-		AnnotationRegistry::registerFile(KDYBY_FRAMEWORK_DIR . '/Doctrine/ORM/Mapping/Driver/DoctrineAnnotations.php');
+		$this->registerAnnotationClasses();
 
 		$reader = new Doctrine\Common\Annotations\AnnotationReader();
 		$reader->setDefaultAnnotationNamespace('Doctrine\ORM\Mapping\\');
@@ -101,6 +103,18 @@ class Container extends Kdyby\Doctrine\BaseContainer
 			new Doctrine\Common\Annotations\IndexedReader($reader),
 			$this->hasService('annotationCache') ? $this->annotationCache : $this->cache
 		);
+	}
+
+
+
+	private function registerAnnotationClasses()
+	{
+		$loader = Kdyby\Loaders\SplClassLoader::getInstance();
+		foreach ($loader->getTypeDirs('Doctrine\ORM') as $dir) {
+			AnnotationRegistry::registerFile($dir . '/Mapping/Driver/DoctrineAnnotations.php');
+		}
+
+		AnnotationRegistry::registerFile(KDYBY_FRAMEWORK_DIR . '/Doctrine/ORM/Mapping/Driver/DoctrineAnnotations.php');
 	}
 
 
@@ -208,6 +222,36 @@ class Container extends Kdyby\Doctrine\BaseContainer
 
 		$this->freeze();
 		return EntityManager::create($this->params, $this->configuration, $this->eventManager);
+	}
+
+
+
+	/**
+	 * @return Doctrine\Common\DataFixtures\Loader
+	 */
+	protected function createServiceFixturesLoader()
+	{
+		return new Doctrine\Common\DataFixtures\Loader();
+	}
+
+
+
+	/**
+	 * @return Doctrine\Common\DataFixtures\Purger\PurgerInterface
+	 */
+	protected function createServiceFixturesPurger()
+	{
+		return new Doctrine\Common\DataFixtures\Purger\ORMPurger($this->getEntityManager());
+	}
+
+
+
+	/**
+	 * @return Doctrine\Common\DataFixtures\Executor\AbstractExecutor
+	 */
+	protected function createServiceFixturesExecutor()
+	{
+		return new Doctrine\Common\DataFixtures\Executor\ORMExecutor($this->getEntityManager(), $this->fixturesPurger);
 	}
 
 

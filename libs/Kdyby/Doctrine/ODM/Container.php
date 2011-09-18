@@ -56,7 +56,7 @@ class Container extends Kdyby\Doctrine\BaseContainer
 	 */
 	protected function createServiceAnnotationReader()
 	{
-		AnnotationRegistry::registerFile(LIBS_DIR . '/Doctrine/ODM/CouchDB/Mapping/Driver/DoctrineAnnotations.php');
+		$this->registerAnnotationClasses();
 
 		$reader = new Doctrine\Common\Annotations\AnnotationReader();
 		$reader->setDefaultAnnotationNamespace('Doctrine\ODM\CouchDB\Mapping\\');
@@ -65,6 +65,16 @@ class Container extends Kdyby\Doctrine\BaseContainer
 			new Doctrine\Common\Annotations\IndexedReader($reader),
 			$this->hasService('annotationCache') ? $this->annotationCache : $this->cache
 		);
+	}
+
+
+
+	private function registerAnnotationClasses()
+	{
+		$loader = Kdyby\Loaders\SplClassLoader::getInstance();
+		foreach ($loader->getTypeDirs('Doctrine\ODM\CouchDB') as $dir) {
+			AnnotationRegistry::registerFile($dir . '/Mapping/Driver/DoctrineAnnotations.php');
+		}
 	}
 
 
