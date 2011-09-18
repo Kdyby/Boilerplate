@@ -35,11 +35,16 @@ abstract class OrmTestCase extends DoctrineExtensions\PHPUnit\OrmTestCase
 
 
 
-	public function __construct()
+	/**
+	 * @param string $name
+	 * @param array $data
+	 * @param string $dataName
+	 */
+	public function __construct($name = NULL, array $data = array(), $dataName = '')
 	{
 		$this->configurator = Nette\Environment::getConfigurator();
 		$this->context = $this->configurator->getContainer();
-		parent::__construct();
+		parent::__construct($name, $data, $dataName);
 	}
 
 
