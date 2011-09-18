@@ -8,10 +8,11 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\DI;
+namespace Kdyby\Config;
 
 use Doctrine\ORM\EntityManager;
 use Kdyby;
+use Kdyby\Doctrine\ORM\EntityRepository;
 use Nette;
 use Nette\Caching\Cache;
 use Nette\Caching\IStorage;
@@ -21,14 +22,14 @@ use Nette\Caching\IStorage;
 /**
  * @author Filip Procházka
  *
- * @property-read SettingsRepository $repository
+ * @property-read EntityRepository $repository
  */
 class Settings extends Nette\Object
 {
 
 	const CACHE_NAMESPACE = 'Kdyby.Configurator';
 
-	/** @var SettingsRepository */
+	/** @var EntityRepository */
 	private $repository;
 
 	/** @var Cache */
@@ -37,10 +38,10 @@ class Settings extends Nette\Object
 
 
 	/**
-	 * @param SettingsRepository $entityManager
+	 * @param EntityRepository $entityManager
 	 * @param IStorage|NULL $storage
 	 */
-	public function __construct(SettingsRepository $repository, IStorage $storage = NULL)
+	public function __construct(EntityRepository $repository, IStorage $storage = NULL)
 	{
 		$this->repository = $repository;
 
@@ -52,7 +53,7 @@ class Settings extends Nette\Object
 
 
 	/**
-	 * @return SettingsRepository
+	 * @return EntityRepository
 	 */
 	public function getRepository()
 	{
@@ -68,13 +69,16 @@ class Settings extends Nette\Object
 	 */
 	public function set($name, $value, $section = NULL)
 	{
-		$setting = $this->getRepository()->findOneByNameAndSection($name, $section);
+		$setting = $this->getRepository()->fetchOne(new SettingQuery($name, $section));
 		if ($setting === NULL) {
 			$setting = new Setting($name, $section);
 		}
 
 		$setting->setValue($value);
 		$this->getRepository()->save($setting);
+		$this->cache->clean(array(
+				Cache::TAGS => array('settings'),
+			));
 	}
 
 
@@ -91,6 +95,9 @@ class Settings extends Nette\Object
 		}
 
 		$this->getRepository()->delete($setting);
+		$this->cache->clean(array(
+				Cache::TAGS => array('settings'),
+			));
 	}
 
 
@@ -116,12 +123,7 @@ class Settings extends Nette\Object
 		}
 
 		foreach ($settings as $setting) {
-			if (!$setting->section) {
-				$container->params[$setting->name] = $setting->value;
-				continue;
-			}
-
-			$container->params[$setting->section][$setting->name] = $setting->value;
+			$setting->apply($container->params);
 		}
 	}
 

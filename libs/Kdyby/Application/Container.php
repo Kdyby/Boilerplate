@@ -36,7 +36,7 @@ use Symfony\Component\Console;
  * @property-read Nette\Application\IPresenterFactory $presenterFactory
  * @property-read Kdyby\Application\ModuleCascadeRegistry $moduleRegistry
  * @property-read Kdyby\Application\RequestManager $requestManager
- * @property-read Kdyby\DI\Settings $settings
+ * @property-read Kdyby\Config\Settings $settings
  *
  * @property-read Nette\Application\IRouter $router
  * @property-read Nette\Http\Request $httpRequest

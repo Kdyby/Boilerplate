@@ -1,0 +1,20 @@
+settings:
+  -
+    section: database
+    name: password
+    value: root
+  -
+    section: database
+    name: username
+    value: Le root
+  -
+    section: database
+    name: host
+    value: localhost
+  -
+    section: database
+    name: port
+    value: 3306
+  -
+    name: imageDir
+    value: %appDir%/data

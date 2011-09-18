@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\DI;
+namespace Kdyby\Config;
 
 use Kdyby;
 use Nette;
@@ -18,8 +18,7 @@ use Nette;
 /**
  * @author Filip Procházka
  *
- * @Entity(repositoryClass="Kdyby\DI\SettingsRepository")
- * @Table(name="settings")
+ * @Entity @Table(name="settings",uniqueConstraints={@UniqueConstraint(name="name_idx", columns={"name", "section"})})
  *
  * @property-read string $name
  * @property-read string $value
@@ -27,13 +26,16 @@ use Nette;
 class Setting extends Nette\Object
 {
 
-	/** @Id @Column(type="string") */
+	/** @Column(type="integer") @Id @GeneratedValue @var integer */
+	private $id;
+
+	/** @Column(type="string") @var string */
 	private $name;
 
-	/** @Id @Column(type="string", nullable=TRUE) */
+	/** @Column(type="string", nullable=TRUE) @var string */
 	private $section;
 
-	/** @Column(type="string", nullable=TRUE) */
+	/** @Column(type="string", nullable=TRUE) @var string */
 	private $value;
 
 
@@ -100,6 +102,23 @@ class Setting extends Nette\Object
 	{
 		$this->value = $value;
 		return $this;
+	}
+
+
+
+	/**
+	 * @param array $params
+	 */
+	public function apply(array &$params)
+	{
+		if ($this->section) {
+			$option = &$params[$this->section][$this->name];
+
+		} else {
+			$option = &$params[$this->name];
+		}
+
+		$option = $this->value;
 	}
 
 }

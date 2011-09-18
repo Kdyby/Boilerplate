@@ -125,7 +125,7 @@ class Configurator extends Nette\Configurator
 	public function loadDbSettings()
 	{
 		try {
-			$this->container->workspace->getClassMetadata('Kdyby\DI\Setting');
+			$this->container->workspace->getClassMetadata('Kdyby\Config\Setting');
 			$this->container->settings->loadAll($this->container);
 		} catch (Kdyby\Doctrine\ManagerException $e) { }
 	}
@@ -182,11 +182,11 @@ class Configurator extends Nette\Configurator
 
 
 	/**
-	 * @return Kdyby\DI\Settings
+	 * @return Kdyby\Config\Settings
 	 */
 	public static function createServiceSettings(Container $container)
 	{
-		return new Kdyby\DI\Settings($container->workspace->getRepository('Kdyby\DI\Setting'), $container->cacheStorage);
+		return new Kdyby\Config\Settings($container->workspace->getRepository('Kdyby\Config\Setting'), $container->cacheStorage);
 	}
 
 
