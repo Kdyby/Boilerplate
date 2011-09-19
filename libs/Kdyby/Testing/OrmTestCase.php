@@ -12,6 +12,8 @@ namespace Kdyby\Testing;
 
 use Doctrine;
 use DoctrineExtensions;
+use DoctrineExtensions\PHPUnit\TestConnection;
+use DoctrineExtensions\PHPUnit\DatabaseTester;
 use Kdyby;
 use Nette;
 use Nette\ObjectMixin;
@@ -21,17 +23,23 @@ use Nette\ObjectMixin;
 /**
  * @author Filip Procházka
  */
-abstract class OrmTestCase extends DoctrineExtensions\PHPUnit\OrmTestCase
+abstract class OrmTestCase extends \PHPUnit_Extensions_Database_TestCase
 {
-
-	/** @var Kdyby\Doctrine\ORM\Container */
-	private static $doctrineContainer;
 
 	/** @var Kdyby\Application\Container */
 	private $context;
 
 	/** @var Kdyby\DI\Configurator */
 	private $configurator;
+
+	/** @var Kdyby\Doctrine\ORM\Container */
+	private static $doctrineContainer;
+
+	/** @var DoctrineExtensions\PHPUnit\TestConnection */
+	private static $connection;
+
+	/** @var Doctrine\ORM\EntityManager */
+	private static $em;
 
 
 
@@ -70,12 +78,65 @@ abstract class OrmTestCase extends DoctrineExtensions\PHPUnit\OrmTestCase
 
 
 	/**
-	 * Initialize DB connection and load Data Fixtures
+	 * Performs operation returned by getSetUpOperation().
 	 */
-	protected function setup()
+	protected function setUp()
 	{
-		parent::setup();
-		$this->loadFixtures();
+		$this->databaseTester = NULL;
+
+		$em = $this->getEntityManager();
+		$eventManager = $em->getEventManager();
+		if ($eventManager->hasListeners('preTestSetUp')) {
+			$eventManager->dispatchEvent('preTestSetUp', new OrmTestCaseEventArgs($em, $this));
+		}
+
+		$tester = $this->getDatabaseTester();
+
+		$tester->setSetUpOperation($this->getSetUpOperation());
+		$tester->setDataSet($this->getDataSet());
+		$tester->onSetUp();
+
+		if ($eventManager->hasListeners('postTestSetUp')) {
+			$eventManager->dispatchEvent('postTestSetUp', new OrmTestCaseEventArgs($em, $this));
+		}
+	}
+
+
+
+	/**
+	 * @return TestConnection
+	 */
+	final protected function getConnection()
+	{
+		if (self::$connection === NULL) {
+			self::$connection = new TestConnection($this->getDoctrineConnection());
+		}
+
+		return self::$connection;
+	}
+
+
+
+	/**
+	 * @return Doctrine\DBAL\Connection
+	 */
+	final protected function getDoctrineConnection()
+	{
+		return $this->getEntityManager()->getConnection();
+	}
+
+
+
+	/**
+	 * @return Doctrine\ORM\EntityManager
+	 */
+	final protected function getEntityManager()
+	{
+		if (self::$em === NULL) {
+			self::$em = $this->createEntityManager();
+		}
+
+		return self::$em;
 	}
 
 
@@ -88,12 +149,19 @@ abstract class OrmTestCase extends DoctrineExtensions\PHPUnit\OrmTestCase
 		if (self::$doctrineContainer === NULL) {
 			self::$doctrineContainer = $container = new Kdyby\Doctrine\ORM\Container($this->getContext(), array(
 				'driver' => 'pdo_sqlite',
-				'dsn' => 'sqlite::memory:',
+				//'dsn' => 'sqlite::memory:',
 				'memory' => TRUE
 			));
 
-			$evm = $container->getEntityManager()->getEventManager();
-			$evm->addEventSubscriber(new SchemaSetupListener());
+			$em = $container->getEntityManager();
+
+			// prepare schema
+			$classes = $em->getMetadataFactory()->getAllMetadata();
+			$container->schemaTool->dropDatabase();
+			$container->schemaTool->createSchema($classes);
+
+			// register automatic fixtures loading
+			$em->getEventManager()->addEventSubscriber($container->dataFixturesListener);
 		}
 
 		return self::$doctrineContainer->getEntityManager();
@@ -106,8 +174,91 @@ abstract class OrmTestCase extends DoctrineExtensions\PHPUnit\OrmTestCase
 	 */
 	protected function getDataSet()
 	{
-		return new \PHPUnit_Extensions_Database_DataSet_DefaultDataSet();
+		$dataSet = new \PHPUnit_Extensions_Database_DataSet_DefaultDataSet();
+		$databaseMeta = $this->getConnection()->getMetaData();
+		foreach ($databaseMeta->getTableNames() as $tableName) {
+			$metadata = new \PHPUnit_Extensions_Database_DataSet_DefaultTableMetaData(
+					$tableName,
+					$databaseMeta->getTableColumns($tableName),
+					$databaseMeta->getTablePrimaryKeys($tableName)
+				);
+
+			$dataSet->addTable(new \PHPUnit_Extensions_Database_DataSet_DefaultTable($metadata));
+		}
+
+		return $dataSet;
 	}
+
+
+
+	/**
+	 * Returns the database operation executed in test setup.
+	 *
+	 * @return \PHPUnit_Extensions_Database_Operation_DatabaseOperation
+	 */
+	protected function getSetUpOperation()
+	{
+		return new \PHPUnit_Extensions_Database_Operation_Composite(array(
+			new DoctrineExtensions\PHPUnit\Operations\Truncate,
+			//new \PHPUnit_Extensions_Database_Operation_Insert
+		));
+	}
+
+
+
+	/**
+	 * @param array $tableNames
+	 * @return \PHPUnit_Extensions_Database_DataSet_QueryDataSet
+	 */
+	protected function createQueryDataSet(array $tableNames = NULL)
+	{
+		$dbTables = $this->getConnection()->getMetaData()->getTableNames();
+		foreach ($tableNames as &$tableName) {
+			if (in_array($tableName, $dbTables, TRUE)) {
+				continue;
+			}
+
+			$tableName = $this->getTableName($tableName);
+		}
+
+		return $this->getConnection()->createDataSet($tableNames);
+	}
+
+
+
+	/**
+	 * @param  string $tableName
+	 * @param  string $sql
+	 * @return \PHPUnit_Extensions_Database_DataSet_QueryTable
+	 */
+	protected function createQueryDataTable($tableName, $sql = NULL)
+	{
+		$dbTables = $this->getConnection()->getMetaData()->getTableNames();
+		if (!in_array($tableName, $dbTables, TRUE)) {
+			$tableName = $this->getTableName($tableName);
+		}
+
+		if ($sql == NULL) {
+			$sql = 'SELECT * FROM ' . $tableName;
+		}
+
+		return $this->getConnection()->createQueryTable($tableName, $sql);
+	}
+
+
+
+	/**
+	 * Creates a IDatabaseTester for this testCase.
+	 *
+	 * @return PHPUnit_Extensions_Database_ITester
+	 */
+	protected function newDatabaseTester()
+	{
+		return new DatabaseTester($this->getConnection());
+	}
+
+
+	/********************* EntityManager shortcuts *********************/
 
 
 
@@ -142,44 +293,6 @@ abstract class OrmTestCase extends DoctrineExtensions\PHPUnit\OrmTestCase
 	}
 
 
-	/********************* Data Fixtures *********************/
-
-
-
-	/**
-	 * Appends Data Fixtures to current database DataSet
-	 */
-	private function loadFixtures()
-	{
-		$loader = self::$doctrineContainer->fixturesLoader;
-		foreach ($this->getTestFixtureClasses() as $class) {
-			$loader->addFixture(new $class);
-		}
-
-		self::$doctrineContainer->fixturesExecutor
-			->execute($loader->getFixtures(), TRUE);
-	}
-
-
-
-	/**
-	 * @return array
-	 */
-	private function getTestFixtureClasses()
-	{
-		$method = $this->getReflection()->getMethod($this->getName(FALSE));
-		$annotations = $method->getAnnotations();
-
-		return array_map(function ($class) use ($method) {
-			if (substr_count($class, '\\') !== 0) {
-				return $class;
-			}
-
-			return $method->getDeclaringClass()->getNamespaceName() . '\\' .  $class;
-		}, isset($annotations['Fixture']) ? $annotations['Fixture'] : array());
-	}
-
-
 	/********************* Database DataSets *********************/
 
 
@@ -198,7 +311,8 @@ abstract class OrmTestCase extends DoctrineExtensions\PHPUnit\OrmTestCase
 			throw new Nette\NotImplementedException("Handling of filetype $extension is not implemented yet.");
 		}
 
-		return $this->createDataSet($this->resolveTestDataSetFilename());
+		$resolver = new DataSetFilenameResolver($this);
+		return $this->createDataSet($resolver->resolve());
 	}
 
 
@@ -221,59 +335,6 @@ abstract class OrmTestCase extends DoctrineExtensions\PHPUnit\OrmTestCase
 	protected function createNeonDataSet($neonFile)
 	{
 		return new Database\NeonDataSet($this->getConnection()->getMetaData(), $neonFile);
-	}
-
-
-
-	/**
-	 * @return string
-	 */
-	private function resolveTestDataSetFilename()
-	{
-		$filenamePart = $this->getTestDirectory() . DIRECTORY_SEPARATOR .
-				$this->getTestCaseName() . '.' . $this->getTestName();
-
-		foreach (array('xml', 'yaml', 'csv', 'neon') as $extension) {
-			if (file_exists($file = $filenamePart . '.' . $extension)) {
-				return $file;
-			}
-		}
-
-		throw new Nette\IOException("File '" . $file . "' not found.");
-	}
-
-
-
-	/**
-	 * @return string
-	 */
-	private function getTestDirectory()
-	{
-		$class = $this->getReflection()
-			->getMethod($this->getName(FALSE))->getDeclaringClass();
-
-		return dirname($class->getFileName());
-	}
-
-
-
-	/**
-	 * @return string
-	 */
-	private function getTestCaseName()
-	{
-		$className = get_class($this);
-		return str_replace('Test', '', substr($className, strrpos($className, '\\') + 1));
-	}
-
-
-
-	/**
-	 * @return string
-	 */
-	private function getTestName()
-	{
-		return lcFirst(str_replace('test', '', $this->getName(FALSE)));
 	}
 
 

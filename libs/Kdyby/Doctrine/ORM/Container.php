@@ -32,9 +32,11 @@ use Nette;
  * @property-read Doctrine\DBAL\Event\Listeners\MysqlSessionInit $mysqlSessionInitListener
  * @property-read EventManager $eventManager
  * @property-read EntityManager $entityManager
+ * @property-read Doctrine\ORM\Tools\SchemaTool $schemaTool
  * @property-read Doctrine\Common\DataFixtures\Loader $fixturesLoader
  * @property-read Doctrine\Common\DataFixtures\Purger\PurgerInterface $fixturesPurger
  * @property-read Doctrine\Common\DataFixtures\Executor\AbstractExecutor $fixturesExecutor
+ * @property-read Kdyby\Testing\DataFixturesListener $dataFixturesListener
  */
 class Container extends Kdyby\Doctrine\BaseContainer
 {
@@ -227,6 +229,16 @@ class Container extends Kdyby\Doctrine\BaseContainer
 
 
 	/**
+	 * @return Doctrine\ORM\Tools\SchemaTool
+	 */
+	protected function createServiceSchemaTool()
+	{
+		return new Doctrine\ORM\Tools\SchemaTool($this->getEntityManager());
+	}
+
+
+
+	/**
 	 * @return Doctrine\Common\DataFixtures\Loader
 	 */
 	protected function createServiceFixturesLoader()
@@ -252,6 +264,16 @@ class Container extends Kdyby\Doctrine\BaseContainer
 	protected function createServiceFixturesExecutor()
 	{
 		return new Doctrine\Common\DataFixtures\Executor\ORMExecutor($this->getEntityManager(), $this->fixturesPurger);
+	}
+
+
+
+	/**
+	 * @return Kdyby\Testing\DataFixturesListener
+	 */
+	protected function createServiceDataFixturesListener()
+	{
+		return new Kdyby\Testing\DataFixturesListener($this->fixturesLoader, $this->fixturesExecutor);
 	}
 
 
