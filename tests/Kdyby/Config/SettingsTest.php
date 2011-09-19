@@ -63,7 +63,7 @@ class SettingsTest extends Kdyby\Testing\OrmTestCase
 			$this->settings->set($row['name'], $row['value'], $row['section']);
 		}
 
-		$table = $this->createQueryDataTable($tableName);
+		$table = $this->createQueryDataTable('Kdyby\Config\Setting');
 		$this->assertSame(5, $table->getRowCount());
 		$this->assertTablesEqual($dataset->getTable($tableName), $table);
 	}
@@ -75,10 +75,13 @@ class SettingsTest extends Kdyby\Testing\OrmTestCase
 	 */
 	public function testDeletingSettings()
 	{
+		$table = $this->createQueryDataTable('Kdyby\Config\Setting');
+		$this->assertSame(5, $table->getRowCount());
+
 		$this->settings->delete(NULL, 'database');
 		$this->settings->delete('imageDir');
 
-		$table = $this->createQueryDataTable($this->getTableName('Kdyby\Config\Setting'));
+		$table = $this->createQueryDataTable('Kdyby\Config\Setting');
 		$this->assertSame(0, $table->getRowCount());
 	}
 
