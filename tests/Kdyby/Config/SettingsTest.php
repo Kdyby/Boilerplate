@@ -54,10 +54,11 @@ class SettingsTest extends Kdyby\Testing\OrmTestCase
 
 
 
-	public function testSettingValues()
+	public function testSavingSettings()
 	{
 		$tableName = $this->getTableName('Kdyby\Config\Setting');
-		$dataset = $this->createNeonDataSet(__DIR__ . '/Settings.settingValue.neon');
+		$dataset = $this->createDataSet();
+
 		foreach ($dataset->getTable($tableName) as $row) {
 			$this->settings->set($row['name'], $row['value'], $row['section']);
 		}
@@ -65,6 +66,20 @@ class SettingsTest extends Kdyby\Testing\OrmTestCase
 		$table = $this->createQueryDataTable($tableName);
 		$this->assertSame(5, $table->getRowCount());
 		$this->assertTablesEqual($dataset->getTable($tableName), $table);
+	}
+
+
+
+	/**
+	 * @Fixture("SettingsData")
+	 */
+	public function testDeletingSettings()
+	{
+		$this->settings->delete(NULL, 'database');
+		$this->settings->delete('imageDir');
+
+		$table = $this->createQueryDataTable($this->getTableName('Kdyby\Config\Setting'));
+		$this->assertSame(0, $table->getRowCount());
 	}
 
 }

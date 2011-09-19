@@ -89,7 +89,14 @@ class Settings extends Nette\Object
 	 */
 	public function delete($name, $section = NULL)
 	{
-		$setting = $this->getRepository()->findOneByNameAndSection($name, $section);
+		$query = new SettingQuery($name, $section);
+		if ($name === NULL && $section !== NULL) {
+			$setting = $this->getRepository()->fetch($query);
+
+		} else {
+			$setting = $this->getRepository()->fetchOne($query);
+		}
+
 		if ($setting == NULL) {
 			return;
 		}

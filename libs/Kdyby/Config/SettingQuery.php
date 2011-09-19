@@ -72,9 +72,12 @@ class SettingQuery extends Kdyby\Doctrine\ORM\QueryObjectBase
 	 */
 	protected function doCreateQuery(EntityRepository $repository)
 	{
-		$qb = $repository->createQueryBuilder('s')
-			->where('s.name = :name')
-			->setParameter('name', $this->name);
+		$qb = $repository->createQueryBuilder('s');
+
+		if ($this->name !== NULL) {
+			$qb->andWhere('s.name = :name')
+				->setParameter('name', $this->name);
+		}
 
 		if ($this->section === NULL) {
 			$qb->andWhere('s.section IS NULL');
