@@ -47,7 +47,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 	/**
 	 * @return Kdyby\DI\Configurator
 	 */
-	public function getConfigurator()
+	protected function getConfigurator()
 	{
 		return $this->configurator;
 	}

@@ -52,7 +52,7 @@ abstract class OrmTestCase extends DoctrineExtensions\PHPUnit\OrmTestCase
 	/**
 	 * @return Kdyby\DI\Configurator
 	 */
-	public function getConfigurator()
+	protected function getConfigurator()
 	{
 		return $this->configurator;
 	}
@@ -65,6 +65,17 @@ abstract class OrmTestCase extends DoctrineExtensions\PHPUnit\OrmTestCase
 	public function getContext()
 	{
 		return $this->context;
+	}
+
+
+
+	/**
+	 * Initialize DB connection and load Data Fixtures
+	 */
+	protected function setup()
+	{
+		parent::setup();
+		$this->loadFixtures();
 	}
 
 
@@ -131,6 +142,66 @@ abstract class OrmTestCase extends DoctrineExtensions\PHPUnit\OrmTestCase
 	}
 
 
+	/********************* Data Fixtures *********************/
+
+
+
+	/**
+	 * Appends Data Fixtures to current database DataSet
+	 */
+	private function loadFixtures()
+	{
+		$loader = self::$doctrineContainer->fixturesLoader;
+		foreach ($this->getTestFixtureClasses() as $class) {
+			$loader->addFixture(new $class);
+		}
+
+		self::$doctrineContainer->fixturesExecutor
+			->execute($loader->getFixtures(), TRUE);
+	}
+
+
+
+	/**
+	 * @return array
+	 */
+	private function getTestFixtureClasses()
+	{
+		$annotations = $this->getReflection()
+			->getMethod($this->getName(FALSE))->getAnnotations();
+
+		return array_map(function ($class) use ($method) {
+			if (substr_count($class, '\\') !== 0) {
+				return $class;
+			}
+
+			return $method->getDeclaringClass()->getNamespaceName() . '\\' .  $class;
+		}, isset($annotations['Fixture']) ? $annotations['Fixture'] : array());
+	}
+
+
+	/********************* Database DataSets *********************/
+
+
+
+	/**
+	 * @param string $file
+	 * @return \PHPUnit_Extensions_Database_DataSet_AbstractDataSet
+	 */
+	protected function createDataSet($file = NULL)
+	{
+		$extension = $file ? pathinfo($file, PATHINFO_EXTENSION) : NULL;
+		if ($extension === 'neon') {
+			return $this->createNeonDataSet($file);
+
+		} elseif ($file !== NULL) {
+			throw new Nette\NotImplementedException("Handling of filetype $extension is not implemented yet.");
+		}
+
+		return $this->createDataSet($this->resolveTestDataSetFilename());
+	}
+
+
 
 	/**
 	 * @param string $yamlFile
@@ -152,6 +223,58 @@ abstract class OrmTestCase extends DoctrineExtensions\PHPUnit\OrmTestCase
 		return new Database\NeonDataSet($this->getConnection()->getMetaData(), $neonFile);
 	}
 
+
+
+	/**
+	 * @return string
+	 */
+	private function resolveTestDataSetFilename()
+	{
+		$filenamePart = $this->getTestDirectory() . DIRECTORY_SEPARATOR .
+				$this->getTestCaseName() . '.' . $this->getTestName();
+
+		foreach (array('xml', 'yaml', 'csv', 'neon') as $extension) {
+			if (file_exists($file = $filenamePart . '.' . $extension)) {
+				return $file;
+			}
+		}
+
+		throw new Nette\IOException("File '" . $file . "' not found.");
+	}
+
+
+
+	/**
+	 * @return string
+	 */
+	private function getTestDirectory()
+	{
+		$class = $this->getReflection()
+			->getMethod($this->getName(FALSE))->getDeclaringClass();
+
+		return dirname($class->getFileName());
+	}
+
+
+
+	/**
+	 * @return string
+	 */
+	private function getTestCaseName()
+	{
+		$className = get_class($this);
+		return str_replace('Test', '', substr($className, strrpos($className, '\\') + 1));
+	}
+
+
+
+	/**
+	 * @return string
+	 */
+	private function getTestName()
+	{
+		return lcFirst(str_replace('test', '', $this->getName(FALSE)));
+	}
 
 
 	/********************* Nette\Object behaviour ****************d*g**/
