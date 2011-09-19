@@ -20,7 +20,7 @@ use Kdyby\Application\Presentation\Bundle;
 /**
  * @author Filip Procházka
  *
- * @property-read Kdyby\DI\Container $context
+ * @property-read Kdyby\Application\Container $context
  * @property Kdyby\Templates\ITheme $theme
  */
 abstract class Presenter extends Nette\Application\UI\Presenter
