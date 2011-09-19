@@ -167,8 +167,8 @@ abstract class OrmTestCase extends DoctrineExtensions\PHPUnit\OrmTestCase
 	 */
 	private function getTestFixtureClasses()
 	{
-		$annotations = $this->getReflection()
-			->getMethod($this->getName(FALSE))->getAnnotations();
+		$method = $this->getReflection()->getMethod($this->getName(FALSE));
+		$annotations = $method->getAnnotations();
 
 		return array_map(function ($class) use ($method) {
 			if (substr_count($class, '\\') !== 0) {
