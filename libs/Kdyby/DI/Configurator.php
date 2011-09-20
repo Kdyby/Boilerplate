@@ -163,9 +163,25 @@ class Configurator extends Nette\Configurator
 	 * @param Container $container
 	 * @return Kdyby\Doctrine\ORM\Container
 	 */
+	public static function createServiceSqldbContainerBuilder(Container $container)
+	{
+		$builder = new Kdyby\Doctrine\ORM\ContainerBuilder($container->doctrineCache, $container->getParam('sqldb', array()));
+		$builder->registerTypes();
+		$builder->registerAnnotationClasses();
+		$builder->setProductionMode($container->params['productionMode']);
+		$builder->expandParams($container);
+		return $builder;
+	}
+
+
+
+	/**
+	 * @param Container $container
+	 * @return Kdyby\Doctrine\ORM\Container
+	 */
 	public static function createServiceSqldb(Container $container)
 	{
-		return new Kdyby\Doctrine\ORM\Container($container, $container->getParam('sqldb', array()));
+		return $container->sqldbContainerBuilder->build();
 	}
 
 

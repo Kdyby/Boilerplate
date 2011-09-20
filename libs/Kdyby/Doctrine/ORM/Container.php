@@ -11,10 +11,11 @@
 namespace Kdyby\Doctrine\ORM;
 
 use Doctrine;
+use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Annotations\AnnotationRegistry;
+use Doctrine\Common\EventManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
-use Doctrine\Common\EventManager;
-use Doctrine\Common\Annotations\AnnotationRegistry;
 use Kdyby;
 use Nette;
 
@@ -24,153 +25,36 @@ use Nette;
  * @author Patrik Votoček
  * @author Filip Procházka
  *
- * @property-read Kdyby\DI\Container $context
- * @property-read Diagnostics\Panel $logger
  * @property-read Doctrine\ORM\Configuration $configurator
- * @property-read Doctrine\Common\Annotations\AnnotationReader $annotationReader
- * @property-read Doctrine\ORM\Mapping\Driver\AnnotationDriver $annotationDriver
- * @property-read Doctrine\DBAL\Event\Listeners\MysqlSessionInit $mysqlSessionInitListener
+ * @property-read Doctrine\DBAL\Connection $connection
  * @property-read EventManager $eventManager
  * @property-read EntityManager $entityManager
+ *
+ * @property-read Doctrine\DBAL\Event\Listeners\MysqlSessionInit $mysqlSessionInitListener
+ * @property-read Mapping\EntityDefaultsListener $entityDefaultsListener
+ * @property-read Mapping\DiscriminatorMapDiscoveryListener $discriminatorMapDiscoveryListener
+ *
+ * @property-read Diagnostics\Panel $logger
+ *
+ * @property-read AnnotationReader $annotationReader
+ * @property-read Mapping\Driver\AnnotationDriver $annotationDriver
+ *
  * @property-read Doctrine\ORM\Tools\SchemaTool $schemaTool
+ *
  * @property-read Doctrine\Common\DataFixtures\Loader $fixturesLoader
  * @property-read Doctrine\Common\DataFixtures\Purger\PurgerInterface $fixturesPurger
  * @property-read Doctrine\Common\DataFixtures\Executor\AbstractExecutor $fixturesExecutor
- * @property-read Kdyby\Testing\DataFixturesListener $dataFixturesListener
+ * @property-read Kdyby\Testing\Database\DataFixturesListener $dataFixturesListener
  */
-class Container extends Kdyby\Doctrine\BaseContainer
+class Container extends Kdyby\DI\Container implements Kdyby\Doctrine\IContainer
 {
-
-	/** @var array */
-	public $params = array(
-			'host' => 'localhost',
-			'charset' => 'utf8',
-			'driver' => 'pdo_mysql',
-			'entityDirs' => array('%appDir%', '%kdybyFrameworkDir%'),
-			'proxiesDir' => '%tempDir%/proxies',
-			'proxyNamespace' => 'Kdyby\Domain\Proxies',
-			'listeners' => array(),
-		);
-
-	/** @var array */
-	private static $types = array(
-		'callback' => '\Kdyby\Doctrine\ORM\Types\Callback',
-		'password' => '\Kdyby\Doctrine\ORM\Types\Password'
-	);
-
-
-
-	/**
-	 * @param Kdyby\DI\Container $context
-	 * @param array $parameters
-	 */
-	public function __construct(Kdyby\DI\Container $context, $parameters = array())
-	{
-		parent::__construct($context, $parameters);
-
-		foreach (self::$types as $name => $className) {
-			if (!Type::hasType($name)) {
-				Type::addType($name, $className);
-			}
-		}
-	}
-
-
-
-	/**
-	 * @return Diagnostics\Panel
-	 */
-	protected function createServiceLogger()
-	{
-		return Diagnostics\Panel::register();
-	}
-
-
-
-	/**
-	 * @return Doctrine\Common\Annotations\AnnotationReader
-	 */
-	protected function createServiceAnnotationReader()
-	{
-		$this->registerAnnotationClasses();
-
-		$reader = new Doctrine\Common\Annotations\AnnotationReader();
-		$reader->setDefaultAnnotationNamespace('Doctrine\ORM\Mapping\\');
-		// $reader->setAnnotationNamespaceAlias('Kdyby\Doctrine\ORM\Mapping\\', 'Kdyby');
-
-		$reader->setIgnoreNotImportedAnnotations(TRUE);
-		$reader->setEnableParsePhpImports(FALSE);
-
-		return new Kdyby\Doctrine\Annotations\CachedReader(
-			new Doctrine\Common\Annotations\IndexedReader($reader),
-			$this->hasService('annotationCache') ? $this->annotationCache : $this->cache
-		);
-	}
-
-
-
-	private function registerAnnotationClasses()
-	{
-		$loader = Kdyby\Loaders\SplClassLoader::getInstance();
-		foreach ($loader->getTypeDirs('Doctrine\ORM') as $dir) {
-			AnnotationRegistry::registerFile($dir . '/Mapping/Driver/DoctrineAnnotations.php');
-		}
-
-		AnnotationRegistry::registerFile(KDYBY_FRAMEWORK_DIR . '/Doctrine/ORM/Mapping/Driver/DoctrineAnnotations.php');
-	}
-
-
 
 	/**
 	 * @return Mapping\Driver\AnnotationDriver
 	 */
 	protected function createServiceAnnotationDriver()
 	{
-		return new Mapping\Driver\AnnotationDriver(
-				$this->annotationReader,
-				$this->params['entityDirs']
-			);
-	}
-
-
-
-	/**
-	 * @return Doctrine\ORM\Configuration
-	 */
-	protected function createServiceConfiguration()
-	{
-		$config = new Doctrine\ORM\Configuration;
-
-		// Cache
-		$config->setMetadataCacheImpl($this->hasService('metadataCache') ? $this->metadataCache : $this->cache);
-		$config->setQueryCacheImpl($this->hasService('queryCache') ? $this->queryCache : $this->cache);
-
-		// Metadata
-		$config->setClassMetadataFactoryName('Kdyby\Doctrine\ORM\Mapping\ClassMetadataFactory');
-		$config->setMetadataDriverImpl($this->annotationDriver);
-
-		// Proxies
-		$config->setProxyDir($this->params['proxiesDir']);
-		$config->setProxyNamespace($this->getParam('proxyNamespace', 'Kdyby\Domain\Proxies'));
-		if ($this->context->params['productionMode']) {
-			$config->setAutoGenerateProxyClasses(FALSE);
-
-		} else {
-			$config->setAutoGenerateProxyClasses(TRUE);
-			$config->setSQLLogger($this->logger);
-		}
-
-		return $config;
-	}
-
-
-
-	/**
-	 * @return Doctrine\DBAL\Event\Listeners\MysqlSessionInit
-	 */
-	protected function createServiceMysqlSessionInitListener()
-	{
-		return new Doctrine\DBAL\Event\Listeners\MysqlSessionInit($this->params['charset']);
+		return new Mapping\Driver\AnnotationDriver($this->annotationReader, $this->params['entityDirs']);
 	}
 
 
@@ -196,34 +80,11 @@ class Container extends Kdyby\Doctrine\BaseContainer
 
 
 	/**
-	 * @return EventManager
-	 */
-	protected function createServiceEventManager()
-	{
-		$evm = new EventManager;
-		foreach ($this->params['listeners'] as $listener) {
-			$evm->addEventSubscriber($this->getService($listener));
-		}
-
-		$evm->addEventSubscriber($this->discriminatorMapDiscoveryListener);
-		$evm->addEventSubscriber($this->entityDefaultsListener);
-		// $evm->addEventSubscriber(new Kdyby\Media\Listeners\Mediable($this->context));
-		return $evm;
-	}
-
-
-
-	/**
 	 * @return EntityManager
 	 */
 	protected function createServiceEntityManager()
 	{
-		if (key_exists('driver', $this->params) && $this->params['driver'] == "pdo_mysql" && key_exists('charset', $this->params)) {
-			$this->eventManager->addEventSubscriber($this->mysqlSessionInitListener);
-		}
-
-		$this->freeze();
-		return EntityManager::create($this->params, $this->configuration, $this->eventManager);
+		return EntityManager::create($this->connection, $this->configuration, $this->eventManager);
 	}
 
 
@@ -273,7 +134,7 @@ class Container extends Kdyby\Doctrine\BaseContainer
 	 */
 	protected function createServiceDataFixturesListener()
 	{
-		return new Kdyby\Testing\DataFixturesListener($this->fixturesLoader, $this->fixturesExecutor);
+		return new Kdyby\Testing\Database\DataFixturesListener($this->fixturesLoader, $this->fixturesExecutor);
 	}
 
 

@@ -25,7 +25,9 @@ use Symfony\Component\Console;
  * @author Filip Procházka
  *
  * @property-read Kdyby\Doctrine\Workspace $workspace
+ * @property-read Kdyby\Doctrine\Cache $doctrineCache
  * @property-read Kdyby\Doctrine\ORM\Container $sqldb
+ * @property-read Kdyby\Doctrine\ORM\ContainerBuilder $sqldbContainerBuilder
  * @property-read Kdyby\Doctrine\ODM\Container $couchdb
  *
  * @property-read Console\Helper\HelperSet $consoleHelpers
