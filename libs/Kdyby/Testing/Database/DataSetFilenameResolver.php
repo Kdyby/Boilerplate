@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Testing;
+namespace Kdyby\Testing\Database;
 
 use Kdyby;
 use Nette;

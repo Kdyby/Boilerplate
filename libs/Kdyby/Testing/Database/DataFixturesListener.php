@@ -8,11 +8,13 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Testing;
+namespace Kdyby\Testing\Database;
 
 use Doctrine;
 use Doctrine\Common\DataFixtures;
 use Kdyby;
+use Kdyby\Testing\OrmTestCaseEventArgs;
+use Kdyby\Testing\OrmTestCase;
 use Nette;
 
 

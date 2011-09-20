@@ -32,14 +32,17 @@ abstract class OrmTestCase extends \PHPUnit_Extensions_Database_TestCase
 	/** @var Kdyby\DI\Configurator */
 	private $configurator;
 
-	/** @var Kdyby\Doctrine\ORM\Container */
-	private static $doctrineContainer;
+	/** @var Database\MemoryDatabaseManager */
+	private static $databaseManager;
 
-	/** @var DoctrineExtensions\PHPUnit\TestConnection */
-	private static $connection;
+	/** @var Kdyby\Doctrine\ORM\Container */
+	private $doctrineContainer;
 
 	/** @var Doctrine\ORM\EntityManager */
-	private static $em;
+	private $em;
+
+	/** @var DoctrineExtensions\PHPUnit\TestConnection */
+	private $connection;
 
 
 
@@ -108,11 +111,11 @@ abstract class OrmTestCase extends \PHPUnit_Extensions_Database_TestCase
 	 */
 	final protected function getConnection()
 	{
-		if (self::$connection === NULL) {
-			self::$connection = new TestConnection($this->getDoctrineConnection());
+		if ($this->connection === NULL) {
+			$this->connection = new TestConnection($this->getDoctrineConnection());
 		}
 
-		return self::$connection;
+		return $this->connection;
 	}
 
 
@@ -132,11 +135,11 @@ abstract class OrmTestCase extends \PHPUnit_Extensions_Database_TestCase
 	 */
 	final protected function getEntityManager()
 	{
-		if (self::$em === NULL) {
-			self::$em = $this->createEntityManager();
+		if ($this->em === NULL) {
+			$this->em = $this->createEntityManager();
 		}
 
-		return self::$em;
+		return $this->em;
 	}
 
 
@@ -146,25 +149,35 @@ abstract class OrmTestCase extends \PHPUnit_Extensions_Database_TestCase
 	 */
 	protected function createEntityManager()
 	{
-		if (self::$doctrineContainer === NULL) {
-			self::$doctrineContainer = $container = new Kdyby\Doctrine\ORM\Container($this->getContext(), array(
-				'driver' => 'pdo_sqlite',
-				//'dsn' => 'sqlite::memory:',
-				'memory' => TRUE
-			));
+		return $this->getDoctrineContainer()->getEntityManager();
+	}
 
-			$em = $container->getEntityManager();
 
-			// prepare schema
-			$classes = $em->getMetadataFactory()->getAllMetadata();
-			$container->schemaTool->dropDatabase();
-			$container->schemaTool->createSchema($classes);
 
-			// register automatic fixtures loading
-			$em->getEventManager()->addEventSubscriber($container->dataFixturesListener);
+	/**
+	 * @return Kdyby\Doctrine\ORM\Container
+	 */
+	protected function getDoctrineContainer()
+	{
+		if ($this->doctrineContainer === NULL) {
+			$this->doctrineContainer = $this->getDatabaseManager()->refresh();
 		}
 
-		return self::$doctrineContainer->getEntityManager();
+		return $this->doctrineContainer;
+	}
+
+
+
+	/**
+	 * @return Database\MemoryDatabaseManager
+	 */
+	private function getDatabaseManager()
+	{
+		if (self::$databaseManager === NULL) {
+			self::$databaseManager = new Database\MemoryDatabaseManager($this->getContext());
+		}
+
+		return self::$databaseManager;
 	}
 
 
@@ -311,7 +324,7 @@ abstract class OrmTestCase extends \PHPUnit_Extensions_Database_TestCase
 			throw new Nette\NotImplementedException("Handling of filetype $extension is not implemented yet.");
 		}
 
-		$resolver = new DataSetFilenameResolver($this);
+		$resolver = new Database\DataSetFilenameResolver($this);
 		return $this->createDataSet($resolver->resolve());
 	}
 
