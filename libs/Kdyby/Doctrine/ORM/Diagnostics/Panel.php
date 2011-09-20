@@ -33,7 +33,7 @@ use Nette\Utils\Strings;
  * @author	David Grudl
  * @author	Patrik Votoček
  */
-class Panel extends \Nette\Object implements \Nette\Diagnostics\IBarPanel, \Doctrine\DBAL\Logging\SQLLogger
+class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrine\DBAL\Logging\SQLLogger
 {
 	/** @var int logged time */
 	public $totalTime = 0;
