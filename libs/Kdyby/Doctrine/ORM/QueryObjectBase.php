@@ -13,8 +13,8 @@ namespace Kdyby\Doctrine\ORM;
 use Doctrine;
 use DoctrineExtensions\Paginate\Paginate;
 use Kdyby;
+use Kdyby\Doctrine\IQueryable;
 use Nette;
-use Nette\ObjectMixin;
 use Nette\Utils\Paginator;
 
 
@@ -22,7 +22,7 @@ use Nette\Utils\Paginator;
 /**
  * @author Filip Procházka
  */
-abstract class QueryObjectBase implements IQueryObject
+abstract class QueryObjectBase implements Kdyby\Doctrine\IQueryObject
 {
 
 	/** @var Paginator */
@@ -51,18 +51,18 @@ abstract class QueryObjectBase implements IQueryObject
 
 
 	/**
-	 * @param EntityRepository $repository
+	 * @param IQueryable $repository
 	 * @return Doctrine\ORM\Query|Doctrine\ORM\QueryBuilder
 	 */
-	protected abstract function doCreateQuery(EntityRepository $repository);
+	protected abstract function doCreateQuery(IQueryable $repository);
 
 
 
 	/**
-	 * @param EntityRepository $repository
+	 * @param IQueryable $repository
 	 * @return Doctrine\ORM\Query
 	 */
-	protected function getQuery(EntityRepository $repository)
+	protected function getQuery(IQueryable $repository)
 	{
 		$query = $this->doCreateQuery($repository);
 		if ($query instanceof Doctrine\ORM\QueryBuilder) {
@@ -81,10 +81,10 @@ abstract class QueryObjectBase implements IQueryObject
 
 
 	/**
-	 * @param EntityRepository $repository
+	 * @param IQueryable $repository
 	 * @return integer
 	 */
-	public function count(EntityRepository $repository)
+	public function count(IQueryable $repository)
 	{
 		return Paginate::getTotalQueryResults($this->getQuery($repository));
 	}
@@ -92,10 +92,10 @@ abstract class QueryObjectBase implements IQueryObject
 
 
 	/**
-	 * @param EntityRepository $repository
+	 * @param IQueryable $repository
 	 * @return array
 	 */
-	public function fetch(EntityRepository $repository)
+	public function fetch(IQueryable $repository)
 	{
 		$query = $this->getQuery($repository);
 
@@ -112,57 +112,15 @@ abstract class QueryObjectBase implements IQueryObject
 
 
 	/**
-	 * @param EntityRepository $repository
+	 * @param IQueryable $repository
 	 * @return object
 	 */
-	public function fetchOne(EntityRepository $repository)
+	public function fetchOne(IQueryable $repository)
 	{
 		return $this->getQuery($repository)
 			->setFirstResult(NULL)
 			->setMaxResults(1)
 			->getSingleResult();
-	}
-
-
-
-	/********************* Nette\Object behaviour ****************d*g**/
-
-
-
-	/**
-	 * @return Nette\Reflection\ClassType
-	 */
-	public /**/static/**/ function getReflection()
-	{
-		return new Nette\Reflection\ClassType(/*5.2*$this*//**/get_called_class()/**/);
-	}
-
-
-
-	public function &__get($name)
-	{
-		return ObjectMixin::get($this, $name);
-	}
-
-
-
-	public function __set($name, $value)
-	{
-		return ObjectMixin::set($this, $name, $value);
-	}
-
-
-
-	public function __isset($name)
-	{
-		return ObjectMixin::has($this, $name);
-	}
-
-
-
-	public function __unset($name)
-	{
-		ObjectMixin::remove($this, $name);
 	}
 
 }

@@ -19,20 +19,14 @@ use Nette;
 /**
  * @author Filip Procházka
  */
-interface IContainer
+interface IQueryable
 {
 
-	/**
-	 * @param string $className
-	 * @return bool
-	 */
-	function isManaging($className);
-
-
-	/**
-	 * @param string $className
-	 * @return IDao
-	 */
-	function getDao($className);
+    /**
+     * Create a new QueryBuilder instance that is prepopulated for this entity name
+     *
+     * @return Doctrine\ORM\QueryBuilder|Doctrine\CouchDB\View\AbstractQuery $qb
+     */
+    function createQueryBuilder();
 
 }

@@ -8,9 +8,11 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Doctrine\ORM;
+namespace Kdyby\Doctrine;
 
+use Doctrine;
 use Kdyby;
+use Kdyby\Doctrine\IQueryable;
 use Nette;
 
 
@@ -22,23 +24,23 @@ interface IQueryObject
 {
 
 	/**
-	 * @param EntityRepository $repository
+	 * @param IQueryable $repository
 	 * @return integer
 	 */
-	public function count(EntityRepository $repository);
+	function count(IQueryable $repository);
 
 
 	/**
-	 * @param EntityRepository $repository
+	 * @param IQueryable $repository
 	 * @return mixed
 	 */
-	public function fetch(EntityRepository $repository);
+	function fetch(IQueryable $repository);
 
 
 	/**
-	 * @param EntityRepository $repository
+	 * @param IQueryable $repository
 	 * @return object
 	 */
-	public function fetchOne(EntityRepository $repository);
+	function fetchOne(IQueryable $repository);
 
 }

@@ -15,6 +15,8 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\NonUniqueResultException;
 use Kdyby;
+use Kdyby\Doctrine\IQueryObject;
+use Kdyby\Doctrine\Mapping\EntityValuesMapper;
 use Nette;
 use Nette\ObjectMixin;
 
@@ -22,17 +24,60 @@ use Nette\ObjectMixin;
 
 /**
  * @author Filip Procházka
+ *
+ * @method Mapping\ClassMetadata getClassMetadata() getClassMetadata()
  */
-class EntityRepository extends Doctrine\ORM\EntityRepository
+class Dao extends EntityRepository implements Kdyby\Doctrine\IDao, Kdyby\Doctrine\IQueryable, Kdyby\Doctrine\IObjectFactory
 {
+
+	/** @var EntityValuesMapper */
+	private $entityMapper;
+
+
+
+	/**
+	 * @param array $values
+	 */
+	public function createNew($arguments = array(), $values = array())
+	{
+		$class = $this->getEntityName();
+		if (!$arguments) {
+			$entity = new $class;
+
+		} else {
+			$reflection = new Nette\Reflection\ClassType($class);
+			$entity = $reflection->newInstanceArgs($arguments);
+		}
+
+		if ($values) {
+			if (!$this->entityMapper) {
+				throw new Nette\InvalidArgumentException("EntityMapper service was not injected, therefore DAO cannot set values.");
+
+			} else {
+				$this->entityMapper->load($entity, $values);
+			}
+		}
+		return $entity;
+	}
+
+
+
+	/**
+	 * @param EntityValuesMapper $mapper
+	 */
+	public function setEntityMapper(EntityValuesMapper $mapper)
+	{
+		$this->entityMapper = $mapper;
+	}
+
+
 
 	/**
 	 * @param object|array|Collection $entity
-	 * @param boolean $validate
 	 * @param boolean $withoutFlush
 	 * @return object|array
 	 */
-	public function save($entity, $validate = TRUE, $withoutFlush = FALSE)
+	public function save($entity, $withoutFlush = self::NO_FLUSH)
 	{
 		if ($entity instanceof Collection) {
 			return $this->save($entity->toArray(), $validate, $withoutFlush);
@@ -45,7 +90,7 @@ class EntityRepository extends Doctrine\ORM\EntityRepository
 			}, $entity);
 
 			if ($withoutFlush === FALSE) {
-				$this->_em->flush();
+				$this->getEntityManager()->flush();
 			}
 
 			return $result;
@@ -55,9 +100,9 @@ class EntityRepository extends Doctrine\ORM\EntityRepository
 			throw new Nette\InvalidArgumentException("Entity is not instanceof " . $this->_entityName . ', ' . get_class($entity) . ' given.');
 		}
 
-		$this->_em->persist($entity);
+		$this->getEntityManager()->persist($entity);
 		if ($withoutFlush === FALSE) {
-			$this->_em->flush();
+			$this->getEntityManager()->flush();
 		}
 
 		return $entity;
@@ -69,7 +114,7 @@ class EntityRepository extends Doctrine\ORM\EntityRepository
 	 * @param object|array|Collection $entity
 	 * @param boolean $withoutFlush
 	 */
-	public function delete($entity, $withoutFlush = FALSE)
+	public function delete($entity, $withoutFlush = self::NO_FLUSH)
 	{
 		if ($entity instanceof Collection) {
 			return $this->delete($entity->toArray(), $withoutFlush);
@@ -82,7 +127,7 @@ class EntityRepository extends Doctrine\ORM\EntityRepository
 			}, $entity);
 
 			if ($withoutFlush === FALSE) {
-				$this->_em->flush();
+				$this->getEntityManager()->flush();
 			}
 			return;
 		}
@@ -91,10 +136,27 @@ class EntityRepository extends Doctrine\ORM\EntityRepository
 			throw new Nette\InvalidArgumentException("Entity is not instanceof " . $this->_entityName . ', ' . get_class($entity) . ' given.');
 		}
 
-		$this->_em->remove($entity);
+		$this->getEntityManager()->remove($entity);
 		if ($withoutFlush === FALSE) {
-			$this->_em->flush();
+			$this->getEntityManager()->flush();
 		}
+	}
+
+
+
+	/**
+	 * @param string $alias
+	 * @return Doctrine\ORM\QueryBuilder|Doctrine\CouchDB\View\AbstractQuery $qb
+	 */
+	public function createQueryBuilder($alias = NULL)
+	{
+		$qb = $this->getEntityManager()->createQueryBuilder();
+
+		if ($alias !== NULL) {
+			$qb->select($alias)->from($this->getEntityName(), $alias);
+		}
+
+		return $qb;
 	}
 
 
@@ -105,7 +167,7 @@ class EntityRepository extends Doctrine\ORM\EntityRepository
 	 */
 	public function count(IQueryObject $queryObject)
 	{
-		return $queryObject->count($this);
+		return $queryObject->count($this->getEntityManager()->createQueryBuilder());
 	}
 
 
@@ -136,68 +198,6 @@ class EntityRepository extends Doctrine\ORM\EntityRepository
 		} catch (NonUniqueResultException $e) {
 			return NULL;
 		}
-	}
-
-
-
-	/**
-	 * Create a new QueryBuilder instance that is prepopulated for this entity name
-	 *
-	 * @param string $alias
-	 * @return QueryBuilder $qb
-	 */
-	public function createQueryBuilder($alias)
-	{
-		return $this->doCreateQueryBuilder()->select($alias)
-			->from($this->_entityName, $alias);
-	}
-
-
-
-	/**
-	 * @return QueryBuilder
-	 */
-	protected function doCreateQueryBuilder()
-	{
-		return new QueryBuilder($this->getEntityManager());
-	}
-
-
-
-	/**
-	 * @param string $attribute
-	 * @param mixed $value
-	 * @throws QueryException
-	 * @return int
-	 */
-	public function countByAttribute($attribute, $value)
-	{
-		$qb = $this->createQueryBuilder('e')
-			->select('count(e) fullcount')
-			->where('e.' . $attribute . ' = :value')
-			->setParameter('value', $value);
-
-		try {
-			return (int)$qb->getQuery()->getSingleResult(Query::HYDRATE_SINGLE_SCALAR);
-
-		} catch (Doctrine\ORM\ORMException $e) {
-			throw new QueryException($e->getMessage(), $this->qb->getQuery(), $e);
-		}
-	}
-
-
-
-	/**
-	 * @param object $entity
-	 * @return array
-	 */
-	public function getIdentifierValues($entity)
-	{
-		if (!is_object($entity)) {
-			return $entity;
-		}
-
-		return $this->_em->getClassMetadata(get_class($entity))->getIdentifierValues($entity);
 	}
 
 

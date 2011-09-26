@@ -153,9 +153,9 @@ class Container extends Kdyby\DI\Container implements Kdyby\Doctrine\IContainer
 	 * @param string $entityName
 	 * @return EntityRepository
 	 */
-	public function getRepository($entityName)
+	public function getDao($className)
 	{
-		return $this->getEntityManager()->getRepository($entityName);
+		return $this->entityManager->getRepository($entityName);
 	}
 
 

@@ -10,7 +10,6 @@
 
 namespace Kdyby\Doctrine;
 
-use Doctrine;
 use Kdyby;
 use Nette;
 
@@ -19,20 +18,12 @@ use Nette;
 /**
  * @author Filip Procházka
  */
-interface IContainer
+interface IObjectFactory
 {
 
 	/**
-	 * @param string $className
-	 * @return bool
+	 * @return object
 	 */
-	function isManaging($className);
-
-
-	/**
-	 * @param string $className
-	 * @return IDao
-	 */
-	function getDao($className);
+	function createNew($arguments = array());
 
 }

@@ -15,6 +15,7 @@ use Doctrine\ORM\Events;
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 use Kdyby;
 use Nette;
+use Nette\Reflection\ClassType;
 
 
 
@@ -42,8 +43,17 @@ class EntityDefaultsListener extends Nette\Object implements Doctrine\Common\Eve
 	public function loadClassMetadata(LoadClassMetadataEventArgs $args)
 	{
 		$meta = $args->getClassMetadata();
+		if ($meta->isMappedSuperclass) {
+			return;
+		}
+
 		if (!$meta->customRepositoryClassName) {
-			$meta->customRepositoryClassName = 'Kdyby\Doctrine\ORM\EntityRepository';
+			$meta->setCustomRepositoryClass('Kdyby\Doctrine\ORM\Dao');
+		}
+
+		$refl = new ClassType($meta->customRepositoryClassName);
+		if (!$refl->implementsInterface('Kdyby\Doctrine\IDao')) {
+			throw new Nette\InvalidStateException("Your repository class for entity '" . $meta->name . "' should extend 'Kdyby\\Doctrine\\ORM\\Dao'.");
 		}
 	}
 
