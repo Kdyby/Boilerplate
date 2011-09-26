@@ -11,8 +11,8 @@
 namespace Kdyby\Config;
 
 use Doctrine;
+use Kdyby\Doctrine\IQueryable;
 use Kdyby;
-use Kdyby\Doctrine\ORM\EntityRepository;
 use Nette;
 use Nette\Utils\Paginator;
 
@@ -67,10 +67,10 @@ class SettingQuery extends Kdyby\Doctrine\ORM\QueryObjectBase
 
 
 	/**
-	 * @param EntityRepository $repository
+	 * @param IQueryable $repository
 	 * @return Doctrine\ORM\QueryBuilder
 	 */
-	protected function doCreateQuery(EntityRepository $repository)
+	protected function doCreateQuery(IQueryable $repository)
 	{
 		$qb = $repository->createQueryBuilder('s');
 
