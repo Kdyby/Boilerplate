@@ -10,16 +10,80 @@
 
 namespace Kdyby\Forms\Mapping;
 
+use Doctrine;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Kdyby;
+use Doctrine\Common\Persistence\ObjectManager;
 use Nette;
+use Nette\ComponentModel\IComponent;
+use SplObjectStorage;
 
 
 
 /**
  * @author Filip Procházka
  */
-class EntityFormMapper extends Kdyby\Doctrine\Mapping\EntityComponentMapper
+class EntityFormMapper extends Kdyby\Doctrine\Mapping\EntityMetadataMapper
 {
+
+	/** @var SplObjectStorage */
+	private $assignment;
+
+
+
+	/**
+	 * @param ObjectManager $workspace
+	 * @param TypeMapper $typeMapper
+	 */
+	public function __construct(ObjectManager $workspace, TypeMapper $typeMapper)
+	{
+		parent::__construct($workspace, $typeMapper);
+		$this->assignment = new SplObjectStorage();
+	}
+
+
+
+	/**
+	 * @param object $entity
+	 * @param IComponent $component
+	 * @return BaseMapper
+	 */
+	public function assing($entity, IComponent $component)
+	{
+		$this->assignment->attach($entity, $component);
+		return $this;
+	}
+
+
+
+	/**
+	 * @return SplObjectStorage
+	 */
+	public function getAssignment()
+	{
+		return $this->assignment;
+	}
+
+
+
+	/**
+	 * @param object $entity
+	 * @return IComponent
+	 */
+	public function getComponent($entity)
+	{
+		if (!$this->assignment->contains($entity)) {
+			return NULL;
+		}
+
+		return $this->assignment->offsetGet($entity);
+	}
+
+
+
+	/************************ load & save to component ************************/
+
+
 
 	/**
 	 * @return array
@@ -72,6 +136,8 @@ class EntityFormMapper extends Kdyby\Doctrine\Mapping\EntityComponentMapper
 
 
 	/**
+	 * @todo finish
+	 *
 	 * @param Validation\Result $result
 	 * @param EntityForm $entityForm
 	 */

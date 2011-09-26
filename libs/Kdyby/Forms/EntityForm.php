@@ -11,7 +11,6 @@
 namespace Kdyby\Forms;
 
 use Doctrine;
-use Kdyby\Doctrine\Workspace;
 use Kdyby;
 use Kdyby\Validation;
 use Kdyby\Validation\IValidator;
@@ -37,14 +36,8 @@ class EntityForm extends Kdyby\Application\UI\Form
 	/** @var string key of application stored request */
 	private $onSaveRestore;
 
-	/** @var string|UI\Link link to redirect from presenter */
-	private $onSaveRedirect;
-
 	/** @var object */
 	private $entity;
-
-	/** @var Workspace */
-	private $workspace;
 
 	/** @var Mapping\EntityFormMapper */
 	private $mapper;
@@ -53,11 +46,11 @@ class EntityForm extends Kdyby\Application\UI\Form
 
 	/**
 	 * @param object $entity
-	 * @param Workspace $workspace
+	 * @param Mapping\EntityFormMapper $mapper
 	 */
-	public function __construct($entity, Workspace $workspace)
+	public function __construct($entity, Mapping\EntityFormMapper $mapper)
 	{
-		$this->workspace = $workspace;
+		$this->mapper = $mapper;
 		$this->entity = $entity;
 
 		$this->getMapper()->assing($entity, $this);
@@ -84,22 +77,8 @@ class EntityForm extends Kdyby\Application\UI\Form
 	/**
 	 * @return Mapping\EntityFormMapper
 	 */
-	protected function doCreateMapper()
-	{
-		return new Mapping\EntityFormMapper($this->workspace);
-	}
-
-
-
-	/**
-	 * @return Mapping\EntityFormMapper
-	 */
 	public function getMapper()
 	{
-		if ($this->mapper === NULL) {
-			$this->mapper = $this->doCreateMapper();
-		}
-
 		return $this->mapper;
 	}
 
@@ -111,16 +90,6 @@ class EntityForm extends Kdyby\Application\UI\Form
 	public function getEntity()
 	{
 		return $this->entity;
-	}
-
-
-
-	/**
-	 * @return Workspace
-	 */
-	public function getWorkspace()
-	{
-		return $this->workspace;
 	}
 
 
@@ -152,81 +121,34 @@ class EntityForm extends Kdyby\Application\UI\Form
 
 
 	/**
-	 * @param string $redirect
-	 * @return EntityForm
-	 */
-	public function setOnSaveRedirect($redirect)
-	{
-		if ((!is_string($redirect) || $redirect == "") && !$redirect instanceof UI\Link) {
-			throw new Nette\InvalidArgumentException("Given address must be string or lazy link.");
-		}
-
-		$this->onSaveRedirect = $redirect;
-		return $this;
-	}
-
-
-
-	/**
-	 * @return string|UI\Link
-	 */
-	public function getOnSaveRedirect()
-	{
-		return $this->onSaveRedirect;
-	}
-
-
-
-	/**
 	 * Fires submit/click events.
+	 *
+	 * @todo mapper->assignResult()
+	 *
 	 * @return void
 	 */
 	public function fireEvents()
 	{
-		parent::fireEvents();
 		if (!$this->isSubmitted()) {
 			return;
 		}
 
-		// flush unrelated changes
-		// $this->getEntityManager()->flush(); // todo: ORLY?
+		// load data to entity
+		$entities = $this->getMapper()->load();
 
-		// forms validation
-		if (!$this->isValid()) {
-			return;
+		// ensure all in entity manager
+		foreach ($entities as $entity) {
+			$this->onSave($this, $entity);
 		}
 
-		try {
-			// load data to entity
-			$entities = $this->getMapper()->load();
-
-			// last touch before persisting
-			$this->onSave($this, $this->getEntity());
-
-			// ensure all in entity manager
-			foreach ($entities as $entity) {
-				$this->getWorkspace()->persist($entity);
-			}
-
-			// flush and optionaly raise exception
-			$this->getWorkspace()->flush();
-
-		} catch (Validation\Result $result) {
-			// validation errors occurred
-			return $this->getMapper()->assignResult($result, $this);
-		}
+		parent::fireEvents();
 
 		if ($this->onSaveRestore) {
 			$this->getPresenter()->getApplication()->restoreRequest($this->onSaveRestore);
 		}
 
-		if ($this->onSaveRedirect) {
-			$this->getPresenter()->redirectUri((string)$this->onSaveRedirect);
-		}
-
 		$this->getPresenter()->redirect('this');
 	}
-
 
 
 
