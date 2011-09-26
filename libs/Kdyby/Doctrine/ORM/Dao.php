@@ -27,7 +27,7 @@ use Nette\ObjectMixin;
  *
  * @method Mapping\ClassMetadata getClassMetadata() getClassMetadata()
  */
-class Dao extends EntityRepository implements Kdyby\Doctrine\IDao, Kdyby\Doctrine\IQueryable, Kdyby\Doctrine\IObjectFactory
+class Dao extends Doctrine\ORM\EntityRepository implements Kdyby\Doctrine\IDao, Kdyby\Doctrine\IQueryable, Kdyby\Doctrine\IObjectFactory
 {
 
 	/** @var EntityValuesMapper */
@@ -77,7 +77,7 @@ class Dao extends EntityRepository implements Kdyby\Doctrine\IDao, Kdyby\Doctrin
 	 * @param boolean $withoutFlush
 	 * @return object|array
 	 */
-	public function save($entity, $withoutFlush = self::NO_FLUSH)
+	public function save($entity, $withoutFlush = self::FLUSH)
 	{
 		if ($entity instanceof Collection) {
 			return $this->save($entity->toArray(), $validate, $withoutFlush);
@@ -114,7 +114,7 @@ class Dao extends EntityRepository implements Kdyby\Doctrine\IDao, Kdyby\Doctrin
 	 * @param object|array|Collection $entity
 	 * @param boolean $withoutFlush
 	 */
-	public function delete($entity, $withoutFlush = self::NO_FLUSH)
+	public function delete($entity, $withoutFlush = self::FLUSH)
 	{
 		if ($entity instanceof Collection) {
 			return $this->delete($entity->toArray(), $withoutFlush);
