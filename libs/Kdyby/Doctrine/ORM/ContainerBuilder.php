@@ -19,6 +19,7 @@ use Doctrine\DBAL\Event\Listeners\MysqlSessionInit;
 use Kdyby;
 use Kdyby\Doctrine\Annotations\CachedReader;
 use Nette;
+use Nette\Utils\Arrays;
 
 
 
@@ -84,7 +85,7 @@ class ContainerBuilder extends Nette\Object implements Kdyby\Doctrine\IContainer
 	public function __construct(Kdyby\Doctrine\Cache $cache, $parameters = array())
 	{
 		$this->cache = $cache;
-		$this->params = (array)$parameters + $this->params;
+		$this->params = Arrays::mergeTree($parameters, $this->params);
 
 		if (defined('KDYBY_CMS_DIR')) {
 			$this->params['entityDirs'][] = '%kdybyCmsDir%';
