@@ -35,9 +35,9 @@ class MemoryDatabaseManager extends Nette\Object
 
 
 	/**
-	 * @param Kdyby\Application\Container $context
+	 * @param Kdyby\DI\Container $context
 	 */
-	public function __construct(Kdyby\Application\Container $context)
+	public function __construct(Kdyby\DI\Container $context)
 	{
 		$this->containerBuilder = new ContainerBuilder($context->doctrineCache, array(
 				'driver' => 'pdo_sqlite',

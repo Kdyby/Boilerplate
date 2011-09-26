@@ -10,8 +10,13 @@
 
 namespace Kdyby\DI;
 
+use Doctrine\DBAL\Tools\Console\Command as DbalCommand;
+use Doctrine\ORM\Tools\Console\Command as OrmCommand;
+use Doctrine\CouchDB\Tools\Console\Command as CouchDBCommand;
+use Doctrine\ODM\CouchDB\Tools\Console\Command as OdmCommand;
 use Kdyby;
 use Kdyby\Application\ModuleCascadeRegistry;
+use Kdyby\DI\ContainerHelper;
 use Nette;
 use Nette\Application\Routers\Route;
 use Nette\Application\UI\Presenter;
@@ -36,7 +41,7 @@ class Configurator extends Nette\Configurator
 	/**
 	 * @param string $containerClass
 	 */
-	public function __construct($containerClass = 'Kdyby\Application\Container')
+	public function __construct($containerClass = 'Kdyby\DI\Container')
 	{
 		parent::__construct($containerClass);
 
@@ -198,6 +203,26 @@ class Configurator extends Nette\Configurator
 
 
 	/**
+	 * @param Container $container
+	 * @return Kdyby\Doctrine\Workspace
+	 */
+	public static function createServiceWorkspace(Container $container)
+	{
+		$containers = array(
+			'sqldb' => $container->sqldb,
+			'couchdb' => $container->couchdb
+		);
+
+		foreach ($container->getServiceNamesByTag('database') as $serviceName => $info) {
+			$containers[$serviceName] = $container->getService($serviceName);
+		}
+
+		return new Kdyby\Doctrine\Workspace($containers);
+	}
+
+
+
+	/**
 	 * @return Kdyby\Config\Settings
 	 */
 	public static function createServiceSettings(Container $container)
@@ -340,6 +365,189 @@ class Configurator extends Nette\Configurator
 		$context->addService('session', $container->session);
 
 		return new Kdyby\Security\User($context);
+	}
+
+
+
+	/**
+	 * @param Container $container
+	 * @return Kdyby\Security\Users
+	 */
+	public static function createServiceUsers(Container $container)
+	{
+		return new Kdyby\Security\Users($container->sqldb->entityManager);
+	}
+
+
+
+	/**
+	 * @param Container $container
+	 * @return Kdyby\Application\RequestManager
+	 */
+	public static function createServiceRequestManager(Container $container)
+	{
+		return new Kdyby\Application\RequestManager($container->application, $container->session);
+	}
+
+
+
+	/**
+	 * @param Container $container
+	 * @return Kdyby\Modules\InstallWizard
+	 */
+	public static function createServiceInstallWizard(Container $container)
+	{
+		return new Kdyby\Modules\InstallWizard($container->robotLoader, $container->cacheStorage);
+	}
+
+
+
+	/**
+	 * @param Container $container
+	 * @return Kdyby\Doctrine\Cache
+	 */
+	public static function createServiceDoctrineCache(Container $container)
+	{
+		return new Kdyby\Doctrine\Cache($container->cacheStorage);
+	}
+
+
+
+	/**
+	 * @param Container $container
+	 * @return Kdyby\Doctrine\Mapping\TypeMapper
+	 */
+	public static function createServiceDoctrineTypeMapper(Container $container)
+	{
+		return new Kdyby\Doctrine\Mapping\TypeMapper();
+	}
+
+
+
+	/**
+	 * @param Container $container
+	 * @return Kdyby\Doctrine\Mapping\EntityValuesMapper
+	 */
+	public static function createServiceDoctrineEntityValuesMapper(Container $container)
+	{
+		return new Kdyby\Doctrine\Mapping\EntityValuesMapper($container->workspace, $container->doctrineTypeMapper);
+	}
+
+
+
+	/**
+	 * @param Container $container
+	 * @return Kdyby\Forms\Mapping\EntityFormMapperFactory
+	 */
+	public static function createServiceEntityFormMapperFactory(Container $container)
+	{
+		return new Kdyby\Forms\Mapping\EntityFormMapperFactory($container->workspace, $container->doctrineTypeMapper);
+	}
+
+
+
+	/**
+	 * @param Container $container
+	 * @return Kdyby\Forms\EntityFormFactory
+	 */
+	public static function createServiceEntityFormFactory(Container $container)
+	{
+		return new Kdyby\Forms\EntityFormFactory($container->entityFormMapperFactory);
+	}
+
+
+
+	/**
+	 * @param Container $container
+	 * @return ModuleCascadeRegistry
+	 */
+	public static function createServiceModuleRegistry(Container $container)
+	{
+		$register = new ModuleCascadeRegistry;
+
+		foreach ($container->getParam('modules', array()) as $namespace => $path) {
+			$register->add($namespace, $container->expand($path));
+		}
+
+		return $register;
+	}
+
+
+
+	/**
+	 * @param Container $container
+	 * @return Console\Helper\HelperSet
+	 */
+	public static function createServiceConsoleHelpers(Container $container)
+	{
+		$helperSet = new Console\Helper\HelperSet(array(
+			'container' => new ContainerHelper($container),
+			'em' => new Kdyby\Doctrine\ORM\EntityManagerHelper($container->sqldb),
+			'couchdb' => new Kdyby\Doctrine\ODM\CouchDBHelper($container->couchdb),
+		));
+
+		return $helperSet;
+	}
+
+
+
+	/**
+	 * @param Container $container
+	 * @return Kdyby\Tools\FreezableArray
+	 */
+	public static function createServiceConsoleCommands(Container $container)
+	{
+		return new Kdyby\Tools\FreezableArray(array(
+			// DBAL Commands
+			new DbalCommand\RunSqlCommand(),
+			new DbalCommand\ImportCommand(),
+
+			// ORM Commands
+			new OrmCommand\SchemaTool\CreateCommand(),
+			new OrmCommand\SchemaTool\UpdateCommand(),
+			new OrmCommand\SchemaTool\DropCommand(),
+			new OrmCommand\ValidateSchemaCommand(),
+			new OrmCommand\GenerateProxiesCommand(),
+			new OrmCommand\RunDqlCommand(),
+
+			// ODM
+			new CouchDBCommand\ReplicationStartCommand(),
+			new CouchDBCommand\ReplicationCancelCommand(),
+			new CouchDBCommand\ViewCleanupCommand(),
+			new CouchDBCommand\CompactDatabaseCommand(),
+			new CouchDBCommand\CompactViewCommand(),
+			new CouchDBCommand\MigrationCommand(),
+			new OdmCommand\UpdateDesignDocCommand()
+		));
+	}
+
+
+
+	/**
+	 * @param Container $container
+	 * @return Console\Application
+	 */
+	public static function createServiceConsole(Container $container)
+	{
+		$name = Kdyby\Framework::NAME . " Command Line Interface";
+		$cli = new Console\Application($name, Kdyby\Framework::VERSION);
+
+		$cli->setCatchExceptions(TRUE);
+		$cli->setHelperSet($container->consoleHelpers);
+		$cli->addCommands($container->consoleCommands->freeze()->iterator->getArrayCopy());
+
+		return $cli;
+	}
+
+
+
+	/**
+	 * @param Container $container
+	 * @return Kdyby\Components\Grinder\GridFactory
+	 */
+	public static function createServiceGrinderFactory(Container $container)
+	{
+		return new Kdyby\Components\Grinder\GridFactory($container->workspace, $container->session);
 	}
 
 }

@@ -22,7 +22,7 @@ use Nette\Http;
 /**
  * @author Filip Procházka
  *
- * @property-read Kdyby\Application\Container $container
+ * @property-read Kdyby\DI\Container $container
  * @property-read Http\Session $session
  * @property-read Http\User $user
  * @property-read ObjectManager $workspace

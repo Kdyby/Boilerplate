@@ -18,6 +18,49 @@ use Nette;
 
 /**
  * @author Filip Procházka
+ *
+ * @property-read Kdyby\Doctrine\Workspace $workspace
+ * @property-read Kdyby\Doctrine\Cache $doctrineCache
+ * @property-read Kdyby\Doctrine\ORM\Container $sqldb
+ * @property-read Kdyby\Doctrine\ORM\ContainerBuilder $sqldbContainerBuilder
+ * @property-read Kdyby\Doctrine\ODM\Container $couchdb
+ *
+ * @property-read Console\Helper\HelperSet $consoleHelpers
+ * @property-read Kdyby\Tools\FreezableArray $consoleCommands
+ * @property-read Console\Application $console
+ *
+ * @property-read Nette\Application\Application $application
+ * @property-read Nette\Application\IPresenterFactory $presenterFactory
+ * @property-read Kdyby\Application\ModuleCascadeRegistry $moduleRegistry
+ * @property-read Kdyby\Application\RequestManager $requestManager
+ * @property-read Kdyby\Config\Settings $settings
+ *
+ * @property-read Nette\Application\IRouter $router
+ * @property-read Nette\Http\Request $httpRequest
+ * @property-read Nette\Http\Response $httpResponse
+ * @property-read Nette\Http\Context $httpContext
+ * @property-read Nette\Http\Session $session
+ *
+ * @property-read Nette\Http\User $user
+ * @property-read Kdyby\Security\Users $users
+ *
+ * @property-read Kdyby\Templates\ITemplateFactory $templateFactory
+ * @property-read Nette\Caching\Storages\PhpFileStorage $templateCacheStorage
+ * @property-read Nette\Latte\Engine $latteEngine
+ *
+ * @property-read Nette\Loaders\RobotLoader $robotLoader
+ *
+ * @property-read Kdyby\Doctrine\Mapping\TypeMapper $doctrineTypeMapper
+ * @property-read Kdyby\Doctrine\Mapping\EntityValuesMapper $doctrineEntityValuesMapper
+ * @property-read Kdyby\Forms\Mapping\EntityFormMapperFactory $entityFormMapperFactory
+ * @property-read Kdyby\Forms\EntityFormFactory $entityFormFactory
+ *
+ * @property-read Nette\Caching\IStorage $cacheStorage
+ * @property-read Nette\Caching\Storages\IJournal $cacheJournal
+ *
+ * @property-read Nette\Mail\IMailer $mailer
+ *
+ * @property-read Kdyby\Modules\InstallWizard $installWizard
  */
 class Container extends Nette\DI\Container
 {

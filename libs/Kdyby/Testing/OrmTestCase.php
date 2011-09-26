@@ -26,7 +26,7 @@ use Nette\ObjectMixin;
 abstract class OrmTestCase extends \PHPUnit_Extensions_Database_TestCase
 {
 
-	/** @var Kdyby\Application\Container */
+	/** @var Kdyby\DI\Container */
 	private $context;
 
 	/** @var Kdyby\DI\Configurator */
@@ -71,7 +71,7 @@ abstract class OrmTestCase extends \PHPUnit_Extensions_Database_TestCase
 
 
 	/**
-	 * @return Kdyby\Application\Container
+	 * @return Kdyby\DI\Container
 	 */
 	public function getContext()
 	{

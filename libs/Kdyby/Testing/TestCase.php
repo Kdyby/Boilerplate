@@ -22,7 +22,7 @@ use Nette\ObjectMixin;
 abstract class TestCase extends \PHPUnit_Framework_TestCase
 {
 
-	/** @var Kdyby\Application\Container */
+	/** @var Kdyby\DI\Container */
 	private $context;
 
 	/** @var Kdyby\DI\Configurator */
@@ -55,7 +55,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 
 
 	/**
-	 * @return Kdyby\Application\Container
+	 * @return Kdyby\DI\Container
 	 */
 	public function getContext()
 	{
