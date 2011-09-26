@@ -150,6 +150,7 @@ class Configurator extends Nette\Configurator
 		$context->addService('session', $container->session);
 		$context->addService('presenterFactory', $container->presenterFactory);
 		$context->addService('router', $container->router);
+		$context->lazyCopy('requestManager', $container);
 		$context->lazyCopy('console', $container);
 
 		Presenter::$invalidLinkMode = $container->getParam('productionMode', TRUE)

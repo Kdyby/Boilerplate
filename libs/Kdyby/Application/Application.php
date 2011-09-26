@@ -53,6 +53,8 @@ class Application extends Nette\Application\Application
 
 
 	/**
+	 * @todo some flashmessage?
+	 *
 	 * @param Nette\Application\Application $application
 	 * @param Nette\Application\ForbiddenRequestException $exception
 	 */
@@ -64,6 +66,44 @@ class Application extends Nette\Application\Application
 
 		$application->catchExceptions = TRUE;
 		$application->errorPresenter = $application->getPresenter()->getModuleName() . ':Sign';
+	}
+
+
+
+	/********************* request serialization *********************/
+
+
+
+	/**
+	 * @return RequestManager
+	 */
+	protected function getRequestManager()
+	{
+		return $this->context->requestManager;
+	}
+
+
+
+	/**
+	 * Stores current request to session.
+	 * @param  mixed  optional expiration time
+	 * @return string key
+	 */
+	public function storeRequest($expiration = '+ 10 minutes')
+	{
+		return $this->getRequestManager()->storeCurrentRequest($expiration);;
+	}
+
+
+
+	/**
+	 * Restores current request to session.
+	 * @param  string key
+	 * @return void
+	 */
+	public function restoreRequest($key)
+	{
+		$this->getRequestManager()->restoreRequest($key);
 	}
 
 }
