@@ -27,8 +27,8 @@ class SettingsTest extends Kdyby\Testing\OrmTestCase
 	/** @var Settings */
 	private $settings;
 
-	/** @var Kdyby\Doctrine\ORM\EntityRepository */
-	private $repository;
+	/** @var Kdyby\Doctrine\ORM\Dao */
+	private $dao;
 
 	/** @var MemoryStorage */
 	private $storage;
@@ -39,17 +39,17 @@ class SettingsTest extends Kdyby\Testing\OrmTestCase
 	{
 		parent::setup();
 
-		$this->repository = $this->getRepository('Kdyby\Config\Setting');
+		$this->dao = $this->getDao('Kdyby\Config\Setting');
 		$this->storage = new MemoryStorage();
-		$this->settings = new Settings($this->repository, $this->storage);
+		$this->settings = new Settings($this->dao, $this->storage);
 	}
 
 
 
-	public function testProvidesRepository()
+	public function testProvidesDao()
 	{
-		$this->assertInstanceOf('Kdyby\Doctrine\ORM\EntityRepository', $this->settings->getRepository());
-		$this->assertSame($this->repository, $this->settings->getRepository());
+		$this->assertInstanceOf('Kdyby\Doctrine\ORM\Dao', $this->settings->getDao());
+		$this->assertSame($this->dao, $this->settings->getDao());
 	}
 
 

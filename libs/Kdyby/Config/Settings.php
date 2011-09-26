@@ -12,7 +12,7 @@ namespace Kdyby\Config;
 
 use Doctrine\ORM\EntityManager;
 use Kdyby;
-use Kdyby\Doctrine\ORM\EntityRepository;
+use Kdyby\Doctrine\ORM\Dao;
 use Nette;
 use Nette\Caching\Cache;
 use Nette\Caching\IStorage;
@@ -22,15 +22,15 @@ use Nette\Caching\IStorage;
 /**
  * @author Filip Procházka
  *
- * @property-read EntityRepository $repository
+ * @property-read Dao $repository
  */
 class Settings extends Nette\Object
 {
 
 	const CACHE_NAMESPACE = 'Kdyby.Configurator';
 
-	/** @var EntityRepository */
-	private $repository;
+	/** @var Dao */
+	private $dao;
 
 	/** @var Cache */
 	private $cache;
@@ -38,12 +38,12 @@ class Settings extends Nette\Object
 
 
 	/**
-	 * @param EntityRepository $entityManager
+	 * @param Dao $dao
 	 * @param IStorage|NULL $storage
 	 */
-	public function __construct(EntityRepository $repository, IStorage $storage = NULL)
+	public function __construct(Dao $dao, IStorage $storage = NULL)
 	{
-		$this->repository = $repository;
+		$this->dao = $dao;
 
 		if ($storage) {
 			$this->cache = new Cache($storage, self::CACHE_NAMESPACE);
@@ -53,11 +53,11 @@ class Settings extends Nette\Object
 
 
 	/**
-	 * @return EntityRepository
+	 * @return Dao
 	 */
-	public function getRepository()
+	public function getDao()
 	{
-		return $this->repository;
+		return $this->dao;
 	}
 
 
@@ -69,13 +69,13 @@ class Settings extends Nette\Object
 	 */
 	public function set($name, $value, $section = NULL)
 	{
-		$setting = $this->getRepository()->fetchOne(new SettingQuery($name, $section));
+		$setting = $this->getDao()->fetchOne(new SettingQuery($name, $section));
 		if ($setting === NULL) {
 			$setting = new Setting($name, $section);
 		}
 
 		$setting->setValue($value);
-		$this->getRepository()->save($setting);
+		$this->getDao()->save($setting);
 		$this->cache->clean(array(
 				Cache::TAGS => array('settings'),
 			));
@@ -91,17 +91,17 @@ class Settings extends Nette\Object
 	{
 		$query = new SettingQuery($name, $section);
 		if ($name === NULL && $section !== NULL) {
-			$setting = $this->getRepository()->fetch($query);
+			$setting = $this->getDao()->fetch($query);
 
 		} else {
-			$setting = $this->getRepository()->fetchOne($query);
+			$setting = $this->getDao()->fetchOne($query);
 		}
 
 		if ($setting == NULL) {
 			return;
 		}
 
-		$this->getRepository()->delete($setting);
+		$this->getDao()->delete($setting);
 		$this->cache->clean(array(
 				Cache::TAGS => array('settings'),
 			));
@@ -118,7 +118,7 @@ class Settings extends Nette\Object
 			$settings = $this->cache->load('settings');
 
 		} else {
-			$settings = $this->repository->findAll();
+			$settings = $this->getDao()->findAll();
 
 			if ($this->cache) {
 				$this->cache->save('settings', $settings, array(

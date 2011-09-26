@@ -274,12 +274,11 @@ abstract class OrmTestCase extends \PHPUnit_Extensions_Database_TestCase
 	/********************* EntityManager shortcuts *********************/
 
 
-
 	/**
 	 * @param string $entityName
-	 * @return Doctrine\ORM\EntityRepository
+	 * @return Doctrine\ORM\Dao
 	 */
-	protected function getRepository($entityName)
+	protected function getDao($entityName)
 	{
 		return $this->getEntityManager()->getRepository($entityName);
 	}
