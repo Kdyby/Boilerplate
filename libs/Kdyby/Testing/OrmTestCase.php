@@ -32,6 +32,9 @@ abstract class OrmTestCase extends \PHPUnit_Extensions_Database_TestCase
 	/** @var Kdyby\DI\Configurator */
 	private $configurator;
 
+	/** @var TempClassGenerator */
+	private $tempClassGenerator;
+
 	/** @var Database\MemoryDatabaseManager */
 	private static $databaseManager;
 
@@ -347,6 +350,60 @@ abstract class OrmTestCase extends \PHPUnit_Extensions_Database_TestCase
 	protected function createNeonDataSet($neonFile)
 	{
 		return new Database\NeonDataSet($this->getConnection()->getMetaData(), $neonFile);
+	}
+
+
+	/********************* TempClassGenerator *********************/
+
+
+	/**
+	 * @return TempClassGenerator
+	 */
+	private function getTempClassGenerator()
+	{
+		if ($this->tempClassGenerator === NULL) {
+			$this->tempClassGenerator = new TempClassGenerator($this->getContext()->expand('%tempDir%/cache'));
+		}
+
+		return $this->tempClassGenerator;
+	}
+
+
+
+	/**
+	 * @param string $class
+	 * @return string
+	 */
+	protected function touchTempClass($class = NULL)
+	{
+		return $this->getTempClassGenerator()->generate($class);
+	}
+
+
+
+	/**
+	 * @param string $class
+	 * @return string
+	 */
+	protected function resolveTempClassFilename($class)
+	{
+		return $this->getTempClassGenerator()->resolveFilename($class);
+	}
+
+
+	/********************* Exceptions handling *********************/
+
+
+	/**
+	 * This method is called when a test method did not execute successfully.
+	 *
+	 * @param Exception $e
+	 * @since Method available since Release 3.4.0
+	 */
+	protected function onNotSuccessfulTest(\Exception $e)
+	{
+		Nette\Diagnostics\Debugger::log($e);
+		parent::onNotSuccessfulTest($e);
 	}
 
 

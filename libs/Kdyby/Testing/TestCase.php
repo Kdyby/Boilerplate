@@ -28,6 +28,9 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 	/** @var Kdyby\DI\Configurator */
 	private $configurator;
 
+	/** @var TempClassGenerator */
+	private $tempClassGenerator;
+
 
 
 	/**
@@ -98,33 +101,19 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 	}
 
 
+	/********************* TempClassGenerator *********************/
+
 
 	/**
-	 * @param string $class
-	 * @return string
+	 * @return TempClassGenerator
 	 */
-	public static function touchTempClass($class = NULL)
+	private function getTempClassGenerator()
 	{
-		// classname
-		$class = $class ?: 'Entity_' . Nette\Utils\Strings::random();
-
-		// file & content
-		$file = self::resolveTempClassFilename($class);
-		$content = '<' . '?php' . "\nclass " . $class . " {  } // " . (string)microtime(TRUE);
-
-		if (!is_dir($dir = dirname($file))) {
-			@mkdir($dir, 0777, TRUE);
+		if ($this->tempClassGenerator === NULL) {
+			$this->tempClassGenerator = new TempClassGenerator($this->getContext()->expand('%tempDir%/cache'));
 		}
 
-		if (!file_put_contents($file, $content)) {
-			throw new Nette\IOException($file . " is not writable");
-		}
-
-		if (!class_exists($class, FALSE)) {
-			Nette\Utils\LimitedScope::load($file);
-		}
-
-		return $class;
+		return $this->tempClassGenerator;
 	}
 
 
@@ -133,11 +122,37 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 	 * @param string $class
 	 * @return string
 	 */
-	public static function resolveTempClassFilename($class)
+	protected function touchTempClass($class = NULL)
 	{
-		return TEMP_DIR . '/cache/' . $class . '.tempclass.php';
+		return $this->getTempClassGenerator()->generate($class);
 	}
 
+
+
+	/**
+	 * @param string $class
+	 * @return string
+	 */
+	protected function resolveTempClassFilename($class)
+	{
+		return $this->getTempClassGenerator()->resolveFilename($class);
+	}
+
+
+	/********************* Exceptions handling *********************/
+
+
+	/**
+	 * This method is called when a test method did not execute successfully.
+	 *
+	 * @param Exception $e
+	 * @since Method available since Release 3.4.0
+	 */
+	protected function onNotSuccessfulTest(\Exception $e)
+	{
+		Nette\Diagnostics\Debugger::log($e);
+		parent::onNotSuccessfulTest($e);
+	}
 
 
 	/********************* Nette\Object behaviour ****************d*g**/
