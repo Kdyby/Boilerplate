@@ -46,7 +46,7 @@ use Nette;
  * @property-read Doctrine\Common\DataFixtures\Executor\AbstractExecutor $fixturesExecutor
  * @property-read Kdyby\Testing\Database\DataFixturesListener $dataFixturesListener
  */
-class Container extends Kdyby\DI\Container implements Kdyby\Doctrine\IContainer
+class Container extends Nette\DI\Container implements Kdyby\Doctrine\IContainer
 {
 
 	/**
@@ -151,11 +151,11 @@ class Container extends Kdyby\DI\Container implements Kdyby\Doctrine\IContainer
 
 	/**
 	 * @param string $entityName
-	 * @return EntityRepository
+	 * @return Dao
 	 */
 	public function getDao($className)
 	{
-		return $this->entityManager->getRepository($entityName);
+		return $this->entityManager->getRepository($className);
 	}
 
 
@@ -172,6 +172,67 @@ class Container extends Kdyby\DI\Container implements Kdyby\Doctrine\IContainer
 
 		} catch (Doctrine\ORM\Mapping\MappingException $e) {
 			return FALSE;
+		}
+	}
+
+
+
+	/**
+	 * Gets the service object by name.
+	 * @param  string
+	 * @return object
+	 */
+	public function getService($name)
+	{
+		if (substr($name, -4) === '.dao') {
+			if ($this->isFrozen()) {
+				throw new Nette\InvalidStateException('Somebody has frozen this container. Cannot access to dao objects using method `->getService()`, try `->getDao($entityName)`.');
+			}
+
+			try {
+				$className = substr($name, 0, strlen($name)-4);
+				$this->addService($name, $this->getDao($className));
+
+			} catch (Doctrine\ORM\Mapping\MappingException $e) {
+				// transitient entity
+			} catch (\ReflectionException $e) {
+				// nonexisting class
+			} catch (\Exception $e) {
+				// ignore?
+			}
+		}
+
+		return parent::getService($name);
+	}
+
+
+
+	/**
+	 * Gets the service object by name.
+	 * @param  string
+	 * @return object
+	 */
+	public function hasService($name)
+	{
+		if (parent::hasService($name)) {
+			return TRUE;
+		}
+
+		if (substr($name, -4) !== '.dao' || strlen($name) <= 4) {
+			return FALSE;
+		}
+
+		try {
+			$className = substr($name, 0, strlen($name)-4);
+			$this->getEntityManager()->getClassMetadata($className);
+			return TRUE;
+
+		} catch (Doctrine\ORM\Mapping\MappingException $e) {
+			return FALSE; // transitient entity
+		} catch (\ReflectionException $e) {
+			return FALSE; // nonexisting class
+		} catch (\Exception $e) {
+			return FALSE; // ignore?
 		}
 	}
 
