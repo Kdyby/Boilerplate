@@ -31,13 +31,13 @@ interface IDao extends IQueryExecutor
 	 * @param object|array|Collection
 	 * @param boolean $withoutFlush
 	 */
-	function save($entity, $withoutFlush = self::NO_FLUSH);
+	function save($entity, $withoutFlush = self::FLUSH);
 
 
 	/**
 	 * @param object|array|Collection
 	 * @param boolean $withoutFlush
 	 */
-	function delete($entity, $withoutFlush = self::NO_FLUSH);
+	function delete($entity, $withoutFlush = self::FLUSH);
 
 }
