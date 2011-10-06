@@ -31,3 +31,5 @@ Optional dependencies
 - Gedmo Doctrine extensions https://github.com/l3pp4rd/DoctrineExtensions
 - Beberlei Doctrine extensions https://github.com/beberlei/DoctrineExtensions
 - Symfony2 Console https://github.com/symfony/symfony/tree/master/src/Symfony/Component/Console
+- PHPUnit 3.5.15 https://github.com/sebastianbergmann/phpunit/tree/3.5.15
+- DbUnit 1.0.3 https://github.com/sebastianbergmann/dbunit/tree/1.0.3
