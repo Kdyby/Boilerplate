@@ -31,19 +31,6 @@ class SplClassLoaderTest extends Kdyby\Testing\TestCase
 
 
 
-	/**
-	 * @param string $prefix
-	 * @return array
-	 */
-	private function getIncludedFilesStaringWith($prefix)
-	{
-		return array_filter(get_included_files(), function ($file) use ($prefix) {
-			return Nette\Utils\Strings::startsWith($file, $prefix);
-		});
-	}
-
-
-
 	public function setUp()
 	{
 		$this->dirs = array_map('realpath', array(
@@ -121,6 +108,19 @@ class SplClassLoaderTest extends Kdyby\Testing\TestCase
 
 		$included = current(array_diff($this->getIncludedFilesStaringWith($this->dirs['Doctrine\ORM']), $includedFiles));
 		$this->assertSame($this->dirs['Doctrine\ORM'] . '/EntityManager.php', $included);
+	}
+
+
+
+	/**
+	 * @param string $prefix
+	 * @return array
+	 */
+	private function getIncludedFilesStaringWith($prefix)
+	{
+		return array_filter(get_included_files(), function ($file) use ($prefix) {
+			return Nette\Utils\Strings::startsWith($file, $prefix);
+		});
 	}
 
 }
