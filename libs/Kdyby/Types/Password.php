@@ -12,11 +12,14 @@ namespace Kdyby\Types;
 
 use Kdyby;
 use Nette;
+use Nette\Utils\Strings;
 
 
 
 /**
  * @author Filip Procházka
+ *
+ * @property string $salt
  */
 class Password extends Nette\Object
 {
@@ -34,10 +37,12 @@ class Password extends Nette\Object
 
 	/**
 	 * @param string $hash
+	 * @param string $salt
 	 */
-	public function __construct($hash = NULL)
+	public function __construct($hash = NULL, $salt = NULL)
 	{
 		$this->value = $hash;
+		$this->salt = $salt;
 	}
 
 
@@ -65,6 +70,16 @@ class Password extends Nette\Object
 	/**
 	 * @return string
 	 */
+	public function createSalt()
+	{
+		return $this->salt = Strings::random(5);
+	}
+
+
+
+	/**
+	 * @return string
+	 */
 	public function getHash()
 	{
 		return $this->value;
@@ -78,7 +93,20 @@ class Password extends Nette\Object
 	 */
 	public function setPassword($password, $salt = NULL)
 	{
-		$this->value = $this->hashPassword($password, $salt ?: $this->salt);
+		if ($password === NULL) {
+			$this->value = NULL;
+			$this->salt = NULL;
+			return $this;
+		}
+
+		if ($salt !== NULL) {
+			$this->salt = $salt;
+
+		} elseif ($this->salt === NULL) {
+			$this->salt = $this->createSalt();
+		}
+
+		$this->value = $this->hashPassword($password, $this->salt);
 		return $this;
 	}
 
@@ -90,7 +118,11 @@ class Password extends Nette\Object
 	 */
 	public function isEqual($password, $salt = NULL)
 	{
-		return $this->value === $this->hashPassword($password, $salt ?: $this->salt);
+		if ($salt !== NULL) {
+			$this->salt = $salt;
+		}
+
+		return $this->value === $this->hashPassword($password, $this->salt);
 	}
 
 
@@ -100,7 +132,7 @@ class Password extends Nette\Object
 	 * @param string $salt
 	 * @return string
 	 */
-	private function hashPassword($password, $salt = NULL)
+	protected function hashPassword($password, $salt = NULL)
 	{
 		return sha1($salt . self::SEPARATOR . (string) $password);
 	}

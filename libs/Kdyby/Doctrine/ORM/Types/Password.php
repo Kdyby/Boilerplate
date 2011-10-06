@@ -66,7 +66,7 @@ class Password extends StringType
 	 */
     public function getDefaultLength(AbstractPlatform $platform)
     {
-        return 40;
+        return 50;
     }
 
 
