@@ -69,11 +69,12 @@ class SplClassLoader extends Nette\Loaders\AutoLoader
 	public function getTypeDirs($type)
 	{
 		$dirs = array();
+		$type = trim($type, '\\');
 		foreach ($this->getFilteredByType($type) as $i => $namespace) {
-			$dirs[] = $this->dirs[$i];
+			$dirs[] = Kdyby\Tools\Strings::blend($this->dirs[$i], str_replace('\\', '/', $type));
 		}
 
-		return array_filter($dirs, 'file_exists');
+		return array_filter(array_unique($dirs), 'file_exists');
 	}
 
 

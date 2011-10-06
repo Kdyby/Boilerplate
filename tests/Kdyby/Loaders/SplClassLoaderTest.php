@@ -53,15 +53,44 @@ class SplClassLoaderTest extends Kdyby\Testing\TestCase
 				'Doctrine' => __DIR__
 			));
 
-		$this->loader = SplClassLoaderMock::getTestInstance($this->dirs);
+		$this->loader = new SplClassLoader($this->dirs);
 	}
 
 
 
 	public function testIsSingleton()
 	{
-		$loader1 = SplClassLoader::getInstance(array('Kdyby' => KDYBY_FRAMEWORK_DIR));
-		$this->assertSame($loader1, SplClassLoader::getInstance(array()));
+		$this->assertSame(SplClassLoader::getInstance(), SplClassLoader::getInstance());
+	}
+
+
+
+	public function testGetTypeDirsWithOneRegisteredNamespace()
+	{
+		$baseDir = VENDORS_DIR . '/doctrine/lib/Doctrine';
+
+		$loader = new SplClassLoader;
+		$loader->addNamespace('Doctrine', $baseDir);
+
+		$this->assertSame(array($baseDir), $loader->getTypeDirs('Doctrine'));
+		$this->assertSame(array($baseDir . '/ORM'), $loader->getTypeDirs('Doctrine/ORM'));
+		$this->assertSame(array($baseDir . '/ORM/Tools'), $loader->getTypeDirs('Doctrine/ORM/Tools'));
+	}
+
+
+
+	public function testGetTypeDirsWithMultipleRegisteredNamespace()
+	{
+		$baseDir = VENDORS_DIR . '/doctrine/lib/Doctrine';
+
+		$loader = new SplClassLoader;
+		$loader->addNamespace('Doctrine', $baseDir);
+		$loader->addNamespace('Doctrine/ORM', $baseDir . '/ORM');
+		$loader->addNamespace('Doctrine/DBAL', $baseDir .'/DBAL');
+
+		$this->assertSame(array($baseDir), $loader->getTypeDirs('Doctrine'));
+		$this->assertSame(array($baseDir .'/ORM'), $loader->getTypeDirs('Doctrine/ORM'));
+		$this->assertSame(array($baseDir .'/ORM/Tools'), $loader->getTypeDirs('Doctrine/ORM/Tools'));
 	}
 
 
