@@ -25,3 +25,6 @@ $loader->register();
 
 // start session on time
 $configurator->container->session->start();
+
+// additional php configurations
+date_default_timezone_set("Europe/Prague");
