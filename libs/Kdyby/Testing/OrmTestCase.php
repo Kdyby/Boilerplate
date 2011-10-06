@@ -230,8 +230,19 @@ abstract class OrmTestCase extends \PHPUnit_Extensions_Database_TestCase
 	{
 		$dbTables = $this->getConnection()->getMetaData()->getTableNames();
 		foreach ($tableNames as &$tableName) {
+			if (is_object($tableName)) {
+				$tableName = get_class($tableName);
+			}
+
 			if (in_array($tableName, $dbTables, TRUE)) {
 				continue;
+			}
+
+			$meta = $this->getMetadata($tableName);
+			foreach ($meta->getAssociationMappings() as $mapping) {
+				if (!empty($mapping['joinTable'])) {
+					$tableNames[] = $mapping['joinTable']['name'];
+				}
 			}
 
 			$tableName = $this->getTableName($tableName);
@@ -249,6 +260,10 @@ abstract class OrmTestCase extends \PHPUnit_Extensions_Database_TestCase
 	 */
 	protected function createQueryDataTable($tableName, $sql = NULL)
 	{
+		if (is_object($tableName)) {
+			$tableName = get_class($tableName);
+		}
+
 		$dbTables = $this->getConnection()->getMetaData()->getTableNames();
 		if (!in_array($tableName, $dbTables, TRUE)) {
 			$tableName = $this->getTableName($tableName);
@@ -283,6 +298,10 @@ abstract class OrmTestCase extends \PHPUnit_Extensions_Database_TestCase
 	 */
 	protected function getDao($entityName)
 	{
+		if (is_object($entityName)) {
+			$entityName = get_class($entityName);
+		}
+
 		return $this->getEntityManager()->getRepository($entityName);
 	}
 
@@ -294,6 +313,10 @@ abstract class OrmTestCase extends \PHPUnit_Extensions_Database_TestCase
 	 */
 	protected function getMetadata($className)
 	{
+		if (is_object($className)) {
+			$className = get_class($className);
+		}
+
 		return $this->getEntityManager()->getClassMetadata($className);
 	}
 
