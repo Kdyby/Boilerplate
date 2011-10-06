@@ -56,14 +56,19 @@ final class Arrays extends Nette\Object
 
 	/**
 	 * @param array $array
+	 * @param callable $callback
 	 * @return array
 	 */
-	public static function flatMap(array $array)
+	public static function flatMap(array $array, $callback = NULL)
 	{
 		$items = array();
 		array_walk_recursive($array, function ($item, $key) use (&$items) {
 			$items[] = $item;
 		});
+
+		if ($callback) {
+			return array_map($callback, $items);
+		}
 
 		return $items;
 	}
