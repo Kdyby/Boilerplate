@@ -44,7 +44,7 @@ use Nette;
  * @property-read Doctrine\Common\DataFixtures\Loader $fixturesLoader
  * @property-read Doctrine\Common\DataFixtures\Purger\PurgerInterface $fixturesPurger
  * @property-read Doctrine\Common\DataFixtures\Executor\AbstractExecutor $fixturesExecutor
- * @property-read Kdyby\Testing\Database\DataFixturesListener $dataFixturesListener
+ * @property-read Kdyby\Testing\Db\ORM\DataFixturesListener $dataFixturesListener
  */
 class Container extends Nette\DI\Container implements Kdyby\Doctrine\IContainer
 {
@@ -130,11 +130,11 @@ class Container extends Nette\DI\Container implements Kdyby\Doctrine\IContainer
 
 
 	/**
-	 * @return Kdyby\Testing\DataFixturesListener
+	 * @return Kdyby\Testing\Db\ORM\DataFixturesListener
 	 */
 	protected function createServiceDataFixturesListener()
 	{
-		return new Kdyby\Testing\Database\DataFixturesListener($this->fixturesLoader, $this->fixturesExecutor);
+		return new Kdyby\Testing\Db\ORM\DataFixturesListener($this->fixturesLoader, $this->fixturesExecutor);
 	}
 
 

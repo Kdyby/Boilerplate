@@ -8,12 +8,11 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Testing\Database;
+namespace Kdyby\Testing\Db\ORM;
 
 use Doctrine;
 use Doctrine\Common\DataFixtures;
 use Kdyby;
-use Kdyby\Testing\OrmTestCaseEventArgs;
 use Kdyby\Testing\OrmTestCase;
 use Nette;
 
@@ -22,7 +21,6 @@ use Nette;
 /**
  * @author Filip Procházka
  */
-
 class DataFixturesListener extends Nette\Object implements Doctrine\Common\EventSubscriber
 {
 
@@ -52,7 +50,7 @@ class DataFixturesListener extends Nette\Object implements Doctrine\Common\Event
 	public function getSubscribedEvents()
 	{
 		return array(
-			'postTestSetUp'
+			'loadFixtures'
 		);
 	}
 
@@ -61,9 +59,9 @@ class DataFixturesListener extends Nette\Object implements Doctrine\Common\Event
 	/**
 	 * Appends Data Fixtures to current database DataSet
 	 *
-	 * @param OrmTestCaseEventArgs $eventArgs
+	 * @param EventArgs $eventArgs
 	 */
-	public function postTestSetUp(OrmTestCaseEventArgs $eventArgs)
+	public function loadFixtures(EventArgs $eventArgs)
 	{
 		$this->addFixtureClasses($this->getTestFixtureClasses($eventArgs->getTestCase()));
 		$this->executor->execute($this->loader->getFixtures(), TRUE);

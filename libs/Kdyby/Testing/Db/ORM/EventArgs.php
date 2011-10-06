@@ -8,11 +8,12 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Testing;
+namespace Kdyby\Testing\Db\ORM;
 
 use Doctrine;
 use Doctrine\ORM\EntityManager;
 use Kdyby;
+use Kdyby\Testing\OrmTestCase;
 use Nette;
 
 
@@ -20,7 +21,7 @@ use Nette;
 /**
  * @author Filip Procházka
  */
-class OrmTestCaseEventArgs extends Doctrine\Common\EventArgs
+class EventArgs extends Doctrine\Common\EventArgs
 {
 
 	/** @var EntityManager */

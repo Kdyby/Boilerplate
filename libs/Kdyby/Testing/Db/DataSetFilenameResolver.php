@@ -8,11 +8,11 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Testing\Database;
+namespace Kdyby\Testing\Db;
 
 use Kdyby;
+use Kdyby\Testing\TestCase;
 use Nette;
-use PHPUnit_Extensions_Database_TestCase as DB_TestCase;
 
 
 
@@ -22,15 +22,15 @@ use PHPUnit_Extensions_Database_TestCase as DB_TestCase;
 class DataSetFilenameResolver extends Nette\Object
 {
 
-	/** @var DB_TestCase */
+	/** @var TestCase */
 	private $testCase;
 
 
 
 	/**
-	 * @param DB_TestCase $testCase
+	 * @param TestCase $testCase
 	 */
-	public function __construct(DB_TestCase $testCase)
+	public function __construct(TestCase $testCase)
 	{
 		$this->testCase = $testCase;
 	}

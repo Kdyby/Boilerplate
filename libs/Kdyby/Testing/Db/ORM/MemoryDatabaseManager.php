@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Testing\Database;
+namespace Kdyby\Testing\Db\ORM;
 
 use Kdyby;
 use Kdyby\Doctrine\ORM\Container;
@@ -65,7 +65,9 @@ class MemoryDatabaseManager extends Nette\Object
 			return $this->container;
 		}
 
-		return $this->refreshContainer();
+		$this->refreshContainer();
+		$this->truncateDatabase();
+		return $this->container;
 	}
 
 
@@ -108,6 +110,28 @@ class MemoryDatabaseManager extends Nette\Object
 		$classes = $em->getMetadataFactory()->getAllMetadata();
 		$schemaTool->dropDatabase();
 		$schemaTool->createSchema($classes);
+	}
+
+
+
+	/**
+	 */
+	public function truncateDatabase()
+	{
+		$conn = $this->container->entityManager->getConnection();
+
+		$conn->beginTransaction();
+        try {
+			foreach ($conn->getSchemaManager()->listTableNames() as $tableName) {
+				$query = $conn->getDatabasePlatform()->getTruncateTableSql($tableName);
+				$conn->executeUpdate($query);
+			}
+			$conn->commit();
+
+		} catch (\Exception $e) {
+			$conn->rollback();
+			throw $e;
+		}
 	}
 
 
