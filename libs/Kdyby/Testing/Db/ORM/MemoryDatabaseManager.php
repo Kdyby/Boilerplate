@@ -60,6 +60,7 @@ class MemoryDatabaseManager extends Nette\Object
 		if ($this->schemaOn === FALSE) {
 			$this->refreshContainer();
 			$this->refreshSchema();
+			$this->generateProxyClasses();
 			$this->schemaOn = TRUE;
 
 			return $this->container;
@@ -134,5 +135,22 @@ class MemoryDatabaseManager extends Nette\Object
 		}
 	}
 
+
+
+	/**
+	 */
+	public function generateProxyClasses()
+	{
+		$em = $this->container->entityManager;
+		$proxyDir = $em->getConfiguration()->getProxyDir();
+		foreach (Nette\Utils\Finder::findFiles('*')->in($proxyDir) as $proxy) {
+			if (!@unlink($proxy->getRealpath())) {
+				throw new Nette\IOException("Proxy class " . $proxy->getBaseName() . " cannot be deleted.");
+			}
+		}
+
+		$metas = $em->getMetadataFactory()->getAllMetadata();
+		$em->getProxyFactory()->generateProxyClasses($metas);
+	}
 
 }
