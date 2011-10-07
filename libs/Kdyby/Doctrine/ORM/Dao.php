@@ -80,16 +80,16 @@ class Dao extends Doctrine\ORM\EntityRepository implements Kdyby\Doctrine\IDao, 
 	public function save($entity, $withoutFlush = self::FLUSH)
 	{
 		if ($entity instanceof Collection) {
-			return $this->save($entity->toArray(), $validate, $withoutFlush);
+			return $this->save($entity->toArray(), $withoutFlush);
 		}
 
 		if (is_array($entity)) {
 			$repository = $this;
-			$result = array_map(function ($entity) use ($repository, $validate) {
-				return $repository->save($entity, $validate, TRUE);
+			$result = array_map(function ($entity) use ($repository) {
+				return $repository->save($entity, Dao::NO_FLUSH);
 			}, $entity);
 
-			if ($withoutFlush === FALSE) {
+			if ($withoutFlush === Dao::FLUSH) {
 				$this->getEntityManager()->flush();
 			}
 
@@ -101,7 +101,7 @@ class Dao extends Doctrine\ORM\EntityRepository implements Kdyby\Doctrine\IDao, 
 		}
 
 		$this->getEntityManager()->persist($entity);
-		if ($withoutFlush === FALSE) {
+		if ($withoutFlush === Dao::FLUSH) {
 			$this->getEntityManager()->flush();
 		}
 
@@ -123,10 +123,10 @@ class Dao extends Doctrine\ORM\EntityRepository implements Kdyby\Doctrine\IDao, 
 		if (is_array($entity)) {
 			$repository = $this;
 			array_map(function ($entity) use ($repository) {
-				return $repository->delete($entity, TRUE);
+				return $repository->delete($entity, Dao::NO_FLUSH);
 			}, $entity);
 
-			if ($withoutFlush === FALSE) {
+			if ($withoutFlush === Dao::FLUSH) {
 				$this->getEntityManager()->flush();
 			}
 			return;
@@ -137,7 +137,7 @@ class Dao extends Doctrine\ORM\EntityRepository implements Kdyby\Doctrine\IDao, 
 		}
 
 		$this->getEntityManager()->remove($entity);
-		if ($withoutFlush === FALSE) {
+		if ($withoutFlush === Dao::FLUSH) {
 			$this->getEntityManager()->flush();
 		}
 	}
