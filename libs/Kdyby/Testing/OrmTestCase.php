@@ -11,6 +11,7 @@
 namespace Kdyby\Testing;
 
 use Doctrine;
+use Doctrine\Common\Collections\ArrayCollection;
 use Kdyby;
 use Nette;
 use Nette\ObjectMixin;
@@ -88,14 +89,53 @@ abstract class OrmTestCase extends TestCase
 	{
 		$haystack = $this->getDao($entityName)
 			->createQueryBuilder('e')
-			->select('COUNT(e)')
-			->getSingleScalarResult();
+			->select('COUNT(e.id)')
+			->getQuery()->getSingleScalarResult();
 
-        self::assertThat(
-          $haystack,
-          new \PHPUnit_Framework_Constraint_Count($expectedCount),
-          $message
-        );
+		$this->assertEquals($expectedCount, $haystack);
+	}
+
+
+
+	/**
+	 * @param integer $values
+	 * @param string|object $entityName
+	 * @param string $message
+	 */
+	public function assertEntityValues($entityName, array $values, $id = NULL, $message = "")
+	{
+		$entityName = is_object($entityName) ? get_class($entityName) : $entityName;
+
+		if ($id === NULL) {
+			$result = $this->getDao($entityName)->findBy($values);
+
+			$this->assertCount(1, $result);
+			$entity = current($result);
+
+		} else {
+			$entity = $this->getDao($entityName)->find($id);
+			$this->assertInstanceOf($entityName, $entity);
+		}
+
+		$meta = $this->getMetadata($entityName);
+		foreach ($values as $property => $value) {
+			$actualValue = $meta->getFieldValue($entity, $property);
+			if ($actualValue instanceof Doctrine\Common\Collections\Collection) {
+				$actualValue = $actualValue->toArray();
+
+			} elseif (is_object($actualValue)) {
+				try {
+					$relationMeta = $this->getMetadata($actualValue);
+					$actualValue = $relationMeta->getIdentifierValues($actualValue);
+					if (count($actualValue) == 1) {
+						$actualValue = current($actualValue);
+					}
+
+				} catch (\Exception $e) { }
+			}
+
+			$this->assertSame($value, $actualValue);
+		}
 	}
 
 
