@@ -13,7 +13,7 @@ define('LIBS_DIR', VENDORS_DIR);
 require_once VENDORS_DIR . '/autoload.php';
 
 // Setup Nette debuger
-Debugger::enable(Debugger::PRODUCTION);
+Debugger::enable(Debugger::DEVELOPMENT);
 Debugger::$logDirectory = APP_DIR . '/log';
 Debugger::$maxLen = 4096;
 
