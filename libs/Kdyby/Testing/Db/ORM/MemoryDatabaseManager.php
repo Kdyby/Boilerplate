@@ -143,7 +143,7 @@ class MemoryDatabaseManager extends Nette\Object
 	{
 		$em = $this->container->entityManager;
 		$proxyDir = $em->getConfiguration()->getProxyDir();
-		foreach (Nette\Utils\Finder::findFiles('*')->in($proxyDir) as $proxy) {
+		foreach (Nette\Utils\Finder::findFiles('*Proxy.php')->in($proxyDir) as $proxy) {
 			if (!@unlink($proxy->getRealpath())) {
 				throw new Nette\IOException("Proxy class " . $proxy->getBaseName() . " cannot be deleted.");
 			}
