@@ -22,11 +22,19 @@ use Nette;
 interface IQueryable
 {
 
-    /**
-     * Create a new QueryBuilder instance that is prepopulated for this entity name
-     *
-     * @return Doctrine\ORM\QueryBuilder|Doctrine\CouchDB\View\AbstractQuery $qb
-     */
-    function createQueryBuilder();
+	/**
+	 * Create a new QueryBuilder instance that is prepopulated for this entity name
+	 *
+	 * @param string|NULL $alias
+	 * @return Doctrine\ORM\QueryBuilder|Doctrine\CouchDB\View\AbstractQuery
+	 */
+	function createQueryBuilder($alias = NULL);
+
+
+	/**
+	 * @param string|NULL $dql
+	 * @return Doctrine\ORM\Query
+	 */
+	function createQuery($dql = NULL);
 
 }

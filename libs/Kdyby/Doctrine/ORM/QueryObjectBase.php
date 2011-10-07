@@ -28,6 +28,9 @@ abstract class QueryObjectBase implements Kdyby\Doctrine\IQueryObject
 	/** @var Paginator */
 	private $paginator;
 
+	/** @var Doctrine\ORM\Query */
+	private $lastQuery;
+
 
 
 	/**
@@ -66,10 +69,10 @@ abstract class QueryObjectBase implements Kdyby\Doctrine\IQueryObject
 	{
 		$query = $this->doCreateQuery($repository);
 		if ($query instanceof Doctrine\ORM\QueryBuilder) {
-			return $query->getQuery();
+			return $this->lastQuery = $query->getQuery();
 
 		} elseif ($query instanceof Doctrine\ORM\Query) {
-			return $query;
+			return $this->lastQuery = $query;
 		}
 
 		$class = $this->getReflection()->getMethod('doCreateQuery')->getDeclaringClass();
@@ -106,6 +109,7 @@ abstract class QueryObjectBase implements Kdyby\Doctrine\IQueryObject
 			$query = $query->setMaxResults(NULL)->setFirstResult(NULL);
 		}
 
+		$this->lastQuery = $query;
 		return $query->getResult();
 	}
 
@@ -117,10 +121,23 @@ abstract class QueryObjectBase implements Kdyby\Doctrine\IQueryObject
 	 */
 	public function fetchOne(IQueryable $repository)
 	{
-		return $this->getQuery($repository)
+		$query = $this->getQuery($repository)
 			->setFirstResult(NULL)
-			->setMaxResults(1)
-			->getSingleResult();
+			->setMaxResults(1);
+
+		$this->lastQuery = $query;
+		return $query->getSingleResult();
+	}
+
+
+
+	/**
+	 * @internal For Debugging purposes only!
+	 * @return Doctrine\ORM\Query
+	 */
+	public function getLastQuery()
+	{
+		return $this->lastQuery;
 	}
 
 }

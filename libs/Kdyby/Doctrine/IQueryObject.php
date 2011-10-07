@@ -43,4 +43,11 @@ interface IQueryObject
 	 */
 	function fetchOne(IQueryable $repository);
 
+
+	/**
+	 * @internal
+	 * @return Doctrine\ORM\Query
+	 */
+	function getLastQuery();
+
 }

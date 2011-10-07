@@ -30,7 +30,7 @@ use Nette;
  * @property-read Doctrine\ODM\CouchDB\Mapping\Driver\AnnotationDriver $annotationDriver
  * @property-read Doctrine\ODM\CouchDB\Configuration $configuration
  */
-class Container extends Kdyby\Doctrine\BaseContainer
+class Container extends Nette\DI\Container implements Kdyby\Doctrine\IContainer
 {
 
 	/** @var array */
@@ -147,7 +147,7 @@ class Container extends Kdyby\Doctrine\BaseContainer
 	 * @param string $documentName
 	 * @return DocumentRepository
 	 */
-	public function getRepository($documentName)
+	public function getDao($documentName)
 	{
 		return $this->getDocumentManager()->getRepository($documentName);
 	}

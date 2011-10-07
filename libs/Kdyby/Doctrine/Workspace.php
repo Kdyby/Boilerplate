@@ -46,7 +46,7 @@ class Workspace extends Nette\Object implements Doctrine\Common\Persistence\Obje
 	public function __construct(array $containers)
 	{
 		foreach ($containers as $name => $container) {
-			if (!$container instanceof BaseContainer) {
+			if (!$container instanceof IContainer) {
 				throw ManagerException::objectIsNotAContainer($container);
 			}
 

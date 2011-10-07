@@ -162,6 +162,17 @@ class Dao extends Doctrine\ORM\EntityRepository implements Kdyby\Doctrine\IDao, 
 
 
 	/**
+	 * @param string $alias
+	 * @return Doctrine\ORM\Query
+	 */
+	public function createQuery($dql = NULL)
+	{
+		return $this->getEntityManager()->createQuery($dql);
+	}
+
+
+
+	/**
 	 * @warning Does not close entity manager on exception!
 	 * @param callabke $callback
 	 * @return type
@@ -191,7 +202,12 @@ class Dao extends Doctrine\ORM\EntityRepository implements Kdyby\Doctrine\IDao, 
 	 */
 	public function count(IQueryObject $queryObject)
 	{
-		return $queryObject->count($this->getEntityManager()->createQueryBuilder());
+		try {
+			return $queryObject->count($this->getEntityManager()->createQueryBuilder());
+
+		} catch (\Exception $e) {
+			return $this->handleQueryExceptions($e, $queryObject);
+		}
 	}
 
 
@@ -202,7 +218,12 @@ class Dao extends Doctrine\ORM\EntityRepository implements Kdyby\Doctrine\IDao, 
 	 */
 	public function fetch(IQueryObject $queryObject)
 	{
-		return $queryObject->fetch($this);
+		try {
+			return $queryObject->fetch($this);
+
+		} catch (\Exception $e) {
+			return $this->handleQueryExceptions($e, $queryObject);
+		}
 	}
 
 
@@ -219,8 +240,28 @@ class Dao extends Doctrine\ORM\EntityRepository implements Kdyby\Doctrine\IDao, 
 		} catch (NoResultException $e) {
 			return NULL;
 
-		} catch (NonUniqueResultException $e) {
-			return NULL;
+		} catch (NonUniqueResultException $e) { // this should never happen!
+			throw new Nette\InvalidStateException("You have to setup your query using ->setMaxResult(1).", NULL, $e);
+
+		} catch (\Exception $e) {
+			return $this->handleQueryExceptions($e, $queryObject);
+		}
+	}
+
+
+
+	/**
+	 * @param \Exception $e
+	 * @throws \Exception
+	 * @return mixed
+	 */
+	private function handleQueryExceptions(\Exception $e, IQueryObject $queryObject)
+	{
+		if ($e instanceof Doctrine\ORM\Query\QueryException) {
+			throw new QueryException('('. get_class($queryObject) . ') ' . $e->getMessage(), $queryObject->getLastQuery(), $e);
+
+		} else {
+			throw $e;
 		}
 	}
 

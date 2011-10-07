@@ -39,7 +39,7 @@ class ManagerException extends \Exception
 	 */
 	public static function objectIsNotAContainer($container)
 	{
-		return new self("Given container '" . get_class($container) . "' is not descendant of 'Kdyby\\Doctrine\\BaseContainer'");
+		return new self("Given container '" . get_class($container) . "' is not instance of 'Kdyby\\Doctrine\\IContainer'");
 	}
 
 
