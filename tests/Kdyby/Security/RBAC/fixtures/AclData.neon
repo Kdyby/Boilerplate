@@ -1,0 +1,152 @@
+actions:
+	-
+		name: access
+		description: Access
+	-
+		name: view
+		description: View
+	-
+		name: edit
+		description: Edit
+	-
+		name: create
+		description: Create
+	-
+		name: delete
+		description: Delete
+
+resources:
+	-
+		name: identity
+		description: "Users"
+	-
+		name: article
+		description: "Articles"
+	-
+		name: comment
+		description: "Comments"
+	-
+		name: thread
+		description: "Forum threads"
+
+divisions:
+	-
+		name: administration
+	-
+		name: blog
+	-
+		name: forum
+
+roles:
+	-
+		name: admin
+		division: administration
+	-
+		name: redactor
+		division: administration
+	-
+		name: commentsModerator
+		division: blog
+	-
+		name: blog-visitor
+		division: blog
+	-
+		name: forumModerator
+		division: forum
+	-
+		name: forum-visitor
+		division: forum
+	-
+		name: client-admin
+		division: administration
+	-
+		name: client-blog
+		division: blog
+	-
+		name: client-forum
+		division: forum
+
+users:
+	-
+		username: HosipLan
+		password: "nette is sexy"
+		email: hosiplan@gmail.com
+		roles: [admin]
+	-
+		username: redactor
+		password: "osheslo"
+		email: moderator@email.cz
+		roles: [redactor]
+	-
+		username: commentsModerator
+		password: "osheslo"
+		email: moderator@email.cz
+		roles: [commentsModerator]
+	-
+		username: forumModerator
+		password: "osheslo"
+		email: moderator@email.cz
+		roles: [forumModerator]
+	-
+		username: macho-client
+		password: "osheslo"
+		email: macho@email.cz
+		roles: [client-admin, client-blog, client-forum]
+
+permissions:
+	-
+		role: admin
+		action: *
+		resource: *
+	-
+		role: redactor
+		action: *
+		resource: article
+	-
+		role: commentsModerator
+		action: *
+		resource: comment
+	-
+		role: blog-visitor
+		action: [access, view]
+		resource: [comment, article]
+	-
+		role: forumModerator
+		action: *
+		resource: thread
+	-
+		role: forum-visitor
+		action: [access, view, create, edit]
+		resource: thread
+	-
+		role: client-admin
+		action: *
+		resource: [identity, article]
+	-
+		role: client-blog
+		action: *
+		resource: [comment, article]
+	-
+		role: client-forum
+		action: *
+		resource: thread
+
+userPermissions:
+	-
+		user: macho-client
+		role: client-admin
+		action: [edit, create, delete]
+		resource: [identity, article]
+		isAllowed: FALSE
+	-
+		user: macho-client
+		role: client-blog
+		action: [edit, create, delete]
+		resource: [comment, article]
+		isAllowed: FALSE
+	-
+		user: macho-client
+		role: client-forum
+		action: [edit, create, delete]
+		resource: thread
+		isAllowed: FALSE
