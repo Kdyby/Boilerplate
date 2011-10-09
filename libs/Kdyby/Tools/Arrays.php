@@ -66,11 +66,54 @@ final class Arrays extends Nette\Object
 			$items[] = $item;
 		});
 
-		if ($callback) {
-			return array_map($callback, $items);
+		if ($callback === NULL) {
+			return $items;
 		}
 
-		return $items;
+		return array_map(callback($callback), $items);
+	}
+
+
+
+	/**
+	 * @param array $array
+	 * @param callable $callback
+	 * @return array
+	 */
+	public static function flatFilter(array $array, $filter = NULL)
+	{
+		if ($filter === NULL) {
+			return self::flatMap($array);
+		}
+
+		return array_filter(self::flatMap($array), callback($filter));
+	}
+
+
+
+	/**
+	 * @param array $array
+	 * @param callable $callback
+	 * @return array
+	 */
+	public static function flatMapAssoc($array, $callback)
+	{
+		$callback = callback($callback);
+		$result = array();
+		$walker = function ($array, $keys = array()) use (&$walker, &$result, $callback) {
+			foreach ($array as $key => $value) {
+				$currentKeys = $keys + array(count($keys) => $key);
+				if (is_array($value)) {
+					$walker($value, $currentKeys);
+					continue;
+				}
+				$result[] = $callback($value, $currentKeys);
+			}
+
+			return $result;
+		};
+
+		return $walker($array);
 	}
 
 }

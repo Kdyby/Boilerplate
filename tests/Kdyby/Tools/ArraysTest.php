@@ -42,4 +42,40 @@ class ArraysTest extends Kdyby\Testing\TestCase
 		), Arrays::flatMap($multidimensional));
 	}
 
+
+
+	public function testflatMapAssoc()
+	{
+		$array = array(
+			'a' => array(
+				'1' => array('.' => 0, ',' => 0),
+				'2' => array('.' => 0, ',' => 0),
+			),
+			'b' => array(
+				'1' => array('.' => 0, ',' => 0),
+				'2' => array('.' => 0, ',' => 0),
+			),
+		);
+
+		$keysList = array();
+		$valuesList = array();
+		Arrays::flatMapAssoc($array, function ($value, $keys) use (&$keysList, &$valuesList) {
+			$keysList[] = $keys;
+			$valuesList[] = $value;
+		});
+
+		$expectedKeysList = array(
+			array('a', '1', '.'),
+			array('a', '1', ','),
+			array('a', '2', '.'),
+			array('a', '2', ','),
+			array('b', '1', '.'),
+			array('b', '1', ','),
+			array('b', '2', '.'),
+			array('b', '2', ','),
+		);
+		$this->assertEquals($expectedKeysList, $keysList);
+		$this->assertEquals(array_fill(0, 8, 0), $valuesList);
+	}
+
 }
