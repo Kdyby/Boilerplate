@@ -12,6 +12,8 @@ namespace Kdyby\Security;
 
 use DateTime;
 use Doctrine;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 use Kdyby;
 use Nette;
 use Nette\Utils\Strings;
@@ -22,7 +24,7 @@ use Nette\Utils\Strings;
  * @author Filip Procházka
  *
  * @serializationVersion 1.0
- * @Entity(repositoryClass="Kdyby\Security\IdentityRepository") @Table(name="users")
+ * @Entity @Table(name="users")
  * @HasLifecycleCallbacks
  *
  * @property-read mixed $id
@@ -34,52 +36,30 @@ class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity
 	/** @Column(type="integer") @Id @GeneratedValue */
 	private $id;
 
+	/** @Column(type="string") */
+	private $username;
+
+	/** @Column(type="password") @var Kdyby\Types\Password */
+	private $password;
+
+	/** @Column(type="string", length=5) */
+	private $salt;
+
+	/** @Column(type="string", nullable=TRUE, length=50) */
+	private $name;
+
+	/** @Column(type="string", nullable=TRUE) */
+	private $email;
+
 	/**
 	 * @var Collection
-	 * @ManyToMany(targetEntity="Kdyby\Security\RBAC\Role")
+	 * @ManyToMany(targetEntity="Kdyby\Security\RBAC\Role", cascade={"persist"})
 	 * @JoinTable(name="users_roles",
 	 *		joinColumns={@JoinColumn(name="role_id", referencedColumnName="id")},
 	 *		inverseJoinColumns={@JoinColumn(name="user_id", referencedColumnName="id")}
 	 *	)
 	 */
 	private $roles;
-
-	/** @Column(type="password") @var Kdyby\Types\Password */
-	private $password;
-
-	/** @Column(type="string") */
-	private $username;
-
-	/** @Column(type="string", length=5) */
-	private $salt;
-
-//	/** @var RolePermission */
-//	private $permission;
-
-	/** @Column(type="string", nullable=TRUE, length=15) */
-	private $salutation;
-
-	/** @Column(type="string", nullable=TRUE, length=50) */
-	private $firstname;
-
-	/** @Column(type="string", nullable=TRUE, length=50) */
-	private $secondname;
-
-	/** @Column(type="string", nullable=TRUE, length=50) */
-	private $lastname;
-
-//	/**
-//	 * @var Kdyby\Domain\Users\Address
-//     * @OneToOne(targetEntity="Kdyby\Location\Address", cascade={"persist"}, fetch="EAGER")
-//     * @JoinColumn(name="address_id", referencedColumnName="id")
-//	 */
-//	private $address;
-
-	/** @Column(type="string", nullable=TRUE) */
-	private $company;
-
-	/** @Column(type="string") */
-	private $email;
 
 	/**
 	 * @OneToOne(targetEntity="Kdyby\Domain\Users\IdentityInfo", cascade={"persist"}, fetch="EAGER")
@@ -114,18 +94,15 @@ class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity
 	 */
 	public function __construct($username = NULL, $password = NULL, $email = NULL)
 	{
-		$this->salt = Strings::random(5);
 		$this->createdTime = new Datetime;
 
 		$this->password = new Kdyby\Types\Password();
 		$this->info = new Kdyby\Domain\Users\IdentityInfo();
-		$this->postLoad();
+		$this->roles = new ArrayCollection();
 
 		$this->email = $email;
 		$this->username = $username;
-		if ($password) {
-			$this->password->setPassword($password);
-		}
+		$this->setPassword($password);
 
 //		$this->address = new Kdyby\Domain\Users\Address;
 	}
@@ -138,7 +115,6 @@ class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity
 	 */
 	public function postLoad()
 	{
-		$this->password->setSalt($this->salt);
 		if ($this->info) {
 			$this->info->setIdentity($this);
 		}
@@ -164,9 +140,9 @@ class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity
 	 * @param array $roles
 	 * @return Identity
 	 */
-	public function setRoles(array $roles)
+	public function addRole(RBAC\Role $role)
 	{
-		$this->roles = $roles;
+		$this->roles->add($role);
 		return $this;
 	}
 
@@ -178,7 +154,39 @@ class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity
 	 */
 	public function getRoles()
 	{
-		return array(); // $this->roles;
+		return $this->roles->toArray();
+	}
+
+
+
+	/**
+	 * @return array
+	 */
+	public function getRoleIds()
+	{
+		$ids = array();
+		foreach ($this->roles as $role) {
+			$ids[] = $role->getRoleId();
+		}
+		return $ids;
+	}
+
+
+
+	/**
+	 * @param RBAC\Role $role
+	 * @param RBAC\Privilege $privilege
+	 * @return RBAC\UserPermission
+	 */
+	public function overridePermission(RBAC\Role $role, RBAC\Privilege $privilege)
+	{
+		if (!$this->roles->contains($role)) {
+			throw new Nette\InvalidArgumentException("User '" . $this->getUsername() . "' does not have role '" . $role->getName() . "' in division '" . $role->getDivision()->getName() . "'.");
+		}
+
+		$permission = new RBAC\UserPermission($privilege, $this);
+		$permission->internalSetDivision($role->getDivision());
+		return $permission;
 	}
 
 
@@ -189,7 +197,8 @@ class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity
 	 */
 	public function setPassword($password)
 	{
-		$this->password->setPassword($password);
+		$this->password->setPassword($password, $this->salt);
+		$this->salt = $this->password->getSalt();
 		return $this;
 	}
 
@@ -201,7 +210,7 @@ class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity
 	 */
 	public function isPasswordValid($password)
 	{
-		return $this->password->isEqual($password);
+		return $this->password->isEqual($password, $this->salt);
 	}
 
 
@@ -231,136 +240,21 @@ class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity
 	/**
 	 * @return string
 	 */
-	public function getSalutation()
+	public function getName()
 	{
-		return $this->salutation;
+		return $this->name;
 	}
 
 
 
 	/**
-	 * @param string $salutation
+	 * @param string $name
 	 * @return Identity
 	 */
-	public function setSalutation($salutation)
+	public function setName($name)
 	{
-		$this->salutation = $salutation;
+		$this->name = $name;
 		return $this;
-	}
-
-
-
-	/**
-	 * @return string
-	 */
-	public function getFirstname()
-	{
-		return $this->firstname;
-	}
-
-
-
-	/**
-	 * @param string $firstname
-	 * @return Identity
-	 */
-	public function setFirstname($firstname)
-	{
-		$this->firstname = $firstname;
-		return $this;
-	}
-
-
-
-	/**
-	 * @return string
-	 */
-	public function getSecondname()
-	{
-		return $this->secondname;
-	}
-
-
-
-	/**
-	 * @param string $secondname
-	 * @return Identity
-	 */
-	public function setSecondname($secondname)
-	{
-		$this->secondname = $secondname;
-		return $this;
-	}
-
-
-
-	/**
-	 * @return string
-	 */
-	public function getLastname()
-	{
-		return $this->lastname;
-	}
-
-
-
-	/**
-	 * @param string $lastname
-	 * @return Identity
-	 */
-	public function setLastname($lastname)
-	{
-		$this->lastname = $lastname;
-		return $this;
-	}
-
-
-
-	/**
-	 * @return string
-	 */
-	public function getFullname()
-	{
-		return trim(($this->salutation ? $this->salutation .' ' : NULL) .
-			($this->firstname ? $this->firstname . ' ' : NULL) .
-			($this->secondname ? $this->secondname . ' ' : NULL) .
-			$this->lastname);
-	}
-
-
-
-	/**
-	 * @return string
-	 */
-	public function getCompany()
-	{
-		return $this->company;
-	}
-
-
-
-	/**
-	 * @param string $company
-	 * @return Identity
-	 */
-	public function setCompany($company)
-	{
-		$this->company = $company;
-		return $this;
-	}
-
-
-
-	/**
-	 * @return Kdyby\Domain\Users\Address
-	 */
-	public function getAddress()
-	{
-		if (!$this->address) {
-			// todo: $this->address = new Address;
-		}
-
-		return $this->address;
 	}
 
 
@@ -501,7 +395,7 @@ class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity
 	 */
 	public function getRoleId()
 	{
-		return $this->getId();
+		return "user#" . $this->getId();
 	}
 
 
