@@ -106,6 +106,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 	 * @param array $collection
 	 * @param array $lists
 	 * @param array $mappers
+	 * @param boolean $allowOnlyMentioned
 	 * @param boolean $allowDuplications
 	 */
 	public function assertContainsCombinations($collection, array $lists, array $mappers, $allowOnlyMentioned = TRUE, $allowDuplications = FALSE)
@@ -150,6 +151,24 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 			$diff = array_diff($lists[$i], $list);
 			$literal = $diff ? "'" . implode(', ', $diff) . "'" : NULL;
 			$this->assertEmpty($diff, "There are all given values " . $literal . " in collection");
+		}
+	}
+
+
+
+	/**
+	 * Given callback must return TRUE, when the condition is met, FALSE otherwise
+	 *
+	 * @param array $collection
+	 * @param callable $callback
+	 */
+	public function assertItemsMatchesCondition($collection, $callback)
+	{
+		$callback = callback($callback);
+		$i = 0;
+		foreach ($collection as $item) {
+			$this->assertTrue($callback($item), "Item #" . $i . " matches the conditions from callback.");
+			$i++;
 		}
 	}
 
