@@ -122,7 +122,7 @@ class MemoryDatabaseManager extends Nette\Object
 		$conn = $this->container->entityManager->getConnection();
 
 		$conn->beginTransaction();
-        try {
+		try {
 			foreach ($conn->getSchemaManager()->listTableNames() as $tableName) {
 				$query = $conn->getDatabasePlatform()->getTruncateTableSql($tableName);
 				$conn->executeUpdate($query);
