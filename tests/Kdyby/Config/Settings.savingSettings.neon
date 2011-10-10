@@ -1,20 +1,25 @@
-settings:
-  -
-    section: database
-    name: password
-    value: root
-  -
-    section: database
-    name: username
-    value: Le root
-  -
-    section: database
-    name: host
-    value: localhost
-  -
-    section: database
-    name: port
-    value: 3306
-  -
-    name: imageDir
-    value: %appDir%/data
+-
+	id: 1
+	section: database
+	name: password
+	value: root
+-
+	id: 2
+	section: database
+	name: username
+	value: Le root
+-
+	id: 3
+	section: database
+	name: host
+	value: localhost
+-
+	id: 4
+	section: database
+	name: port
+	value: 3306
+-
+	id: 5
+	name: imageDir
+	value: %appDir%/data
+	section:

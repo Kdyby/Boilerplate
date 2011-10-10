@@ -37,8 +37,6 @@ class SettingsTest extends Kdyby\Testing\OrmTestCase
 
 	public function setup()
 	{
-		parent::setup();
-
 		$this->dao = $this->getDao('Kdyby\Config\Setting');
 		$this->storage = new MemoryStorage();
 		$this->settings = new Settings($this->dao, $this->storage);
@@ -56,16 +54,19 @@ class SettingsTest extends Kdyby\Testing\OrmTestCase
 
 	public function testSavingSettings()
 	{
-		$tableName = $this->getTableName('Kdyby\Config\Setting');
-		$dataset = $this->createDataSet();
+		$data = $this->createDataSet();
+		$this->assertCount(5, $data);
 
-		foreach ($dataset->getTable($tableName) as $row) {
+		foreach ($data as $row) {
 			$this->settings->set($row['name'], $row['value'], $row['section']);
 		}
 
-		$table = $this->createQueryDataTable('Kdyby\Config\Setting');
-		$this->assertSame(5, $table->getRowCount());
-		$this->assertTablesEqual($dataset->getTable($tableName), $table);
+		$this->assertEntityCount(5, 'Kdyby\Config\Setting');
+
+		$dao = $this->getDao('Kdyby\Config\Setting');
+		foreach ($data as $row) {
+			$this->assertEntityValues('Kdyby\Config\Setting', $row, $row['id']);
+		}
 	}
 
 
@@ -75,14 +76,11 @@ class SettingsTest extends Kdyby\Testing\OrmTestCase
 	 */
 	public function testDeletingSettings()
 	{
-		$table = $this->createQueryDataTable('Kdyby\Config\Setting');
-		$this->assertSame(5, $table->getRowCount());
-
+		$this->assertEntityCount(5, 'Kdyby\Config\Setting');
 		$this->settings->delete(NULL, 'database');
+		$this->assertEntityCount(1, 'Kdyby\Config\Setting');
 		$this->settings->delete('imageDir');
-
-		$table = $this->createQueryDataTable('Kdyby\Config\Setting');
-		$this->assertSame(0, $table->getRowCount());
+		$this->assertEntityCount(0, 'Kdyby\Config\Setting');
 	}
 
 }
