@@ -116,4 +116,21 @@ final class Arrays extends Nette\Object
 		return $walker($array);
 	}
 
+
+
+	/**
+	 * @param array $arr
+	 * @param array $key
+	 * @param callable $callback
+	 * @return mixed
+	 */
+	public static function callOnRef(& $arr, $key, $callback)
+	{
+		if (!is_callable($callback, TRUE)) {
+			throw new Nette\InvalidArgumentException("Invalid callback.");
+		}
+
+		return $callback(Nette\Utils\Arrays::getRef($arr, $key));
+	}
+
 }

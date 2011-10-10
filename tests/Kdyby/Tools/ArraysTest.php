@@ -78,4 +78,19 @@ class ArraysTest extends Kdyby\Testing\TestCase
 		$this->assertEquals(array_fill(0, 8, 0), $valuesList);
 	}
 
+
+
+	public function testCallOnRef()
+	{
+		$array = array();
+		$keys = array('a', 'b');
+		$result = Arrays::callOnRef($array, $keys, function (&$value) {
+			$value += 1;
+			return 10;
+		});
+
+		$this->assertEquals(array('a' => array('b' => 1)), $array);
+		$this->assertEquals(10, $result);
+	}
+
 }
