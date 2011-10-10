@@ -222,7 +222,10 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 	 */
 	protected function onNotSuccessfulTest(\Exception $e)
 	{
-		Nette\Diagnostics\Debugger::log($e);
+		if (!$e instanceof \PHPUnit_Framework_AssertionFailedError) {
+			Nette\Diagnostics\Debugger::log($e);
+		}
+
 		parent::onNotSuccessfulTest($e);
 	}
 
