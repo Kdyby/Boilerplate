@@ -110,7 +110,7 @@ class ContainerTest extends Kdyby\Testing\TestCase
 		$factoryCalled = FALSE;
 
 		$nestedContainer = new Container();
-		$nestedContainer->addService("service", function () use ($service, &$factoryCalled) {
+		$nestedContainer->addService("service", function () use (&$factoryCalled) {
 			$factoryCalled = TRUE;
 		});
 		$this->container->addService("container", $nestedContainer);
