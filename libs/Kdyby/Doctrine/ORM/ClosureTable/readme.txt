@@ -1,1 +1,0 @@
-http://www.slideshare.net/billkarwin/sql-antipatterns-strike-back/68
