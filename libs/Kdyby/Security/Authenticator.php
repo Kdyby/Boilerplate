@@ -11,6 +11,7 @@
 namespace Kdyby\Security;
 
 use Kdyby;
+use Kdyby\Doctrine\ORM\Dao;
 use Nette;
 use Nette\Security\AuthenticationException;
 
@@ -22,15 +23,15 @@ use Nette\Security\AuthenticationException;
 class Authenticator extends Nette\Object implements Nette\Security\IAuthenticator
 {
 
-	/** @var Users */
+	/** @var Dao */
 	private $users;
 
 
 
 	/**
-	 * @param Users $users
+	 * @param Dao $users
 	 */
-	public function __construct(Users $users)
+	public function __construct(Dao $users)
 	{
 		$this->users = $users;
 	}
@@ -43,7 +44,7 @@ class Authenticator extends Nette\Object implements Nette\Security\IAuthenticato
 	 */
 	public function authenticate(array $credentials)
 	{
-		$identity = $this->users->repository->findByNameOrEmail($credentials[self::USERNAME]);
+		$identity = $this->users->fetchOne(new IdentityByNameOrEmailQuery($credentials[self::USERNAME]));
 
 		if (!$identity instanceof Identity) {
 			throw new AuthenticationException('User not found', self::IDENTITY_NOT_FOUND);
