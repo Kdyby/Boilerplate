@@ -12,7 +12,7 @@ namespace Kdyby\Security\RBAC;
 
 use Doctrine;
 use Kdyby;
-use Kdyby\Doctrine\ORM\EntityRepository;
+use Kdyby\Doctrine\IQueryable;
 use Kdyby\Security\Identity;
 use Nette;
 use Nette\Utils\Paginator;
@@ -48,10 +48,10 @@ class UserPermissionsQuery extends Kdyby\Doctrine\ORM\QueryObjectBase
 
 
 	/**
-	 * @param EntityRepository $repository
+	 * @param IQueryable $repository
 	 * @return Doctrine\ORM\QueryBuilder
 	 */
-	protected function doCreateQuery(EntityRepository $repository)
+	protected function doCreateQuery(IQueryable $repository)
 	{
 		return $repository->createQueryBuilder('perm')->select('perm', 'priv', 'act', 'res')
 			->innerJoin('perm.privilege', 'priv')
@@ -59,8 +59,10 @@ class UserPermissionsQuery extends Kdyby\Doctrine\ORM\QueryObjectBase
 			->innerJoin('perm.identity', 'ident')
 			->innerJoin('priv.action', 'act')
 			->innerJoin('priv.resource', 'res')
-			->andWhereEquals('ident', $repository->getIdentifierValues($this->identity))
-			->andWhereEquals('div', $repository->getIdentifierValues($this->division));
+			->where('ident = :identity')
+				->setParameter('identity', $this->identity)
+			->andWhere('div = :division')
+				->setParameter('division', $this->division);
 	}
 
 }

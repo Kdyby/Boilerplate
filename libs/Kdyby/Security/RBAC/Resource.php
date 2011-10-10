@@ -28,21 +28,27 @@ class Resource extends Nette\Object implements Nette\Security\IResource
 	/** @Column(type="string", unique=TRUE) @var string */
 	private $name;
 
-	/** @Column(type="string") @var string */
+	/** @Column(type="string", nullable=TRUE) @var string */
 	private $description;
 
 
 
 	/**
 	 * @param string $name
+	 * @param string $description
 	 */
-	public function __construct($name)
+	public function __construct($name, $description = NULL)
 	{
 		if (!is_string($name)) {
 			throw new Nette\InvalidArgumentException("Given name is not string, " . gettype($name) . " given.");
 		}
 
+		if (substr_count($name, Privilege::DELIMITER)) {
+			throw new Nette\InvalidArgumentException("Given name must not containt " . Privilege::DELIMITER);
+		}
+
 		$this->name = $name;
+		$this->setDescription($description);
 	}
 
 

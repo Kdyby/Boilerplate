@@ -47,7 +47,7 @@ class AuthorizatorFactory extends Nette\Object
 	{
 		if ($division === NULL) {
 			$divisionName = $this->context->user->getNamespace();
-			$division = $this->context->divisionsRepository->findByName($divisionName);
+			$division = $this->context->divisionsDao->findByName($divisionName);
 		}
 
 		if (!$division) {
@@ -63,7 +63,7 @@ class AuthorizatorFactory extends Nette\Object
 		$permission = $this->doCreatePermission();
 
 		// find resources
-		$resources = $this->context->resourceRepository->fetch(new RBAC\DivisionResourcesQuery($division));
+		$resources = $this->context->resourceDao->fetch(new RBAC\DivisionResourcesQuery($division));
 		foreach ($resources as $resource) {
 			$permission->addResource($resource->name);
 		}
@@ -73,16 +73,24 @@ class AuthorizatorFactory extends Nette\Object
 			$permission->addRole($role->getRoleId());
 
 			// identity role rules
-			$rules = $this->context->permissionRepository->fetch(new RBAC\RolePermissionsQuery($role));
+			$rules = $this->context->rolePermissionDao->fetch(new RBAC\RolePermissionsQuery($role));
 			foreach ($rules as $rule) {
-				$rule->applyTo($permission, $role);
+				if ($rule->getDivision() !== $division) {
+					continue;
+				}
+
+				$rule->applyTo($permission);
 			}
 		}
 
 		// identity specific rules
-		$rules = $this->context->permissionRepository->fetch(new RBAC\UserPermissionsQuery($identity, $division));
+		$rules = $this->context->userPermissionDao->fetch(new RBAC\UserPermissionsQuery($identity, $division));
 		foreach ($rules as $rule) {
-			$rule->applyTo($permission, $identity);
+			if ($rule->getDivision() !== $division) {
+				continue;
+			}
+
+			$rule->applyTo($permission);
 		}
 
 		$session['identity'] = $identity->getId();

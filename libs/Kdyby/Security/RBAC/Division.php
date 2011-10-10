@@ -20,17 +20,17 @@ use Nette;
 
 /**
  * @author Filip Procházka
- * @Entity @Table(name="rbac_division")
+ * @Entity @Table(name="rbac_divisions")
  */
 class Division extends Nette\Object
 {
 	/** @Id @Column(type="integer") @GeneratedValue @var integer */
 	private $id;
 
-	/** @Column(type="string", unique=TRUE) @var string */
+	/** @Column(type="string") @var string */
 	private $name;
 
-	/** @Column(type="string") @var string */
+	/** @Column(type="string", nullable=TRUE) @var string */
 	private $description;
 
 	/** @OneToMany(targetEntity="BasePermission", mappedBy="division", cascade={"persist"}) @var Collection */
@@ -39,8 +39,8 @@ class Division extends Nette\Object
 	/**
 	 * @var Collection
 	 * @ManyToMany(targetEntity="Privilege", cascade={"persist"})
-	 * @JoinTable(name="divisions_privileges",
-	 *		joinColumns={@JoinColumn(name="privilege_id", referencedColumnName="id", unique=TRUE)},
+	 * @JoinTable(name="rbac_divisions_privileges",
+	 *		joinColumns={@JoinColumn(name="privilege_id", referencedColumnName="id")},
 	 *		inverseJoinColumns={@JoinColumn(name="division_id", referencedColumnName="id")}
 	 *	)
 	 */
@@ -67,7 +67,7 @@ class Division extends Nette\Object
 	/**
 	 * @return integer
 	 */
-	public function getId()
+	final public function getId()
 	{
 		return $this->id;
 	}
@@ -114,14 +114,21 @@ class Division extends Nette\Object
 	{
 		$role = $permission->getRole();
 		if (!$role instanceof Nette\Security\IRole) {
-			throw AuthorizatorException::permissionDoNotHaveARole($permission);
+			throw AuthorizatorException::permissionDoesNotHaveARole($permission);
 		}
 
 		if ($role instanceof Role && $role->getDivision() !== $this) {
-			throw AuthorizatorException::permissionRoleDoNotMatchDivision($permission, $this);
+			throw AuthorizatorException::permissionRoleDoesNotMatchDivision($permission, $this);
 		}
 
-		$this->permissions->add($permission);
+		$privilege = $permission->getPrivilege();
+		if (!$this->hasPrivilege($privilege)) {
+			throw new Nette\InvalidArgumentException("Privilege '" . $privilege->getName() . "' for given permission is not registered in division '" . $this->getName(). "'.");
+		}
+
+		if (!$this->hasPermission($permission)) {
+			$this->permissions->add($permission);
+		}
 		$permission->internalSetDivision($this);
 		return $this;
 	}
@@ -137,69 +144,73 @@ class Division extends Nette\Object
 	}
 
 
-//
-//	/**
-//	 * @param BasePermission $permission
-//	 * @return Division
-//	 */
-//	public function removePermission(BasePermission $permission)
-//	{
-//		$this->permissions->removeElement($permission);
-//		return $this;
-//	}
-//
-//
-//
-//	/**
-//	 * @return array
-//	 */
-//	public function getPermissions()
-//	{
-//		return $this->permissions->toArray();
-//	}
-//
-//
-//
-//	/**
-//	 * @param Privilege $privilege
-//	 * @return Division
-//	 */
-//	public function addPrivilege(Privilege $privilege)
-//	{
-//		$this->privileges->add($privilege);
-//		return $this;
-//	}
-//
-//
-//
-//	/**
-//	 * @param Privilege $privilege
-//	 * @return Division
-//	 */
-//	public function removePrivilege(Privilege $privilege)
-//	{
-//		$this->privileges->removeElement($privilege);
-//		return $this;
-//	}
-//
-//
-//
-//	/**
-//	 * @return array
-//	 */
-//	public function getPrivileges()
-//	{
-//		return $this->privileges->toArray();
-//	}
+
+	/**
+	 * @param BasePermission $permission
+	 * @return Division
+	 */
+	public function removePermission(BasePermission $permission)
+	{
+		$this->permissions->removeElement($permission);
+		return $this;
+	}
 
 
 
-//	/**
-//	 * @return Nette\Security\Permission
-//	 */
-//	public function createPermission()
-//	{
-//		throw new Nette\NotImplementedException;
-//	}
+	/**
+	 * @return array
+	 */
+	public function getPermissions()
+	{
+		return $this->permissions->toArray();
+	}
+
+
+
+	/**
+	 * @param Privilege $privilege
+	 * @return Division
+	 */
+	public function addPrivilege(Privilege $privilege)
+	{
+		if (!$this->hasPrivilege($privilege)) {
+			$this->privileges->add($privilege);
+		}
+
+		return $this;
+	}
+
+
+
+	/**
+	 * @param Privilege $privilege
+	 * @return Division
+	 */
+	public function removePrivilege(Privilege $privilege)
+	{
+		$this->privileges->removeElement($privilege);
+		return $this;
+	}
+
+
+
+	/**
+	 * @param Privilege $privilege
+	 * @return boolean
+	 */
+	public function hasPrivilege(Privilege $privilege)
+	{
+		return $this->privileges->contains($privilege);
+	}
+
+
+
+	/**
+	 * @return array
+	 */
+	public function getPrivileges()
+	{
+		return $this->privileges->toArray();
+	}
 
 }

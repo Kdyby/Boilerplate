@@ -66,8 +66,8 @@ abstract class BasePermission extends Nette\Object
 	 */
 	public function internalSetDivision(Division $division)
 	{
-		if (!$division->hasPermission($this)) {
-			throw AuthorizatorException::divisionDoNotContainPermission($division, $this);
+		if (!$division->hasPrivilege($this->getPrivilege())) {
+			throw new Nette\InvalidArgumentException("Privilege '" . $this->getPrivilege()->getName() . "' in permission is not allowed within given division " . $division->getName());
 		}
 
 		$this->division = $division;
@@ -91,9 +91,8 @@ abstract class BasePermission extends Nette\Object
 	 */
 	public function getAsMessage()
 	{
-		$privilege = $this->getPrivilege();
-		$actionName = $privilege->getAction()->getName();
-		$resourceName = $privilege->getResource()->getName();
+		$actionName = $this->getPrivilege()->getAction()->getName();
+		$resourceName = $this->getPrivilege()->getResource()->getName();
 
 		return "permission to '" . $actionName . "' the '" . $resourceName . "'";
 	}
@@ -145,27 +144,35 @@ abstract class BasePermission extends Nette\Object
 	/**
 	 * @return IRole
 	 */
-	public function getRole()
+	abstract public function getRole();
+
+
+
+	/**
+	 * @return string
+	 */
+	protected function getRoleId()
 	{
-		throw new Nette\NotImplementedException;
+		return $this->getRole()->getRoleId();
 	}
 
 
 
 	/**
+	 * @todo callback assertion
+	 *
 	 * @param Nette\Security\Permission $permission
 	 */
 	public function applyTo(Nette\Security\Permission $permission)
 	{
 		$resourceId = $this->getPrivilege()->getResource()->getResourceId();
 		$actionName = $this->getPrivilege()->getAction()->getName();
-		$roleId = $this->getRole()->getRoleId();
 
 		if ($this->isAllowed) {
-			$permission->allow($roleId, $resourceId, $actionName);
+			$permission->allow($this->getRoleId(), $resourceId, $actionName);
 
 		} else {
-			$permission->deny($roleId, $resourceId, $actionName);
+			$permission->deny($this->getRoleId(), $resourceId, $actionName);
 		}
 	}
 

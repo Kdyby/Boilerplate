@@ -71,7 +71,7 @@ users:
 		username: HosipLan
 		password: "nette is sexy"
 		email: hosiplan@gmail.com
-		roles: [admin]
+		roles: [admin, blog-visitor, forum-visitor]
 	-
 		username: redactor
 		password: "osheslo"

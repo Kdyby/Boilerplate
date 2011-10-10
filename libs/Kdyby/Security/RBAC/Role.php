@@ -25,15 +25,15 @@ class Role extends Nette\Object implements Nette\Security\IRole
 	/** @Id @Column(type="integer") @GeneratedValue @var integer */
 	private $id;
 
-	/** @Column(type="string", unique=TRUE) @var string */
+	/** @Column(type="string") @var string */
 	private $name;
 
-	/** @Column(type="string") @var string */
+	/** @Column(type="string", nullable=TRUE) @var string */
 	private $description;
 
 	/**
 	 * @var Division
-	 * @ManyToOne(targetEntity="Division")
+	 * @ManyToOne(targetEntity="Division", cascade={"persist"})
 	 * @JoinColumn(name="division_id", referencedColumnName="id")
 	 */
 	private $division;
@@ -81,7 +81,7 @@ class Role extends Nette\Object implements Nette\Security\IRole
 	 */
 	public function getRoleId()
 	{
-		return $this->name;
+		return (string)$this->id;
 	}
 
 
@@ -114,6 +114,19 @@ class Role extends Nette\Object implements Nette\Security\IRole
 	{
 		$this->description = $description;
 		return $this;
+	}
+
+
+
+	/**
+	 * @param Privilege $privilege
+	 * @return RolePermission
+	 */
+	public function createPermission(Privilege $privilege)
+	{
+		$permission = new RolePermission($privilege, $this);
+		$this->division->addPermission($permission);
+		return $permission;
 	}
 
 }

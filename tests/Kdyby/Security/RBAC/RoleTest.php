@@ -48,7 +48,7 @@ class RoleTest extends Kdyby\Testing\TestCase
 	public function testSettingName()
 	{
 		$this->assertEquals('admin', $this->role->getName());
-		$this->assertEquals('admin', $this->role->getRoleId());
+		$this->assertEquals('', $this->role->getRoleId());
 	}
 
 

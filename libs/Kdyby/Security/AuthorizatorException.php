@@ -26,7 +26,7 @@ class AuthorizatorException extends \Exception
 	 * @param RBAC\BasePermission $permission
 	 * @return AuthorizatorException
 	 */
-	public static function permissionDoNotHaveARole(RBAC\BasePermission $permission)
+	public static function permissionDoesNotHaveARole(RBAC\BasePermission $permission)
 	{
 		return new self("Given " . $permission->getAsMessage() . " doesn't have assigned a role.");
 	}
@@ -38,7 +38,7 @@ class AuthorizatorException extends \Exception
 	 * @param RBAC\Division $division
 	 * @return AuthorizatorException
 	 */
-	public static function permissionRoleDoNotMatchDivision(RBAC\BasePermission $permission, RBAC\Division $division)
+	public static function permissionRoleDoesNotMatchDivision(RBAC\BasePermission $permission, RBAC\Division $division)
 	{
 		return new self("Role of given " . $permission->getAsMessage() . " doesn't come under division " . $division->getName() . ".");
 	}
@@ -60,7 +60,7 @@ class AuthorizatorException extends \Exception
 	 * @param object $division
 	 * @return AuthorizatorException
 	 */
-	public static function roleDoNotbelongToDivision(RBAC\Role $role, RBAC\Division $division)
+	public static function roleDoNotBelongToDivision(RBAC\Role $role, RBAC\Division $division)
 	{
 		return new self("Given role '" . $role->getName() . "' is not owned by division '" . $division->getName() . "'");
 	}

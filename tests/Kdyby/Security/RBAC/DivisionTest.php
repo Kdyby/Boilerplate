@@ -56,9 +56,9 @@ class DivisionTest extends Kdyby\Testing\TestCase
 
 
 
-	public function testStoringPermissions()
-	{
-		$permission = new Kdyby\Security\RBAC\RolePermission($this->division, $privilege, $role);
-	}
+//	public function testStoringPermissions()
+//	{
+//		$permission = new Kdyby\Security\RBAC\RolePermission($this->division, $privilege, $role);
+//	}
 
 }

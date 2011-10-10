@@ -66,6 +66,16 @@ class Privilege extends Nette\Object
 
 
 	/**
+	 * @return string
+	 */
+	public function getName()
+	{
+		return $this->getResource()->getName() . self::DELIMITER . $this->getAction()->getName();
+	}
+
+
+
+	/**
 	 * @return Resource
 	 */
 	public function getResource()

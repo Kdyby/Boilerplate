@@ -12,7 +12,7 @@ namespace Kdyby\Security\RBAC;
 
 use Doctrine;
 use Kdyby;
-use Kdyby\Doctrine\ORM\EntityRepository;
+use Kdyby\Doctrine\IQueryable;
 use Nette;
 use Nette\Utils\Paginator;
 
@@ -42,17 +42,18 @@ class RolePermissionsQuery extends Kdyby\Doctrine\ORM\QueryObjectBase
 
 
 	/**
-	 * @param EntityRepository $repository
+	 * @param IQueryable $repository
 	 * @return Doctrine\ORM\QueryBuilder
 	 */
-	protected function doCreateQuery(EntityRepository $repository)
+	protected function doCreateQuery(IQueryable $repository)
 	{
 		return $repository->createQueryBuilder('perm')->select('perm', 'priv', 'act', 'res')
 			->innerJoin('perm.privilege', 'priv')
 			->innerJoin('perm.role', 'role')
 			->innerJoin('priv.action', 'act')
 			->innerJoin('priv.resource', 'res')
-			->andWhereEquals('role', $repository->getIdentifierValues($this->role));
+			->where('role = :role')
+				->setParameter('role', $this->role);
 	}
 
 }

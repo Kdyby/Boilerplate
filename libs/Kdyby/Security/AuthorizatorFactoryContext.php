@@ -13,7 +13,7 @@ namespace Kdyby\Security;
 use Doctrine\Common\Persistence\ObjectManager;
 use Kdyby;
 use Kdyby\DI\Container;
-use Kdyby\Doctrine\ORM\EntityRepository;
+use Kdyby\Doctrine\ORM\Dao;
 use Nette;
 use Nette\Http;
 
@@ -22,15 +22,15 @@ use Nette\Http;
 /**
  * @author Filip Procházka
  *
- * @property-read Kdyby\DI\Container $container
  * @property-read Http\Session $session
  * @property-read Http\User $user
  * @property-read ObjectManager $workspace
- * @property-read EntityRepository $divisionsRepository
- * @property-read EntityRepository $resourceRepository
- * @property-read EntityRepository $permissionRepository
+ * @property-read Dao $divisionsDao
+ * @property-read Dao $resourceDao
+ * @property-read Dao $rolePermissionDao
+ * @property-read Dao $userPermissionDao
  */
-class AuthorizatorFactoryContext extends Nette\Object
+class AuthorizatorFactoryContext extends Nette\DI\Container
 {
 
 	/** @var ObjectManager */
@@ -39,14 +39,12 @@ class AuthorizatorFactoryContext extends Nette\Object
 
 
 	/**
-	 * @param Container $container
 	 * @param Http\User $user
 	 * @param Http\Session $session
 	 * @param ObjectManager $workspace
 	 */
-	public function __construct(Container $container, Http\User $user, Http\Session $session, ObjectManager $workspace)
+	public function __construct(Http\User $user, Http\Session $session, ObjectManager $workspace)
 	{
-		$this->addService('container', $container);
 		$this->addService('session', $session);
 		$this->addService('user', $user);
 		$this->workspace = $workspace;
@@ -55,9 +53,9 @@ class AuthorizatorFactoryContext extends Nette\Object
 
 
 	/**
-	 * @return EntityRepository
+	 * @return Dao
 	 */
-	protected function createServiceDivisionsRepository()
+	protected function createServiceDivisionsDao()
 	{
 		return $this->workspace->getRepository('Kdyby\Security\RBAC\Division');
 	}
@@ -65,9 +63,9 @@ class AuthorizatorFactoryContext extends Nette\Object
 
 
 	/**
-	 * @return RBAC\ResourceRepository
+	 * @return Dao
 	 */
-	protected function createServiceResourceRepository()
+	protected function createServiceResourceDao()
 	{
 		return $this->workspace->getRepository('Kdyby\Security\RBAC\Resource');
 	}
@@ -75,11 +73,21 @@ class AuthorizatorFactoryContext extends Nette\Object
 
 
 	/**
-	 * @return RBAC\PermissionRepository
+	 * @return Dao
 	 */
-	protected function createServicePermissionRepository()
+	protected function createServiceRolePermissionDao()
 	{
-		return $this->workspace->getRepository('Kdyby\Security\RBAC\BasePermission');
+		return $this->workspace->getRepository('Kdyby\Security\RBAC\RolePermission');
+	}
+
+
+
+	/**
+	 * @return Dao
+	 */
+	protected function createServiceUserPermissionDao()
+	{
+		return $this->workspace->getRepository('Kdyby\Security\RBAC\UserPermission');
 	}
 
 }

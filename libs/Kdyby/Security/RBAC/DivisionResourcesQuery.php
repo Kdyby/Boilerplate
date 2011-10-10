@@ -12,7 +12,7 @@ namespace Kdyby\Security\RBAC;
 
 use Doctrine;
 use Kdyby;
-use Kdyby\Doctrine\ORM\EntityRepository;
+use Kdyby\Doctrine\IQueryable;
 use Nette;
 use Nette\Utils\Paginator;
 
@@ -42,17 +42,18 @@ class DivisionResourcesQuery extends Kdyby\Doctrine\ORM\QueryObjectBase
 
 
 	/**
-	 * @param EntityRepository $repository
+	 * @param IQueryable $repository
 	 * @return Doctrine\ORM\QueryBuilder
 	 */
-	protected function doCreateQuery(EntityRepository $repository)
+	protected function doCreateQuery(IQueryable $repository)
 	{
-		return $repository->createQueryBuilder('r')->resetDQLPart('from')
-			->from('Kdyby\Security\RBAC\Division', 'd')
-			->innerJoin('d.privileges', 'p')
-			->innerJoin('p.resource', 'r')
-			->andWhereEquals('d', $repository->getIdentifierValues($this->division))
-			->orderBy(array('r.name' => 'asc', 'r.description' => 'asc'));
+		return $repository->createQuery(
+				"SELECT r FROM Kdyby\Security\RBAC\Resource r, " .
+					"Kdyby\Security\RBAC\Division d " .
+				"INNER JOIN d.privileges p ".
+				"WHERE p.resource = r AND d = :division " .
+				"ORDER BY r.name ASC, r.description ASC"
+			)->setParameter('division', $this->division);
 	}
 
 }

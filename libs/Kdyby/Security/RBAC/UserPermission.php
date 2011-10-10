@@ -33,14 +33,21 @@ class UserPermission extends BasePermission
 
 
 	/**
-	 * @param Division $division
 	 * @param Privilege $privilege
 	 * @param Identity $identity
 	 */
-	public function __construct(Division $division, Privilege $privilege, Identity $identity)
+	public function __construct(Privilege $privilege, Nette\Security\IRole $identity)
 	{
-		parent::__construct($division, $privilege);
+		if (!$identity instanceof Identity) {
+			throw new Nette\InvalidArgumentException("Given role is not instanceof Kdyby\\Security\\Identity, '" . get_class($identity) . "' given");
+		}
+
+		if ($this->identity !== NULL) {
+			throw new Nette\InvalidStateException("Association with identity is immutable.");
+		}
+
 		$this->identity = $identity;
+		parent::__construct($privilege);
 	}
 
 
@@ -61,6 +68,16 @@ class UserPermission extends BasePermission
 	public function getRole()
 	{
 		return $this->identity;
+	}
+
+
+
+	/**
+	 * @return string
+	 */
+	protected function getRoleId()
+	{
+		return $this->getRole()->getRoleIds();
 	}
 
 }

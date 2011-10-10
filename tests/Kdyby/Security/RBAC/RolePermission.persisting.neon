@@ -1,0 +1,41 @@
+rbac_actions:
+	-
+		id: 1
+		name: read
+
+rbac_resources:
+	-
+		id: 1
+		name: article
+
+rbac_privileges:
+	-
+		id: 1
+		resource_id: 1
+		action_id: 1
+
+rbac_divisions:
+	-
+		id: 1
+		name: blog
+
+rbac_roles:
+	-
+		id: 1
+		name: reader
+		division_id: 1
+
+rbac_permissions:
+	-
+		id: 1
+		role_id: 1
+		division_id: 1
+		privilege_id: 1
+		role_id: 1
+		isAllowed: 1
+		_type: role
+
+rbac_divisions_privileges:
+	-
+		privilege_id: 1
+		division_id: 1
