@@ -81,7 +81,7 @@ class TemplateFactoryTest extends Kdyby\Testing\TestCase
 		$this->context->expects($this->at(0))
 			->method('getService')
 			->with($this->equalTo('templateCacheStorage'))
-			->will($this->returnValue($this->getMock('Nette\Caching\Storages\PhpFileStorage')));
+			->will($this->returnValue($this->getMock('Nette\Caching\Storages\PhpFileStorage', array(), array(), "", FALSE)));
 
 		$this->context->expects($this->at(1))
 			->method('getService')
@@ -91,7 +91,7 @@ class TemplateFactoryTest extends Kdyby\Testing\TestCase
 		$this->context->expects($this->at(2))
 			->method('getService')
 			->with($this->equalTo('cacheStorage'))
-			->will($this->returnValue($this->getMock('Nette\Caching\Storages\FileStorage')));
+			->will($this->returnValue($this->getMock('Nette\Caching\Storages\FileStorage', array(), array(), "", FALSE)));
 
 		$this->context->expects($this->at(3))
 			->method('getParam')
