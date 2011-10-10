@@ -24,38 +24,6 @@ class Users extends Kdyby\Doctrine\ORM\BaseService
 {
 
 	/**
-	 * @return IdentityRepository
-	 */
-	public function getRepository()
-	{
-		return $this->getEntityManager()->getRepository('Kdyby\Security\Identity');
-	}
-
-
-
-	/**
-	 * @param array $data
-	 * @return Identity
-	 */
-	public function createNew(array $data = array())
-	{
-		return new Identity(@$data['username'], @$data['password'], @$data['email']);
-	}
-
-
-
-	/**
-	 * @param Identity $identity
-	 */
-	public function save(Identity $identity)
-	{
-		$this->repository->save($identity);
-		return $identity;
-	}
-
-
-
-	/**
 	 * @return Identity $identity
 	 */
 	public function approve(Identity $identity)
