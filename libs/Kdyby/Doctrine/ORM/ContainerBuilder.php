@@ -271,9 +271,6 @@ class ContainerBuilder extends Nette\Object implements Kdyby\Doctrine\IContainer
 		$config->setProxyDir($this->params['proxiesDir']);
 		$config->setProxyNamespace($this->params['proxyNamespace']);
 		$config->setAutoGenerateProxyClasses(!$this->productionMode);
-		if (!$this->productionMode) {
-			$config->setSQLLogger($this->createLogger());
-		}
 
 		return $config;
 	}
@@ -424,6 +421,11 @@ class ContainerBuilder extends Nette\Object implements Kdyby\Doctrine\IContainer
 		$config = $this->getOrmConfiguration();
 		$config->setMetadataDriverImpl($this->container->annotationDriver);
 		$this->container->addService('configuration', $config);
+
+		$config->setSQLLogger($loggerChain = $this->container->sqlLoggerChain);
+		if (!$this->productionMode) {
+			$loggerChain->addLogger($this->createLogger());
+		}
 	}
 
 

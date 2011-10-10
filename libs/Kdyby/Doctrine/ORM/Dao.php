@@ -89,9 +89,7 @@ class Dao extends Doctrine\ORM\EntityRepository implements Kdyby\Doctrine\IDao, 
 				return $repository->save($entity, Dao::NO_FLUSH);
 			}, $entity);
 
-			if ($withoutFlush === Dao::FLUSH) {
-				$this->getEntityManager()->flush();
-			}
+			$this->flush($withoutFlush);
 
 			return $result;
 		}
@@ -101,9 +99,7 @@ class Dao extends Doctrine\ORM\EntityRepository implements Kdyby\Doctrine\IDao, 
 		}
 
 		$this->getEntityManager()->persist($entity);
-		if ($withoutFlush === Dao::FLUSH) {
-			$this->getEntityManager()->flush();
-		}
+		$this->flush($withoutFlush);
 
 		return $entity;
 	}
@@ -126,9 +122,7 @@ class Dao extends Doctrine\ORM\EntityRepository implements Kdyby\Doctrine\IDao, 
 				return $repository->delete($entity, Dao::NO_FLUSH);
 			}, $entity);
 
-			if ($withoutFlush === Dao::FLUSH) {
-				$this->getEntityManager()->flush();
-			}
+			$this->flush($withoutFlush);
 			return;
 		}
 
@@ -137,8 +131,23 @@ class Dao extends Doctrine\ORM\EntityRepository implements Kdyby\Doctrine\IDao, 
 		}
 
 		$this->getEntityManager()->remove($entity);
+		$this->flush($withoutFlush);
+	}
+
+
+
+	/**
+	 * @param boolean $withoutFlush
+	 */
+	protected function flush($withoutFlush)
+	{
 		if ($withoutFlush === Dao::FLUSH) {
-			$this->getEntityManager()->flush();
+			try {
+				$this->getEntityManager()->flush();
+
+			} catch (\PDOException $e) {
+				throw new SqlException($e);
+			}
 		}
 	}
 

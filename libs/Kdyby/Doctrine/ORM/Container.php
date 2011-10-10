@@ -35,6 +35,7 @@ use Nette;
  * @property-read Mapping\DiscriminatorMapDiscoveryListener $discriminatorMapDiscoveryListener
  *
  * @property-read Diagnostics\Panel $logger
+ * @property-read Diagnostics\SqlLoggerChain $sqlLoggerChain
  *
  * @property-read AnnotationReader $annotationReader
  * @property-read Mapping\Driver\AnnotationDriver $annotationDriver
@@ -140,6 +141,16 @@ class Container extends Nette\DI\Container implements Kdyby\Doctrine\IContainer
 
 
 	/**
+	 * @return Diagnostics\SqlLoggerChain
+	 */
+	protected function createServiceSqlLoggerChain()
+	{
+		return new Diagnostics\SqlLoggerChain();
+	}
+
+
+
+	/**
 	 * @return EntityManager
 	 */
 	public function getEntityManager()
@@ -224,6 +235,10 @@ class Container extends Nette\DI\Container implements Kdyby\Doctrine\IContainer
 
 		try {
 			$className = substr($name, 0, strlen($name)-4);
+			if (!class_exists($className)) {
+				return FALSE;
+			}
+
 			$this->getEntityManager()->getClassMetadata($className);
 			return TRUE;
 
