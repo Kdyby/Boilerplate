@@ -14,6 +14,7 @@ use Doctrine;
 use Doctrine\ORM\Mapping\MappingException;
 use Kdyby;
 use Nette;
+use Nette\Reflection\ClassType;
 use Nette\Utils\Finder;
 
 
@@ -29,9 +30,19 @@ class AnnotationDriver extends Doctrine\ORM\Mapping\Driver\AnnotationDriver
 
 
 	/**
+	 * @param array $entities
+	 */
+	public function setClassNames(array $classNames)
+	{
+		$this->_classNames = $classNames;
+	}
+
+
+
+	/**
 	 * @return Nette\Utils\Finder
 	 */
-	private function getFilesIterator()
+	private function createFilesIterator()
 	{
 		return Finder::findFiles('*' . $this->_fileExtension)->from($this->_paths)->filter(function ($directory) {
 			if (!$directory->isDir()) {
@@ -70,14 +81,13 @@ class AnnotationDriver extends Doctrine\ORM\Mapping\Driver\AnnotationDriver
 			}
 		}
 
-		foreach ($this->getFilesIterator() as $file) {
+		foreach ($this->createFilesIterator() as $file) {
 			$sourceFile = realpath($file->getPathName());
 			require_once $sourceFile;
 			$includedFiles[] = $sourceFile;
 		}
 
 		$declared = get_declared_classes();
-
 		foreach ($declared as $className) {
 			$rc = new \ReflectionClass($className);
 			$sourceFile = $rc->getFileName();

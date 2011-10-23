@@ -55,7 +55,16 @@ class Container extends Nette\DI\Container implements Kdyby\Doctrine\IContainer
 	 */
 	protected function createServiceAnnotationDriver()
 	{
-		return new Mapping\Driver\AnnotationDriver($this->annotationReader, $this->params['entityDirs']);
+		$driver = new Mapping\Driver\AnnotationDriver($this->annotationReader);
+
+		if (isset($this->params['entityNames'])) {
+			$driver->setClassNames($this->params['entityNames']);
+
+		} elseif (isset($this->params['entityDirs'])) {
+			$driver->addPaths($this->params['entityDirs']);
+		}
+
+		return $driver;
 	}
 
 

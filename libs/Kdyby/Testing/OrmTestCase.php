@@ -53,7 +53,7 @@ abstract class OrmTestCase extends TestCase
 	/**
 	 * @return Kdyby\Doctrine\ORM\Container
 	 */
-	protected function getDoctrineContainer()
+	final protected function getDoctrineContainer()
 	{
 		if ($this->doctrineContainer === NULL) {
 			$this->doctrineContainer = $container = $this->getDatabaseManager()->refresh();
@@ -65,9 +65,20 @@ abstract class OrmTestCase extends TestCase
 
 
 	/**
+	 * @param array $entities
+	 */
+	final protected function prepareEntitiesSandbox(array $entities)
+	{
+		$tempDbManager = new Db\ORM\MemoryDatabaseManager($this->getContext());
+		$this->doctrineContainer = $tempDbManager->refreshEntities($entities);
+	}
+
+
+
+	/**
 	 * @return Db\ORM\MemoryDatabaseManager
 	 */
-	private function getDatabaseManager()
+	final private function getDatabaseManager()
 	{
 		if (self::$databaseManager === NULL) {
 			self::$databaseManager = new Db\ORM\MemoryDatabaseManager($this->getContext());
@@ -134,7 +145,7 @@ abstract class OrmTestCase extends TestCase
 				} catch (\Exception $e) { }
 			}
 
-			$this->assertSame($value, $actualValue);
+			$this->assertSame($value, $actualValue, "Property '" . $property . "' of '" . $entityName . "' equals given value.");
 		}
 	}
 

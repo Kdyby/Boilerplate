@@ -95,6 +95,17 @@ class ContainerBuilder extends Nette\Object implements Kdyby\Doctrine\IContainer
 
 
 	/**
+	 * @param string $name
+	 * @param mixed $value
+	 */
+	public function setParam($name, $value)
+	{
+		$this->params[$name] = $value;
+	}
+
+
+
+	/**
 	 * @param Doctrine\Common\Cache\Cache $cache
 	 */
 	public function setMetadataCache(Doctrine\Common\Cache\Cache $cache)

@@ -182,7 +182,6 @@ class Dao extends Doctrine\ORM\EntityRepository implements Kdyby\Doctrine\IDao, 
 
 
 	/**
-	 * @warning Does not close entity manager on exception!
 	 * @param callabke $callback
 	 * @return type
 	 */

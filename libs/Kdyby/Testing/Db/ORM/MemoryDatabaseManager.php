@@ -41,7 +41,7 @@ class MemoryDatabaseManager extends Nette\Object
 	{
 		$this->containerBuilder = new ContainerBuilder($context->doctrineCache, array(
 				'driver' => 'pdo_sqlite',
-				//'dsn' => 'sqlite::memory:',
+				'dsn' => 'sqlite::memory:',
 				'memory' => TRUE
 			));
 
@@ -66,8 +66,26 @@ class MemoryDatabaseManager extends Nette\Object
 			return $this->container;
 		}
 
+		$this->container->entityManager->clear();
 		$this->refreshContainer();
 		$this->truncateDatabase();
+		return $this->container;
+	}
+
+
+
+	/**
+	 * @param array $entities
+	 * @return Container
+	 */
+	public function refreshEntities(array $entities)
+	{
+		$this->containerBuilder->setParam('entityNames', $entities);
+
+		$this->refreshContainer();
+		$this->refreshSchema();
+		$this->generateProxyClasses($entities);
+
 		return $this->container;
 	}
 
@@ -139,11 +157,23 @@ class MemoryDatabaseManager extends Nette\Object
 
 	/**
 	 */
-	public function generateProxyClasses()
+	public function generateProxyClasses(array $classNames = NULL)
 	{
 		$em = $this->container->entityManager;
 		$proxyDir = $em->getConfiguration()->getProxyDir();
-		foreach (Nette\Utils\Finder::findFiles('*Proxy.php')->in($proxyDir) as $proxy) {
+
+		if ($classNames === NULL) {
+			$proxies = Nette\Utils\Finder::findFiles('*Proxy.php')->in($proxyDir);
+
+		} else {
+			$classNames = array_map(function ($class) {
+				return str_replace('\\', '', $class) . 'Proxy.php';
+			}, $classNames);
+
+			$proxies = Nette\Utils\Finder::findFiles($classNames)->in($proxyDir);
+		}
+
+		foreach ($proxies as $proxy) {
 			if (!@unlink($proxy->getRealpath())) {
 				throw new Nette\IOException("Proxy class " . $proxy->getBaseName() . " cannot be deleted.");
 			}
