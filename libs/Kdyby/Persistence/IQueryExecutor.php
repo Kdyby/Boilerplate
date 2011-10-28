@@ -8,10 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Doctrine;
-
-use Kdyby;
-use Nette;
+namespace Kdyby\Persistence;
 
 
 

@@ -8,12 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Doctrine;
-
-use Doctrine;
-use Kdyby;
-use Kdyby\Doctrine\IQueryable;
-use Nette;
+namespace Kdyby\Persistence;
 
 
 

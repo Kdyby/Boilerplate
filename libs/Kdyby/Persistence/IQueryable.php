@@ -8,11 +8,9 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Doctrine;
+namespace Kdyby\Persistence;
 
 use Doctrine;
-use Kdyby;
-use Nette;
 
 
 
