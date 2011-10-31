@@ -22,6 +22,8 @@ use Nette\Utils\Strings;
 
 /**
  * @author Filip Procházka
+ *
+ * @todo Secure user sessions on identity id? (one user should not see flashes of other)
  */
 class RequestManager extends Nette\Object
 {
