@@ -36,11 +36,6 @@ use Symfony\Component\Console;
 class Configurator extends Nette\Configurator
 {
 
-	/** @var array */
-	public $onAfterLoadConfig = array();
-
-
-
 	/**
 	 * @param string $containerClass
 	 */
@@ -52,77 +47,6 @@ class Configurator extends Nette\Configurator
 		$this->container->params['baseUrl'] = $baseUrl;
 		$this->container->params['basePath'] = preg_replace('#https?://[^/]+#A', '', $baseUrl);
 		$this->container->params['kdybyFrameworkDir'] = realpath(KDYBY_FRAMEWORK_DIR);
-
-		$this->onAfterLoadConfig[] = callback($this, 'setupDebugger');
-	}
-
-
-
-	/**
-	 * @param Container $container
-	 */
-	public function setupDebugger(Container $container)
-	{
-		$parameters = (array)$container->getParam('debugger', array());
-		foreach ($parameters as $property => $value) {
-			Nette\Utils\LimitedScope::evaluate(
-					'<?php Nette\Diagnostics\Debugger::$' . $property .' = $value; ?>',
-					array('value' => $value)
-				);
-		}
-	}
-
-
-
-	/**
-	 * Loads configuration from file and process it.
-	 * @return Container
-	 */
-	public function loadConfig($file, $section = NULL)
-	{
-		parent::loadConfig($file, $section);
-		$this->onAfterLoadConfig($this->container);
-		return $this->container;
-	}
-
-
-
-	/**
-	 * Registers CMS service and container parameters
-	 * @returns Configurator
-	 */
-	public function registerCMS()
-	{
-		if (!defined('KDYBY_CMS_DIR')) {
-			throw new Nette\InvalidStateException("Kdyby CMS is not present in installation.");
-		}
-
-		// make sure loader will take care
-		Kdyby\Loaders\SplClassLoader::getInstance()
-			->addNamespace('Kdyby', KDYBY_CMS_DIR);
-
-		// CMS dir as expandable parameter
-		$this->container->params['kdybyCmsDir'] = realpath(KDYBY_CMS_DIR);
-
-		// register CMS container as service
-		$this->container->addService('cms', new Kdyby\CMS\Container($this->container));
-
-		// register callback for finalising this registration
-		$this->onAfterLoadConfig[] = callback($this, 'finalizeCmsRegisteration');
-
-		return $this; // fluent interface
-	}
-
-
-
-	/**
-	 * Register services
-	 * @internal
-	 */
-	public function finalizeCmsRegisteration()
-	{
-		// CMS modules: Backend and others
-		$this->container->moduleRegistry->add('Kdyby\Modules', KDYBY_CMS_DIR . '/Modules');
 	}
 
 
@@ -220,14 +144,15 @@ class Configurator extends Nette\Configurator
 
 	/**
 	 * @param Container $container
+	 * @param array $options
 	 * @return Nette\Latte\Engine
 	 */
-	public static function createServiceLatteEngine(Container $container)
+	public static function createServiceLatteEngine(Container $container, array $options = NULL)
 	{
 		$engine = new Nette\Latte\Engine;
 
-		foreach ($container->getParam('macros', array()) as $macroSet) {
-			call_user_func(callback($macroSet), $engine->parser);
+		foreach ($options as $macroSetClass) {
+			$macroSetClass::install($engine->parser);
 		}
 
 		return $engine;
@@ -322,7 +247,7 @@ class Configurator extends Nette\Configurator
 		// copies services from $container and preserves lazy loading
 		$context->lazyCopy('authenticator', $container);
 		$context->lazyCopy('authorizator', $container);
-		$context->lazyCopy('sqldb', $container);
+		$context->lazyCopy('entityManager', $container);
 		$context->addService('session', $container->session);
 
 		return new Kdyby\Security\User($context);
@@ -336,7 +261,7 @@ class Configurator extends Nette\Configurator
 	 */
 	public static function createServiceUsers(Container $container)
 	{
-		return new Kdyby\Security\Users($container->sqldb->entityManager);
+		return new Kdyby\Security\Users($container->entityManager);
 	}
 
 
