@@ -11,6 +11,7 @@
 namespace Kdyby\DI;
 
 use Symfony\Component\Console;
+use Doctrine;
 use Kdyby;
 use Nette;
 
@@ -19,21 +20,25 @@ use Nette;
 /**
  * @author Filip Procházka
  *
- * @property-read Kdyby\Doctrine\Workspace $workspace
- * @property-read Kdyby\Doctrine\Cache $doctrineCache
- * @property-read Kdyby\Doctrine\ORM\Container $sqldb
- * @property-read Kdyby\Doctrine\ORM\ContainerBuilder $sqldbContainerBuilder
- * @property-read Kdyby\Doctrine\ODM\Container $couchdb
- *
- * @property-read Console\Helper\HelperSet $consoleHelpers
- * @property-read Kdyby\Tools\FreezableArray $consoleCommands
- * @property-read Console\Application $console
+ * @property-read Doctrine\ORM\EntityManager $entityManager
+ * @property-read Doctrine\Common\EventManager $ormEventManager
+ * @property-read Doctrine\ORM\Configuration $ormConfiguration
+ * @property-read Doctrine\DBAL\Connection $dbalConnection
+ * @property-read Kdyby\Doctrine\Mapping\Driver\AnnotationDriver $ormMetadataDriver
+ * @property-read Doctrine\ORM\Tools\SchemaTool $ormSchemaTool
+ * @property-read Kdyby\Doctrine\Diagnostics\Panel $sqlLogger
+ * @property-read Kdyby\Doctrine\Cache $ormCache
+ * @property-read Doctrine\Common\Annotations\AnnotationReader $annotationReader
  *
  * @property-read Nette\Application\Application $application
  * @property-read Nette\Application\IPresenterFactory $presenterFactory
  * @property-read Kdyby\Application\ModuleCascadeRegistry $moduleRegistry
  * @property-read Kdyby\Application\RequestManager $requestManager
  * @property-read Kdyby\Config\Settings $settings
+ *
+ * @property-read Console\Application $console
+ * @property-read Console\Helper\HelperSet $consoleHelpers
+ * @property-read Kdyby\Tools\FreezableArray $consoleCommands
  *
  * @property-read Nette\Application\IRouter $router
  * @property-read Nette\Http\Request $httpRequest
@@ -94,68 +99,6 @@ class Container extends Nette\DI\Container
 		$this->addService($name, function() use ($name, $container) {
 			return $container->getService($name);
 		});
-	}
-
-
-
-	/**
-	 * Adds the specified service or service factory to the container.
-	 * @param  string
-	 * @param  mixed   object, class name or callback
-	 * @param  mixed   array of tags or string typeHint
-	 * @return Container|ServiceBuilder  provides a fluent interface
-	 */
-	public function addService($name, $service, $tags = NULL)
-	{
-		if (substr_count($name, '.') !== 0) {
-			throw new Nette\InvalidArgumentException("Service name cannot contain dot.");
-		}
-
-		return parent::addService($name, $service, $tags);
-	}
-
-
-
-	/**
-	 * Gets the service object by name.
-	 * @param  string
-	 * @return object
-	 */
-	public function getService($name)
-	{
-		if (substr_count($name, '.') === 0) {
-			return parent::getService($name);
-		}
-
-		list($containerName, $serviceName) = explode('.', $name, 2);
-		$container = parent::getService($containerName);
-		if (!$container instanceof Nette\DI\IContainer) {
-			throw new Nette\DI\MissingServiceException("Container '$containerName' not found.");
-		}
-
-		return $container->getService($serviceName);
-	}
-
-
-
-	/**
-	 * Does the service exist?
-	 * @param  string service name
-	 * @return bool
-	 */
-	public function hasService($name)
-	{
-		if (substr_count($name, '.') === 0) {
-			return parent::hasService($name);
-		}
-
-		list($containerName, $serviceName) = explode('.', $name, 2);
-		$container = parent::getService($containerName);
-		if (!$container instanceof Nette\DI\IContainer) {
-			throw new Nette\DI\MissingServiceException("Container '$name' not found.");
-		}
-
-		return $container->hasService($serviceName);
 	}
 
 }

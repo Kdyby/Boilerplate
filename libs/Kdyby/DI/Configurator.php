@@ -10,16 +10,19 @@
 
 namespace Kdyby\DI;
 
+use Doctrine;
+use Doctrine\Common\Annotations;
 use Doctrine\DBAL\Tools\Console\Command as DbalCommand;
 use Doctrine\ORM\Tools\Console\Command as OrmCommand;
-use Doctrine\CouchDB\Tools\Console\Command as CouchDBCommand;
-use Doctrine\ODM\CouchDB\Tools\Console\Command as OdmCommand;
+use Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper;
+use Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper;
 use Kdyby;
-use Kdyby\Application\ModuleCascadeRegistry;
 use Kdyby\DI\ContainerHelper;
+use Kdyby\Tools\FreezableArray;
 use Nette;
-use Nette\Application\Routers\Route;
+use Nette\Application\Routers;
 use Nette\Application\UI\Presenter;
+use Nette\DI\Container as NContainer;
 use Symfony\Component\Console;
 
 
@@ -50,7 +53,6 @@ class Configurator extends Nette\Configurator
 		$this->container->params['basePath'] = preg_replace('#https?://[^/]+#A', '', $baseUrl);
 		$this->container->params['kdybyFrameworkDir'] = realpath(KDYBY_FRAMEWORK_DIR);
 
-		$this->onAfterLoadConfig[] = callback($this, 'loadDbSettings');
 		$this->onAfterLoadConfig[] = callback($this, 'setupDebugger');
 	}
 
@@ -64,8 +66,9 @@ class Configurator extends Nette\Configurator
 		$parameters = (array)$container->getParam('debugger', array());
 		foreach ($parameters as $property => $value) {
 			Nette\Utils\LimitedScope::evaluate(
-				'<?php Nette\Diagnostics\Debugger::$' . $property .' = $value; ?>',
-				array('value' => $value));
+					'<?php Nette\Diagnostics\Debugger::$' . $property .' = $value; ?>',
+					array('value' => $value)
+				);
 		}
 	}
 
@@ -125,24 +128,11 @@ class Configurator extends Nette\Configurator
 
 
 	/**
-	 * Loads settings from database
-	 */
-	public function loadDbSettings()
-	{
-		try {
-			$this->container->workspace->getClassMetadata('Kdyby\Config\Setting');
-			$this->container->settings->loadAll($this->container);
-		} catch (Kdyby\Doctrine\ManagerException $e) { }
-	}
-
-
-
-	/**
-	 * @param Nette\DI\Container $container
+	 * @param NContainer $container
 	 * @param array $options
 	 * @return Kdyby\Application\Application
 	 */
-	public static function createServiceApplication(Nette\DI\Container $container, array $options = NULL)
+	public static function createServiceApplication(NContainer $container, array $options = NULL)
 	{
 		$context = new Container;
 		$context->addService('httpRequest', $container->httpRequest);
@@ -166,78 +156,10 @@ class Configurator extends Nette\Configurator
 
 
 	/**
-	 * @param Container $container
-	 * @return Kdyby\Doctrine\ORM\Container
-	 */
-	public static function createServiceSqldbContainerBuilder(Container $container)
-	{
-		$builder = new Kdyby\Doctrine\ORM\ContainerBuilder($container->doctrineCache, $container->getParam('sqldb', array()));
-		$builder->registerTypes();
-		$builder->registerAnnotationClasses();
-		$builder->setProductionMode($container->params['productionMode']);
-		$builder->expandParams($container);
-		return $builder;
-	}
-
-
-
-	/**
-	 * @param Container $container
-	 * @return Kdyby\Doctrine\ORM\Container
-	 */
-	public static function createServiceSqldb(Container $container)
-	{
-		return $container->sqldbContainerBuilder->build();
-	}
-
-
-
-	/**
-	 * @param Container $container
-	 * @return Kdyby\Doctrine\ODM\Container
-	 */
-	public static function createServiceCouchdb(Container $container)
-	{
-		return new Kdyby\Doctrine\ODM\Container($container, $container->getParam('couchdb', array()));
-	}
-
-
-
-	/**
-	 * @param Container $container
-	 * @return Kdyby\Doctrine\Workspace
-	 */
-	public static function createServiceWorkspace(Container $container)
-	{
-		$containers = array(
-			'sqldb' => $container->sqldb,
-			'couchdb' => $container->couchdb
-		);
-
-		foreach ($container->getServiceNamesByTag('database') as $serviceName => $info) {
-			$containers[$serviceName] = $container->getService($serviceName);
-		}
-
-		return new Kdyby\Doctrine\Workspace($containers);
-	}
-
-
-
-	/**
-	 * @return Kdyby\Config\Settings
-	 */
-	public static function createServiceSettings(Container $container)
-	{
-		return new Kdyby\Config\Settings($container->workspace->getRepository('Kdyby\Config\Setting'), $container->cacheStorage);
-	}
-
-
-
-	/**
-	 * @param Nette\DI\Container $container
+	 * @param NContainer $container
 	 * @return Nette\Application\IPresenterFactory
 	 */
-	public static function createServicePresenterFactory(Nette\DI\Container $container)
+	public static function createServicePresenterFactory(NContainer $container)
 	{
 		return new Kdyby\Application\PresenterFactory($container->moduleRegistry, $container);
 	}
@@ -256,10 +178,10 @@ class Configurator extends Nette\Configurator
 
 
 	/**
-	 * @param Nette\DI\Container $container
+	 * @param NContainer $container
 	 * @return Kdyby\Caching\FileStorage
 	 */
-	public static function createServiceCacheStorage(Nette\DI\Container $container)
+	public static function createServiceCacheStorage(NContainer $container)
 	{
 		if (!isset($container->params['tempDir'])) {
 			throw new Nette\InvalidStateException("Service cacheStorage requires that parameter 'tempDir' contains path to temporary directory.");
@@ -273,10 +195,10 @@ class Configurator extends Nette\Configurator
 
 
 	/**
-	 * @param Nette\DI\Container $container
+	 * @param NContainer $container
 	 * @return Kdyby\Loaders\RobotLoader
 	 */
-	public static function createServiceRobotLoader(Nette\DI\Container $container, array $options = NULL)
+	public static function createServiceRobotLoader(NContainer $container, array $options = NULL)
 	{
 		$loader = new Kdyby\Loaders\RobotLoader;
 		$loader->autoRebuild = isset($options['autoRebuild']) ? $options['autoRebuild'] : !$container->params['productionMode'];
@@ -314,30 +236,68 @@ class Configurator extends Nette\Configurator
 
 
 	/**
-	 * @param Nette\DI\Container $container
-	 * @return Nette\Application\Routers\RouteList
+	 * @param NContainer $container
+	 * @return Routers\RouteList
 	 */
-	public static function createServiceRouter(Nette\DI\Container $container)
+	public static function createServiceRouter(NContainer $container)
 	{
-		$router = new Nette\Application\Routers\RouteList;
+		$router = new Routers\RouteList;
 
-		$router[] = $backend = new Nette\Application\Routers\RouteList('Backend');
+		$router[] = $backend = new Routers\RouteList('Backend');
 
-			$backend[] = new Route('admin/[sign/in]', array(
+			$backend[] = new Routers\Route('admin/[sign/in]', array(
 				'presenter' => 'Sign',
 				'action' => 'in',
 			));
 
-			$backend[] = new Route('admin/<presenter>[/<action>]', array(
+			$backend[] = new Routers\Route('admin/<presenter>[/<action>]', array(
 				'action' => 'default',
 			));
 
-		foreach ($container->installWizard->getInstallers() as $installer) {
-			$installer->installRoutes($router);
-		}
-
 		return $router;
 	}
+
+
+
+	/**
+	 * @param Container $container
+	 * @return Kdyby\Application\RequestManager
+	 */
+	public static function createServiceRequestManager(Container $container)
+	{
+		return new Kdyby\Application\RequestManager($container->application, $container->session);
+	}
+
+
+
+	/**
+	 * @param Container $container
+	 * @return Kdyby\Application\ModuleCascadeRegistry
+	 */
+	public static function createServiceModuleRegistry(Container $container)
+	{
+		$register = new Kdyby\Application\ModuleCascadeRegistry;
+
+		foreach ($container->getParam('modules', array()) as $namespace => $path) {
+			$register->add($namespace, $container->expand($path));
+		}
+
+		return $register;
+	}
+
+
+
+	/**
+	 * @param Container $container
+	 * @return Kdyby\Components\Grinder\GridFactory
+	 */
+	public static function createServiceGrinderFactory(Container $container)
+	{
+		return new Kdyby\Components\Grinder\GridFactory($container->entityManager, $container->session);
+	}
+
+
+	/****************** Security ****************/
 
 
 
@@ -353,10 +313,10 @@ class Configurator extends Nette\Configurator
 
 
 	/**
-	 * @param Nette\DI\Container $container
-	 * @return Kdyby\Http\User
+	 * @param NContainer $container
+	 * @return Kdyby\Security\User
 	 */
-	public static function createServiceUser(Nette\DI\Container $container)
+	public static function createServiceUser(NContainer $container)
 	{
 		$context = new Container;
 		// copies services from $container and preserves lazy loading
@@ -381,97 +341,7 @@ class Configurator extends Nette\Configurator
 
 
 
-	/**
-	 * @param Container $container
-	 * @return Kdyby\Application\RequestManager
-	 */
-	public static function createServiceRequestManager(Container $container)
-	{
-		return new Kdyby\Application\RequestManager($container->application, $container->session);
-	}
-
-
-
-	/**
-	 * @param Container $container
-	 * @return Kdyby\Modules\InstallWizard
-	 */
-	public static function createServiceInstallWizard(Container $container)
-	{
-		return new Kdyby\Modules\InstallWizard($container->robotLoader, $container->cacheStorage);
-	}
-
-
-
-	/**
-	 * @param Container $container
-	 * @return Kdyby\Doctrine\Cache
-	 */
-	public static function createServiceDoctrineCache(Container $container)
-	{
-		return new Kdyby\Doctrine\Cache($container->cacheStorage);
-	}
-
-
-
-	/**
-	 * @param Container $container
-	 * @return Kdyby\Doctrine\Mapping\TypeMapper
-	 */
-	public static function createServiceDoctrineTypeMapper(Container $container)
-	{
-		return new Kdyby\Doctrine\Mapping\TypeMapper();
-	}
-
-
-
-	/**
-	 * @param Container $container
-	 * @return Kdyby\Doctrine\Mapping\EntityValuesMapper
-	 */
-	public static function createServiceDoctrineEntityValuesMapper(Container $container)
-	{
-		return new Kdyby\Doctrine\Mapping\EntityValuesMapper($container->workspace, $container->doctrineTypeMapper);
-	}
-
-
-
-	/**
-	 * @param Container $container
-	 * @return Kdyby\Forms\Mapping\EntityFormMapperFactory
-	 */
-	public static function createServiceEntityFormMapperFactory(Container $container)
-	{
-		return new Kdyby\Forms\Mapping\EntityFormMapperFactory($container->workspace, $container->doctrineTypeMapper);
-	}
-
-
-
-	/**
-	 * @param Container $container
-	 * @return Kdyby\Forms\EntityFormFactory
-	 */
-	public static function createServiceEntityFormFactory(Container $container)
-	{
-		return new Kdyby\Forms\EntityFormFactory($container->entityFormMapperFactory);
-	}
-
-
-
-	/**
-	 * @param Container $container
-	 * @return ModuleCascadeRegistry
-	 */
-	public static function createServiceModuleRegistry(Container $container)
-	{
-		$register = new ModuleCascadeRegistry;
-
-		foreach ($container->getParam('modules', array()) as $namespace => $path) {
-			$register->add($namespace, $container->expand($path));
-		}
-
-		return $register;
-	}
+	/****************** Console ****************/
 
 
 
@@ -482,9 +352,9 @@ class Configurator extends Nette\Configurator
 	public static function createServiceConsoleHelpers(Container $container)
 	{
 		$helperSet = new Console\Helper\HelperSet(array(
-			'container' => new ContainerHelper($container),
-			'em' => new Kdyby\Doctrine\ORM\EntityManagerHelper($container->sqldb),
-			'couchdb' => new Kdyby\Doctrine\ODM\CouchDBHelper($container->couchdb),
+			'di' => new ContainerHelper($container),
+			'em' => new EntityManagerHelper($container->entityManager),
+			'db' => new ConnectionHelper($container->entityManager->getConnection()),
 		));
 
 		return $helperSet;
@@ -493,12 +363,14 @@ class Configurator extends Nette\Configurator
 
 
 	/**
+	 * @todo split on services
+	 *
 	 * @param Container $container
-	 * @return Kdyby\Tools\FreezableArray
+	 * @return FreezableArray
 	 */
 	public static function createServiceConsoleCommands(Container $container)
 	{
-		return new Kdyby\Tools\FreezableArray(array(
+		return new FreezableArray(array(
 			// DBAL Commands
 			new DbalCommand\RunSqlCommand(),
 			new DbalCommand\ImportCommand(),
@@ -510,21 +382,14 @@ class Configurator extends Nette\Configurator
 			new OrmCommand\ValidateSchemaCommand(),
 			new OrmCommand\GenerateProxiesCommand(),
 			new OrmCommand\RunDqlCommand(),
-
-			// ODM
-			new CouchDBCommand\ReplicationStartCommand(),
-			new CouchDBCommand\ReplicationCancelCommand(),
-			new CouchDBCommand\ViewCleanupCommand(),
-			new CouchDBCommand\CompactDatabaseCommand(),
-			new CouchDBCommand\CompactViewCommand(),
-			new CouchDBCommand\MigrationCommand(),
-			new OdmCommand\UpdateDesignDocCommand()
 		));
 	}
 
 
 
 	/**
+	 * @todo realy catch exceptions?
+	 *
 	 * @param Container $container
 	 * @return Console\Application
 	 */
@@ -535,20 +400,264 @@ class Configurator extends Nette\Configurator
 
 		$cli->setCatchExceptions(TRUE);
 		$cli->setHelperSet($container->consoleHelpers);
-		$cli->addCommands($container->consoleCommands->freeze()->iterator->getArrayCopy());
+		$cli->addCommands($container->consoleCommands->freeze()->toArray());
 
 		return $cli;
+	}
+
+
+	/****************** Doctrine ****************/
+
+
+
+	/**
+	 * @param Container $container
+	 * @return Kdyby\Doctrine\Cache
+	 */
+	public static function createServiceOrmCache(Container $container)
+	{
+		return new Kdyby\Doctrine\Cache($container->cacheStorage);
 	}
 
 
 
 	/**
 	 * @param Container $container
-	 * @return Kdyby\Components\Grinder\GridFactory
+	 * @param array $options
+	 * @return Annotations\AnnotationReader
 	 */
-	public static function createServiceGrinderFactory(Container $container)
+	protected function createServiceAnnotationReader(Container $container, array $options = NULL)
 	{
-		return new Kdyby\Components\Grinder\GridFactory($container->workspace, $container->session);
+		$reader = new Annotations\AnnotationReader();
+
+		// options
+		self::setServiceOptions($config, $options, array(
+				'defaultAnnotationNamespace' => 'Doctrine\ORM\Mapping\\',
+				'ignoreNotImportedAnnotations' => TRUE,
+				'enableParsePhpImports' => FALSE,
+			), array('aliases', 'cache'));
+
+		// default aliases
+		$reader->setAnnotationNamespaceAlias('Doctrine\ORM\Mapping\\', 'Orm');
+
+		// custom aliases
+		if (isset($options['aliases'])) {
+			foreach ($options['aliases'] as $alias => $namespace) {
+				$reader->setAnnotationNamespaceAlias($namespace, $alias);
+			}
+		}
+
+		// wrap
+		return new Kdyby\Doctrine\Annotations\CachedReader(
+				new Annotations\IndexedReader($reader),
+				isset($options['cache']) ? $options['cache'] : $container->ormCache
+			);
+	}
+
+
+
+	/**
+	 * @todo prefix every annotation!
+	 *
+	 * @param Container $container
+	 * @return Kdyby\Doctrine\Mapping\Driver\AnnotationDriver
+	 */
+	public static function createServiceOrmMetadataDriver(Container $container)
+	{
+		$loader = Kdyby\Loaders\SplClassLoader::getInstance();
+		foreach ($loader->getTypeDirs('Doctrine\ORM') as $dir) {
+			Annotations\AnnotationRegistry::registerFile($dir . '/Mapping/Driver/DoctrineAnnotations.php');
+		}
+
+		Annotations\AnnotationRegistry::registerFile(KDYBY_FRAMEWORK_DIR . '/Doctrine/Mapping/Driver/DoctrineAnnotations.php');
+
+		return new Kdyby\Doctrine\Mapping\Driver\AnnotationDriver($container->annotationReader);
+	}
+
+
+
+	/**
+	 * @param Container $container
+	 * @param array $options
+	 * @return Doctrine\DBAL\Logging\SQLLogger
+	 */
+	public static function createServiceSqlLogger(Container $container)
+	{
+		$logger = new Kdyby\Doctrine\Diagnostics\Panel();
+		$logger->registerBarPanel(Nette\Diagnostics\Debugger::$bar);
+		return $logger;
+	}
+
+
+
+	/**
+	 * @param Container $container
+	 * @param array $options
+	 * @return Doctrine\ORM\Configuration
+	 */
+	public static function createServiceOrmConfiguration(Container $container, array $options = NULL)
+	{
+		$config = new Doctrine\ORM\Configuration;
+
+		// options
+		self::setServiceOptions($config, $options, array(
+				// Metadata
+				'metadataCacheImpl' => $container->ormCache,
+				'metadataDriverImpl' => $container->ormMetadataDriver,
+				'classMetadataFactoryName' => 'Kdyby\Doctrine\Mapping\ClassMetadataFactory',
+
+				// queries
+				'queryCacheImpl' => $container->ormCache,
+
+				// Proxies
+				'proxyDir' => $container->expand('%tempDir%/proxies'),
+				'proxyNamespace' => 'Kdyby\Domain\Proxy',
+				'autoGenerateProxyClasses' => $container->params['productionMode'],
+
+				// sqlLogger
+				'sQLLogger' => $container->sqlLogger
+			));
+
+		return $config;
+	}
+
+
+
+	/**
+	 * @param Container $container
+	 * @param array $options
+	 * @return Doctrine\Common\EventManager
+	 */
+	public static function createServiceOrmEventManager(Container $container, array $options = NULL)
+	{
+		$evm = new Doctrine\Common\EventManager;
+
+		// default listeners
+		$evm->addEventSubscriber($container->ormDiscriminatorMapDiscoveryListener);
+		$evm->addEventSubscriber($container->ormEntityDefaultsListener);
+		// $evm->addEventSubscriber(new Kdyby\Media\Listeners\Mediable($this->context));
+
+		// custom listeners
+		foreach ($options as $listener) {
+			$evm->addEventSubscriber($listener);
+		}
+
+		return $evm;
+	}
+
+
+
+	/**
+	 * @param Container $container
+	 * @return Kdyby\Doctrine\Mapping\DiscriminatorMapDiscoveryListener
+	 */
+	public static function createServiceOrmDiscriminatorMapDiscoveryListener(Container $container)
+	{
+		return new Kdyby\Doctrine\Mapping\DiscriminatorMapDiscoveryListener(
+				$container->annotationReader,
+				$container->ormMetadataDriver
+			);
+	}
+
+
+
+	/**
+	 * @param Container $container
+	 * @return Kdyby\Doctrine\Mapping\EntityDefaultsListener
+	 */
+	public static function createServiceOrmEntityDefaultsListener(Container $container)
+	{
+		return new Kdyby\Doctrine\Mapping\EntityDefaultsListener();
+	}
+
+
+
+	/**
+	 * @param Container $container
+	 * @return Doctrine\DBAL\Event\Listeners\MysqlSessionInit
+	 */
+	public static function createServiceDbalMysqlSessionInitListener(Container $container)
+	{
+		return new Doctrine\DBAL\Event\Listeners\MysqlSessionInit();
+	}
+
+
+
+	/**
+	 * @param Container $container
+	 * @param array $options
+	 * @return Doctrine\DBAL\Connection
+	 */
+	public static function createServiceDbalConnection(Container $container, array $options = NULL)
+	{
+		if (!$options) {
+			throw new Nette\InvalidArgumentException("Please provide a database connection information for @dbalConnection service.");
+		}
+
+		if (isset($options['driver']) && $options['driver'] == "pdo_mysql") {
+			$container->ormEventManager->addEventSubscriber($container->dbalMysqlSessionInitListener);
+		}
+
+		return Doctrine\DBAL\DriverManager::getConnection(
+				$options,
+				$container->ormConfiguration,
+				$container->ormEventManager
+			);
+	}
+
+
+
+	/**
+	 * @param Container $container
+	 * @return Doctrine\ORM\Tools\SchemaTool
+	 */
+	public static function createServiceOrmSchemaTool(Container $container)
+	{
+		return new Doctrine\ORM\Tools\SchemaTool($container->entityManager);
+	}
+
+
+
+	/**
+	 * @param Container $container
+	 * @return Doctrine\ORM\EntityManager
+	 */
+	public static function createServiceEntityManager(Container $container)
+	{
+		return Doctrine\ORM\EntityManager::create(
+				$container->dbalConnection,
+				$container->ormConfiguration,
+				$container->ormEventManager
+			);
+	}
+
+
+	/***************** Helpers ********************/
+
+
+
+	/**
+	 * @param object $service
+	 * @param array $options
+	 * @param array $defaults
+	 * @param array $ignore
+	 */
+	public static function setServiceOptions($service, $options, array $defaults = NULL, array $ignore = NULL)
+	{
+		$options = Nette\Utils\Arrays::mergeTree((array)$options, $defaults);
+
+		// set options
+		foreach ($options as $name => $val) {
+			$method = 'set' . strtoupper($name[0]) . substr($name, 1);
+			if (!method_exists($service, $method) && !in_array($name, $ignore)) {
+				throw new Nette\InvalidArgumentException("Unknown option $name", NULL,
+						new Nette\MemberAccessException(
+							"Call to undefined method " . get_class($service) . "::$method()."
+					));
+			}
+
+			$service->$method($val);
+		}
 	}
 
 }
