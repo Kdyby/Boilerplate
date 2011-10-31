@@ -63,6 +63,16 @@ class FreezableArray extends Nette\FreezableObject implements \ArrayAccess, \Cou
 
 
 	/**
+	 * @return array
+	 */
+	public function toArray()
+	{
+		return $this->array;
+	}
+
+
+
+	/**
 	 * Returns items count.
 	 *
 	 * @return int
