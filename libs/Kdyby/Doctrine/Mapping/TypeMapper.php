@@ -11,7 +11,7 @@
 namespace Kdyby\Doctrine\Mapping;
 
 use Kdyby;
-use Kdyby\Doctrine\ORM\Type;
+use Kdyby\Doctrine\Type;
 use Nette;
 
 
