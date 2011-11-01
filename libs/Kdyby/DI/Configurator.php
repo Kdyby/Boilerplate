@@ -199,11 +199,11 @@ class Configurator extends Nette\Configurator
 	 * @param Container $container
 	 * @return Kdyby\Application\ModuleCascadeRegistry
 	 */
-	public static function createServiceModuleRegistry(Container $container)
+	public static function createServiceModuleRegistry(Container $container, array $options = NULL)
 	{
 		$register = new Kdyby\Application\ModuleCascadeRegistry;
 
-		foreach ($container->getParam('modules', array()) as $namespace => $path) {
+		foreach ($options as $namespace => $path) {
 			$register->add($namespace, $container->expand($path));
 		}
 
