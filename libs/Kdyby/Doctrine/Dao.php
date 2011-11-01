@@ -27,7 +27,7 @@ use Nette\ObjectMixin;
  *
  * @method Mapping\ClassMetadata getClassMetadata() getClassMetadata()
  */
-class Dao extends Doctrine\ORM\EntityRepository implements Kdyby\Doctrine\IDao, Kdyby\Doctrine\IQueryable, Kdyby\Doctrine\IObjectFactory
+class Dao extends Doctrine\ORM\EntityRepository implements Kdyby\Doctrine\IDao, Kdyby\Persistence\IQueryable, Kdyby\Doctrine\IObjectFactory
 {
 
 	/** @var EntityValuesMapper */

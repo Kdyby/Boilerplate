@@ -11,7 +11,7 @@
 namespace Kdyby\Security;
 
 use Doctrine;
-use Kdyby\Doctrine\IQueryable;
+use Kdyby\Persistence\IQueryable;
 use Kdyby;
 use Nette;
 use Nette\Utils\Paginator;
@@ -21,7 +21,7 @@ use Nette\Utils\Paginator;
 /**
  * @author Filip Procházka
  */
-class IdentityByNameOrEmailQuery extends Kdyby\Doctrine\ORM\QueryObjectBase
+class IdentityByNameOrEmailQuery extends Kdyby\Doctrine\QueryObjectBase
 {
 
 	/** @var string */

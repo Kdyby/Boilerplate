@@ -11,7 +11,7 @@
 namespace Kdyby\Security;
 
 use Kdyby;
-use Kdyby\Doctrine\ORM\Dao;
+use Kdyby\Doctrine\Dao;
 use Nette;
 use Nette\Security\AuthenticationException;
 

@@ -13,7 +13,7 @@ namespace Kdyby\Doctrine;
 use Doctrine;
 use DoctrineExtensions\Paginate\Paginate;
 use Kdyby;
-use Kdyby\Doctrine\IQueryable;
+use Kdyby\Persistence\IQueryable;
 use Nette;
 use Nette\Utils\Paginator;
 

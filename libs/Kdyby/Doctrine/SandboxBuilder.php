@@ -21,7 +21,6 @@ use Kdyby\Doctrine\Annotations\CachedReader;
 use Nette;
 use Nette\Utils\Arrays;
 use Doctrine\Common\Cache\AbstractCache;
-use Doctrine\Common\Cache\ArrayCache;
 
 
 
@@ -72,11 +71,11 @@ class SandboxBuilder extends Nette\Object
 
 
 	/**
-	 * @param Kdyby\Doctrine\Cache $cache
+	 * @param AbstractCache $cache
 	 */
-	public function __construct(Kdyby\Doctrine\Cache $cache = NULL)
+	public function __construct(AbstractCache $cache = NULL)
 	{
-		$this->cache = $cache;
+		$this->cache = $cache ?: new Doctrine\Common\Cache\ArrayCache();
 		if (defined('KDYBY_CMS_DIR')) {
 			$this->params['entityDirs'][] = '%kdybyCmsDir%';
 		}
@@ -109,7 +108,7 @@ class SandboxBuilder extends Nette\Object
 			AnnotationRegistry::registerFile($dir . '/Mapping/Driver/DoctrineAnnotations.php');
 		}
 
-		AnnotationRegistry::registerFile(KDYBY_FRAMEWORK_DIR . '/Doctrine/ORM/Mapping/Driver/DoctrineAnnotations.php');
+		AnnotationRegistry::registerFile(KDYBY_FRAMEWORK_DIR . '/Doctrine/Mapping/Driver/DoctrineAnnotations.php');
 	}
 
 
@@ -131,7 +130,7 @@ class SandboxBuilder extends Nette\Object
 	 */
 	protected function getCache()
 	{
-		return $this->cache instanceof AbstractCache ? $this->cache : new ArrayCache();
+		return $this->cache;
 	}
 
 

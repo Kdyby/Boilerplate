@@ -23,7 +23,7 @@ use Nette;
  *
  * @Entity @Table(name="users_info")
  */
-class IdentityInfo extends Kdyby\Doctrine\ORM\Entities\IdentifiedEntity
+class IdentityInfo extends Kdyby\Doctrine\Entities\IdentifiedEntity
 {
 
 	/** @var Kdyby\Security\Identity */

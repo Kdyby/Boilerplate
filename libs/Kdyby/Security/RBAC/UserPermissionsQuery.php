@@ -12,7 +12,7 @@ namespace Kdyby\Security\RBAC;
 
 use Doctrine;
 use Kdyby;
-use Kdyby\Doctrine\IQueryable;
+use Kdyby\Persistence\IQueryable;
 use Kdyby\Security\Identity;
 use Nette;
 use Nette\Utils\Paginator;
@@ -22,7 +22,7 @@ use Nette\Utils\Paginator;
 /**
  * @author Filip Procházka
  */
-class UserPermissionsQuery extends Kdyby\Doctrine\ORM\QueryObjectBase
+class UserPermissionsQuery extends Kdyby\Doctrine\QueryObjectBase
 {
 
 	/** @var Identity */
