@@ -8,11 +8,11 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Testing\Db\ORM;
+namespace Kdyby\Testing\ORM;
 
 use Kdyby;
-use Kdyby\Doctrine\ORM\Container;
-use Kdyby\Doctrine\ORM\ContainerBuilder;
+use Kdyby\Doctrine\Sandbox;
+use Kdyby\Doctrine\SandboxBuilder;
 use Nette;
 
 
@@ -20,40 +20,42 @@ use Nette;
 /**
  * @author Filip Procházka
  */
-class MemoryDatabaseManager extends Nette\Object
+class SandboxRecycler extends Nette\Object
 {
 
-	/** @var ContainerBuilder */
-	private $containerBuilder;
+	/** @var SandboxBuilder */
+	private $builder;
 
 	/** @var boolean */
 	private $schemaOn = FALSE;
 
-	/** @var Container */
-	protected $container;
+	/** @var Sandbox */
+	protected $sandbox;
 
 
 
 	/**
-	 * @param Kdyby\DI\Container $context
+	 * @param Nette\DI\Container $context
+	 * @param array $entities
 	 */
-	public function __construct(Kdyby\DI\Container $context)
+	public function __construct(Nette\DI\Container $context, array $entities)
 	{
-		$this->containerBuilder = new ContainerBuilder($context->doctrineCache, array(
-				'driver' => 'pdo_sqlite',
-				'dsn' => 'sqlite::memory:',
-				'memory' => TRUE
-			));
+		$this->builder = new SandboxBuilder();
 
-		$this->containerBuilder->registerTypes();
-		$this->containerBuilder->registerAnnotationClasses();
-		$this->containerBuilder->expandParams($context);
+		$this->builder->params['driver'] = 'pdo_sqlite';
+		$this->builder->params['memory'] = TRUE;
+
+		if ($entities) {
+			$this->builder->params['entityNames'] = $entities;
+		}
+
+		$this->builder->expandParams($context);
 	}
 
 
 
 	/**
-	 * @return Container
+	 * @return Sandbox
 	 */
 	public function refresh()
 	{
@@ -63,57 +65,40 @@ class MemoryDatabaseManager extends Nette\Object
 			$this->generateProxyClasses();
 			$this->schemaOn = TRUE;
 
-			return $this->container;
+			return $this->sandbox;
 		}
 
-		$this->container->entityManager->clear();
+		$this->sandbox->entityManager->clear();
 		$this->refreshContainer();
 		$this->truncateDatabase();
-		return $this->container;
+		return $this->sandbox;
 	}
 
 
 
 	/**
-	 * @param array $entities
-	 * @return Container
+	 * @return Sandbox
 	 */
-	public function refreshEntities(array $entities)
+	public function getSandbox()
 	{
-		$this->containerBuilder->setParam('entityNames', $entities);
-
-		$this->refreshContainer();
-		$this->refreshSchema();
-		$this->generateProxyClasses($entities);
-
-		return $this->container;
+		return $this->sandbox;
 	}
 
 
 
 	/**
-	 * @return Container
-	 */
-	public function getContainer()
-	{
-		return $this->container;
-	}
-
-
-
-	/**
-	 * @return Container
+	 * @return Sandbox
 	 */
 	public function refreshContainer()
 	{
-		$container = $this->containerBuilder->build();
-		if ($this->container === NULL) {
+		$container = $this->builder->build();
+		if ($this->sandbox === NULL) {
 			// only when container is created for the first time
 			$evm = $container->getEntityManager()->getEventManager();
 			$evm->addEventSubscriber($container->dataFixturesListener);
 		}
 
-		return $this->container = $container;
+		return $this->sandbox = $container;
 	}
 
 
@@ -122,8 +107,8 @@ class MemoryDatabaseManager extends Nette\Object
 	 */
 	public function refreshSchema()
 	{
-		$em = $this->container->getEntityManager();
-		$schemaTool = $this->container->schemaTool;
+		$em = $this->sandbox->getEntityManager();
+		$schemaTool = $this->sandbox->schemaTool;
 
 		// prepare schema
 		$classes = $em->getMetadataFactory()->getAllMetadata();
@@ -137,7 +122,7 @@ class MemoryDatabaseManager extends Nette\Object
 	 */
 	public function truncateDatabase()
 	{
-		$conn = $this->container->entityManager->getConnection();
+		$conn = $this->sandbox->entityManager->getConnection();
 
 		$conn->beginTransaction();
 		try {
@@ -157,11 +142,16 @@ class MemoryDatabaseManager extends Nette\Object
 
 	/**
 	 */
-	public function generateProxyClasses(array $classNames = NULL)
+	public function generateProxyClasses()
 	{
-		$em = $this->container->entityManager;
+		$em = $this->sandbox->entityManager;
 		$proxyDir = $em->getConfiguration()->getProxyDir();
 
+		// Whether use only few entities, or more
+		$params = $this->sandbox->params;
+		$classNames = isset($params['entityNames']) ? $params['entityNames'] : NULL;
+
+		// class names to delete
 		if ($classNames === NULL) {
 			$proxies = Nette\Utils\Finder::findFiles('*Proxy.php')->in($proxyDir);
 
@@ -173,12 +163,14 @@ class MemoryDatabaseManager extends Nette\Object
 			$proxies = Nette\Utils\Finder::findFiles($classNames)->in($proxyDir);
 		}
 
+		// deleting classes
 		foreach ($proxies as $proxy) {
 			if (!@unlink($proxy->getRealpath())) {
 				throw new Nette\IOException("Proxy class " . $proxy->getBaseName() . " cannot be deleted.");
 			}
 		}
 
+		// rebuild proxies
 		$metas = $em->getMetadataFactory()->getAllMetadata();
 		$em->getProxyFactory()->generateProxyClasses($metas);
 	}

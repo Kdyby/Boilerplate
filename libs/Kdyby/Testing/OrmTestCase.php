@@ -24,11 +24,11 @@ use Nette\ObjectMixin;
 abstract class OrmTestCase extends TestCase
 {
 
-	/** @var Db\ORM\MemoryDatabaseManager */
+	/** @var ORM\MemoryDatabaseManager */
 	private static $databaseManager;
 
-	/** @var Kdyby\Doctrine\ORM\Container */
-	private $doctrineContainer;
+	/** @var Kdyby\Doctrine\Sandbox */
+	private $ormSandbox;
 
 	/** @var Doctrine\ORM\EntityManager */
 	private $em;
@@ -41,8 +41,8 @@ abstract class OrmTestCase extends TestCase
 	final protected function getEntityManager()
 	{
 		if ($this->em === NULL) {
-			$this->em = $this->getDoctrineContainer()->getEntityManager();
-			$this->em->getEventManager()->dispatchEvent('loadFixtures', new Db\ORM\EventArgs($this->em, $this));
+			$this->em = $this->getOrmSandbox()->getEntityManager();
+			$this->em->getEventManager()->dispatchEvent('loadFixtures', new ORM\EventArgs($this->em, $this));
 		}
 
 		return $this->em;
@@ -51,37 +51,38 @@ abstract class OrmTestCase extends TestCase
 
 
 	/**
-	 * @return Kdyby\Doctrine\ORM\Container
+	 * @return Kdyby\Doctrine\Sandbox
 	 */
-	final protected function getDoctrineContainer()
+	final protected function getOrmSandbox()
 	{
-		if ($this->doctrineContainer === NULL) {
-			$this->doctrineContainer = $container = $this->getDatabaseManager()->refresh();
+		if ($this->ormSandbox === NULL) {
+			$this->ormSandbox = $this->getDatabaseManager()->refresh();
 		}
 
-		return $this->doctrineContainer;
+		return $this->ormSandbox;
 	}
 
 
 
 	/**
+	 * Creates unique database session
+	 *
 	 * @param array $entities
 	 */
-	final protected function prepareEntitiesSandbox(array $entities)
+	final protected function setupOrmSandbox(array $entities)
 	{
-		$tempDbManager = new Db\ORM\MemoryDatabaseManager($this->getContext());
-		$this->doctrineContainer = $tempDbManager->refreshEntities($entities);
+		$this->ormSandbox = $this->getDatabaseManager()->refresh($entities);
 	}
 
 
 
 	/**
-	 * @return Db\ORM\MemoryDatabaseManager
+	 * @return ORM\MemoryDatabaseManager
 	 */
 	final private function getDatabaseManager()
 	{
 		if (self::$databaseManager === NULL) {
-			self::$databaseManager = new Db\ORM\MemoryDatabaseManager($this->getContext());
+			self::$databaseManager = new ORM\MemoryDatabaseManager($this->getContext());
 		}
 
 		return self::$databaseManager;
@@ -199,7 +200,7 @@ abstract class OrmTestCase extends TestCase
 			throw new Nette\NotImplementedException("Handling of filetype $extension is not implemented yet.");
 		}
 
-		$resolver = new Db\DataSetFilenameResolver($this);
+		$resolver = new Tools\DataSetFilenameResolver($this);
 		return $this->createDataSet($resolver->resolve());
 	}
 

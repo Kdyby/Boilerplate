@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Testing\Db;
+namespace Kdyby\Testing\Tools;
 
 use Kdyby;
 use Kdyby\Testing\TestCase;

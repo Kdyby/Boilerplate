@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Testing\Db\ORM;
+namespace Kdyby\Testing\ORM;
 
 use Doctrine;
 use Doctrine\ORM\EntityManager;
