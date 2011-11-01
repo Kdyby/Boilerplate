@@ -27,7 +27,7 @@ abstract class OrmTestCase extends TestCase
 	/** @var ORM\MemoryDatabaseManager */
 	private static $databaseManager;
 
-	/** @var Kdyby\Doctrine\Sandbox */
+	/** @var ORM\Sandbox */
 	private $ormSandbox;
 
 	/** @var Doctrine\ORM\EntityManager */
@@ -41,8 +41,11 @@ abstract class OrmTestCase extends TestCase
 	final protected function getEntityManager()
 	{
 		if ($this->em === NULL) {
-			$this->em = $this->getOrmSandbox()->getEntityManager();
-			$this->em->getEventManager()->dispatchEvent('loadFixtures', new ORM\EventArgs($this->em, $this));
+			$this->em = $this->getOrmSandbox()->entityManager;
+
+			// Load fixtures
+			$this->getOrmSandbox()->eventManager
+				->dispatchEvent('loadFixtures', new ORM\EventArgs($this->em, $this));
 		}
 
 		return $this->em;
@@ -51,7 +54,7 @@ abstract class OrmTestCase extends TestCase
 
 
 	/**
-	 * @return Kdyby\Doctrine\Sandbox
+	 * @return ORM\Sandbox
 	 */
 	final protected function getOrmSandbox()
 	{

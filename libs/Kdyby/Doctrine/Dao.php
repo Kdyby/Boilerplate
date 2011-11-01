@@ -15,7 +15,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\NonUniqueResultException;
 use Kdyby;
-use Kdyby\Doctrine\IQueryObject;
+use Kdyby\Persistence\IQueryObject;
 use Kdyby\Doctrine\Mapping\EntityValuesMapper;
 use Nette;
 use Nette\ObjectMixin;
@@ -27,7 +27,7 @@ use Nette\ObjectMixin;
  *
  * @method Mapping\ClassMetadata getClassMetadata() getClassMetadata()
  */
-class Dao extends Doctrine\ORM\EntityRepository implements Kdyby\Doctrine\IDao, Kdyby\Persistence\IQueryable, Kdyby\Doctrine\IObjectFactory
+class Dao extends Doctrine\ORM\EntityRepository implements Kdyby\Persistence\IDao, Kdyby\Persistence\IQueryable, Kdyby\Persistence\IObjectFactory
 {
 
 	/** @var EntityValuesMapper */

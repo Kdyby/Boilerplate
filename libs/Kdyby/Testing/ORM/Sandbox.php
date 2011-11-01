@@ -8,17 +8,11 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Doctrine;
+namespace Kdyby\Testing\ORM;
 
+use Doctrine;
 use Doctrine\Common\DataFixtures;
-use Doctrine\DBAL\Connection;
-use Doctrine\ORM\Configuration;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\Tools\SchemaTool;
-use Doctrine\ORM\Mapping\Driver\Driver as MappingDriver;
 use Kdyby;
-use Kdyby\Testing\Db\ORM\DataFixturesListener;
 use Nette;
 
 
@@ -26,17 +20,17 @@ use Nette;
 /**
  * @author Filip Procházka
  *
- * @property-read Configuration $configurator
- * @property-read Connection $connection
- * @property-read EventManager $eventManager
- * @property-read EntityManager $entityManager
+ * @property-read Doctrine\ORM\Configuration $configurator
+ * @property-read Doctrine\DBAL\Connection $connection
+ * @property-read Doctrine\Common\EventManager $eventManager
+ * @property-read Doctrine\ORM\EntityManager $entityManager
  *
- * @property-read AnnotationReader $annotationReader
- * @property-read MappingDriver $mappingDriver
+ * @property-read Doctrine\Common\Annotations\AnnotationReader $annotationReader
+ * @property-read Kdyby\Doctrine\Mapping\Driver\AnnotationDriver $annotationDriver
  *
- * @property-read Diagnostics\Panel $logger
+ * @property-read Kdyby\Doctrine\Diagnostics\Panel $logger
  *
- * @property-read SchemaTool $schemaTool
+ * @property-read Doctrine\ORM\Tools\SchemaTool $schemaTool
  *
  * @property-read DataFixtures\Loader $fixturesLoader
  * @property-read DataFixtures\Purger\PurgerInterface $fixturesPurger
@@ -47,11 +41,11 @@ class Sandbox extends Nette\DI\Container
 {
 
 	/**
-	 * @return Mapping\Driver\AnnotationDriver
+	 * @return Kdyby\Doctrine\Mapping\Driver\AnnotationDriver
 	 */
 	protected function createServiceAnnotationDriver()
 	{
-		$driver = new Mapping\Driver\AnnotationDriver($this->annotationReader);
+		$driver = new Kdyby\Doctrine\Mapping\Driver\AnnotationDriver($this->annotationReader);
 
 		if (isset($this->params['entityNames'])) {
 			$driver->setClassNames($this->params['entityNames']);
@@ -66,11 +60,11 @@ class Sandbox extends Nette\DI\Container
 
 
 	/**
-	 * @return EntityManager
+	 * @return Doctrine\ORM\EntityManager
 	 */
 	protected function createServiceEntityManager()
 	{
-		return EntityManager::create($this->connection, $this->configuration, $this->eventManager);
+		return Doctrine\ORM\EntityManager::create($this->connection, $this->configuration, $this->eventManager);
 	}
 
 
@@ -111,6 +105,16 @@ class Sandbox extends Nette\DI\Container
 	protected function createServiceFixturesExecutor()
 	{
 		return new DataFixtures\Executor\ORMExecutor($this->entityManager, $this->fixturesPurger);
+	}
+
+
+
+	/**
+	 * @return DataFixturesListener
+	 */
+	protected function createServiceDataFixturesListener()
+	{
+		return new DataFixturesListener($this->fixturesLoader, $this->fixturesExecutor);
 	}
 
 }

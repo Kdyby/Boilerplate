@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Doctrine;
+namespace Kdyby\Testing\ORM;
 
 use Doctrine;
 use Doctrine\Common\EventManager;
@@ -18,6 +18,7 @@ use Doctrine\Common\Annotations\IndexedReader;
 use Doctrine\DBAL\Event\Listeners\MysqlSessionInit;
 use Kdyby;
 use Kdyby\Doctrine\Annotations\CachedReader;
+use Kdyby\Doctrine\Type;
 use Nette;
 use Nette\Utils\Arrays;
 use Doctrine\Common\Cache\AbstractCache;
@@ -27,7 +28,7 @@ use Doctrine\Common\Cache\AbstractCache;
 /**
  * @author Filip Procházka
  */
-class SandboxBuilder extends Nette\Object
+class SandboxBuilder extends Nette\Object implements ISandboxBuilder
 {
 
 	/** @var array */
@@ -43,8 +44,8 @@ class SandboxBuilder extends Nette\Object
 
 	/** @var array */
 	public $types = array(
-		'callback' => 'Kdyby\Doctrine\Types\Callback',
-		'password' => 'Kdyby\Doctrine\Types\Password'
+		Type::CALLBACK => 'Kdyby\Doctrine\Types\Callback',
+		Type::PASSWORD => 'Kdyby\Doctrine\Types\Password'
 	);
 
 	/** @var AbstractCache */
@@ -73,9 +74,9 @@ class SandboxBuilder extends Nette\Object
 	/**
 	 * @param AbstractCache $cache
 	 */
-	public function __construct(AbstractCache $cache = NULL)
+	public function __construct(AbstractCache $cache)
 	{
-		$this->cache = $cache ?: new Doctrine\Common\Cache\ArrayCache();
+		$this->cache = $cache;
 		if (defined('KDYBY_CMS_DIR')) {
 			$this->params['entityDirs'][] = '%kdybyCmsDir%';
 		}
@@ -246,11 +247,11 @@ class SandboxBuilder extends Nette\Object
 
 
 	/**
-	 * @return Diagnostics\Panel
+	 * @return Kdyby\Doctrine\Diagnostics\Panel
 	 */
 	protected function createLogger()
 	{
-		return new Diagnostics\Panel();
+		return new Kdyby\Doctrine\Diagnostics\Panel();
 	}
 
 
@@ -289,8 +290,11 @@ class SandboxBuilder extends Nette\Object
 			$evm->addEventSubscriber($this->sandbox->getService($listener));
 		}
 
-		$evm->addEventSubscriber(new Mapping\DiscriminatorMapDiscoveryListener($this->sandbox->annotationReader, $this->sandbox->annotationDriver));
-		$evm->addEventSubscriber(new Mapping\EntityDefaultsListener());
+		$evm->addEventSubscriber(new Kdyby\Doctrine\Mapping\DiscriminatorMapDiscoveryListener(
+				$this->sandbox->annotationReader,
+				$this->sandbox->annotationDriver
+			));
+		$evm->addEventSubscriber(new Kdyby\Doctrine\Mapping\EntityDefaultsListener());
 		// $evm->addEventSubscriber(new Kdyby\Media\Listeners\Mediable($this->context));
 
 		return $evm;
@@ -319,7 +323,7 @@ class SandboxBuilder extends Nette\Object
 	{
 		return Doctrine\DBAL\DriverManager::getConnection(
 				$this->sandbox->params,
-				$this->sandbox->configurator,
+				$this->sandbox->configuration,
 				$this->sandbox->eventManager
 			);
 	}

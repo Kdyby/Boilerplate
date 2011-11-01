@@ -8,11 +8,11 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Testing\Doctrine\ORM\Tools;
+namespace Kdyby\Testing\Doctrine\Tools;
 
 use Doctrine;
 use Kdyby;
-use Kdyby\Doctrine\ORM\Tools\NonLockingUniqueInserter;
+use Kdyby\Doctrine\Tools\NonLockingUniqueInserter;
 use Nette;
 
 
@@ -25,8 +25,8 @@ class NonLockingUniqueInserterTest extends Kdyby\Testing\OrmTestCase
 
 	public function setup()
 	{
-		$this->prepareEntitiesSandbox(array(
-			'Kdyby\Testing\Doctrine\ORM\Tools\EntityWithUniqueColumns'
+		$this->setupOrmSandbox(array(
+			'Kdyby\Testing\Doctrine\Tools\EntityWithUniqueColumns'
 		));
 	}
 

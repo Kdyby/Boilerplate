@@ -11,8 +11,6 @@
 namespace Kdyby\Testing\ORM;
 
 use Kdyby;
-use Kdyby\Doctrine\Sandbox;
-use Kdyby\Doctrine\SandboxBuilder;
 use Nette;
 
 
@@ -26,6 +24,9 @@ class MemoryDatabaseManager extends Nette\Object
 	/** @var Nette\DI\Container */
 	protected $context;
 
+	/** @var Doctrine\Common\Cache\AbstractCache */
+	private $cache;
+
 	/** @var array */
 	protected $register = array();
 
@@ -37,6 +38,7 @@ class MemoryDatabaseManager extends Nette\Object
 	public function __construct(Nette\DI\Container $context)
 	{
 		$this->context = $context;
+		$this->cache = new Kdyby\Doctrine\Cache(new Nette\Caching\Storages\MemoryStorage);
 	}
 
 
@@ -69,7 +71,28 @@ class MemoryDatabaseManager extends Nette\Object
 		if (isset($this->register[$key])) {
 			return $this->register[$key];
 		}
-		return $this->register[$key] = new SandboxRecycler($this->context, $entities);
+		return $this->register[$key] = new SandboxRecycler($this->doCreateSandboxRecycler($entities));
+	}
+
+
+
+	/**
+	 * @param array $entities
+	 * @return ISandboxBuilder
+	 */
+	protected function doCreateSandboxRecycler(array $entities)
+	{
+		$builder = new SandboxBuilder($this->cache);
+
+		$builder->params['driver'] = 'pdo_sqlite';
+		$builder->params['memory'] = TRUE;
+
+		if ($entities) {
+			$builder->params['entityNames'] = $entities;
+		}
+
+		$builder->expandParams($this->context);
+		return $builder;
 	}
 
 

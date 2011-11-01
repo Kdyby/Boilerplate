@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Testing\Doctrine\ORM\Tools;
+namespace Kdyby\Testing\Doctrine\Tools;
 
 use Kdyby;
 use Nette;

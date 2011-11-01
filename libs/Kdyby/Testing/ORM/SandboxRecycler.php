@@ -10,9 +10,8 @@
 
 namespace Kdyby\Testing\ORM;
 
+use Doctrine\Common\Cache\AbstractCache;
 use Kdyby;
-use Kdyby\Doctrine\Sandbox;
-use Kdyby\Doctrine\SandboxBuilder;
 use Nette;
 
 
@@ -23,7 +22,7 @@ use Nette;
 class SandboxRecycler extends Nette\Object
 {
 
-	/** @var SandboxBuilder */
+	/** @var ISandboxBuilder */
 	private $builder;
 
 	/** @var boolean */
@@ -35,21 +34,11 @@ class SandboxRecycler extends Nette\Object
 
 
 	/**
-	 * @param Nette\DI\Container $context
-	 * @param array $entities
+	 * @param ISandboxBuilder $builder
 	 */
-	public function __construct(Nette\DI\Container $context, array $entities)
+	public function __construct(ISandboxBuilder $builder)
 	{
-		$this->builder = new SandboxBuilder();
-
-		$this->builder->params['driver'] = 'pdo_sqlite';
-		$this->builder->params['memory'] = TRUE;
-
-		if ($entities) {
-			$this->builder->params['entityNames'] = $entities;
-		}
-
-		$this->builder->expandParams($context);
+		$this->builder = $builder;
 	}
 
 
@@ -94,8 +83,7 @@ class SandboxRecycler extends Nette\Object
 		$container = $this->builder->build();
 		if ($this->sandbox === NULL) {
 			// only when container is created for the first time
-			$evm = $container->getEntityManager()->getEventManager();
-			$evm->addEventSubscriber($container->dataFixturesListener);
+			$container->eventManager->addEventSubscriber($container->dataFixturesListener);
 		}
 
 		return $this->sandbox = $container;
@@ -107,7 +95,7 @@ class SandboxRecycler extends Nette\Object
 	 */
 	public function refreshSchema()
 	{
-		$em = $this->sandbox->getEntityManager();
+		$em = $this->sandbox->entityManager;
 		$schemaTool = $this->sandbox->schemaTool;
 
 		// prepare schema
