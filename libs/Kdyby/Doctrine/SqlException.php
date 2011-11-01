@@ -11,7 +11,7 @@
 namespace Kdyby\Doctrine;
 
 use Doctrine\ORM\Query;
-use Kdyby\Persistence\Exception;
+use Kdyby;
 use PDOException;
 
 
@@ -30,10 +30,12 @@ class SqlException extends Kdyby\Persistence\Exception
 	/**
 	 * @param PDOException $previous
 	 * @param integer $code
+	 * @param Query $query
+	 * @param string $message
 	 */
-	public function __construct(PDOException $previous, $code = NULL, Query $query = NULL)
+	public function __construct(PDOException $previous, $code = NULL, Query $query = NULL, $message = "")
 	{
-		parent::__construct($previous->getMessage(), $code, $previous);
+		parent::__construct($message ?: $previous->getMessage(), $code, $previous);
 		$this->query = $query;
 	}
 

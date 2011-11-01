@@ -20,14 +20,13 @@ class QueryException extends \Exception
 
 
 	/**
+	 * @param \Exception $previous
 	 * @param string $message
 	 * @param Doctrine\ORM\Query $query
-	 * @param \Exception $previous
 	 */
-	public function __construct($message = "", Doctrine\ORM\Query $query, \Exception $previous = NULL)
+	public function __construct(\Exception $previous, $message = "", Doctrine\ORM\Query $query = NULL)
 	{
 		parent::__construct($message, NULL, $previous);
-
 		$this->query = $query;
 	}
 

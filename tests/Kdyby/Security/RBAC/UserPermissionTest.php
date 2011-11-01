@@ -11,7 +11,7 @@
 namespace Kdyby\Testing\Security\RBAC;
 
 use Kdyby;
-use Kdyby\Doctrine\IDao;
+use Kdyby\Persistence\IDao;
 use Kdyby\Security\RBAC as ACL;
 use Nette;
 

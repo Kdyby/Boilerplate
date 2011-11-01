@@ -22,7 +22,7 @@ use Nette\Utils\Paginator;
 /**
  * @author Filip Procházka
  */
-abstract class QueryObjectBase implements Kdyby\Doctrine\IQueryObject
+abstract class QueryObjectBase implements Kdyby\Persistence\IQueryObject
 {
 
 	/** @var Paginator */

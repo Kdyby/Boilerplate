@@ -266,7 +266,10 @@ class Dao extends Doctrine\ORM\EntityRepository implements Kdyby\Persistence\IDa
 	private function handleQueryExceptions(\Exception $e, IQueryObject $queryObject)
 	{
 		if ($e instanceof Doctrine\ORM\Query\QueryException) {
-			throw new QueryException('('. get_class($queryObject) . ') ' . $e->getMessage(), $queryObject->getLastQuery(), $e);
+			throw new QueryException($e, '('. get_class($queryObject) . ') ' . $e->getMessage(), $queryObject->getLastQuery());
+
+		} elseif ($e instanceof \PDOException) {
+			throw new SqlException($e, NULL, $queryObject->getLastQuery(), '('. get_class($queryObject) . ') ' . $e->getMessage());
 
 		} else {
 			throw $e;

@@ -13,7 +13,7 @@ namespace Kdyby\Security\RBAC;
 use Doctrine\ORM\EntityManager;
 use Kdyby;
 use Kdyby\Security\Identity;
-use Kdyby\Doctrine\IDao;
+use Kdyby\Persistence\IDao;
 use Nette;
 
 
