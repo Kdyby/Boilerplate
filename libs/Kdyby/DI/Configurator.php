@@ -255,17 +255,6 @@ class Configurator extends Nette\Configurator
 
 
 
-	/**
-	 * @param Container $container
-	 * @return Kdyby\Security\Users
-	 */
-	public static function createServiceUsers(Container $container)
-	{
-		return new Kdyby\Security\Users($container->entityManager);
-	}
-
-
-
 	/****************** Console ****************/
 
 
