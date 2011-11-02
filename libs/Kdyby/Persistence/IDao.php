@@ -25,10 +25,19 @@ interface IDao extends IQueryExecutor
 
 
 	/**
+	 * Persists given entities, but does not flush.
+	 *
 	 * @param object|array|Collection
-	 * @param boolean $withoutFlush
 	 */
-	function save($entity, $withoutFlush = self::FLUSH);
+	function add($entity);
+
+
+	/**
+	 * Persists given entities and flushes them down to the storage.
+	 *
+	 * @param object|array|Collection|NULL
+	 */
+	function save($entity = NULL);
 
 
 	/**

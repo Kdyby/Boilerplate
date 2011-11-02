@@ -15,6 +15,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\NonUniqueResultException;
 use Kdyby;
+use Kdyby\Persistence\IDao;
 use Kdyby\Persistence\IQueryObject;
 use Kdyby\Doctrine\Mapping\EntityValuesMapper;
 use Nette;
@@ -27,7 +28,7 @@ use Nette\ObjectMixin;
  *
  * @method Mapping\ClassMetadata getClassMetadata() getClassMetadata()
  */
-class Dao extends Doctrine\ORM\EntityRepository implements Kdyby\Persistence\IDao, Kdyby\Persistence\IQueryable, Kdyby\Persistence\IObjectFactory
+class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persistence\IQueryable, Kdyby\Persistence\IObjectFactory
 {
 
 	/** @var EntityValuesMapper */
@@ -73,35 +74,47 @@ class Dao extends Doctrine\ORM\EntityRepository implements Kdyby\Persistence\IDa
 
 
 	/**
+	 * Persists given entities, but does not flush.
+	 *
 	 * @param object|array|Collection $entity
-	 * @param boolean $withoutFlush
 	 * @return object|array
 	 */
-	public function save($entity, $withoutFlush = self::FLUSH)
+	public function add($entity)
 	{
 		if ($entity instanceof Collection) {
-			return $this->save($entity->toArray(), $withoutFlush);
+			return $this->save($entity->toArray());
 		}
 
 		if (is_array($entity)) {
-			$repository = $this;
-			$result = array_map(function ($entity) use ($repository) {
-				return $repository->save($entity, Dao::NO_FLUSH);
-			}, $entity);
-
-			$this->flush($withoutFlush);
-
-			return $result;
+			return array_map(array($this, 'add'), $entity);
 		}
 
 		if (!$entity instanceof $this->_entityName) {
-			throw new Nette\InvalidArgumentException("Entity is not instanceof " . $this->_entityName . ', ' . get_class($entity) . ' given.');
+			throw new Nette\InvalidArgumentException("Entity is not instanceof " . $this->_entityName . ", instanceof '" . get_class($entity) . "' given.");
 		}
 
 		$this->getEntityManager()->persist($entity);
-		$this->flush($withoutFlush);
-
 		return $entity;
+	}
+
+
+
+	/**
+	 * Persists given entities and flushes all to the storage.
+	 *
+	 * @param object|array|Collection $entity
+	 * @return object|array
+	 */
+	public function save($entity = NULL)
+	{
+		if ($entity === NULL) {
+			$this->flush();
+			return;
+		}
+
+		$result = $this->add($entity);
+		$this->flush();
+		return $result;
 	}
 
 
@@ -110,7 +123,7 @@ class Dao extends Doctrine\ORM\EntityRepository implements Kdyby\Persistence\IDa
 	 * @param object|array|Collection $entity
 	 * @param boolean $withoutFlush
 	 */
-	public function delete($entity, $withoutFlush = self::FLUSH)
+	public function delete($entity, $withoutFlush = IDao::FLUSH)
 	{
 		if ($entity instanceof Collection) {
 			return $this->delete($entity->toArray(), $withoutFlush);
@@ -119,7 +132,7 @@ class Dao extends Doctrine\ORM\EntityRepository implements Kdyby\Persistence\IDa
 		if (is_array($entity)) {
 			$repository = $this;
 			array_map(function ($entity) use ($repository) {
-				return $repository->delete($entity, Dao::NO_FLUSH);
+				return $repository->delete($entity, IDao::NO_FLUSH);
 			}, $entity);
 
 			$this->flush($withoutFlush);
@@ -139,9 +152,9 @@ class Dao extends Doctrine\ORM\EntityRepository implements Kdyby\Persistence\IDa
 	/**
 	 * @param boolean $withoutFlush
 	 */
-	protected function flush($withoutFlush)
+	protected function flush($withoutFlush = IDao::FLUSH)
 	{
-		if ($withoutFlush === Dao::FLUSH) {
+		if ($withoutFlush === IDao::FLUSH) {
 			try {
 				$this->getEntityManager()->flush();
 
