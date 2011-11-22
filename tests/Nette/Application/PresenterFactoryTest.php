@@ -10,7 +10,7 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class PresenterFactoryTest extends Kdyby\Testing\TestCase
+class PresenterFactoryTest extends Kdyby\Tests\TestCase
 {
 
 	/** @var Nette\Application\PresenterFactory */
