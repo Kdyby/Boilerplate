@@ -10,9 +10,11 @@
 
 namespace Kdyby\DI;
 
+use Symfony;
 use Symfony\Component\Console;
 use Doctrine;
 use Kdyby;
+use Kdyby\Caching\CacheServices;
 use Nette;
 
 
@@ -67,38 +69,142 @@ use Nette;
  *
  * @property-read Kdyby\Modules\InstallWizard $installWizard
  */
-class Container extends Nette\DI\Container
+class Container extends Symfony\Component\DependencyInjection\Container implements IContainer
 {
 
+	/** @var CacheServices */
+	private $cacheServices;
+
+
+
 	/**
-	 * @param string $key
-	 * @param string|NULL $default
-	 * @throws Nette\OutOfRangeException
-	 * @return mixed
+	 * @param CacheServices $cache
 	 */
-	public function getParam($key, $default = NULL)
+	public function setCacheServices(CacheServices $cache)
 	{
-		if (isset($this->params[$key])) {
-			return $this->params[$key];
-
-		} elseif (func_num_args()>1) {
-			return $default;
-		}
-
-		throw new Nette\OutOfRangeException("Missing key '$key' in " . get_class($this) . '->params');
+		$this->cacheServices = $cache;
 	}
 
 
 
 	/**
-	 * @param string $name
-	 * @param Nette\DI\IContainer $container
+	 * @return Nette\Caching\IStorage
 	 */
-	public function lazyCopy($name, Nette\DI\IContainer $container)
+	protected function getCacheStorage()
 	{
-		$this->addService($name, function() use ($name, $container) {
-			return $container->getService($name);
-		});
+		return $this->cacheServices->cacheStorage;
+	}
+
+
+
+	/**
+	 * @return Nette\Caching\Storages\IJournal
+	 */
+	protected function getCacheJournal()
+	{
+		return $this->cacheServices->cacheJournal;
+	}
+
+
+
+	/**
+	 * @return Nette\Caching\IStorage
+	 */
+	protected function getPhpFileStorage()
+	{
+		return $this->cacheServices->phpFileStorage;
+	}
+
+
+
+	/********************* Nette\DI\IContainer *********************/
+
+
+	/**
+	 * Adds the specified service or service factory to the container.
+	 * @param  string
+	 * @param  mixed  object, class name or callback
+	 * @return void
+	 */
+	public function addService($name, $service)
+	{
+		throw new Nette\NotSupportedException();
+	}
+
+
+
+	/**
+	 * Gets the service object of the specified type.
+	 * @param  string
+	 * @return mixed
+	 */
+	public function getService($name)
+	{
+		return $this->get($name);
+	}
+
+
+
+	/**
+	 * Removes the specified service type from the container.
+	 * @param  string
+	 * @return void
+	 */
+	public function removeService($name)
+	{
+		throw new Nette\NotSupportedException();
+	}
+
+
+
+	/**
+	 * Does the service exist?
+	 * @return bool
+	 */
+	public function hasService($name)
+	{
+		return $this->has($name);
+	}
+
+
+
+	/********************* shortcuts *********************/
+
+
+
+	/**
+	 * Expands %placeholders% in string.
+	 * @param mixed $s
+	 * @return mixed
+	 */
+	public function expand($s)
+	{
+		$params = $this->getParameterBag()->all();
+		return is_string($s) ? Nette\Utils\Strings::expand($s, $params) : $s;
+	}
+
+
+
+	/**
+	 * Gets the service object, shortcut for getService().
+	 * @param  string
+	 * @return object
+	 */
+	public function __get($name)
+	{
+		return $this->getService($name);
+	}
+
+
+
+	/**
+	 * Does the service exist?
+	 * @param  string
+	 * @return bool
+	 */
+	public function __isset($name)
+	{
+		return $this->hasService($name);
 	}
 
 }
