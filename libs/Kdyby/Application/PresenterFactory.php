@@ -12,13 +12,14 @@ namespace Kdyby\Application;
 
 use Kdyby;
 use Nette;
+use Symfony;
 
 
 
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class PresenterFactory extends Nette\Object implements Nette\Application\IPresenterFactory
+class PresenterFactory extends Nette\Object implements Nette\Application\IPresenterFactory, Kdyby\DI\IContainerAware
 {
 
 	/** @var bool */
@@ -27,22 +28,35 @@ class PresenterFactory extends Nette\Object implements Nette\Application\IPresen
 	/** @var array */
 	private $cache = array();
 
-	/** @var Nette\DI\IContainer */
-	private $context;
+	/** @var Kdyby\DI\IContainer */
+	private $container;
 
 	/** @var ModuleCascadeRegistry */
 	private $modules;
+
+	/** @var string */
+	private $baseDir;
 
 
 
 	/**
 	 * @param ModuleCascadeRegistry $modules
-	 * @param Nette\DI\IContainer $context
+	 * @param string $baseDir
 	 */
-	public function __construct(ModuleCascadeRegistry $modules, Nette\DI\IContainer $context)
+	public function __construct(ModuleCascadeRegistry $modules, $baseDir = NULL)
 	{
-		$this->context = $context;
 		$this->modules = $modules;
+		$this->baseDir = $baseDir;
+	}
+
+
+
+	/**
+	 * @param Kdyby\DI\IContainer $container
+	 */
+	public function setContainer(Kdyby\DI\IContainer $container = NULL)
+	{
+		$this->container = $container;
 	}
 
 
@@ -63,7 +77,11 @@ class PresenterFactory extends Nette\Object implements Nette\Application\IPresen
 			throw InvalidPresenterException::invalidName($name);
 		}
 
-		$exception = NULL;
+		$class = $exception = NULL;
+		if (!$this->modules->hasModules()) {
+			throw new Nette\InvalidStateException("There are no registered modules.");
+		}
+
 		foreach ($this->modules->namespaces as $ns) {
 			$class = (!is_numeric($ns) ? $ns . '\\' : NULL) . $this->formatPresenterClass($name);
 
@@ -123,10 +141,17 @@ class PresenterFactory extends Nette\Object implements Nette\Application\IPresen
 	 */
 	public function createPresenter($name)
 	{
+		$serviceName = $this->formatPresenterServiceName($name);
+		if ($this->container && $this->container->has($serviceName)) {
+			return $this->container->get($serviceName);
+		}
+
 		$class = $this->getPresenterClass($name);
 
 		$presenter = new $class;
-		$presenter->setContext($this->context);
+		if ($this->container) {
+			$presenter->setContext($this->container);
+		}
 
 		return $presenter;
 	}
@@ -171,14 +196,27 @@ class PresenterFactory extends Nette\Object implements Nette\Application\IPresen
 	 * @param string $baseDir
 	 * @return string
 	 */
-	public function formatPresenterFile($presenter, $baseDir = APP_DIR)
+	public function formatPresenterFile($presenter, $baseDir = NULL)
 	{
 		if (strpos($presenter, ':') === FALSE) {
 			throw InvalidPresenterException::presenterNoModule($presenter);
 		}
 
 		$path = '/' . str_replace(':', '/', $presenter);
-		return $baseDir . substr_replace($path, '/presenters', strrpos($path, '/'), 0) . 'Presenter.php';
+		return ($baseDir ?: $this->baseDir) . substr_replace($path, '/presenters', strrpos($path, '/'), 0) . 'Presenter.php';
+	}
+
+
+
+	/**
+	 * Formats presenter service name from its name.
+	 * @todo
+	 * @param string $name
+	 * @return string
+	 */
+	public function formatPresenterServiceName($name)
+	{
+		return $name;
 	}
 
 }
