@@ -18,7 +18,7 @@ use Nette;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
  * @property-read Doctrine\ORM\EntityManager $entityManager
  * @property-read Doctrine\Common\EventManager $ormEventManager

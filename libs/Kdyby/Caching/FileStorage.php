@@ -17,7 +17,7 @@ use Nette;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class FileStorage extends Nette\Caching\Storages\FileStorage implements ArrayAccess
 {

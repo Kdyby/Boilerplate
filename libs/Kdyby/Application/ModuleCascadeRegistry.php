@@ -17,7 +17,7 @@ use Nette\Utils\Arrays;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
  * @property-read \ArrayIterator $namespace
  * @property-read \ArrayIterator $directory

@@ -19,7 +19,7 @@ use Nette\Utils\Paginator;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class RolePermissionsQuery extends Kdyby\Doctrine\QueryObjectBase
 {

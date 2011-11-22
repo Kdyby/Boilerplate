@@ -23,7 +23,7 @@ use Nette\Utils\Strings;
  * Also tryies to find latte file, named as the <view> and use it as template,
  * if nothing is in method output
  *
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 abstract class LookoutControl extends Control
 {

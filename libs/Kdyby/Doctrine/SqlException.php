@@ -17,7 +17,7 @@ use PDOException;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class SqlException extends Kdyby\Persistence\Exception
 {

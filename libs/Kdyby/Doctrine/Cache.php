@@ -30,7 +30,7 @@ use Nette\Caching\Cache AS NCache;
  * Nette cache driver for doctrine
  *
  * @author Patrik Votoček
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class Cache extends Doctrine\Common\Cache\AbstractCache
 {

@@ -16,7 +16,7 @@ use Nette;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  * @Entity
  * @Table(name="rbac_privileges",uniqueConstraints={@UniqueConstraint(name="resource_action_uniq", columns={"resource_id", "action_id"})})
  */

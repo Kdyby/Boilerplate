@@ -21,7 +21,7 @@ use Nette\Utils\Strings;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
  * @todo Secure user sessions on identity id? (one user should not see flashes of other)
  */

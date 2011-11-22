@@ -17,7 +17,7 @@ use Nette;
 
 /**
  * @author Patrik Votoček
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class EntityManagerHelper extends Kdyby\DI\ContainerHelper
 {

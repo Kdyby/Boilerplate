@@ -17,7 +17,7 @@ use Nette;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class VarDateTimeType extends Nette\Object implements Mapping\IFieldType
 {

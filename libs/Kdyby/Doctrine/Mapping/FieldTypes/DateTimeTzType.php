@@ -19,7 +19,7 @@ use Nette;
 /**
  * todo: fix the timezone settings
  *
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class DateTimeTzType extends Nette\Object implements Mapping\IFieldType
 {

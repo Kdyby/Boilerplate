@@ -16,7 +16,7 @@ use Nette;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  * 
  * @property-read Protocols\IProtocol $protocol
  */

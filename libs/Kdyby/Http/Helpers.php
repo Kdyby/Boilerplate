@@ -18,7 +18,7 @@ use Kdyby;
 
 
 /**
- * @author Filip Procházka <hosiplan@kdyby.org>
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class Helpers extends Nette\Object
 {

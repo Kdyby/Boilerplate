@@ -16,7 +16,7 @@ use Nette;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
  * @method mixed get() get(array $arr, $key, $default = NULL)
  * @method mixed getRef() getRef(& $arr, $key)

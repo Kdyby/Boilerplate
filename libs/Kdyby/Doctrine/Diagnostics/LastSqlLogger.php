@@ -21,7 +21,7 @@ use Nette\Database\Connection;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class LastSqlLogger extends Nette\Object implements SQLLogger
 {

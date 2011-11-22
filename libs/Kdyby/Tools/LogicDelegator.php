@@ -17,7 +17,7 @@ use Kdyby;
 
 /**
  * Pokud je objekt zmrazen půjde pouze volat properties a metody
- * @author Filip Procházka <hosiplan@kdyby.org>
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class LogicDelegator extends Nette\FreezableObject
 {

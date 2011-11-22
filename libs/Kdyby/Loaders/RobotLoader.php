@@ -18,7 +18,7 @@ use Nette\Caching\Cache;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class RobotLoader extends Nette\Loaders\RobotLoader
 {

@@ -16,7 +16,7 @@ use Nette;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class PresenterFactory extends Nette\Object implements Nette\Application\IPresenterFactory
 {

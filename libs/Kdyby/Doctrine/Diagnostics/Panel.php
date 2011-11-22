@@ -27,7 +27,7 @@ use Nette\Utils\Strings;
  *
  * @author David Grudl
  * @author Patrik Votoček
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrine\DBAL\Logging\SQLLogger
 {

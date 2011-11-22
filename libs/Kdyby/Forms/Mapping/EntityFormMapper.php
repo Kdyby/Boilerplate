@@ -21,7 +21,7 @@ use SplObjectStorage;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class EntityFormMapper extends Kdyby\Doctrine\Mapping\EntityMetadataMapper
 {

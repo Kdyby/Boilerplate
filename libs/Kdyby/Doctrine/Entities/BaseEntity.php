@@ -16,7 +16,7 @@ use Nette\Environment;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  * @author Jan Smitka
  *
  * @MappedSuperclass

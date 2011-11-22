@@ -17,7 +17,7 @@ use Nette\Security\IIdentity;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class SimpleAuthenticator extends Nette\Object implements Nette\Security\IAuthenticator
 {

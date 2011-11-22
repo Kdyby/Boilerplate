@@ -22,7 +22,7 @@ use Nette\ArrayHash;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
  * @property string $onSaveRestore
  * @property string|UI\Link $onSaveRedirect

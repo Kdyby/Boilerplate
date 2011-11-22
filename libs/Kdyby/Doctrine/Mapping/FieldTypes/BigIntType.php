@@ -17,7 +17,7 @@ use Nette;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class BigIntType extends Nette\Object implements Mapping\IFieldType
 {

@@ -15,7 +15,7 @@ use Doctrine;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 interface IQueryable
 {

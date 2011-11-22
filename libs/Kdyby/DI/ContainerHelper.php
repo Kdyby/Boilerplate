@@ -18,7 +18,7 @@ use Symfony\Component\Console;
 
 /**
  * @author Patrik Votocek
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class ContainerHelper extends Console\Helper\Helper
 {

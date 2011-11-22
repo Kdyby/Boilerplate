@@ -19,7 +19,7 @@ use Nette;
 /**
  * In descendants requires to set Entity annotation like:
  * Entity(repositoryClass="Kdyby\Doctrine\Repositories\NestedTreeRepository")
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
  * @MappedSuperclass
  * @gedmo:Tree(type="nested")

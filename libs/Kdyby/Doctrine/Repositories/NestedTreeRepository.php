@@ -18,7 +18,7 @@ use Nette;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class NestedTreeRepository extends Gedmo\Tree\Entity\Repository\NestedTreeRepository
 {

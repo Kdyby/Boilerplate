@@ -8,7 +8,7 @@ use Nette;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class PresenterFactoryTest extends Kdyby\Testing\TestCase
 {

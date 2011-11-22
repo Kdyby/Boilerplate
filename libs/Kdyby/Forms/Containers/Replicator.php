@@ -16,7 +16,7 @@ use Nette\Forms\Container;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  * @author Jan Tvrdík
  */
 class Replicator extends Container

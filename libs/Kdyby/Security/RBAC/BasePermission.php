@@ -18,7 +18,7 @@ use Nette\Security\IRole;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
  * @Entity() @Table(name="rbac_permissions")
  * @InheritanceType("SINGLE_TABLE")

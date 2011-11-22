@@ -16,7 +16,7 @@ use Nette\Diagnostics\Helpers;
 
 /**
  * @see Nette\Diagnostics\Debugger::barDump
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 function bd($var, $title = NULL) {
 	return callback('Nette\Diagnostics\Debugger', 'barDump')->invokeArgs(func_get_args());
@@ -26,7 +26,7 @@ function bd($var, $title = NULL) {
 
 /**
  * Function prints from where were method/function called
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
  * @param int $level
  * @param bool $return

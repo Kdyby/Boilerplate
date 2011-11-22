@@ -18,7 +18,7 @@ use Nette\Security\AuthenticationException;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class Authenticator extends Nette\Object implements Nette\Security\IAuthenticator
 {

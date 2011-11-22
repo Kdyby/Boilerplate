@@ -17,7 +17,7 @@ use Nette\Utils\Strings;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class SplClassLoader extends Nette\Loaders\AutoLoader
 {

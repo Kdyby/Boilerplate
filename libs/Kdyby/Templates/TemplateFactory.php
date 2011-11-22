@@ -18,7 +18,7 @@ use Nette\Templating\ITemplate;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class TemplateFactory extends Nette\Object implements ITemplateFactory
 {
