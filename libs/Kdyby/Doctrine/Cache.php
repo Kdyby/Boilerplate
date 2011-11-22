@@ -36,7 +36,7 @@ class Cache extends Doctrine\Common\Cache\AbstractCache
 {
 
 	/** @var string */
-	const CACHED_KEY = 'Doctrine';
+	const CACHE_NS = 'Doctrine';
 
 	/** @var NCache */
 	private $cache;
@@ -48,10 +48,11 @@ class Cache extends Doctrine\Common\Cache\AbstractCache
 
 	/**
 	 * @param Nette\Caching\IStorage $storage
+	 * @param string $namespace
 	 */
-	public function __construct(Nette\Caching\IStorage $storage)
+	public function __construct(Nette\Caching\IStorage $storage, $namespace = self::CACHE_NS)
 	{
-		$this->cache = new NCache($storage, self::CACHED_KEY);
+		$this->cache = new NCache($storage, $namespace);
 	}
 
 
