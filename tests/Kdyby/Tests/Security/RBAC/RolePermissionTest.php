@@ -22,6 +22,9 @@ use Nette;
 class RolePermissionTest extends Kdyby\Tests\OrmTestCase
 {
 
+	/**
+	 * @group database
+	 */
 	public function testPersisting()
 	{
 		$action = new ACL\Action("read");

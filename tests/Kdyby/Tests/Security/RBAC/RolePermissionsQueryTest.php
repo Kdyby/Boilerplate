@@ -45,6 +45,7 @@ class RolePermissionsQueryTest extends Kdyby\Tests\OrmTestCase
 
 
 	/**
+	 * @group database
 	 * @Fixture('Kdyby\Tests\Security\RBAC\AclData')
 	 */
 	public function testFetchingAdminPermissions()
@@ -66,6 +67,7 @@ class RolePermissionsQueryTest extends Kdyby\Tests\OrmTestCase
 
 
 	/**
+	 * @group database
 	 * @Fixture('Kdyby\Tests\Security\RBAC\AclData')
 	 */
 	public function testFetchingRedactorPermissions()
@@ -87,6 +89,7 @@ class RolePermissionsQueryTest extends Kdyby\Tests\OrmTestCase
 
 
 	/**
+	 * @group database
 	 * @Fixture('Kdyby\Tests\Security\RBAC\AclData')
 	 */
 	public function testFetchingCommentsModeratorPermissions()
@@ -108,6 +111,7 @@ class RolePermissionsQueryTest extends Kdyby\Tests\OrmTestCase
 
 
 	/**
+	 * @group database
 	 * @Fixture('Kdyby\Tests\Security\RBAC\AclData')
 	 */
 	public function testFetchingBlogVisitorPermissions()
@@ -129,6 +133,7 @@ class RolePermissionsQueryTest extends Kdyby\Tests\OrmTestCase
 
 
 	/**
+	 * @group database
 	 * @Fixture('Kdyby\Tests\Security\RBAC\AclData')
 	 */
 	public function testFetchingForumModeratorPermissions()
@@ -150,6 +155,7 @@ class RolePermissionsQueryTest extends Kdyby\Tests\OrmTestCase
 
 
 	/**
+	 * @group database
 	 * @Fixture('Kdyby\Tests\Security\RBAC\AclData')
 	 */
 	public function testFetchingForumVisitorPermissions()
@@ -171,6 +177,7 @@ class RolePermissionsQueryTest extends Kdyby\Tests\OrmTestCase
 
 
 	/**
+	 * @group database
 	 * @Fixture('Kdyby\Tests\Security\RBAC\AclData')
 	 */
 	public function testFetchingClientAdminPermissions()
@@ -192,6 +199,7 @@ class RolePermissionsQueryTest extends Kdyby\Tests\OrmTestCase
 
 
 	/**
+	 * @group database
 	 * @Fixture('Kdyby\Tests\Security\RBAC\AclData')
 	 */
 	public function testFetchingClientBlogPermissions()
@@ -213,6 +221,7 @@ class RolePermissionsQueryTest extends Kdyby\Tests\OrmTestCase
 
 
 	/**
+	 * @group database
 	 * @Fixture('Kdyby\Tests\Security\RBAC\AclData')
 	 */
 	public function testFetchingClientForumPermissions()

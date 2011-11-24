@@ -59,6 +59,7 @@ class AuthorizatorFactoryTest extends Kdyby\Tests\OrmTestCase
 
 
 	/**
+	 * @group database
 	 * @Fixture('Kdyby\Tests\Security\RBAC\AclData')
 	 */
 	public function testPermissionsOfHosiplanForBlog()
@@ -79,6 +80,7 @@ class AuthorizatorFactoryTest extends Kdyby\Tests\OrmTestCase
 
 
 	/**
+	 * @group database
 	 * @Fixture('Kdyby\Tests\Security\RBAC\AclData')
 	 */
 	public function testPermissionsOfClientForAdmin()
@@ -99,6 +101,7 @@ class AuthorizatorFactoryTest extends Kdyby\Tests\OrmTestCase
 
 
 	/**
+	 * @group database
 	 * @Fixture('Kdyby\Tests\Security\RBAC\AclData')
 	 */
 	public function testPermissionsOfClientForForum()

@@ -23,6 +23,9 @@ use Nette;
 class UserPermissionTest extends Kdyby\Tests\OrmTestCase
 {
 
+	/**
+	 * @group database
+	 */
 	public function testPersisting()
 	{
 		$action = new ACL\Action("read");

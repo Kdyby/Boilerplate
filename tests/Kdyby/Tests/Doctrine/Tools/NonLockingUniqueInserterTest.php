@@ -32,6 +32,9 @@ class NonLockingUniqueInserterTest extends Kdyby\Tests\OrmTestCase
 
 
 
+	/**
+	 * @group database
+	 */
 	public function testValidInsert()
 	{
 		$em = $this->getEntityManager();
@@ -56,6 +59,9 @@ class NonLockingUniqueInserterTest extends Kdyby\Tests\OrmTestCase
 
 
 
+	/**
+	 * @group database
+	 */
 	public function testInValidInsert()
 	{
 		$em = $this->getEntityManager();
