@@ -13,6 +13,8 @@ namespace Kdyby\Templates;
 use Kdyby;
 use Nette;
 use Nette\Application\UI\Presenter;
+use Nette\Caching\IStorage;
+use Nette\Http;
 use Nette\Templating\ITemplate;
 
 
@@ -23,62 +25,85 @@ use Nette\Templating\ITemplate;
 class TemplateFactory extends Nette\Object implements ITemplateFactory
 {
 
-	/** @var Nette\Latte\Engine */
+	/** @var \Nette\Latte\Engine */
 	private $latteEngine;
+
+	/** @var \Nette\Http\Request */
+	private $httpRequest;
+
+	/** @var \Nette\Http\Response */
+	private $httpResponse;
+
+	/** @var \Nette\Http\User */
+	private $user;
+
+	/** @var \Nette\Caching\IStorage */
+	private $templateStorage;
+
+	/** @var \Nette\Caching\IStorage */
+	private $cacheStorage;
 
 
 
 	/**
-	 * @param Nette\Latte\Engine $latteEngine
+	 * @param \Nette\Latte\Engine $latteEngine
+	 * @param \Nette\Http\Context $httpContext
+	 * @param \Nette\Http\User $user
+	 * @param \Nette\Caching\IStorage $templateStorage
+	 * @param \Nette\Caching\IStorage $cacheStorage
 	 */
-	public function __construct(Nette\Latte\Engine $latteEngine)
+	public function __construct(Nette\Latte\Engine $latteEngine, Http\Context $httpContext, Http\User $user, IStorage $templateStorage, IStorage $cacheStorage)
 	{
 		$this->latteEngine = $latteEngine;
+		$this->httpRequest = $httpContext->getRequest();
+		$this->httpResponse = $httpContext->getResponse();
+		$this->user = $user;
+		$this->templateStorage = $templateStorage;
+		$this->cacheStorage = $cacheStorage;
 	}
 
 
 
 	/**
-	 * @param Nette\ComponentModel\Component $component
+	 * @param \Nette\ComponentModel\Component $component
 	 * @param string $class
-	 * @return Kdyby\Templates\FileTemplate
+	 * @return \Nette\Templates\FileTemplate
 	 */
 	public function createTemplate(Nette\ComponentModel\Component $component, $class = NULL)
 	{
-		$class = $class ?: 'Kdyby\Templates\FileTemplate';
-		$template = new $class;
+		$template = $class ? new $class : new Nette\Templating\FileTemplate;
 
 		// find presenter
 		$presenter = $component instanceof Presenter
 			? $component : $component->getPresenter(FALSE);
 
-		// latte
+		// latte & helpers
 		$template->onPrepareFilters[] = callback($this, 'templatePrepareFilters');
+		$template->registerHelperLoader('Nette\Templating\DefaultHelpers::loader');
 
 		// default parameters
 		$template->control = $component;
 		$template->presenter = $presenter;
 
-		// helpers
-		$template->registerHelperLoader('Nette\Templating\DefaultHelpers::loader');
+		$baseUrl = rtrim($this->httpRequest->getUrl()->getBaseUrl(), '/');
+		$template->baseUri = $template->baseUrl = $baseUrl;
+		$template->basePath = preg_replace('#https?://[^/]+#A', '', $baseUrl);
 
-		// stuff from presenter
+		// dependencies
+		$template->setCacheStorage($this->templateStorage);
+		$template->netteHttpResponse = $this->httpResponse;
+		$template->netteCacheStorage = $this->cacheStorage;
+		$template->user = $this->user;
+
+		// flash messages
 		if ($presenter instanceof Presenter) {
-			$template->setCacheStorage($presenter->getContext()->getService('templateCacheStorage'));
-			$template->user = $presenter->getUser();
-			$template->netteHttpResponse = $presenter->getContext()->getService('httpResponse');
-			$template->netteCacheStorage = $presenter->getContext()->getService('cacheStorage');
-			$template->baseUri = $template->baseUrl = $presenter->getContext()->getParam('baseUrl');
-			$template->basePath = $presenter->getContext()->getParam('basePath');
-
-			// flash message
 			if ($presenter->hasFlashSession()) {
 				$id = $component->getParamId('flash');
 				$template->flashes = $presenter->getFlashSession()->$id;
 			}
 		}
 
-		// default flash messages
+		// default flashes parameter
 		if (!isset($template->flashes) || !is_array($template->flashes)) {
 			$template->flashes = array();
 		}

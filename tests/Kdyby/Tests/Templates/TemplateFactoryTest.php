@@ -20,24 +20,26 @@ use Nette;
  */
 class TemplateFactoryTest extends Kdyby\Tests\TestCase
 {
-	/** @var Nette\Latte\Engine */
-	private $latteEngine;
-
-	/** @var Kdyby\Templates\TemplateFactory */
+	/** @var \Kdyby\Templates\TemplateFactory */
 	private $templateFactory;
 
-	/** @var Kdyby\Application\UI\Control */
+	/** @var \Kdyby\Application\UI\Control */
 	private $component;
 
-	/** @var Kdyby\DI\Container */
+	/** @var \Kdyby\DI\Container */
 	private $context;
 
 
 
 	public function setUp()
 	{
-		$this->latteEngine = new Nette\Latte\Engine;
-		$this->templateFactory = new Kdyby\Templates\TemplateFactory($this->latteEngine);
+		$this->templateFactory = new Kdyby\Templates\TemplateFactory(
+			$this->getContext()->get('latte.engine'),
+			$this->getContext()->get('http.context'),
+			$this->getContext()->get('http.user'),
+			$this->getContext()->get('cache.phpfile_storage'),
+			$this->getContext()->get('cache.data_storage')
+		);
 
 		$this->component = new ControlMock();
 	}
@@ -52,10 +54,13 @@ class TemplateFactoryTest extends Kdyby\Tests\TestCase
 
 
 
-	public function testReturnsKdybyTemplate()
+	public function testReturnsTemplate()
 	{
 		$instance = $this->templateFactory->createTemplate($this->component);
-		$this->assertInstanceOf('Kdyby\Templates\FileTemplate', $instance);
+		$this->assertInstanceOf('Nette\Templating\FileTemplate', $instance);
+
+		$instance = $this->templateFactory->createTemplate($this->component, 'Nette\Templating\Template');
+		$this->assertInstanceOf('Nette\Templating\Template', $instance);
 	}
 
 
@@ -76,51 +81,9 @@ class TemplateFactoryTest extends Kdyby\Tests\TestCase
 
 	public function testIntegrationCreateTemplateForPresenter()
 	{
-		// context
-		$this->context = $this->getMock('Kdyby\DI\Container');
-		$this->context->expects($this->at(0))
-			->method('getService')
-			->with($this->equalTo('templateCacheStorage'))
-			->will($this->returnValue($this->getMock('Nette\Caching\Storages\PhpFileStorage', array(), array(), "", FALSE)));
-
-		$this->context->expects($this->at(1))
-			->method('getService')
-			->with($this->equalTo('httpResponse'))
-			->will($this->returnValue($this->getMock('Nette\Http\IResponse')));
-
-		$this->context->expects($this->at(2))
-			->method('getService')
-			->with($this->equalTo('cacheStorage'))
-			->will($this->returnValue($this->getMock('Nette\Caching\Storages\FileStorage', array(), array(), "", FALSE)));
-
-		$this->context->expects($this->at(3))
-			->method('getParam')
-			->with($this->equalTo('baseUrl'))
-			->will($this->returnValue('http://example.com/folder'));
-
-		$this->context->expects($this->at(4))
-			->method('getParam')
-			->with($this->equalTo('basePath'))
-			->will($this->returnValue('/folder'));
-
-
 		// presenter
-		$this->component = $this->getMock('Kdyby\Application\UI\Presenter', array(
-			'getPresenter',
-			'getUser',
-			'getHttpResponse',
-			'hasFlashSession'
-		));
-		$this->component->setContext($this->context);
-		$this->component->expects($this->never())
-			->method('getPresenter');
-
-		$this->component->expects($this->once())
-			->method('getUser')
-			->will($this->returnValue($this->getMock('Nette\Http\User', array(), array($this->context))));
-
-		$this->component->expects($this->never())
-			->method('getHttpResponse');
+		$this->component = $this->getMock('Kdyby\Application\UI\Presenter', array('hasFlashSession'));
+		$this->component->setContext($this->getContext());
 
 		$this->component->expects($this->once())
 			->method('hasFlashSession')
@@ -129,5 +92,13 @@ class TemplateFactoryTest extends Kdyby\Tests\TestCase
 		// create template
 		$this->templateFactory->createTemplate($this->component);
 	}
+
+}
+
+
+
+namespace Kdyby\Tests\Templates;
+class ControlMock extends \Kdyby\Application\UI\Control
+{
 
 }
