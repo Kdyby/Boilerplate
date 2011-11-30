@@ -32,7 +32,7 @@ class InvalidPresenterException extends Nette\Application\InvalidPresenterExcept
 
 	/**
 	 * @param string $presenter
-	 * @return InvalidPresenterException
+	 * @return \Kdyby\Application\InvalidPresenterException
 	 */
 	public static function presenterNoModule($presenter)
 	{
@@ -42,19 +42,8 @@ class InvalidPresenterException extends Nette\Application\InvalidPresenterExcept
 
 
 	/**
-	 * @param string $presenter
-	 * @return InvalidPresenterException
-	 */
-	public static function classNoModule($class)
-	{
-		return new self("Presenter " . $class . " should be in Module.", self::NO_MODULE);
-	}
-
-
-
-	/**
-	 * @param string $presenter
-	 * @return InvalidPresenterException
+	 * @param string $name
+	 * @return \Kdyby\Application\InvalidPresenterException
 	 */
 	public static function invalidName($name)
 	{
@@ -66,13 +55,12 @@ class InvalidPresenterException extends Nette\Application\InvalidPresenterExcept
 	/**
 	 * @param string $name
 	 * @param string $class
-	 * @param string $file
 	 * @param \Exception $previous = NULL
-	 * @return InvalidPresenterException
+	 * @return \Kdyby\Application\InvalidPresenterException
 	 */
-	public static function missing($name, $class, $file, \Exception $previous = NULL)
+	public static function missing($name, $class, \Exception $previous = NULL)
 	{
-		return new self("Cannot load presenter '$name', class '$class' was not found in '$file'.", self::MISSING, $previous);
+		return new self("Cannot load presenter '$name', class '$class' was not found.", self::MISSING, $previous);
 	}
 
 
@@ -80,7 +68,7 @@ class InvalidPresenterException extends Nette\Application\InvalidPresenterExcept
 	/**
 	 * @param string $name
 	 * @param string $class
-	 * @return InvalidPresenterException
+	 * @return \Kdyby\Application\InvalidPresenterException
 	 */
 	public static function doesNotImplementInterface($name, $class)
 	{
@@ -92,7 +80,7 @@ class InvalidPresenterException extends Nette\Application\InvalidPresenterExcept
 	/**
 	 * @param string $name
 	 * @param string $class
-	 * @return InvalidPresenterException
+	 * @return \Kdyby\Application\InvalidPresenterException
 	 */
 	public static function isAbstract($name, $class)
 	{
@@ -104,7 +92,7 @@ class InvalidPresenterException extends Nette\Application\InvalidPresenterExcept
 	/**
 	 * @param string $name
 	 * @param string $realName
-	 * @return InvalidPresenterException
+	 * @return \Kdyby\Application\InvalidPresenterException
 	 */
 	public static function caseSensitive($name, $realName)
 	{
