@@ -21,19 +21,22 @@ use Nette;
 class SelectIterator extends \FilterIterator
 {
 
-	/** @var callback[] */
+	/** @var \Nette\Callback[] */
 	private $filters;
 
 
 
 	/**
 	 * @param callable $callback
-	 * @return CollectIterator
+	 *
+	 * @return SelectIterator
 	 */
 	public function select($callback)
 	{
-		$this->filters[] = callback($callback);
-		return $this;
+		$iterator = new static($this->getInnerIterator());
+		$iterator->filters = $this->filters;
+		$iterator->filters[] = callback($callback);
+		return $iterator;
 	}
 
 

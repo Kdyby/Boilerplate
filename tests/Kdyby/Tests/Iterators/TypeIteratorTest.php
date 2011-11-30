@@ -55,12 +55,14 @@ class TypeIteratorTest extends Kdyby\Tests\TestCase
 
 	public function testSelectSubclasses()
 	{
+		$it = $this->iterator->isSubclassOf('Kdyby\Tests\Iterators\Mocks\Foo_1');
+
 		$this->assertSame(array(
 			'Kdyby\Tests\Iterators\Mocks\Foo_2',
-		), array_values($this->iterator->isSubclassOf('Kdyby\Tests\Iterators\Mocks\Foo_1')->getResult()));
+		), array_values($it->getResult()));
 
 		// there can't be subclass of two different classes
-		$this->assertSame(array(), array_values($this->iterator->isSubclassOf('Kdyby\Tests\Iterators\Mocks\Foo_5')->getResult()));
+		$this->assertEquals(array(), array_values($it->isSubclassOf('Kdyby\Tests\Iterators\Mocks\Foo_5')->getResult()));
 	}
 
 
@@ -76,14 +78,21 @@ class TypeIteratorTest extends Kdyby\Tests\TestCase
 
 
 
-	public function testIsInstantiable()
+	public function testIsInNamespace()
 	{
-		$this->assertSame(array(
+		$iterator = new TypeIterator(new \ArrayIterator(array(
+			'Kdyby\Tests\Iterators\Mocks\Bar_1',
+			'Kdyby\Tests\Iterators\Mocks\Bar_2',
+			'Kdyby\Tests\Iterators\Mocks\Foo_1',
 			'Kdyby\Tests\Iterators\Mocks\Foo_2',
 			'Kdyby\Tests\Iterators\Mocks\Foo_3',
 			'Kdyby\Tests\Iterators\Mocks\Foo_4',
-			'Kdyby\Tests\Iterators\Mocks\Foo_6'
-		), array_values($this->iterator->isInstantiable()->getResult()));
+			'Kdyby\Tests\Iterators\Mocks\Foo_5',
+			'Kdyby\Tests\Iterators\Mocks\Foo_6',
+			'Kdyby\Tests\Iterators\Mocks\Foo\Bar',
+			'Kdyby\Tests\Iterators\Mocks\Foo\Foo\Bar',
+		)));
+
 	}
 
 }
@@ -101,3 +110,11 @@ namespace Kdyby\Tests\Iterators\Mocks;
 	class Foo_4 implements Bar_2 { }
 	abstract class Foo_5 implements Bar_2 { }
 	class Foo_6 extends Foo_5 { }
+
+
+namespace Kdyby\Tests\Iterators\Mocks\Foo;
+	class Bar { }
+
+
+namespace Kdyby\Tests\Iterators\Mocks\Foo\Foo;
+	class Bar {}

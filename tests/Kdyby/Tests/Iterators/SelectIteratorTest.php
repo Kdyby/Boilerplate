@@ -22,7 +22,7 @@ use Nette;
 class SelectIteratorTest extends Kdyby\Tests\TestCase
 {
 
-	/** @var SelectIterator */
+	/** @var \Kdyby\Iterators\SelectIterator */
 	private $iterator;
 
 
@@ -36,26 +36,25 @@ class SelectIteratorTest extends Kdyby\Tests\TestCase
 
 	public function testFilteringWithOneFilter()
 	{
-		$this->iterator->select(function (SelectIterator $iterator) {
+		$result = $this->iterator->select(function (SelectIterator $iterator) {
 			return $iterator->current() <= 10;
-		});
+		})->toArray();
 
-		$this->assertSame(range(1,10), array_values($this->iterator->toArray()));
+		$this->assertSame(range(1,10), array_values($result));
 	}
 
 
 
 	public function testFilteringWithMultipleFilters()
 	{
-		$this->iterator->select(function (SelectIterator $iterator) {
-			return $iterator->current() <= 10;
-		});
+		$result = $this->iterator
+			->select(function (SelectIterator $iterator) {
+				return $iterator->current() <= 10;
+			})->select(function (SelectIterator $iterator) {
+				return $iterator->current()%2 == 0;
+			})->toArray();
 
-		$this->iterator->select(function (SelectIterator $iterator) {
-			return $iterator->current()%2 == 0;
-		});
-
-		$this->assertSame(range(2,10,2), array_values($this->iterator->toArray()));
+		$this->assertSame(range(2,10,2), array_values($result));
 	}
 
 }
