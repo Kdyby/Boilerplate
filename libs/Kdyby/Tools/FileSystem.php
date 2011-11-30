@@ -32,38 +32,6 @@ final class FileSystem extends Nette\Object
 
 
 	/**
-	 * @param string $path
-	 * @param boolean $preserveSymlink
-	 * @return string|FALSE
-	 */
-	public static function realPath($path, $preserveSymlink = FALSE)
-	{
-		if (!$preserveSymlink || !realpath($path)) {
-			return realpath($path);
-		}
-
-		$absolutes = array();
-		$path = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $path);
-		foreach(explode('/', $path) as $i => $fold){
-			if ($fold == '' || $fold == '.') {
-				continue;
-			}
-
-			if ($fold == '..' && $i > 0 && end($absolutes) != '..') {
-				array_pop($absolutes);
-
-			} else {
-				$absolutes[] = $fold;
-			}
-		}
-
-		return ($path[0] == DIRECTORY_SEPARATOR ? DIRECTORY_SEPARATOR : '') .
-			implode(DIRECTORY_SEPARATOR, $absolutes);
-	}
-
-
-
-	/**
 	 * @param string $directory
 	 * @return boolean
 	 */
