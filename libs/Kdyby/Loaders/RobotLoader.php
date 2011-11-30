@@ -40,7 +40,7 @@ class RobotLoader extends Nette\Loaders\RobotLoader
 
 
 	/**
-	 * @return TypeIterator
+	 * @return \Kdyby\Iterators\TypeIterator
 	 */
 	public function createIndexFilter()
 	{
