@@ -10,568 +10,551 @@
 
 namespace Kdyby\DI;
 
-use Doctrine;
-use Doctrine\Common\Annotations;
-use Doctrine\DBAL\Tools\Console\Command as DbalCommand;
-use Doctrine\ORM\Tools\Console\Command as OrmCommand;
-use Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper;
-use Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper;
 use Kdyby;
-use Kdyby\DI\ContainerHelper;
-use Kdyby\Tools\FreezableArray;
+use Kdyby\Caching\CacheServices;
+use Kdyby\Package\PackageManager;
 use Nette;
-use Nette\Application\Routers;
 use Nette\Application\UI\Presenter;
+use Nette\Caching\Cache;
 use Nette\DI\Container as NContainer;
-use Symfony\Component\Console;
+use Nette\Diagnostics\Debugger;
+use Nette\Reflection\ClassType;
+use Nette\Utils\Finder;
+use Symfony;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Dumper\PhpDumper;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
+use Symfony\Component\Config\Loader\LoaderInterface;
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\Config\Loader\LoaderResolver;
+use Symfony\Component\Config\Loader\DelegatingLoader;
+use Symfony\Component\HttpKernel\DependencyInjection\MergeExtensionConfigurationPass;
 
 
+
+// functions
+require_once __DIR__ . '/../functions.php';
 
 /**
- * @author Patrik Votoček
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
  * @property-read Container $container
+ * @property-read Kdyby\Application\Application $application
  */
-class Configurator extends Nette\Configurator
+class Configurator extends Nette\Object implements IConfigurator
 {
 
-	/**
-	 * @param string $containerClass
-	 */
-	public function __construct($containerClass = 'Kdyby\DI\Container')
-	{
-		parent::__construct($containerClass);
+	const CACHE_CONFIG_NS = 'Kdyby.Configuration';
 
-		$baseUrl = rtrim($this->container->httpRequest->getUrl()->getBaseUrl(), '/');
-		$this->container->params['baseUrl'] = $baseUrl;
-		$this->container->params['basePath'] = preg_replace('#https?://[^/]+#A', '', $baseUrl);
-		$this->container->params['kdybyFrameworkDir'] = realpath(KDYBY_FRAMEWORK_DIR);
+	/** @var string */
+	public $environment = 'prod';
+
+	/** @var array */
+	public $params = array();
+
+	/** @var boolean */
+	private $initialized = FALSE;
+
+	/** @var array */
+	private $packages;
+
+	/** @var Container */
+	private $container;
+
+	/** @var CacheServices */
+	private $cache;
+
+	/** @var LoaderInterface */
+	private $containerLoader;
+
+	/** @var FileLoaderImportLogger */
+	private $importsLogger;
+
+	/** @var PackageManager */
+	private $packageManager;
+
+	/** @var \Kdyby\Package\IPackageList */
+	private $packageFinder;
+
+
+
+	/**
+	 * @param array $params
+	 * @param \Kdyby\Package\IPackageList $packageFinder
+	 */
+	public function __construct(array $params = NULL, \Kdyby\Package\IPackageList $packageFinder = NULL)
+	{
+		// path defaults
+		$this->params = static::defaultPaths($params);
+
+		// debugger defaults
+		static::setupDebugger($params);
+
+		// finder
+		$this->packageFinder = $packageFinder ? : new Kdyby\Package\InstalledPackages($params['appDir']);
+
+		// environment
+		$this->setProductionMode();
+		$this->setEnvironment($this->params['productionMode'] ? 'prod' : 'dev');
 	}
 
 
 
 	/**
-	 * @param NContainer $container
-	 * @param array $options
-	 * @return Kdyby\Application\Application
+	 * @param string $name
 	 */
-	public static function createServiceApplication(NContainer $container, array $options = NULL)
+	public function setEnvironment($name)
 	{
-		$context = new Container;
-		$context->addService('httpRequest', $container->httpRequest);
-		$context->addService('httpResponse', $container->httpResponse);
-		$context->addService('session', $container->session);
-		$context->addService('presenterFactory', $container->presenterFactory);
-		$context->addService('router', $container->router);
-		$context->lazyCopy('requestManager', $container);
-		$context->lazyCopy('console', $container);
-
-		Presenter::$invalidLinkMode = $container->getParam('productionMode', TRUE)
-			? Presenter::INVALID_LINK_SILENT : Presenter::INVALID_LINK_WARNING;
-
-		$application = new Kdyby\Application\Application($context);
-		$application->catchExceptions = $container->getParam('productionMode', TRUE);
-		$application->errorPresenter = 'Error';
-
-		return $application;
+		$this->environment = $name;
+		$this->params['environment'] = $name;
+		$this->params['consoleMode'] = $name === 'console' ? : PHP_SAPI === 'cli';
 	}
 
 
 
 	/**
-	 * @param NContainer $container
-	 * @return Nette\Application\IPresenterFactory
+	 * When given NULL, the production mode gets detected automatically
+	 *
+	 * @param bool|NULL $isProduction
 	 */
-	public static function createServicePresenterFactory(NContainer $container)
+	public function setProductionMode($isProduction = NULL)
 	{
-		return new Kdyby\Application\PresenterFactory($container->moduleRegistry, $container);
+		$this->params['productionMode'] = is_bool($isProduction) ? $isProduction
+			: Nette\Config\Configurator::detectProductionMode();
 	}
 
 
 
 	/**
-	 * @param Container $container
-	 * @return Kdyby\Templates\ITemplateFactory
 	 */
-	public static function createServiceTemplateFactory(Container $container)
+	private function startup()
 	{
-		return new Kdyby\Templates\TemplateFactory($container->latteEngine);
-	}
-
-
-
-	/**
-	 * @param NContainer $container
-	 * @return Kdyby\Caching\FileStorage
-	 */
-	public static function createServiceCacheStorage(NContainer $container)
-	{
-		if (!isset($container->params['tempDir'])) {
-			throw new Nette\InvalidStateException("Service cacheStorage requires that parameter 'tempDir' contains path to temporary directory.");
+		if ($this->initialized) {
+			return;
 		}
-		$dir = $container->expand('%tempDir%/cache');
+
+		Debugger::$productionMode = $this->params['productionMode'];
+		Debugger::$consoleMode = $this->params['consoleMode'];
+
+		$this->initializePackages();
+		$this->initializeContainer();
+
+		$this->initialized = TRUE;
+	}
+
+
+
+	/********************* packages *********************/
+
+
+
+	/**
+	 * @return array
+	 */
+	public function getPackages()
+	{
+		$this->startup();
+		return $this->packages;
+	}
+
+
+
+	/**
+	 */
+	private function initializePackages()
+	{
+		$packages = $this->packageFinder->getPackages();
+		$this->packages = $this->getPackageManager()->activate($packages);
+		foreach ($this->packages as $name => $package) {
+			$this->params['kdyby.packages'][$name] = get_class($package);
+		}
+	}
+
+
+
+	/**
+	 * @return \Kdyby\Package\PackageManager
+	 */
+	public function getPackageManager()
+	{
+		if ($this->packageManager === NULL) {
+			$this->packageManager = new PackageManager();
+		}
+
+		return $this->packageManager;
+	}
+
+
+
+	/********************* container *********************/
+
+
+
+	/**
+	 * @return Container
+	 */
+	public function getContainer()
+	{
+		$this->startup();
+		return $this->container;
+	}
+
+
+
+	/**
+	 * Initializes the service container.
+	 *
+	 * The cached version of the service container is used when fresh, otherwise the
+	 * container is built.
+	 */
+	private function initializeContainer()
+	{
+		$class = $this->getContainerClass();
+		$key = array($this->environment, $class);
+
+		// for caching ContainerClass
+		$cache = $this->getCache()->create(self::CACHE_CONFIG_NS, TRUE);
+
+		// try to load cache
+		$cached = $cache->load($key);
+		if ($cached) {
+			require $cached['file'];
+			fclose($cached['handle']);
+
+		} else {
+			// build container class
+			$container = $this->buildContainer();
+			$classDump = $this->dumpContainer($container, $class) . "\n\n";
+
+			// prepare Nette environment
+			$nContainer = new Nette\DI\Container;
+			$nContainer->params['tempDir'] = $this->params['tempDir'];
+			$classDump .= $this->checkTempDir($this->params['tempDir']);
+
+			// save definition
+			$cache->save($key, $classDump, array(
+				Cache::FILES => array_merge((array)$this->getConfigFile(), $this->getImportedFiles())
+			));
+			Nette\Utils\LimitedScope::evaluate($classDump);
+		}
+
+		// initialize container
+		$this->container = new $class();
+		$this->container->setCacheServices($this->getCache());
+		$this->container->set('application.package_manager', $this->getPackageManager());
+	}
+
+
+
+	/**
+	 * Gets the container class.
+	 *
+	 * @return string The container class
+	 */
+	protected function getContainerClass()
+	{
+		$name = preg_replace('/[^a-zA-Z0-9_]+/', '', basename($this->params['appDir']));
+		return ucfirst($name) . ucfirst($this->environment) . 'ProjectContainer';
+	}
+
+
+
+	/**
+	 * Builds the service container.
+	 *
+	 * @return ContainerBuilder The compiled service container
+	 */
+	private function buildContainer()
+	{
+		foreach (array('logs' => $this->params['logDir']) as $name => $dir) {
+			if (!is_dir($dir) || !is_writable($dir)) {
+				throw new \RuntimeException(sprintf("Unable to write in the %s directory (%s)\n", $name, $dir));
+			}
+		}
+
+		// create new container
+		$container = new ContainerBuilder(new ParameterBag($this->params));
+
+		// build packages
+		$extensions = array();
+		foreach ($this->packages as $package) {
+			$package->build($container);
+
+			if ($extension = $package->getContainerExtension()) {
+				$container->registerExtension($extension);
+				$extensions[] = $extension->getAlias();
+			}
+		}
+
+		// ensure these extensions are implicitly loaded
+		if ($extensions) {
+			$container->getCompilerPassConfig()->setMergePass(new MergeExtensionConfigurationPass($extensions));
+		}
+
+		// merge configuration file
+		$this->mergeConfigFile($container);
+
+		// compile
+		$container->compile();
+		return $container;
+	}
+
+
+
+	/**
+	 * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
+	 */
+	protected function mergeConfigFile(ContainerBuilder $container)
+	{
+		if (!file_exists($this->getConfigFile())) {
+			return;
+		}
+
+		$cont = $this->getContainerLoader($container)->load($this->getConfigFile());
+		if ($cont !== NULL) {
+			$container->merge($cont);
+		}
+	}
+
+
+
+	/**
+	 * @return string
+	 */
+	protected function getConfigFile()
+	{
+		return $this->params['appDir'] . '/config/config_' . $this->environment . '.neon';
+	}
+
+
+
+	/**
+	 * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container The service container
+	 * @param string $class
+	 *
+	 * @return string
+	 */
+	private function dumpContainer(ContainerBuilder $container, $class)
+	{
+		$dumper = new PhpDumper($container);
+		return $dumper->dump(array('class' => $class, 'base_class' => 'Kdyby\DI\SystemContainer'));
+	}
+
+
+
+	/**
+	 * @return CacheServices
+	 */
+	private function getCache()
+	{
+		if ($this->cache === NULL) {
+			$this->cache = new CacheServices($this->params['tempDir']);
+		}
+
+		return $this->cache;
+	}
+
+
+
+	/**
+	 * @return FileLoaderImportLogger
+	 */
+	private function getImportsLogger()
+	{
+		if ($this->importsLogger === NULL) {
+			$this->importsLogger = new FileLoaderImportLogger();
+		}
+
+		return $this->importsLogger;
+	}
+
+
+
+	/**
+	 * @return array
+	 */
+	protected function getImportedFiles()
+	{
+		return array_map(function ($call)
+		{
+			return dirname($call['sourceResource']) . '/' . $call['resource'];
+		}, $this->getImportsLogger()->getCalls());
+	}
+
+
+
+	/**
+	 * Returns a loader for the container.
+	 *
+	 * @param \Symfony\Component\DependencyInjection\ContainerInterface $container The service container
+	 *
+	 * @return \Symfony\Component\Config\Loader\LoaderInterface
+	 */
+	private function getContainerLoader(ContainerInterface $container)
+	{
+		if ($this->containerLoader === NULL) {
+			$locator = new FileLocator($this->params['appDir'] . '/config');
+
+			$resolver = new LoaderResolver(array(
+				$neonLoader = new Loader\NeonFileLoader($container, $locator),
+				$iniLoader = new Loader\IniFileLoader($container, $locator),
+				$yamlLoader = new Loader\YamlFileLoader($container, $locator),
+			));
+
+			$neonLoader->setLogger($this->getImportsLogger());
+			$iniLoader->setLogger($this->getImportsLogger());
+			$yamlLoader->setLogger($this->getImportsLogger());
+
+			$this->containerLoader = new DelegatingLoader($resolver);
+		}
+
+		return $this->containerLoader;
+	}
+
+
+
+	/********************* services *********************/
+
+
+
+	/**
+	 * @param \Nette\Application\Application $application
+	 */
+	public static function configureApplication(Nette\Application\Application $application)
+	{
+		if (Presenter::$invalidLinkMode === NULL) {
+			Presenter::$invalidLinkMode = Debugger::$productionMode
+				? Presenter::INVALID_LINK_SILENT
+				: Presenter::INVALID_LINK_WARNING;
+		}
+
+		$application->catchExceptions = Debugger::$productionMode;
+	}
+
+
+
+	/**
+	 * @param \Nette\Loaders\RobotLoader $robot
+	 */
+	public static function configureRobotLoader(Nette\Loaders\RobotLoader $robot)
+	{
+		$robot->autoRebuild = $robot->autoRebuild ? !Debugger::$productionMode : FALSE;
+	}
+
+
+
+	/**
+	 * @param \Kdyby\Doctrine\Diagnostics\Panel $panel
+	 */
+	public static function configureDbalSqlLogger(Kdyby\Doctrine\Diagnostics\Panel $panel)
+	{
+		$panel->registerBarPanel(Debugger::$bar);
+	}
+
+
+
+	/**
+	 * @param Nette\Application\IRouter $router
+	 */
+	public static function configureRouter(Nette\Application\IRouter $router)
+	{
+		$router[] = new Nette\Application\Routers\Route('index.php', 'Homepage:default', Nette\Application\Routers\Route::ONE_WAY);
+		$router[] = new Nette\Application\Routers\Route('<presenter>/<action>[/<id>]', 'Homepage:default');
+	}
+
+
+
+	/********************* service factories ****************d*g**/
+
+
+
+	/**
+	 * @param string $tempDir
+	 *
+	 * @throws \Nette\InvalidStateException
+	 * @return string
+	 */
+	private function checkTempDir($tempDir)
+	{
+		$code = '';
+		$dir = $tempDir . '/cache';
 		umask(0000);
 		@mkdir($dir, 0777); // @ - directory may exists
-		return new Kdyby\Caching\FileStorage($dir, $container->cacheJournal);
-	}
 
-
-
-	/**
-	 * @param NContainer $container
-	 * @return Kdyby\Loaders\RobotLoader
-	 */
-	public static function createServiceRobotLoader(NContainer $container, array $options = NULL)
-	{
-		$loader = new Kdyby\Loaders\RobotLoader;
-		$loader->autoRebuild = isset($options['autoRebuild']) ? $options['autoRebuild'] : !$container->params['productionMode'];
-		$loader->setCacheStorage($container->cacheStorage);
-		if (isset($options['directory'])) {
-			$loader->addDirectory($options['directory']);
-		} else {
-			foreach (array('appDir', 'libsDir') as $var) {
-				if (isset($container->params[$var])) {
-					$loader->addDirectory($container->params[$var]);
-				}
-			}
-		}
-		$loader->register();
-		return $loader;
-	}
-
-
-
-	/**
-	 * @param Container $container
-	 * @param array $options
-	 * @return Nette\Latte\Engine
-	 */
-	public static function createServiceLatteEngine(Container $container, array $options = NULL)
-	{
-		$engine = new Nette\Latte\Engine;
-
-		foreach ($options as $macroSetClass) {
-			$macroSetClass::install($engine->parser);
+		// checks whether directory is writable
+		$uniq = uniqid('_', TRUE);
+		umask(0000);
+		if (!@mkdir("$dir/$uniq", 0777)) { // @ - is escalated to exception
+			throw new Nette\InvalidStateException("Unable to write to directory '$dir'. Make this directory writable.");
 		}
 
-		return $engine;
+		// tests subdirectory mode
+		$useDirs = @file_put_contents("$dir/$uniq/_", '') !== FALSE; // @ - error is expected
+		@unlink("$dir/$uniq/_");
+		@rmdir("$dir/$uniq"); // @ - directory may not already exist
+
+		return 'Nette\Caching\Storages\FileStorage::$useDirectories = ' . ($useDirs ? 'TRUE' : 'FALSE') . ";\n";
 	}
 
 
 
 	/**
-	 * @param NContainer $container
-	 * @return Routers\RouteList
-	 */
-	public static function createServiceRouter(NContainer $container)
-	{
-		$router = new Routers\RouteList;
-
-		$router[] = $backend = new Routers\RouteList('Backend');
-
-			$backend[] = new Routers\Route('admin/[sign/in]', array(
-				'presenter' => 'Sign',
-				'action' => 'in',
-			));
-
-			$backend[] = new Routers\Route('admin/<presenter>[/<action>]', array(
-				'action' => 'default',
-			));
-
-		return $router;
-	}
-
-
-
-	/**
-	 * @param Container $container
-	 * @return Kdyby\Application\RequestManager
-	 */
-	public static function createServiceRequestManager(Container $container)
-	{
-		return new Kdyby\Application\RequestManager($container->application, $container->session);
-	}
-
-
-
-	/**
-	 * @param Container $container
-	 * @return Kdyby\Application\ModuleCascadeRegistry
-	 */
-	public static function createServiceModuleRegistry(Container $container, array $options = NULL)
-	{
-		$register = new Kdyby\Application\ModuleCascadeRegistry;
-
-		foreach ($options as $namespace => $path) {
-			$register->add($namespace, $container->expand($path));
-		}
-
-		return $register;
-	}
-
-
-
-	/**
-	 * @param Container $container
-	 * @return Kdyby\Components\Grinder\GridFactory
-	 */
-	public static function createServiceGrinderFactory(Container $container)
-	{
-		return new Kdyby\Components\Grinder\GridFactory($container->entityManager, $container->session);
-	}
-
-
-	/****************** Security ****************/
-
-
-
-	/**
-	 * @param Container $container
-	 * @return Kdyby\Security\Authenticator
-	 */
-	public static function createServiceAuthenticator(Container $container)
-	{
-		return new Kdyby\Security\Authenticator($container->users);
-	}
-
-
-
-	/**
-	 * @param NContainer $container
-	 * @return Kdyby\Security\User
-	 */
-	public static function createServiceUser(NContainer $container)
-	{
-		$context = new Container;
-		// copies services from $container and preserves lazy loading
-		$context->lazyCopy('authenticator', $container);
-		$context->lazyCopy('authorizator', $container);
-		$context->lazyCopy('entityManager', $container);
-		$context->addService('session', $container->session);
-
-		return new Kdyby\Security\User($context);
-	}
-
-
-
-	/****************** Console ****************/
-
-
-
-	/**
-	 * @param Container $container
-	 * @return Console\Helper\HelperSet
-	 */
-	public static function createServiceConsoleHelpers(Container $container)
-	{
-		$helperSet = new Console\Helper\HelperSet(array(
-			'di' => new ContainerHelper($container),
-			'em' => new EntityManagerHelper($container->entityManager),
-			'db' => new ConnectionHelper($container->entityManager->getConnection()),
-		));
-
-		return $helperSet;
-	}
-
-
-
-	/**
-	 * @todo split on services
+	 * Prepares the absolute filesystem paths
 	 *
-	 * @param Container $container
-	 * @return FreezableArray
-	 */
-	public static function createServiceConsoleCommands(Container $container)
-	{
-		return new FreezableArray(array(
-			// DBAL Commands
-			new DbalCommand\RunSqlCommand(),
-			new DbalCommand\ImportCommand(),
-
-			// ORM Commands
-			new OrmCommand\SchemaTool\CreateCommand(),
-			new OrmCommand\SchemaTool\UpdateCommand(),
-			new OrmCommand\SchemaTool\DropCommand(),
-			new OrmCommand\ValidateSchemaCommand(),
-			new OrmCommand\GenerateProxiesCommand(),
-			new OrmCommand\RunDqlCommand(),
-		));
-	}
-
-
-
-	/**
-	 * @todo realy catch exceptions?
+	 * @param array|string $params
 	 *
-	 * @param Container $container
-	 * @return Console\Application
+	 * @return array
 	 */
-	public static function createServiceConsole(Container $container)
+	public static function defaultPaths($params = NULL)
 	{
-		$name = Kdyby\Framework::NAME . " Command Line Interface";
-		$cli = new Console\Application($name, Kdyby\Framework::VERSION);
-
-		$cli->setCatchExceptions(TRUE);
-		$cli->setHelperSet($container->consoleHelpers);
-		$cli->addCommands($container->consoleCommands->freeze()->toArray());
-
-		return $cli;
-	}
-
-
-	/****************** Doctrine ****************/
-
-
-
-	/**
-	 * @param Container $container
-	 * @return Kdyby\Doctrine\Cache
-	 */
-	public static function createServiceOrmCache(Container $container)
-	{
-		return new Kdyby\Doctrine\Cache($container->cacheStorage);
-	}
-
-
-
-	/**
-	 * @param Container $container
-	 * @param array $options
-	 * @return Annotations\AnnotationReader
-	 */
-	protected function createServiceAnnotationReader(Container $container, array $options = NULL)
-	{
-		$reader = new Annotations\AnnotationReader();
-
-		// options
-		self::setServiceOptions($config, $options, array(
-				'defaultAnnotationNamespace' => 'Doctrine\ORM\Mapping\\',
-				'ignoreNotImportedAnnotations' => TRUE,
-				'enableParsePhpImports' => FALSE,
-			), array('aliases', 'cache'));
-
-		// default aliases
-		$reader->setAnnotationNamespaceAlias('Doctrine\ORM\Mapping\\', 'Orm');
-
-		// custom aliases
-		if (isset($options['aliases'])) {
-			foreach ($options['aliases'] as $alias => $namespace) {
-				$reader->setAnnotationNamespaceAlias($namespace, $alias);
-			}
+		// public root
+		if ($params === NULL) {
+			$params = isset($_SERVER['SCRIPT_FILENAME']) ? dirname($_SERVER['SCRIPT_FILENAME']) : NULL;
 		}
 
-		// wrap
-		return new Kdyby\Doctrine\Annotations\CachedReader(
-				new Annotations\IndexedReader($reader),
-				isset($options['cache']) ? $options['cache'] : $container->ormCache
-			);
+		if (!is_array($params)) {
+			$params = array('wwwDir' => $params);
+		}
+
+		// application root
+		if (!isset($params['appDir'])) {
+			$params['appDir'] = realpath($params['wwwDir'] . '/../app');
+		}
+
+		// temp directory
+		if (!isset($params['tempDir'])) {
+			$params['tempDir'] = $params['appDir'] . '/temp';
+		}
+
+		// log directory
+		if (!isset($params['logDir'])) {
+			$params['logDir'] = $params['appDir'] . '/log';
+		}
+
+		return $params;
 	}
 
 
 
 	/**
-	 * @todo prefix every annotation!
+	 * Setups the Debugger defaults
 	 *
-	 * @param Container $container
-	 * @return Kdyby\Doctrine\Mapping\Driver\AnnotationDriver
+	 * @param array $params
 	 */
-	public static function createServiceOrmMetadataDriver(Container $container)
+	public static function setupDebugger(array $params)
 	{
-		$loader = Kdyby\Loaders\SplClassLoader::getInstance();
-		foreach ($loader->getTypeDirs('Doctrine\ORM') as $dir) {
-			Annotations\AnnotationRegistry::registerFile($dir . '/Mapping/Driver/DoctrineAnnotations.php');
+		if (!is_dir($params['logDir'])) {
+			@mkdir($params['logDir'], 0777);
 		}
 
-		Annotations\AnnotationRegistry::registerFile(KDYBY_FRAMEWORK_DIR . '/Doctrine/Mapping/Driver/DoctrineAnnotations.php');
-
-		return new Kdyby\Doctrine\Mapping\Driver\AnnotationDriver($container->annotationReader);
-	}
-
-
-
-	/**
-	 * @param Container $container
-	 * @param array $options
-	 * @return Doctrine\DBAL\Logging\SQLLogger
-	 */
-	public static function createServiceSqlLogger(Container $container)
-	{
-		$logger = new Kdyby\Doctrine\Diagnostics\Panel();
-		$logger->registerBarPanel(Nette\Diagnostics\Debugger::$bar);
-		return $logger;
-	}
-
-
-
-	/**
-	 * @param Container $container
-	 * @param array $options
-	 * @return Doctrine\ORM\Configuration
-	 */
-	public static function createServiceOrmConfiguration(Container $container, array $options = NULL)
-	{
-		$config = new Doctrine\ORM\Configuration;
-
-		// options
-		self::setServiceOptions($config, $options, array(
-				// Metadata
-				'metadataCacheImpl' => $container->ormCache,
-				'metadataDriverImpl' => $container->ormMetadataDriver,
-				'classMetadataFactoryName' => 'Kdyby\Doctrine\Mapping\ClassMetadataFactory',
-
-				// queries
-				'queryCacheImpl' => $container->ormCache,
-
-				// Proxies
-				'proxyDir' => $container->expand('%tempDir%/proxies'),
-				'proxyNamespace' => 'Kdyby\Domain\Proxy',
-				'autoGenerateProxyClasses' => $container->params['productionMode'],
-
-				// sqlLogger
-				'sQLLogger' => $container->sqlLogger
-			));
-
-		return $config;
-	}
-
-
-
-	/**
-	 * @param Container $container
-	 * @param array $options
-	 * @return Doctrine\Common\EventManager
-	 */
-	public static function createServiceOrmEventManager(Container $container, array $options = NULL)
-	{
-		$evm = new Doctrine\Common\EventManager;
-
-		// default listeners
-		$evm->addEventSubscriber($container->ormDiscriminatorMapDiscoveryListener);
-		$evm->addEventSubscriber($container->ormEntityDefaultsListener);
-		// $evm->addEventSubscriber(new Kdyby\Media\Listeners\Mediable($this->context));
-
-		// custom listeners
-		foreach ($options as $listener) {
-			$evm->addEventSubscriber($listener);
+		if (!is_writable($params['logDir'])) {
+			throw new Nette\IOException("Logging directory '" . $params['logDir'] . "' is not writable.");
 		}
 
-		return $evm;
-	}
-
-
-
-	/**
-	 * @param Container $container
-	 * @return Kdyby\Doctrine\Mapping\DiscriminatorMapDiscoveryListener
-	 */
-	public static function createServiceOrmDiscriminatorMapDiscoveryListener(Container $container)
-	{
-		return new Kdyby\Doctrine\Mapping\DiscriminatorMapDiscoveryListener(
-				$container->annotationReader,
-				$container->ormMetadataDriver
-			);
-	}
-
-
-
-	/**
-	 * @param Container $container
-	 * @return Kdyby\Doctrine\Mapping\EntityDefaultsListener
-	 */
-	public static function createServiceOrmEntityDefaultsListener(Container $container)
-	{
-		return new Kdyby\Doctrine\Mapping\EntityDefaultsListener();
-	}
-
-
-
-	/**
-	 * @param Container $container
-	 * @return Doctrine\DBAL\Event\Listeners\MysqlSessionInit
-	 */
-	public static function createServiceDbalMysqlSessionInitListener(Container $container)
-	{
-		return new Doctrine\DBAL\Event\Listeners\MysqlSessionInit();
-	}
-
-
-
-	/**
-	 * @param Container $container
-	 * @param array $options
-	 * @return Doctrine\DBAL\Connection
-	 */
-	public static function createServiceDbalConnection(Container $container, array $options = NULL)
-	{
-		if (!$options) {
-			throw new Nette\InvalidArgumentException("Please provide a database connection information for @dbalConnection service.");
-		}
-
-		if (isset($options['driver']) && $options['driver'] == "pdo_mysql") {
-			$container->ormEventManager->addEventSubscriber($container->dbalMysqlSessionInitListener);
-		}
-
-		return Doctrine\DBAL\DriverManager::getConnection(
-				$options,
-				$container->ormConfiguration,
-				$container->ormEventManager
-			);
-	}
-
-
-
-	/**
-	 * @param Container $container
-	 * @return Doctrine\ORM\Tools\SchemaTool
-	 */
-	public static function createServiceOrmSchemaTool(Container $container)
-	{
-		return new Doctrine\ORM\Tools\SchemaTool($container->entityManager);
-	}
-
-
-
-	/**
-	 * @param Container $container
-	 * @return Doctrine\ORM\EntityManager
-	 */
-	public static function createServiceEntityManager(Container $container)
-	{
-		return Doctrine\ORM\EntityManager::create(
-				$container->dbalConnection,
-				$container->ormConfiguration,
-				$container->ormEventManager
-			);
-	}
-
-
-	/***************** Helpers ********************/
-
-
-
-	/**
-	 * @param object $service
-	 * @param array $options
-	 * @param array $defaults
-	 * @param array $ignore
-	 */
-	public static function setServiceOptions($service, $options, array $defaults = NULL, array $ignore = NULL)
-	{
-		$options = Nette\Utils\Arrays::mergeTree((array)$options, $defaults);
-
-		// set options
-		foreach ($options as $name => $val) {
-			$method = 'set' . strtoupper($name[0]) . substr($name, 1);
-			if (!method_exists($service, $method) && !in_array($name, $ignore)) {
-				throw new Nette\InvalidArgumentException("Unknown option $name", NULL,
-						new Nette\MemberAccessException(
-							"Call to undefined method " . get_class($service) . "::$method()."
-					));
-			}
-
-			$service->$method($val);
-		}
+		Debugger::$logDirectory = $params['logDir'];
+		Debugger::$strictMode = TRUE;
+		Debugger::enable(Debugger::PRODUCTION);
 	}
 
 }
