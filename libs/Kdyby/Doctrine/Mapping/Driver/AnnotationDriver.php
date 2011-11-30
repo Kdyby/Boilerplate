@@ -19,6 +19,8 @@ use Nette\Utils\Finder;
 
 
 
+require_once __DIR__ . '/DoctrineAnnotations.php';
+
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */

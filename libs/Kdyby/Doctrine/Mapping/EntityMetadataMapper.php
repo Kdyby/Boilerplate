@@ -12,7 +12,6 @@ namespace Kdyby\Doctrine\Mapping;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Doctrine\Common\Persistence\ObjectManager;
 use Kdyby;
 use Kdyby\Tools\Mixed;
@@ -26,17 +25,17 @@ use Nette;
 abstract class EntityMetadataMapper extends Nette\Object
 {
 
-	/** @var ObjectManager */
+	/** @var \Doctrine\Common\Persistence\ObjectManager */
 	private $workspace;
 
-	/** @var TypeMapper */
+	/** @var \Kdyby\Doctrine\Mapping\TypeMapper */
 	private $typeMapper;
 
 
 
 	/**
-	 * @param ObjectManager $workspace
-	 * @param TypeMapper $typeMapper
+	 * @param \Doctrine\Common\Persistence\ObjectManager $workspace
+	 * @param \Kdyby\Doctrine\Mapping\TypeMapper $typeMapper
 	 */
 	public function __construct(ObjectManager $workspace, TypeMapper $typeMapper)
 	{
@@ -48,7 +47,7 @@ abstract class EntityMetadataMapper extends Nette\Object
 
 	/**
 	 * @param string|object $entity
-	 * @return ClassMetadata
+	 * @return \Kdyby\Doctrine\Mapping\ClassMetadata
 	 */
 	protected function getMetadata($entity)
 	{
@@ -124,7 +123,7 @@ abstract class EntityMetadataMapper extends Nette\Object
 	/**
 	 * @param object $entity
 	 * @param string $assocation
-	 * @return Collection
+	 * @return \Doctrine\Common\Collections\Collection
 	 */
 	private function getAssocation($entity, $assocation)
 	{
@@ -152,7 +151,7 @@ abstract class EntityMetadataMapper extends Nette\Object
 	/**
 	 * @param object $entity
 	 * @param string $assocation
-	 * @param object $data
+	 * @param object $element
 	 */
 	protected function addAssociationElement($entity, $assocation, $element)
 	{
