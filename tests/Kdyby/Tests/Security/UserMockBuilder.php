@@ -11,9 +11,9 @@
 namespace Kdyby\Tests\Security;
 
 use Kdyby;
-use Kdyby\Security\User;
 use Kdyby\Tests\TestCase;
 use Nette;
+use Nette\Http\User;
 use Nette\Http\SessionSection;
 use Nette\Security\IIdentity;
 use Nette\Security\IAuthorizator;
@@ -26,25 +26,25 @@ use Nette\Security\IAuthorizator;
 class UserMockBuilder extends Nette\Object
 {
 
-	/** @var TestCase */
+	/** @var \Kdyby\Tests\TestCase */
 	private $test;
 
-	/** @var Nette\ArrayHash */
+	/** @var \Nette\ArrayHash */
 	private $meta;
 
-	/** @var Nette\ArrayHash */
+	/** @var \Nette\ArrayHash */
 	private $data;
 
-	/** @var SessionSection */
+	/** @var \Nette\Http\SessionSection */
 	private $section;
 
-	/** @var Nette\Http\Session */
+	/** @var \Nette\Http\Session */
 	private $session;
 
 
 
 	/**
-	 * @param TestCase $test
+	 * @param \Kdyby\Tests\TestCase $test
 	 */
 	public function __construct(TestCase $test)
 	{
@@ -54,7 +54,7 @@ class UserMockBuilder extends Nette\Object
 
 
 	/**
-	 * @return Nette\ArrayHash
+	 * @return \Nette\ArrayHash
 	 */
 	public function getMeta()
 	{
@@ -64,7 +64,7 @@ class UserMockBuilder extends Nette\Object
 
 
 	/**
-	 * @return Nette\ArrayHash
+	 * @return \Nette\ArrayHash
 	 */
 	public function getData()
 	{
@@ -74,7 +74,7 @@ class UserMockBuilder extends Nette\Object
 
 
 	/**
-	 * @return Nette\ArrayHash
+	 * @return \Nette\ArrayHash
 	 */
 	public function getSessionSection()
 	{
@@ -84,7 +84,7 @@ class UserMockBuilder extends Nette\Object
 
 
 	/**
-	 * @return Nette\Http\Session
+	 * @return \Nette\Http\Session
 	 */
 	public function getSession()
 	{
@@ -94,10 +94,10 @@ class UserMockBuilder extends Nette\Object
 
 
 	/**
-	 * @param IIdentity $identity
-	 * @param IAuthorizator $permission
+	 * @param \Nette\Security\IIdentity $identity
+	 * @param \Nette\Security\IAuthorizator $permission
 	 * @param string $userNamespace
-	 * @return User
+	 * @return \Nette\Http\User
 	 */
 	public function create(IIdentity $identity, IAuthorizator $permission, $userNamespace = '')
 	{
@@ -107,7 +107,7 @@ class UserMockBuilder extends Nette\Object
 		$context->addService('authenticator', new Kdyby\Security\SimpleAuthenticator($identity));
 		$context->addService('authorizator', $permission);
 		$context->addService('session', $this->session);
-		$user = new User($context);
+		$user = new Nette\Http\User($context);
 
 		$sectionName = 'Nette.Web.User/' . $userNamespace;
 		$section = new SessionSection($this->session, $sectionName);
@@ -124,7 +124,8 @@ class UserMockBuilder extends Nette\Object
 
 	/**
 	 * @hack Makes session shut up and act like array storage
-	 * @param SessionSection $section
+	 *
+	 * @param \Nette\Http\SessionSection $section
 	 */
 	private function injectMetaAndData(SessionSection $section)
 	{
@@ -141,12 +142,13 @@ class UserMockBuilder extends Nette\Object
 
 	/**
 	 * @hack Makes user shut up and don't touch the session
-	 * @param User $user
-	 * @param SessionSection $section
+	 *
+	 * @param \Nette\Http\User $user
+	 * @param \Nette\Http\SessionSection $section
 	 */
 	private function injectSection(User $user, SessionSection $section)
 	{
-		$sessionRefl = $user->getReflection()->getParentClass()->getProperty('session');
+		$sessionRefl = $user->getReflection()->getProperty('session');
 		$sessionRefl->setAccessible(TRUE);
 		$sessionRefl->setValue($user, $this->section = $section);
 	}

@@ -22,13 +22,13 @@ use Nette\Security\IIdentity;
 class SimpleAuthenticator extends Nette\Object implements Nette\Security\IAuthenticator
 {
 
-	/** @var IIdentity */
+	/** @var \Nette\Security\IIdentity */
 	private $identity;
 
 
 
 	/**
-	 * @param IIdentity $identity
+	 * @param \Nette\Security\IIdentity $identity
 	 */
 	public function __construct(IIdentity $identity)
 	{
@@ -39,7 +39,7 @@ class SimpleAuthenticator extends Nette\Object implements Nette\Security\IAuthen
 
 	/**
 	 * @param array $credentials
-	 * @return IIdentity
+	 * @return \Nette\Security\IIdentity
 	 */
 	public function authenticate(array $credentials)
 	{

@@ -36,7 +36,7 @@ class SandboxBuilder extends Nette\Object implements ISandboxBuilder
 		'host' => 'localhost',
 		'charset' => 'utf8',
 		'driver' => 'pdo_mysql',
-		'entityDirs' => array('%appDir%', '%kdybyFrameworkDir%'),
+		'entityDirs' => array('%appDir%'),
 		'proxiesDir' => '%tempDir%/proxies',
 		'proxyNamespace' => 'Kdyby\Domain\Proxies',
 		'listeners' => array()
@@ -48,7 +48,7 @@ class SandboxBuilder extends Nette\Object implements ISandboxBuilder
 		Type::PASSWORD => 'Kdyby\Doctrine\Types\Password'
 	);
 
-	/** @var AbstractCache */
+	/** @var \Doctrine\Common\Cache\AbstractCache */
 	public $cache;
 
 	/** @var boolean */
@@ -72,17 +72,21 @@ class SandboxBuilder extends Nette\Object implements ISandboxBuilder
 
 
 	/**
-	 * @param AbstractCache $cache
+	 * @param \Doctrine\Common\Cache\AbstractCache $cache
 	 */
 	public function __construct(AbstractCache $cache)
 	{
 		$this->cache = $cache;
-		if (defined('KDYBY_CMS_DIR')) {
-			$this->params['entityDirs'][] = '%kdybyCmsDir%';
+		$this->params['entityDirs'] = array(
+			'%appDir%',
+			dirname(Nette\Reflection\ClassType::from('Kdyby\Framework')->getFileName())
+		);
+
+		if (class_exists('Kdyby\CMS')) {
+			$this->params['entityDirs'][] = dirname(Nette\Reflection\ClassType::from('Kdyby\CMS')->getFileName());
 		}
 
 		$this->registerTypes();
-		$this->registerAnnotationClasses();
 	}
 
 
@@ -101,23 +105,9 @@ class SandboxBuilder extends Nette\Object implements ISandboxBuilder
 
 
 	/**
+	 * @param \Kdyby\DI\SystemContainer $container
 	 */
-	public function registerAnnotationClasses()
-	{
-		$loader = Kdyby\Loaders\SplClassLoader::getInstance();
-		foreach ($loader->getTypeDirs('Doctrine\ORM') as $dir) {
-			AnnotationRegistry::registerFile($dir . '/Mapping/Driver/DoctrineAnnotations.php');
-		}
-
-		AnnotationRegistry::registerFile(KDYBY_FRAMEWORK_DIR . '/Doctrine/Mapping/Driver/DoctrineAnnotations.php');
-	}
-
-
-
-	/**
-	 * @param Nette\DI\Container $container
-	 */
-	public function expandParams(Nette\DI\Container $container)
+	public function expandParams(Kdyby\DI\SystemContainer $container)
 	{
 		array_walk_recursive($this->params, function (&$value, $key) use ($container) {
 			$value = $container->expand($value);
@@ -127,7 +117,7 @@ class SandboxBuilder extends Nette\Object implements ISandboxBuilder
 
 
 	/**
-	 * @return AbstractCache
+	 * @return \Doctrine\Common\Cache\AbstractCache
 	 */
 	protected function getCache()
 	{

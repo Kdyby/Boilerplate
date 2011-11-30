@@ -21,7 +21,7 @@ use Nette;
 class MemoryDatabaseManager extends Nette\Object
 {
 
-	/** @var Nette\DI\Container */
+	/** @var \Kdyby\DI\SystemContainer */
 	protected $context;
 
 	/** @var Doctrine\Common\Cache\AbstractCache */
@@ -33,9 +33,9 @@ class MemoryDatabaseManager extends Nette\Object
 
 
 	/**
-	 * @param Nette\DI\Container $context
+	 * @param \Kdyby\DI\SystemContainer $context
 	 */
-	public function __construct(Nette\DI\Container $context)
+	public function __construct(Kdyby\DI\SystemContainer $context)
 	{
 		$this->context = $context;
 		$this->cache = new Kdyby\Doctrine\Cache(new Nette\Caching\Storages\MemoryStorage);
@@ -45,7 +45,7 @@ class MemoryDatabaseManager extends Nette\Object
 
 	/**
 	 * @param array $entities
-	 * @return Sandbox
+	 * @return \Kdyby\Tests\ORM\Sandbox
 	 */
 	public function refresh(array $entities = NULL)
 	{
@@ -58,7 +58,7 @@ class MemoryDatabaseManager extends Nette\Object
 
 	/**
 	 * @param array $entities
-	 * @return SandboxRecycler
+	 * @return \Kdyby\Tests\ORM\SandboxRecycler
 	 */
 	private function getRecycler(array $entities = NULL)
 	{
@@ -78,7 +78,7 @@ class MemoryDatabaseManager extends Nette\Object
 
 	/**
 	 * @param array $entities
-	 * @return ISandboxBuilder
+	 * @return \Kdyby\Tests\ORM\ISandboxBuilder
 	 */
 	protected function doCreateSandboxRecycler(array $entities)
 	{
