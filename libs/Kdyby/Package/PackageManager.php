@@ -23,79 +23,163 @@ use Symfony;
 class PackageManager extends Nette\Object
 {
 
-	/** @var string */
-	private $appDir;
+	/** @var \Kdyby\Package\IPackage[] */
+	private $packages = array();
 
-	/** @var array */
-	private $instances = array();
-
-	/** @var array */
-	private $metas = array();
-
-	/** @var IMetadataProvider */
-	private $metadataProvider;
+	/** @var \Kdyby\Package\IMetadataStorage */
+	private $metadataStorage;
 
 
 
 	/**
-	 * @param string $appDir
 	 */
-	public function __construct($appDir)
+	public function __construct()
 	{
-		$this->appDir = $appDir;
-		$this->metadataProvider = new MetadataStorage\FactoryStorage();
+		$this->metadataStorage = new MetadataStorage\MemoryStorage();
 	}
-
-
-
-	/**
-	 * @param IMetadataProvider $provider
-	 */
-	public function setMetadataProvider(IMetadataProvider $provider)
-	{
-		$this->metadataProvider = $provider;
-	}
-
 
 
 	/**
 	 * @param array $packages
-	 * @return ApplicationEventInvoker
+	 * @return \Kdyby\Package\IPackage[]
 	 */
-	public function createInvoker($packages)
+	public function activate(array $packages)
 	{
-		return new ApplicationEventInvoker($packages);
-	}
+		foreach ($packages as $packageClass) {
+			if (isset($this->packages[$packageClass])) {
+				throw new Nette\InvalidArgumentException("Package '$packageClass' is already active.");
+			}
 
+			$package = new $packageClass;
+			if (!$package instanceof IPackage) {
+				throw new Nette\InvalidArgumentException("Package '$packageClass' does not implement 'Kdyby\\Package\\IPackage'.");
+			}
 
-
-	/**
-	 * @param string $packageName
-	 * @return IPackage
-	 */
-	public function getInstance($packageName)
-	{
-		if (isset($this->instances[$packageName])) {
-			return $this->instances[$packageName];
+			$this->packages[$package->getName()] = $package;
 		}
 
-		return $this->instances[$packageName] = $this->getPackageMeta($packageName)->newInstance();
+		return $this->packages;
+	}
+
+
+
+	/**
+	 * @return \Kdyby\Package\IPackage[]
+	 */
+	public function getPackages()
+	{
+		return $this->packages;
 	}
 
 
 
 	/**
 	 * @param string $packageName
-	 * @return PackageMeta
+	 * @return \Kdyby\Package\IPackage
+	 */
+	public function getPackage($packageName)
+	{
+		if (!isset($this->packages[$packageName])) {
+			throw new Nette\InvalidStateException("Package '$packageName' is not registered.");
+		}
+
+		return $this->packages[$packageName];
+	}
+
+
+
+	/**
+	 * @return \Kdyby\Package\ApplicationEventInvoker
+	 */
+	public function createInvoker()
+	{
+		return new ApplicationEventInvoker($this->getPackages());
+	}
+
+
+
+	/**
+	 * @param \Kdyby\Package\IMetadataStorage $storage
+	 */
+	public function setMetadataStorage(IMetadataStorage $storage)
+	{
+		$this->metadataStorage = $storage;
+	}
+
+
+
+	/**
+	 * @param string $packageName
+	 * @return \Kdyby\Package\PackageMeta
 	 */
 	public function getPackageMeta($packageName)
 	{
-		$lName = strtolower(trim($packageName, '\\'));
-		if (!isset($this->metas[$lName])) {
-			$this->metas[$lName] = $this->metadataProvider->load($packageName);
+		return $this->metadataStorage->load($packageName);
+	}
+
+
+
+	/**
+	 * Checks if a given class name belongs to an active package.
+	 *
+	 * @param string $class
+	 *
+	 * @return boolean
+	 */
+	public function isClassInActivePackage($class)
+	{
+		foreach ($this->getPackages() as $package) {
+			if (strpos($class, $package->getNamespace()) === 0) {
+				return TRUE;
+			}
 		}
 
-		return $this->metas[$lName];
+		return FALSE;
+	}
+
+
+
+	/**
+	 * Returns the file path for a given resource.
+	 *
+	 * A Resource can be a file or a directory.
+	 *
+	 * The resource name must follow the following pattern:
+	 *
+	 *	 @<PackageName>/path/to/a/file.something
+	 *
+	 * Looks first into Resources directory, than into package root.
+	 *
+	 * @param string $name  A resource name to locate
+	 *
+	 * @return string|array
+	 */
+	public function locateResource($name)
+	{
+		if ($name[0] !== '@') {
+			throw new Nette\InvalidArgumentException('A resource name must start with @ ("' . $name . '" given).');
+		}
+
+		if (strpos($name, '..') !== FALSE) {
+			throw new Nette\InvalidArgumentException('File name "' . $name . '" contains invalid characters (..).');
+		}
+
+		$packageName = substr($name, 1);
+		$path = '';
+		if (strpos($packageName, '/') !== FALSE) {
+			list($packageName, $path) = explode('/', $packageName, 2);
+		}
+
+		$package = $this->packageManager->getPackage($packageName);
+		if (file_exists($file = rtrim($package->getPath . '/Resources/' . $path, '/'))) {
+			return $file;
+
+		} elseif (file_exists($file = rtrim($package->getPath . '/' . $path, '/'))) {
+			return $file;
+		}
+
+
+		throw new Nette\InvalidArgumentException('Unable to find file "' . $name . '".');
 	}
 
 }

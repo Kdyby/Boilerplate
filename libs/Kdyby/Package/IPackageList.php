@@ -18,21 +18,12 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-abstract class Versioned extends Nette\Object
+interface IPackageList
 {
 
-	/** @var string */
-    protected $version = '0';
-
-
-
 	/**
-	 * @param Versioned $resource
-	 * @return boolean
+	 * @return array
 	 */
-	public function isAcceptable(Versioned $resource)
-	{
-		return version_compare($this->version, $resource->version, '>=');
-	}
+	function getPackages();
 
 }

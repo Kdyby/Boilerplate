@@ -19,7 +19,7 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class FactoryStorage extends Nette\Object implements Kdyby\Package\IMetadataStorage
+class MemoryStorage extends Nette\Object implements Kdyby\Package\IMetadataStorage
 {
 
 	/** @var array */
@@ -28,7 +28,7 @@ class FactoryStorage extends Nette\Object implements Kdyby\Package\IMetadataStor
 
 
 	/**
-	 * @param PackageMeta $meta
+	 * @param \Kdyby\Package\PackageMeta $meta
 	 */
 	public function save(PackageMeta $meta)
 	{
@@ -39,7 +39,7 @@ class FactoryStorage extends Nette\Object implements Kdyby\Package\IMetadataStor
 
 	/**
 	 * @param string $packageName
-	 * @return PackageMeta
+	 * @return \Kdyby\Package\PackageMeta
 	 */
 	public function load($packageName)
 	{

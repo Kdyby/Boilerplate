@@ -11,7 +11,7 @@
 namespace Kdyby\Package;
 
 use Kdyby;
-use Nette\Application\Application;
+use Kdyby\Application\Application;
 use Nette;
 use Nette\Application as App;
 
@@ -23,7 +23,7 @@ use Nette\Application as App;
 class ApplicationEventInvoker extends Nette\Object implements Kdyby\DI\IContainerAware
 {
 
-	/** @var array */
+	/** @var \Kdyby\Package\IPackage[] */
 	private $packages = array();
 
 	/** @var boolean */
@@ -32,13 +32,13 @@ class ApplicationEventInvoker extends Nette\Object implements Kdyby\DI\IContaine
 
 
 	/**
-	 * @param array $packages
+	 * @param \Kdyby\Package\IPackage[] $packages
 	 */
 	public function __construct($packages)
 	{
 		foreach ($packages as $package) {
 			if (!$package instanceof IPackage) {
-				throw new Nette\InvalidArgumentException("Given object is not a implementor of 'Kdyby\Package\IPackage'.");
+				throw new Nette\InvalidArgumentException("Given object does not implement 'Kdyby\\Package\\IPackage'.");
 			}
 
 			$this->packages[] = $package;
@@ -48,12 +48,12 @@ class ApplicationEventInvoker extends Nette\Object implements Kdyby\DI\IContaine
 
 
 	/**
-	 * @param Application $application
+	 * @param \Kdyby\Application\Application $application
 	 */
 	public function attach(Application $application)
 	{
 		if ($this->attached) {
-			throw new Nette\InvalidStateException("EventInvoker is already attached to an Application object.");
+			throw new Nette\InvalidStateException("EventInvoker is already attached to an application.");
 		}
 
 		$application->onStartup[] = array($this, 'onStartup');
@@ -66,10 +66,9 @@ class ApplicationEventInvoker extends Nette\Object implements Kdyby\DI\IContaine
 	}
 
 
-
-    /**
-     * @param Kdyby\DI\IContainer $container
-     */
+	/**
+	 * @param \Kdyby\DI\IContainer $container
+	 */
     public function setContainer(Kdyby\DI\IContainer $container = NULL)
 	{
 		foreach ($this->packages as $package) {
@@ -82,7 +81,7 @@ class ApplicationEventInvoker extends Nette\Object implements Kdyby\DI\IContaine
 	/**
 	 * Occurs before the application loads presenter
 	 *
-	 * @param Application $sender
+	 * @param \Kdyby\Application\Application $sender
 	 */
 	public function onStartup(Application $sender)
 	{
@@ -96,8 +95,8 @@ class ApplicationEventInvoker extends Nette\Object implements Kdyby\DI\IContaine
 	/**
 	 * Occurs when a new request is ready for dispatch
 	 *
-	 * @param Application $sender
-	 * @param App\Request $request
+	 * @param \Kdyby\Application\Application $sender
+	 * @param \Nette\Application\Request $request
 	 */
 	public function onRequest(Application $sender, App\Request $request)
 	{
@@ -111,8 +110,9 @@ class ApplicationEventInvoker extends Nette\Object implements Kdyby\DI\IContaine
 	/**
 	 * Occurs when a new response is received
 	 *
-	 * @param Application $sender
-	 * @param App\IResponse $response
+	 * @param \Kdyby\Application\Application $sender
+	 * @param \Nette\Application\IResponse $response
+	 *
 	 */
 	public function onResponse(Application $sender, App\IResponse $response)
 	{
@@ -126,7 +126,7 @@ class ApplicationEventInvoker extends Nette\Object implements Kdyby\DI\IContaine
 	/**
 	 * Occurs when an unhandled exception occurs in the application
 	 *
-	 * @param Application $sender
+	 * @param \Kdyby\Application\Application $sender
 	 * @param \Exception $e
 	 */
 	public function onError(Application $sender, \Exception $e)
@@ -141,7 +141,7 @@ class ApplicationEventInvoker extends Nette\Object implements Kdyby\DI\IContaine
 	/**
 	 * Occurs before the application shuts down
 	 *
-	 * @param Application $sender
+	 * @param \Kdyby\Application\Application $sender
 	 * @param \Exception|NULL $e
 	 */
 	public function onShutdown(Application $sender, \Exception $e = NULL)

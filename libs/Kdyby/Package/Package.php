@@ -18,6 +18,7 @@ use Nette\Reflection\ClassType;
 use Nette\Utils\Finder;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\DefinitionDecorator;
 use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 use Symfony\Component\Console\Application as ConsoleApp;
 
@@ -198,11 +199,11 @@ abstract class Package extends Nette\Object implements IPackage
 	}
 
 
-
 	/**
 	 * Builds the Package. It is only ever called once when the cache is empty
 	 *
-	 * @param ContainerBuilder $container
+	 * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
+	 *
 	 */
 	public function build(ContainerBuilder $container)
 	{
@@ -281,6 +282,38 @@ abstract class Package extends Nette\Object implements IPackage
 			if ($refl->isSubclassOf('Symfony\\Component\\Console\\Command\\Command') && !$refl->isAbstract()) {
 				$app->add($refl->newInstance());
 			}
+		}
+	}
+
+
+
+	/**
+	 * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
+	 */
+	public function registerPresenters(ContainerBuilder $container)
+	{
+		if (!$dir = realpath($this->getPath() . '/Presenter')) {
+			return;
+		}
+
+		$ns = $this->getNamespace() . '\\Presenter';
+		foreach (Finder::findFiles('*Presenter.php')->from($dir) as $file) {
+			$relative = strtr($file->getRealpath(), array($dir => '', '/' => '\\'));
+			$class = $ns . '\\' . ltrim(substr($relative, 0, -4), '\\');
+			$refl = ClassType::from($class);
+			if (!$refl->implementsInterface('Nette\Application\IPresenter') || $refl->isAbstract()) {
+				continue;
+			}
+
+			$id = Kdyby\Application\PresenterManager::formatPresenterFromClass($refl->getName(), $this);
+
+			// class name
+			$container->setParameter($id . '.class', $refl->getName());
+
+			// service definition
+			$definition = new DefinitionDecorator('presenter_abstract');
+			$definition->setClass("%$id.class%");
+			$container->setDefinition($id, $definition);
 		}
 	}
 
