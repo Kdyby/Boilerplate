@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Tests\Testing;
+namespace Kdyby\Tests\Tests;
 
 use Kdyby;
 use Nette;
@@ -23,7 +23,7 @@ class TestTest extends Kdyby\Tests\TestCase
 
 	public function testMatchingCallbacks()
 	{
-		$class = 'Kdyby\Tests\Testing\ObjectWithEventMock';
+		$class = 'Kdyby\Tests\Tests\ObjectWithEventMock';
 
 		$object = new $class();
 		$object->onEvent[] = array($object, 'foo');
