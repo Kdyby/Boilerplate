@@ -22,11 +22,8 @@ use Nette\ObjectMixin;
 abstract class TestCase extends \PHPUnit_Framework_TestCase
 {
 
-	/** @var Kdyby\DI\Container */
+	/** @var Kdyby\DI\IContainer */
 	private $context;
-
-	/** @var Kdyby\DI\Configurator */
-	private $configurator;
 
 	/** @var Tools\TempClassGenerator */
 	private $tempClassGenerator;
@@ -40,25 +37,14 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 	 */
 	public function __construct($name = NULL, array $data = array(), $dataName = '')
 	{
-		$this->configurator = Nette\Environment::getConfigurator();
-		$this->context = $this->configurator->getContainer();
+		$this->context = Nette\Environment::getContext();
 		parent::__construct($name, $data, $dataName);
 	}
 
 
 
 	/**
-	 * @return Kdyby\DI\Configurator
-	 */
-	protected function getConfigurator()
-	{
-		return $this->configurator;
-	}
-
-
-
-	/**
-	 * @return Kdyby\DI\Container
+	 * @return Kdyby\DI\IContainer
 	 */
 	public function getContext()
 	{
@@ -217,13 +203,13 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 	/**
 	 * This method is called when a test method did not execute successfully.
 	 *
-	 * @param Exception $e
-	 * @since Method available since Release 3.4.0
+	 * @param \Exception $e
 	 */
 	protected function onNotSuccessfulTest(\Exception $e)
 	{
 		if (!$e instanceof \PHPUnit_Framework_AssertionFailedError) {
 			Nette\Diagnostics\Debugger::log($e);
+			Kdyby\Diagnostics\ConsoleDebugger::_exceptionHandler($e);
 		}
 
 		parent::onNotSuccessfulTest($e);

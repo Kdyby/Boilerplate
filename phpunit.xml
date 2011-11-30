@@ -9,17 +9,18 @@
 	convertNoticesToExceptions="true"
 	convertWarningsToExceptions="true"
 
-	bootstrap="bootstrap.php" colors="true"
+	bootstrap="tests/bootstrap.php"
+	colors="true"
 	>
 	<testsuites>
 		<testsuite name="Kdyby Framework Test Suite">
-			<directory suffix="Test.php">./</directory>
+			<directory suffix="Test.php">./tests</directory>
 		</testsuite>
 	</testsuites>
 
 	<filter>
 	  <whitelist>
-		<directory suffix=".php">./../Kdyby</directory>
+		<directory suffix=".php">./libs/Kdyby</directory>
 	  </whitelist>
 	</filter>
 </phpunit>
