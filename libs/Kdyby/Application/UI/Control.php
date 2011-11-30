@@ -18,7 +18,7 @@ use Nette\Utils\Strings;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
  * @property-read Presenter $presenter
  * @property Kdyby\Templates\FileTemplate $template

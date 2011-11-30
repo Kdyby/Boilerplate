@@ -10,95 +10,115 @@
 
 namespace Kdyby\DI;
 
+use Symfony;
 use Symfony\Component\Console;
 use Doctrine;
 use Kdyby;
+use Kdyby\Caching\CacheServices;
 use Nette;
 
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
- * @property-read Doctrine\ORM\EntityManager $entityManager
- * @property-read Doctrine\Common\EventManager $ormEventManager
- * @property-read Doctrine\ORM\Configuration $ormConfiguration
- * @property-read Doctrine\DBAL\Connection $dbalConnection
- * @property-read Kdyby\Doctrine\Mapping\Driver\AnnotationDriver $ormMetadataDriver
- * @property-read Doctrine\ORM\Tools\SchemaTool $ormSchemaTool
- * @property-read Kdyby\Doctrine\Diagnostics\Panel $sqlLogger
- * @property-read Kdyby\Doctrine\Cache $ormCache
- * @property-read Doctrine\Common\Annotations\AnnotationReader $annotationReader
- *
- * @property-read Nette\Application\Application $application
- * @property-read Nette\Application\IPresenterFactory $presenterFactory
- * @property-read Kdyby\Application\ModuleCascadeRegistry $moduleRegistry
- * @property-read Kdyby\Application\RequestManager $requestManager
- * @property-read Kdyby\Config\Settings $settings
- *
- * @property-read Console\Application $console
- * @property-read Console\Helper\HelperSet $consoleHelpers
- * @property-read Kdyby\Tools\FreezableArray $consoleCommands
- *
- * @property-read Nette\Application\IRouter $router
- * @property-read Nette\Http\Request $httpRequest
- * @property-read Nette\Http\Response $httpResponse
- * @property-read Nette\Http\Context $httpContext
- * @property-read Nette\Http\Session $session
- *
- * @property-read Nette\Http\User $user
- * @property-read Kdyby\Security\Users $users
- *
- * @property-read Kdyby\Templates\ITemplateFactory $templateFactory
- * @property-read Nette\Caching\Storages\PhpFileStorage $templateCacheStorage
- * @property-read Nette\Latte\Engine $latteEngine
- *
- * @property-read Nette\Loaders\RobotLoader $robotLoader
- *
- * @property-read Kdyby\Doctrine\Mapping\TypeMapper $doctrineTypeMapper
- * @property-read Kdyby\Doctrine\Mapping\EntityValuesMapper $doctrineEntityValuesMapper
- * @property-read Kdyby\Forms\Mapping\EntityFormMapperFactory $entityFormMapperFactory
- * @property-read Kdyby\Forms\EntityFormFactory $entityFormFactory
- *
- * @property-read Nette\Caching\IStorage $cacheStorage
- * @property-read Nette\Caching\Storages\IJournal $cacheJournal
- *
- * @property-read Nette\Mail\IMailer $mailer
- *
- * @property-read Kdyby\Modules\InstallWizard $installWizard
+ * @property-read array $parameters
  */
-class Container extends Nette\DI\Container
+class Container extends Symfony\Component\DependencyInjection\Container implements IContainer
 {
 
-	/**
-	 * @param string $key
-	 * @param string|NULL $default
-	 * @throws Nette\OutOfRangeException
-	 * @return mixed
-	 */
-	public function getParam($key, $default = NULL)
+	/********************* Nette\DI\IContainer *********************/
+
+
+    /**
+     * Adds the specified service or service factory to the container.
+     * @param string $name
+     * @param mixed $service
+     * @return void
+     */
+	public function addService($name, $service)
 	{
-		if (isset($this->params[$key])) {
-			return $this->params[$key];
-
-		} elseif (func_num_args()>1) {
-			return $default;
-		}
-
-		throw new Nette\OutOfRangeException("Missing key '$key' in " . get_class($this) . '->params');
+		$this->set($name, $service);
 	}
 
 
 
 	/**
+	 * Gets the service object of the specified type.
 	 * @param string $name
-	 * @param Nette\DI\IContainer $container
+	 * @return mixed
 	 */
-	public function lazyCopy($name, Nette\DI\IContainer $container)
+	public function getService($name)
 	{
-		$this->addService($name, function() use ($name, $container) {
-			return $container->getService($name);
-		});
+		return $this->get($name);
+	}
+
+
+
+	/**
+	 * Removes the specified service type from the container.
+	 * @param string $name
+	 * @return void
+	 */
+	public function removeService($name)
+	{
+		$this->set($name, NULL);
+	}
+
+
+
+	/**
+	 * Does the service exist?
+	 * @param string $name
+	 * @return bool
+	 */
+	public function hasService($name)
+	{
+		return $this->has($name);
+	}
+
+
+
+	/********************* shortcuts *********************/
+
+
+
+	/**
+	 * Expands %placeholders% in string.
+	 * @param mixed $s
+	 * @return mixed
+	 */
+	public function expand($s)
+	{
+		return $this->getParameterBag()->resolveValue($s);
+	}
+
+
+
+	/**
+	 * Gets the service object, shortcut for getService().
+	 * @param string $name
+	 * @return object
+	 */
+	public function __get($name)
+	{
+		if ($name === 'params' || $name === 'parameters') {
+			return $this->getParameterBag()->all();
+		}
+
+		return $this->getService($name);
+	}
+
+
+
+	/**
+	 * Does the service exist?
+	 * @param string $name
+	 * @return bool
+	 */
+	public function __isset($name)
+	{
+		return $this->hasService($name);
 	}
 
 }

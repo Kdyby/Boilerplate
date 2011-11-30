@@ -21,7 +21,7 @@ use Nette\Utils\Strings;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
  * @serializationVersion 1.0
  * @Entity @Table(name="users")

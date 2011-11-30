@@ -17,7 +17,7 @@ use Nette\Reflection\ClassType;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class TypeIterator extends SelectIterator
 {
@@ -28,15 +28,40 @@ class TypeIterator extends SelectIterator
 
 
 	/**
+	 * @param array|\Iterator $types
+	 *
+	 * @return TypeIterator
+	 */
+	public static function from($types)
+	{
+		if (!$types instanceof \Iterator) {
+			$types = new \ArrayIterator($types);
+		}
+
+		return new static($types);
+	}
+
+
+
+	/**
+	 * @return TypeIterator
+	 */
+	public static function fromDeclared()
+	{
+		return static::from(get_declared_classes());
+	}
+
+
+
+	/**
 	 * @return TypeIterator
 	 */
 	public function isAbstract()
 	{
-		$this->select(function (TypeIterator $iterator) {
+		return $this->select(function (TypeIterator $iterator)
+		{
 			return $iterator->current()->isAbstract();
 		});
-
-		return $this;
 	}
 
 
@@ -46,30 +71,29 @@ class TypeIterator extends SelectIterator
 	 */
 	public function isSubclassOf($class)
 	{
-		$this->select(function (TypeIterator $iterator) use ($class) {
+		return $this->select(function (TypeIterator $iterator) use ($class)
+		{
 			if ($iterator->current()->isInterface()) {
 				return FALSE;
 			}
 
 			return $iterator->current()->isSubclassOf($class);
 		});
-
-		return $this;
 	}
 
 
 
 	/**
 	 * @param string $interface
+	 *
 	 * @return TypeIterator
 	 */
 	public function implementsInterface($interface)
 	{
-		$this->select(function (TypeIterator $iterator) use ($interface) {
+		return $this->select(function (TypeIterator $iterator) use ($interface)
+		{
 			return $iterator->current()->implementsInterface($interface);
 		});
-
-		return $this;
 	}
 
 
@@ -79,11 +103,26 @@ class TypeIterator extends SelectIterator
 	 */
 	public function isInstantiable()
 	{
-		$this->select(function (TypeIterator $iterator) {
+		return $this->select(function (TypeIterator $iterator)
+		{
 			return $iterator->current()->isInstantiable();
 		});
+	}
 
-		return $this;
+
+
+	/**
+	 * @param $namespace
+	 *
+	 * @return TypeIterator
+	 */
+	public function inNamespace($namespace)
+	{
+		return $this->select(function (TypeIterator $iterator) use ($namespace)
+		{
+			$ns = $iterator->current()->getNamespaceName();
+			return substr($ns, 0, strlen($namespace)) === $namespace;
+		});
 	}
 
 
@@ -107,11 +146,22 @@ class TypeIterator extends SelectIterator
 	/**
 	 * @return array
 	 */
+	public function toArray()
+	{
+		return array_map(function (ClassType $type)
+		{
+			return $type->getName();
+		}, parent::toArray());
+	}
+
+
+
+	/**
+	 * @return array
+	 */
 	public function getResult()
 	{
-		return array_map(function (ClassType $type) {
-			return $type->getName();
-		}, $this->toArray());
+		return $this->toArray();
 	}
 
 }

@@ -20,7 +20,7 @@ use Nette\Utils\Finder;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class AnnotationDriver extends Doctrine\ORM\Mapping\Driver\AnnotationDriver
 {

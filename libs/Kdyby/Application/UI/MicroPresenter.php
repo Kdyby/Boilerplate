@@ -20,7 +20,7 @@ use NetteModule;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 abstract class MicroPresenter extends NetteModule\MicroPresenter
 {

@@ -15,7 +15,7 @@ use Doctrine\Common\Collections\Collection;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 interface IDao extends IQueryExecutor
 {

@@ -22,22 +22,22 @@ use Nette\Reflection\ClassType;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class DiscriminatorMapDiscoveryListener extends Nette\Object implements Doctrine\Common\EventSubscriber
 {
 
-	/** @var Reader */
+	/** @var \Doctrine\Common\Annotations\Reader */
 	private $reader;
 
-	/** @var Driver */
+	/** @var \Doctrine\ORM\Mapping\Driver\Driver */
 	private $driver;
 
 
 
 	/**
-	 * @param Reader $reader
-	 * @param Driver $driver
+	 * @param \Doctrine\Common\Annotations\Reader $reader
+	 * @param \Doctrine\ORM\Mapping\Driver\Driver $driver
 	 */
 	public function __construct(Reader $reader, Driver $driver)
 	{
@@ -60,7 +60,7 @@ class DiscriminatorMapDiscoveryListener extends Nette\Object implements Doctrine
 
 
 	/**
-	 * @param LoadClassMetadataEventArgs $args
+	 * @param \Doctrine\ORM\Event\LoadClassMetadataEventArgs $args
 	 */
 	public function loadClassMetadata(LoadClassMetadataEventArgs $args)
 	{
@@ -85,6 +85,7 @@ class DiscriminatorMapDiscoveryListener extends Nette\Object implements Doctrine
 
 	/**
 	 * @param string $currentClass
+	 *
 	 * @return array
 	 */
 	private function getChildClasses($currentClass)
@@ -104,14 +105,15 @@ class DiscriminatorMapDiscoveryListener extends Nette\Object implements Doctrine
 
 	/**
 	 * @param string $className
+	 *
 	 * @return string|NULL
 	 */
 	private function getEntryName($className)
 	{
 		return $this->reader->getClassAnnotation(
-				ClassType::from($className),
-				'Doctrine\ORM\Mapping\DiscriminatorEntry'
-			) ?: NULL;
+			ClassType::from($className),
+			'Doctrine\ORM\Mapping\DiscriminatorEntry'
+		) ? : NULL;
 	}
 
 }

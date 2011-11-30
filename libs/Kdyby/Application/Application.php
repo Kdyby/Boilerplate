@@ -12,98 +12,157 @@ namespace Kdyby\Application;
 
 use Kdyby;
 use Nette;
+use Nette\Diagnostics\Debugger;
 
 
 
 /**
- * @author Patrik Votoček
- * @author Filip Procházka
- *
- * @property-read Nette\DI\Container $context
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class Application extends Nette\Application\Application
 {
 
+	/** @var \Kdyby\DI\IConfigurator */
+	private $configurator;
+
+	/** @var \Kdyby\Application\RequestManager */
+	private $requestsManager;
+
+	/** @var \Kdyby\Package\PackageManager */
+	private $packageManager;
+
+
+
 	/**
-	 * @param Nette\DI\IContainer $context
+	 * @param array|string|\Kdyby\DI\IConfigurator $params
+	 * @param string $environment
+	 * @param string $productionMode
 	 */
-	public function __construct(Nette\DI\IContainer $context)
+	public function __construct($params = NULL, $environment = NULL, $productionMode = NULL)
 	{
-		parent::__construct($context);
+		if ($params instanceof Kdyby\DI\IConfigurator) {
+			$this->configurator = $params;
+			$params = $this->configurator->params;
 
-		$this->onError[] = callback($this, 'handleForbiddenRequestException');
-	}
-
-
-
-	/**
-	 * @return void
-	 */
-	public function run()
-	{
-		$this->getContext()->freeze();
-
-		if (PHP_SAPI == "cli") {
-			return $this->getContext()->console->run();
+		} else {
+			$this->configurator = $this->createConfigurator($params);
 		}
 
-		return parent::run();
+		// environment
+		if ($environment !== NULL) {
+			$this->configurator->setEnvironment($environment);
+		}
+
+		// production mode
+		if ($productionMode !== NULL) {
+			$this->configurator->setProductionMode($productionMode);
+		}
+
+		// inject application instance
+		$container = $this->configurator->getContainer();
+		$container->set('application', $this);
+
+		// wire events
+		$invoker = $container->get('package.manager')->createInvoker();
+		$invoker->setContainer($container);
+		$invoker->attach($this);
+
+		// dependencies
+		$this->packageManager = $container->get('application.package_manager');
+		$this->requestsManager = $container->get('application.stored_requests_manager');
+		parent::__construct(
+			$container->get('application.presenter_factory'),
+			$container->get('application.router'),
+			$container->get('http.request'),
+			$container->get('http.response'),
+			$container->get('http.session')
+		);
 	}
 
 
 
 	/**
-	 * @todo some flashmessage?
+	 * @param array $params
 	 *
-	 * @param Nette\Application\Application $application
-	 * @param Nette\Application\ForbiddenRequestException $exception
+	 * @return \Kdyby\DI\IConfigurator
 	 */
-	public function handleForbiddenRequestException(Nette\Application\Application $application, \Exception $exception)
+	protected function createConfigurator(array $params)
 	{
-		if (!$exception instanceof Nette\Application\ForbiddenRequestException) {
-			return;
-		}
-
-		$application->catchExceptions = TRUE;
-		$application->errorPresenter = $application->getPresenter()->getModuleName() . ':Sign';
+		return new Kdyby\DI\Configurator($params);
 	}
-
-
-
-	/********************* request serialization *********************/
 
 
 
 	/**
-	 * @return RequestManager
+	 * @return \Kdyby\DI\IConfigurator
 	 */
-	protected function getRequestManager()
+	protected function getConfigurator()
 	{
-		return $this->context->requestManager;
+		return $this->configurator;
 	}
+
+
+
+	/********************* Request serialization *********************/
 
 
 
 	/**
 	 * Stores current request to session.
-	 * @param  mixed  optional expiration time
-	 * @return string key
+	 *
+	 * @param string $expiration
+	 *
+	 * @return string
 	 */
 	public function storeRequest($expiration = '+ 10 minutes')
 	{
-		return $this->getRequestManager()->storeCurrentRequest($expiration);;
+		return $this->requestsManager->storeCurrentRequest($expiration);
 	}
 
 
 
 	/**
 	 * Restores current request to session.
-	 * @param  string key
+	 *
+	 * @param string $key
+	 *
 	 * @return void
 	 */
 	public function restoreRequest($key)
 	{
-		$this->getRequestManager()->restoreRequest($key);
+		$this->requestsManager->restoreRequest($key);
+	}
+
+
+
+	/********************* Packages *********************/
+
+
+
+	/**
+	 * Checks if a given class name belongs to an active package.
+	 *
+	 * @param string $class
+	 *
+	 * @return boolean
+	 */
+	public function isClassInActivePackage($class)
+	{
+		return $this->packageManager->isClassInActivePackage($class);
+	}
+
+
+
+	/**
+	 * @see \Kdyby\Package\PackageManager::locateResource()
+	 *
+	 * @param string $name  A resource name to locate
+	 *
+	 * @return string|array
+	 */
+	public function locateResource($name)
+	{
+		return $this->packageManager->locateResource($name);
 	}
 
 }

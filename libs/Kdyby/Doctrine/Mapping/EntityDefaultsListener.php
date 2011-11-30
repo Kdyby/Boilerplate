@@ -20,7 +20,7 @@ use Nette\Reflection\ClassType;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class EntityDefaultsListener extends Nette\Object implements Doctrine\Common\EventSubscriber
 {

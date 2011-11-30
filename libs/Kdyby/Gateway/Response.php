@@ -15,7 +15,7 @@ use Nette;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  * 
  * @property-read mixed $raw
  * @property-read \SimpleXMLElement $Xml

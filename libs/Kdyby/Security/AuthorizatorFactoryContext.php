@@ -20,7 +20,7 @@ use Nette\Http;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
  * @property-read Http\Session $session
  * @property-read Http\User $user

@@ -17,7 +17,7 @@ use Nette\Reflection\ClassType;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class JsonSerializer extends Nette\Object
 {
@@ -172,7 +172,7 @@ class JsonSerializer extends Nette\Object
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 interface IJsonSerializable
 {

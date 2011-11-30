@@ -20,16 +20,13 @@ Dependecies:
 - Doctrine ORM 2.1.2 https://github.com/doctrine/doctrine2
 - Doctrine DBAL https://github.com/doctrine/dbal
 - Doctrine Common https://github.com/doctrine/common
-- Symfony2 Validator https://github.com/symfony/symfony/tree/master/src/Symfony/Component/Validator
+- Doctrine Migrations https://github.com/doctrine/migrations
+- Symfony2 https://github.com/symfony/symfony
 
 
 Optional dependencies
 =====================
 
-- Doctrine Migrations https://github.com/doctrine/migrations
-- Doctrine CouchDB ODM https://github.com/doctrine/couchdb-odm
 - Gedmo Doctrine extensions https://github.com/l3pp4rd/DoctrineExtensions
 - Beberlei Doctrine extensions https://github.com/beberlei/DoctrineExtensions
-- Symfony2 Console https://github.com/symfony/symfony/tree/master/src/Symfony/Component/Console
 - PHPUnit 3.5.15 https://github.com/sebastianbergmann/phpunit/tree/3.5.15
-- DbUnit 1.0.3 https://github.com/sebastianbergmann/dbunit/tree/1.0.3

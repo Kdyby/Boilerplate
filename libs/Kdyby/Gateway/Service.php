@@ -15,7 +15,7 @@ use Nette;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
  * @property Kdyby\Gateway\IAdapter $adapter
  * @property mixed $gateways

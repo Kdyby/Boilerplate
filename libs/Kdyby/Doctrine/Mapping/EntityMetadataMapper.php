@@ -21,7 +21,7 @@ use Nette;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 abstract class EntityMetadataMapper extends Nette\Object
 {

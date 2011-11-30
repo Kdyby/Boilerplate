@@ -21,7 +21,7 @@ use Nette\Reflection\Property;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class ClassMetadata extends Doctrine\ORM\Mapping\ClassMetadata
 {

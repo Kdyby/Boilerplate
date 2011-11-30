@@ -17,7 +17,7 @@ use Nette;
 /**
  * Freezable array object
  * @author Patrik Votoček
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class FreezableArray extends Nette\FreezableObject implements \ArrayAccess, \Countable, \IteratorAggregate
 {

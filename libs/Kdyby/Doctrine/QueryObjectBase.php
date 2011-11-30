@@ -20,7 +20,7 @@ use Nette\Utils\Paginator;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 abstract class QueryObjectBase implements Kdyby\Persistence\IQueryObject
 {

@@ -13,7 +13,7 @@ namespace Kdyby\Persistence;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 interface IQueryExecutor
 {

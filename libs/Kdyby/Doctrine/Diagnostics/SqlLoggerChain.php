@@ -18,7 +18,7 @@ use Nette;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class SqlLoggerChain extends Nette\Object implements SQLLogger
 {

@@ -19,7 +19,7 @@ use Nette\Utils\Paginator;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class DivisionResourcesQuery extends Kdyby\Doctrine\QueryObjectBase
 {

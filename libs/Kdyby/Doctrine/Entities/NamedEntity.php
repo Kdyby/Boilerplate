@@ -13,7 +13,7 @@ namespace Kdyby\Doctrine\Entities;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  * 
  * @MappedSuperClass
  *

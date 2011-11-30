@@ -18,7 +18,7 @@ use Nette\ComponentModel\IContainer;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
  * @method Kdyby\Forms\EntityForm getForm() getForm()
  */

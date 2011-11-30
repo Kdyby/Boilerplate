@@ -16,7 +16,7 @@ use Nette;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  * @Entity @Table(name="rbac_roles")
  */
 class Role extends Nette\Object implements Nette\Security\IRole

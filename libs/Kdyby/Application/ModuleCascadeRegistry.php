@@ -17,10 +17,10 @@ use Nette\Utils\Arrays;
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
- * @property-read \ArrayIterator $namespace
- * @property-read \ArrayIterator $directory
+ * @property-read \ArrayIterator $namespaces
+ * @property-read \ArrayIterator $directories
  */
 class ModuleCascadeRegistry extends Nette\FreezableObject
 {
@@ -34,13 +34,25 @@ class ModuleCascadeRegistry extends Nette\FreezableObject
 	 * @param string $namespace
 	 * @param string $directory
 	 * @param int|NULL $priority
-	 * @return AppCascadeRegistry
+	 * @return ModuleCascadeRegistry
 	 */
-	public function add($namespace, $directory)
+	public function addNamespace($namespace, $directory)
 	{
 		$this->updating();
 		$this->modules[$namespace] = $directory;
 		return $this;
+	}
+
+
+
+	/**
+	 * @param array $namespaces
+	 */
+	public function addNamespaces(array $namespaces)
+	{
+		foreach ($namespaces as $namespace => $directory) {
+			$this->add($namespace, $directory);
+		}
 	}
 
 
@@ -91,6 +103,16 @@ class ModuleCascadeRegistry extends Nette\FreezableObject
 	public function getDirectories()
 	{
 		return new \ArrayIterator(array_reverse(array_values($this->modules)));
+	}
+
+
+
+	/**
+	 * @return boolean
+	 */
+	public function hasModules()
+	{
+		return (boolean)$this->modules;
 	}
 
 }

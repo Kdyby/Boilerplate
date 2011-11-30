@@ -10,16 +10,15 @@
 
 namespace Kdyby\Caching;
 
-use ArrayAccess;
 use DateTime;
 use Nette;
 
 
 
 /**
- * @author Filip Procházka
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class FileStorage extends Nette\Caching\Storages\FileStorage implements ArrayAccess
+class FileStorage extends Nette\Caching\Storages\FileStorage
 {
 
 	/**
@@ -30,50 +29,5 @@ class FileStorage extends Nette\Caching\Storages\FileStorage implements ArrayAcc
     {
 		return Nette\DateTime::createFromFormat('U', @filemtime($this->getCacheFile($key))) ?: NULL;
     }
-
-
-
-	/**
-	 * @param string $namespace
-	 * @return Nette\Caching\Cache
-	 */
-	public function offsetGet($namespace)
-	{
-		return new Nette\Caching\Cache(
-			$this,
-			$namespace
-		);
-	}
-
-
-
-	/**
-	 * @param string $offset
-	 * @param mixed $value
-	 */
-	public function offsetSet($offset, $value)
-	{
-		throw new Nette\NotSupportedException();
-	}
-
-
-
-	/**
-	 * @param string $offset
-	 */
-	public function offsetExists($offset)
-	{
-		throw new Nette\NotSupportedException();
-	}
-
-
-
-	/**
-	 * @param string $offset
-	 */
-	public function offsetUnset($offset)
-	{
-		throw new Nette\NotSupportedException();
-	}
 
 }
