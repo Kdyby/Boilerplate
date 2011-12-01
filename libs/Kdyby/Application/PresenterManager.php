@@ -55,8 +55,12 @@ class PresenterManager extends Nette\Application\PresenterFactory implements Net
 	 */
 	public function getPresenterClass(& $name)
 	{
-		if (!is_string($name) || !Nette\Utils\Strings::match($name, "#^[a-zA-Z\x7f-\xff][a-zA-Z0-9\x7f-\xff:]*$#")) {
+		if (!is_string($name) || !Strings::match($name, "#^[a-zA-Z\x7f-\xff][a-zA-Z0-9\x7f-\xff:]*$#")) {
 			throw InvalidPresenterException::invalidName($name);
+		}
+
+		if (!Strings::match($name, '~^[^:]+Package:[^:]+~i')) {
+			return parent::getPresenterClass($name);
 		}
 
 		list($package, $shortName) = explode(':', $name, 2);
