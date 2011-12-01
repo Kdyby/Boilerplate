@@ -62,15 +62,54 @@ class InstalledPackages extends Nette\Object implements \IteratorAggregate, IPac
 		$file = $this->appDir . '/config/installed-packages.json';
 		try {
 			if (!file_exists($file)) {
-				return array();
+				$list = $this->supplyDefaultPackages($file);
+
+			} else {
+				$list = (array)Json::decode($file);
 			}
 
-			$list = (array)Json::decode($file);
-			return array_map(function ($package) { return $package->class; }, $list);
+			$list = array_map(function ($package) {
+				return $package->class;
+			}, $list);
+
+			if (!$list) {
+				throw new \Nette\InvalidStateException("File '$file' is corrupted! Fix the file, or delete it.");
+			}
+
+			return $list;
 
 		} catch (JsonException $e) {
 			throw new Nette\InvalidStateException("Packages file '$file' is corrupted!", NULL, $e);
 		}
+	}
+
+
+
+	/**
+	 * @param $file
+	 */
+	private function supplyDefaultPackages($file)
+	{
+		$default = array();
+		if (class_exists('Kdyby\Packages\DefaultPackages')) {
+			$packages = new \Kdyby\Packages\DefaultPackages();
+			$default = $packages->getPackages();
+		}
+		if (class_exists('Kdyby\Packages\CmsPackages')) {
+			$packages = new \Kdyby\Packages\CmsPackages();
+			$default = array_merge($default, $packages->getPackages());
+		}
+
+		$list = array_map(function ($package) {
+			return (object)array('class' => $package);
+		}, $default->getPackages());
+
+		if (!@file_put_contents($file, Json::encode($list))) {
+			throw new Nette\IOException("File '$file' is not writable.");
+		}
+		@chmod($file, 0777);
+
+		return $list;
 	}
 
 }
