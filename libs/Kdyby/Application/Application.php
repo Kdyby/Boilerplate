@@ -62,11 +62,6 @@ class Application extends Nette\Application\Application
 		$container = $this->configurator->getContainer();
 		$container->set('application', $this);
 
-		// wire events
-		$invoker = $container->get('package.manager')->createInvoker();
-		$invoker->setContainer($container);
-		$invoker->attach($this);
-
 		// dependencies
 		$this->packageManager = $container->get('application.package_manager');
 		$this->requestsManager = $container->get('application.stored_requests_manager');
@@ -77,6 +72,11 @@ class Application extends Nette\Application\Application
 			$container->get('http.response'),
 			$container->get('http.session')
 		);
+
+		// wire events
+		$invoker = $this->packageManager->createInvoker();
+		$invoker->setContainer($container);
+		$invoker->attach($this);
 	}
 
 
@@ -86,7 +86,7 @@ class Application extends Nette\Application\Application
 	 *
 	 * @return \Kdyby\DI\IConfigurator
 	 */
-	protected function createConfigurator(array $params)
+	protected function createConfigurator($params)
 	{
 		return new Kdyby\DI\Configurator($params);
 	}

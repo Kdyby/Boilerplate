@@ -89,10 +89,10 @@ class Configurator extends Nette\Object implements IConfigurator
 		$this->params = static::defaultPaths($params);
 
 		// debugger defaults
-		static::setupDebugger($params);
+		static::setupDebugger($this->params);
 
 		// finder
-		$this->packageFinder = $packageFinder ? : new Kdyby\Package\InstalledPackages($params['appDir']);
+		$this->packageFinder = $packageFinder ? : new Kdyby\Package\InstalledPackages($this->params['appDir']);
 
 		// environment
 		$this->setProductionMode();
@@ -457,7 +457,7 @@ class Configurator extends Nette\Object implements IConfigurator
 	/**
 	 * @param Nette\Application\IRouter $router
 	 */
-	public static function configureRouter(Nette\Application\IRouter $router)
+	public static function configureDefaultRouter(Nette\Application\IRouter $router)
 	{
 		$router[] = new Nette\Application\Routers\Route('index.php', 'Homepage:default', Nette\Application\Routers\Route::ONE_WAY);
 		$router[] = new Nette\Application\Routers\Route('<presenter>/<action>[/<id>]', 'Homepage:default');
@@ -506,7 +506,7 @@ class Configurator extends Nette\Object implements IConfigurator
 	 *
 	 * @return array
 	 */
-	public static function defaultPaths($params = NULL)
+	public static function defaultPaths($params)
 	{
 		// public root
 		if ($params === NULL) {
