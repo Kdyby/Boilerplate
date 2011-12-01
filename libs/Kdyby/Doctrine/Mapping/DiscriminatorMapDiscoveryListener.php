@@ -37,12 +37,10 @@ class DiscriminatorMapDiscoveryListener extends Nette\Object implements Doctrine
 
 	/**
 	 * @param \Doctrine\Common\Annotations\Reader $reader
-	 * @param \Doctrine\ORM\Mapping\Driver\Driver $driver
 	 */
-	public function __construct(Reader $reader, Driver $driver)
+	public function __construct(Reader $reader)
 	{
 		$this->reader = $reader;
-		$this->driver = $driver;
 	}
 
 
@@ -65,6 +63,7 @@ class DiscriminatorMapDiscoveryListener extends Nette\Object implements Doctrine
 	public function loadClassMetadata(LoadClassMetadataEventArgs $args)
 	{
 		$meta = $args->getClassMetadata();
+		$this->driver = $args->getEntityManager()->getConfiguration()->getMetadataDriverImpl();
 
 		if ($meta->isInheritanceTypeNone()) {
 			return;
