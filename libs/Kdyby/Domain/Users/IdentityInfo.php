@@ -21,7 +21,8 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
- * @Entity @Table(name="users_info")
+ * @Orm:Entity
+ * @Orm:Table(name="users_info")
  */
 class IdentityInfo extends Kdyby\Doctrine\Entities\IdentifiedEntity
 {
@@ -29,10 +30,10 @@ class IdentityInfo extends Kdyby\Doctrine\Entities\IdentifiedEntity
 	/** @var Kdyby\Security\Identity */
 	private $identity;
 
-	/** @Column(type="string", nullable=TRUE) */
+	/** @Orm:Column(type="string", nullable=TRUE) */
 	private $phone;
 
-	/** @Column(type="array", nullable=TRUE) */
+	/** @Orm:Column(type="array", nullable=TRUE) */
 	private $data = array();
 
 

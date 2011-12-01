@@ -24,8 +24,9 @@ use Nette\Utils\Strings;
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
  * @serializationVersion 1.0
- * @Entity @Table(name="users")
- * @HasLifecycleCallbacks
+ * @Orm:Entity
+ * @Orm:Table(name="users")
+ * @Orm:HasLifecycleCallbacks
  *
  * @property-read mixed $id
  * @property array $roles
@@ -33,53 +34,53 @@ use Nette\Utils\Strings;
 class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity, Nette\Security\IRole, \Serializable
 {
 
-	/** @Column(type="integer") @Id @GeneratedValue */
+	/** @Orm:Column(type="integer") @Orm:Id @Orm:GeneratedValue */
 	private $id;
 
-	/** @Column(type="string") */
+	/** @Orm:Column(type="string") */
 	private $username;
 
-	/** @Column(type="password") @var Kdyby\Types\Password */
+	/** @Orm:Column(type="password") @var Kdyby\Types\Password */
 	private $password;
 
-	/** @Column(type="string", length=5) */
+	/** @Orm:Column(type="string", length=5) */
 	private $salt;
 
-	/** @Column(type="string", nullable=TRUE, length=50) */
+	/** @Orm:Column(type="string", nullable=TRUE, length=50) */
 	private $name;
 
-	/** @Column(type="string", nullable=TRUE) */
+	/** @Orm:Column(type="string", nullable=TRUE) */
 	private $email;
 
 	/**
 	 * @var Collection
-	 * @ManyToMany(targetEntity="Kdyby\Security\RBAC\Role", cascade={"persist"})
-	 * @JoinTable(name="users_roles",
-	 *		joinColumns={@JoinColumn(name="role_id", referencedColumnName="id")},
-	 *		inverseJoinColumns={@JoinColumn(name="user_id", referencedColumnName="id")}
+	 * @Orm:ManyToMany(targetEntity="Kdyby\Security\RBAC\Role", cascade={"persist"})
+	 * @Orm:JoinTable(name="users_roles",
+	 *		joinColumns={@Orm:JoinColumn(name="role_id", referencedColumnName="id")},
+	 *		inverseJoinColumns={@Orm:JoinColumn(name="user_id", referencedColumnName="id")}
 	 *	)
 	 */
 	private $roles;
 
 	/**
-	 * @OneToOne(targetEntity="Kdyby\Domain\Users\IdentityInfo", cascade={"persist"}, fetch="EAGER")
-     * @JoinColumn(name="info_id", referencedColumnName="id")
+	 * @Orm:OneToOne(targetEntity="Kdyby\Domain\Users\IdentityInfo", cascade={"persist"}, fetch="EAGER")
+	 * @Orm:JoinColumn(name="info_id", referencedColumnName="id")
 	 */
 	private $info;
 
-	/** @Column(type="boolean") */
+	/** @Orm:Column(type="boolean") */
 	private $approved = TRUE;
 
-	/** @Column(type="boolean") */
+	/** @Orm:Column(type="boolean") */
 	private $robot = FALSE;
 
-	/** @Column(type="datetime") @var \DateTime */
+	/** @Orm:Column(type="datetime") @var \DateTime */
 	private $createdTime;
 
-	/** @Column(type="datetime", nullable=TRUE) @var \DateTime */
+	/** @Orm:Column(type="datetime", nullable=TRUE) @var \DateTime */
 	private $deletedTime;
 
-	/** @Column(type="datetime", nullable=TRUE) @var \DateTime */
+	/** @Orm:Column(type="datetime", nullable=TRUE) @var \DateTime */
 	private $approveTime;
 
 	/** @var bool */

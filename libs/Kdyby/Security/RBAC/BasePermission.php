@@ -20,32 +20,33 @@ use Nette\Security\IRole;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
- * @Entity() @Table(name="rbac_permissions")
- * @InheritanceType("SINGLE_TABLE")
- * @DiscriminatorColumn(name="_type", type="string")
- * @DiscriminatorMap({"base" = "BasePermission"})
+ * @Orm:Entity
+ * @Orm:Table(name="rbac_permissions")
+ * @Orm:InheritanceType("SINGLE_TABLE")
+ * @Orm:DiscriminatorColumn(name="_type", type="string")
+ * @Orm:DiscriminatorMap({"base" = "BasePermission"})
  */
 abstract class BasePermission extends Nette\Object
 {
 
-	/** @Id @Column(type="integer") @GeneratedValue @var integer */
+	/** @Orm:Id @Orm:Column(type="integer") @Orm:GeneratedValue @var integer */
 	private $id;
 
 	/**
 	 * @var Division
-	 * @ManyToOne(targetEntity="Division", inversedBy="permissions", cascade={"persist"})
-	 * @JoinColumn(name="division_id", referencedColumnName="id")
+	 * @Orm:ManyToOne(targetEntity="Division", inversedBy="permissions", cascade={"persist"})
+	 * @Orm:JoinColumn(name="division_id", referencedColumnName="id")
 	 */
 	private $division;
 
 	/**
 	 * @var Privilege
-	 * @ManyToOne(targetEntity="Privilege", cascade={"persist"})
-	 * @JoinColumn(name="privilege_id", referencedColumnName="id")
+	 * @Orm:ManyToOne(targetEntity="Privilege", cascade={"persist"})
+	 * @Orm:JoinColumn(name="privilege_id", referencedColumnName="id")
 	 */
 	private $privilege;
 
-	/** @Column(type="boolean") @var boolean */
+	/** @Orm:Column(type="boolean") @var boolean */
 	private $isAllowed = TRUE;
 
 

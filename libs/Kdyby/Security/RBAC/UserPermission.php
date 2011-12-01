@@ -18,15 +18,15 @@ use Nette;
 
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
- * @Entity
- * @DiscriminatorEntry(name="user")
+ * @Orm:Entity
+ * @Orm:DiscriminatorEntry(name="user")
  */
 class UserPermission extends BasePermission
 {
 	/**
 	 * @var Identity
-	 * @ManyToOne(targetEntity="Kdyby\Security\Identity")
-	 * @JoinColumn(name="identity_id", referencedColumnName="id")
+	 * @Orm:ManyToOne(targetEntity="Kdyby\Security\Identity")
+	 * @Orm:JoinColumn(name="identity_id", referencedColumnName="id")
 	 */
 	private $identity;
 

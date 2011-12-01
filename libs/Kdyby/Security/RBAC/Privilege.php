@@ -17,27 +17,29 @@ use Nette;
 
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
- * @Entity
- * @Table(name="rbac_privileges",uniqueConstraints={@UniqueConstraint(name="resource_action_uniq", columns={"resource_id", "action_id"})})
+ * @Orm:Entity
+ * @Orm:Table(name="rbac_privileges",uniqueConstraints={
+ * 	@Orm:UniqueConstraint(name="resource_action_uniq", columns={"resource_id", "action_id"})
+ * })
  */
 class Privilege extends Nette\Object
 {
 	const DELIMITER = '#';
 
-	/** @Id @Column(type="integer") @GeneratedValue @var integer */
+	/** @Orm:Id @Orm:Column(type="integer") @Orm:GeneratedValue @var integer */
 	private $id;
 
 	/**
 	 * @var Resource
-	 * @ManyToOne(targetEntity="Resource", cascade={"persist"}, fetch="EAGER")
-	 * @JoinColumn(name="resource_id", referencedColumnName="id")
+	 * @Orm:ManyToOne(targetEntity="Resource", cascade={"persist"}, fetch="EAGER")
+	 * @Orm:JoinColumn(name="resource_id", referencedColumnName="id")
 	 */
 	private $resource;
 
 	/**
 	 * @var Action
-	 * @ManyToOne(targetEntity="Action", cascade={"persist"}, fetch="EAGER")
-	 * @JoinColumn(name="action_id", referencedColumnName="id")
+	 * @Orm:ManyToOne(targetEntity="Action", cascade={"persist"}, fetch="EAGER")
+	 * @Orm:JoinColumn(name="action_id", referencedColumnName="id")
 	 */
 	private $action;
 

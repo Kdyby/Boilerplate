@@ -25,7 +25,7 @@ use Kdyby;
 abstract class IdentifiedEntity extends BaseEntity
 {
 
-	/** @Id @Column(type="integer") @GeneratedValue */
+	/** @Orm:Id @Orm:Column(type="integer") @Orm:GeneratedValue */
 	private $id;
 
 

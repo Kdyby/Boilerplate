@@ -20,28 +20,29 @@ use Nette;
 
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
- * @Entity @Table(name="rbac_divisions")
+ * @Orm:Entity
+ * @Orm:Table(name="rbac_divisions")
  */
 class Division extends Nette\Object
 {
-	/** @Id @Column(type="integer") @GeneratedValue @var integer */
+	/** @Orm:Id @Orm:Column(type="integer") @Orm:GeneratedValue @var integer */
 	private $id;
 
-	/** @Column(type="string") @var string */
+	/** @Orm:Column(type="string") @var string */
 	private $name;
 
-	/** @Column(type="string", nullable=TRUE) @var string */
+	/** @Orm:Column(type="string", nullable=TRUE) @var string */
 	private $description;
 
-	/** @OneToMany(targetEntity="BasePermission", mappedBy="division", cascade={"persist"}) @var Collection */
+	/** @Orm:OneToMany(targetEntity="BasePermission", mappedBy="division", cascade={"persist"}) @var Collection */
 	private $permissions;
 
 	/**
 	 * @var Collection
-	 * @ManyToMany(targetEntity="Privilege", cascade={"persist"})
-	 * @JoinTable(name="rbac_divisions_privileges",
-	 *		joinColumns={@JoinColumn(name="privilege_id", referencedColumnName="id")},
-	 *		inverseJoinColumns={@JoinColumn(name="division_id", referencedColumnName="id")}
+	 * @Orm:ManyToMany(targetEntity="Privilege", cascade={"persist"})
+	 * @Orm:JoinTable(name="rbac_divisions_privileges",
+	 *		joinColumns={@Orm:JoinColumn(name="privilege_id", referencedColumnName="id")},
+	 *		inverseJoinColumns={@Orm:JoinColumn(name="division_id", referencedColumnName="id")}
 	 *	)
 	 */
 	private $privileges;

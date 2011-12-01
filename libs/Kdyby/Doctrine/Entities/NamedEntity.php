@@ -14,7 +14,7 @@ namespace Kdyby\Doctrine\Entities;
 
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
- * 
+ *
  * @MappedSuperClass
  *
  * @property int $id
@@ -23,10 +23,10 @@ namespace Kdyby\Doctrine\Entities;
 abstract class NamedEntity extends BaseEntity
 {
 
-	/** @Id @Column(type="integer") */
+	/** @Orm:Id @Orm:Column(type="integer") */
 	private $id;
 
-	/** @Column(type="string") */
+	/** @Orm:Column(type="string") */
 	private $name;
 
 

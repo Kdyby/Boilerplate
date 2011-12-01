@@ -17,24 +17,25 @@ use Nette;
 
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
- * @Entity @Table(name="rbac_roles")
+ * @Orm:Entity
+ * @Orm:Table(name="rbac_roles")
  */
 class Role extends Nette\Object implements Nette\Security\IRole
 {
 
-	/** @Id @Column(type="integer") @GeneratedValue @var integer */
+	/** @Orm:Id @Orm:Column(type="integer") @Orm:GeneratedValue @var integer */
 	private $id;
 
-	/** @Column(type="string") @var string */
+	/** @Orm:Column(type="string") @var string */
 	private $name;
 
-	/** @Column(type="string", nullable=TRUE) @var string */
+	/** @Orm:Column(type="string", nullable=TRUE) @var string */
 	private $description;
 
 	/**
 	 * @var Division
-	 * @ManyToOne(targetEntity="Division", cascade={"persist"})
-	 * @JoinColumn(name="division_id", referencedColumnName="id")
+	 * @Orm:ManyToOne(targetEntity="Division", cascade={"persist"})
+	 * @Orm:JoinColumn(name="division_id", referencedColumnName="id")
 	 */
 	private $division;
 

@@ -17,15 +17,15 @@ use Nette;
 
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
- * @Entity
- * @DiscriminatorEntry(name="role")
+ * @Orm:Entity
+ * @Orm:DiscriminatorEntry(name="role")
  */
 class RolePermission extends BasePermission
 {
 	/**
 	 * @var Role
-	 * @ManyToOne(targetEntity="Role", cascade={"persist"}, fetch="EAGER")
-	 * @JoinColumn(name="role_id", referencedColumnName="id")
+	 * @Orm:ManyToOne(targetEntity="Role", cascade={"persist"}, fetch="EAGER")
+	 * @Orm:JoinColumn(name="role_id", referencedColumnName="id")
 	 */
 	private $role;
 

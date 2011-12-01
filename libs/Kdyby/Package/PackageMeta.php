@@ -19,7 +19,8 @@ use Nette;
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  * @todo think of other needed statuses
  *
- * @Entity @Table(name="packages")
+ * @Orm:Entity
+ * @Orm:Table(name="packages")
  */
 class PackageMeta extends Kdyby\Doctrine\Entities\IdentifiedEntity
 {
@@ -33,22 +34,22 @@ class PackageMeta extends Kdyby\Doctrine\Entities\IdentifiedEntity
 	/** Package dependencies are not fulfilled or some files are broken/missing */
 	const STATUS_BROKEN = "broken";
 
-	/** @Column(type="string") @var string */
+	/** @Orm:Column(type="string") @var string */
 	private $name;
 
-	/** @Column(type="string") @var string */
+	/** @Orm:Column(type="string") @var string */
 	private $namespace;
 
-	/** @Column(type="string") @var string */
+	/** @Orm:Column(type="string") @var string */
 	private $path;
 
-	/** @Column(type="string") @var string */
+	/** @Orm:Column(type="string") @var string */
 	private $version = 0;
 
-	/** @Column(type="string") @var string */
+	/** @Orm:Column(type="string") @var string */
 	private $status;
 
-	/** @Column(type="integer") @var integer */
+	/** @Orm:Column(type="integer") @var integer */
 	private $migration;
 
 

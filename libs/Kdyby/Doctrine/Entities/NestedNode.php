@@ -29,41 +29,41 @@ abstract class NestedNode extends IdentifiedEntity implements Gedmo\Tree\Node
 
     /**
      * @gedmo:TreeLeft
-     * @Column(name="node_lft", type="integer")
+     * @Orm:Column(name="node_lft", type="integer")
      */
     private $nodeLft;
 
     /**
      * @gedmo:TreeLevel
-     * @Column(name="node_lvl", type="integer")
+     * @Orm:Column(name="node_lvl", type="integer")
      */
     private $nodeLvl;
 
     /**
      * @gedmo:TreeRight
-     * @Column(name="node_rgt", type="integer")
+     * @Orm:Column(name="node_rgt", type="integer")
      */
     private $nodeRgt;
 
     /**
      * @gedmo:TreeRoot
-     * @Column(name="node_root", type="integer", nullable=true)
+     * @Orm:Column(name="node_root", type="integer", nullable=true)
      */
     private $nodeRoot = 0;
 
 //	/**
 //	 * @gedmo:TreeParent
-//	 * @ManyToOne(targetEntity="Category", inversedBy="children")
+//	 * @Orm:ManyToOne(targetEntity="Category", inversedBy="children")
 //	 */
 //	abstract private $parent;
 
 //	/**
-//	 * @OneToMany(targetEntity="Category", mappedBy="parent")
+//	 * @Orm:OneToMany(targetEntity="Category", mappedBy="parent")
 //	 * @OrderBy({"lft" = "ASC"})
 //	 */
 //	abstract private $children;
 
-	/** @Column(type="boolean") @var bool */
+	/** @Orm:Column(type="boolean") @var bool */
 	private $useRoot = FALSE;
 
 

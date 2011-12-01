@@ -17,18 +17,19 @@ use Nette;
 
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
- * @Entity() @Table(name="rbac_resources")
+ * @Orm:Entity
+ * @Orm:Table(name="rbac_resources")
  */
 class Resource extends Nette\Object implements Nette\Security\IResource
 {
 
-	/** @Id @Column(type="integer") @GeneratedValue @var integer */
+	/** @Orm:Id @Orm:Column(type="integer") @Orm:GeneratedValue @var integer */
 	private $id;
 
-	/** @Column(type="string", unique=TRUE) @var string */
+	/** @Orm:Column(type="string", unique=TRUE) @var string */
 	private $name;
 
-	/** @Column(type="string", nullable=TRUE) @var string */
+	/** @Orm:Column(type="string", nullable=TRUE) @var string */
 	private $description;
 
 
