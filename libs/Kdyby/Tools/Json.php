@@ -74,6 +74,12 @@ class Json extends Nette\Object
 	/**
 	 * Formats JSON
 	 * @see http://au.php.net/manual/en/function.json-encode.php#80339
+	 *
+	 * @param string $json
+	 * @param object $jsonObj
+	 * @param string $tab
+	 *
+	 * @return string
 	 */
 	private static function prettify($json, $jsonObj, $tab = "\t")
 	{

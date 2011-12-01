@@ -24,19 +24,19 @@ use Nette\ObjectMixin;
 abstract class OrmTestCase extends TestCase
 {
 
-	/** @var ORM\MemoryDatabaseManager */
+	/** @var \Kdyby\Tests\ORM\MemoryDatabaseManager */
 	private static $databaseManager;
 
-	/** @var ORM\Sandbox */
+	/** @var \Kdyby\Tests\ORM\Sandbox */
 	private $ormSandbox;
 
-	/** @var Doctrine\ORM\EntityManager */
+	/** @var \Doctrine\ORM\EntityManager */
 	private $em;
 
 
 
 	/**
-	 * @return Doctrine\ORM\EntityManager
+	 * @return \Doctrine\ORM\EntityManager
 	 */
 	final protected function getEntityManager()
 	{
@@ -54,7 +54,7 @@ abstract class OrmTestCase extends TestCase
 
 
 	/**
-	 * @return ORM\Sandbox
+	 * @return \Kdyby\Tests\ORM\Sandbox
 	 */
 	final protected function getOrmSandbox()
 	{
@@ -80,7 +80,7 @@ abstract class OrmTestCase extends TestCase
 
 
 	/**
-	 * @return ORM\MemoryDatabaseManager
+	 * @return \Kdyby\Tests\ORM\MemoryDatabaseManager
 	 */
 	final private function getDatabaseManager()
 	{
@@ -159,7 +159,7 @@ abstract class OrmTestCase extends TestCase
 
 	/**
 	 * @param string $entityName
-	 * @return Doctrine\ORM\Dao
+	 * @return \Kdyby\Doctrine\Dao
 	 */
 	protected function getDao($entityName)
 	{
@@ -174,7 +174,7 @@ abstract class OrmTestCase extends TestCase
 
 	/**
 	 * @param string $className
-	 * @return Doctrine\ORM\Mapping\ClassMetadata
+	 * @return \Kdyby\Doctrine\Mapping\ClassMetadata
 	 */
 	protected function getMetadata($className)
 	{
