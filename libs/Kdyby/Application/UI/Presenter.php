@@ -26,68 +26,134 @@ use Kdyby\Application\Presentation\Bundle;
 abstract class Presenter extends Nette\Application\UI\Presenter
 {
 
-	/** @persistent */
-	public $language = 'cs';
+	/** @var Nette\Http\Context */
+	private $httpContext;
 
-	/** @persistent */
-	public $backlink;
+	/** @var Nette\Application\Application */
+	private $application;
 
-	/** @var Kdyby\Templates\ITheme */
-	private $theme;
+	/** @var Nette\Http\Session */
+	private $session;
+
+	/** @var Nette\Http\User */
+	private $user;
 
 
 
 	/**
-	 * @return Kdyby\Templating\FileTemplate
+	 * @return \Nette\Http\Request
 	 */
-	protected function createTemplate($class = NULL)
+	protected function getHttpRequest()
 	{
-		$template = $this->getContext()->templateFactory->createTemplate($this, $class);
-		$this->getTheme()->setupTemplate($template);
-		return $template;
+		return $this->getHttpContext()->getRequest();
 	}
 
 
 
 	/**
-	 * @return Kdyby\Templates\Theme
+	 * @return \Nette\Http\Response
 	 */
-	protected function doCreateTheme()
+	protected function getHttpResponse()
 	{
-		return new Kdyby\Templates\Theme($this->context);
+		return $this->getHttpContext()->getResponse();
 	}
 
 
 
 	/**
-	 * @return Kdyby\Templates\ITheme
+	 * @param \Nette\Http\Context $httpContext
 	 */
-	public function getTheme()
+	public function setHttpContext(Nette\Http\Context $httpContext)
 	{
-		if (!$this->theme) {
-			$this->theme = $this->doCreateTheme();
+		$this->httpContext = $httpContext;
+	}
+
+
+
+	/**
+	 * @return \Nette\Http\Context
+	 */
+	protected function getHttpContext()
+	{
+		if ($this->httpContext !== NULL) {
+			return $this->httpContext;
 		}
 
-		return $this->theme;
-	}
-
-
-
-
-	protected function beforeRender()
-	{
-		parent::beforeRender();
-		$this->getTheme()->installMacros($this->context->latteEngine->parser);
+		return parent::getHttpContext();
 	}
 
 
 
 	/**
-	 * @return string
+	 * @param \Nette\Application\Application $application
 	 */
-	public function getModuleName()
+	public function setApplication(Nette\Application\Application $application)
 	{
-		return substr($this->getName(), 0, strpos($this->getName(), ':'));
+		$this->application = $application;
+	}
+
+
+
+	/**
+	 * @return \Nette\Application\Application
+	 */
+	public function getApplication()
+	{
+		if ($this->application !== NULL) {
+			return $this->application;
+		}
+
+		return parent::getApplication();
+	}
+
+
+
+	/**
+	 * @param \Nette\Http\Session $session
+	 */
+	public function setSession(Nette\Http\Session $session)
+	{
+		$this->session = $session;
+	}
+
+
+
+	/**
+	 * @param string|NULL $namespace
+	 *
+	 * @return \Nette\Http\Session
+	 */
+	public function getSession($namespace = NULL)
+	{
+		if ($this->session !== NULL) {
+			return $namespace === NULL ? $this->session : $this->session->getSection($namespace);
+		}
+
+		return parent::getSession($namespace);
+	}
+
+
+
+	/**
+	 * @param \Nette\Http\User $user
+	 */
+	public function setUser(Nette\Http\User $user)
+	{
+		$this->user = $user;
+	}
+
+
+
+	/**
+	 * @return \Nette\Http\User
+	 */
+	public function getUser()
+	{
+		if ($this->user !== NULL) {
+			return $this->user;
+		}
+
+		return $this->getContext()->user;
 	}
 
 
@@ -102,69 +168,6 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 		if (Debugger::isEnabled()) { // todo: as panel
 			Debugger::barDump($this->template->getParams(), 'Template variables');
 		}
-	}
-
-
-
-	/**
-	 * Formats layout template file names.
-	 * @return array
-	 */
-	public function formatLayoutTemplateFiles()
-	{
-		$name = trim($this->getName(), ':');
-		$presenter = substr($name, strrpos(':' . $name, ':'));
-		$layout = $this->layout ? $this->layout : 'layout';
-
-		$mapper = function ($dir) use ($presenter, $layout, $name) {
-			$list = array(
-				"$dir/templates/$presenter/@$layout.latte",
-				"$dir/templates/$presenter.@$layout.latte",
-			);
-			do {
-				$list[] = "$dir/templates/@$layout.latte";
-				$dir = dirname($dir);
-			} while ($dir && ($name = substr($name, 0, strrpos($name, ':'))));
-			return $list;
-		};
-
-		$list = array();
-		$directories = $this->getContext()->moduleRegistry->getDirectories();
-		foreach ($directories as $directory) {
-			$dir = str_replace(':', '/', substr($name, 0, strrpos($name, ':')));
-			$list = array_merge($list, $mapper($directory . '/' . $dir));
-		}
-
-		return $list;
-	}
-
-
-
-	/**
-	 * Formats view template file names.
-	 * @return array
-	 */
-	public function formatTemplateFiles()
-	{
-		$name = trim($this->getName(), ':');
-		$presenter = substr($name, strrpos(':' . $name, ':'));
-		$view = $this->view;
-
-		$mapper = function ($dir) use ($presenter, $view, $name) {
-			return array(
-				"$dir/templates/$presenter/$view.latte",
-				"$dir/templates/$presenter.$view.latte",
-			);
-		};
-
-		$list = array();
-		$directories = $this->getContext()->moduleRegistry->getDirectories();
-		foreach ($directories as $directory) {
-			$dir = str_replace(':', '/', substr($name, 0, strrpos($name, ':')));
-			$list = array_merge($list, $mapper($directory . '/' . $dir));
-		}
-
-		return $list;
 	}
 
 }
