@@ -10,6 +10,7 @@
 
 namespace Kdyby\DI;
 
+use Doctrine;
 use Kdyby;
 use Kdyby\Caching\CacheServices;
 use Kdyby\Package\PackageManager;
@@ -83,7 +84,7 @@ class Configurator extends Nette\Object implements IConfigurator
 	 * @param array $params
 	 * @param \Kdyby\Package\IPackageList $packageFinder
 	 */
-	public function __construct(array $params = NULL, \Kdyby\Package\IPackageList $packageFinder = NULL)
+	public function __construct($params = NULL, \Kdyby\Package\IPackageList $packageFinder = NULL)
 	{
 		// path defaults
 		$this->params = static::defaultPaths($params);
@@ -225,12 +226,7 @@ class Configurator extends Nette\Object implements IConfigurator
 		} else {
 			// build container class
 			$container = $this->buildContainer();
-			$classDump = $this->dumpContainer($container, $class) . "\n\n";
-
-			// prepare Nette environment
-			$nContainer = new Nette\DI\Container;
-			$nContainer->params['tempDir'] = $this->params['tempDir'];
-			$classDump .= $this->checkTempDir($this->params['tempDir']);
+			$classDump = $this->dumpContainer($container, $class);
 
 			// save definition
 			$cache->save($key, $classDump, array(
@@ -338,7 +334,17 @@ class Configurator extends Nette\Object implements IConfigurator
 	private function dumpContainer(ContainerBuilder $container, $class)
 	{
 		$dumper = new PhpDumper($container);
-		return $dumper->dump(array('class' => $class, 'base_class' => 'Kdyby\DI\SystemContainer'));
+		$classDump = $dumper->dump(array(
+			'class' => $class,
+			'base_class' => 'Kdyby\DI\SystemContainer'
+		)) . "\n\n";
+
+		// prepare Nette environment
+		$nContainer = new Nette\DI\Container;
+		$nContainer->parameters['tempDir'] = $this->params['tempDir'];
+		$classDump .= $this->checkTempDir($this->params['tempDir']);
+
+		return $classDump;
 	}
 
 
@@ -461,6 +467,16 @@ class Configurator extends Nette\Object implements IConfigurator
 	{
 		$router[] = new Nette\Application\Routers\Route('index.php', 'Homepage:default', Nette\Application\Routers\Route::ONE_WAY);
 		$router[] = new Nette\Application\Routers\Route('<presenter>/<action>[/<id>]', 'Homepage:default');
+	}
+
+
+
+	/**
+	 * @param \Doctrine\Common\Annotations\AnnotationReader $annotationReader
+	 */
+	public static function configureAnnotationReader(Doctrine\Common\Annotations\AnnotationReader $annotationReader)
+	{
+		$annotationReader::addGlobalIgnoredName('serializationVersion');
 	}
 
 
