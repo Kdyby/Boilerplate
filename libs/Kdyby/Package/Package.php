@@ -266,7 +266,7 @@ abstract class Package extends Nette\Object implements IPackage
 	 * * Commands are in the 'Command' sub-directory
 	 * * Commands extend Symfony\Component\Console\Command\Command
 	 *
-	 * @param ConsoleApp $app
+	 * @param \Symfony\Component\Console\Application $app
 	 */
 	public function registerCommands(ConsoleApp $app)
 	{
