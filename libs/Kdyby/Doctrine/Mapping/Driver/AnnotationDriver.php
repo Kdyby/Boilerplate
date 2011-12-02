@@ -27,12 +27,12 @@ require_once __DIR__ . '/DoctrineAnnotations.php';
 class AnnotationDriver extends Doctrine\ORM\Mapping\Driver\AnnotationDriver
 {
 
-	const IGNORE_FOLDERS = 'noentities';
+	const IGNORE_FOLDERS = '.noentities';
 
 
 
 	/**
-	 * @param array $entities
+	 * @param array $classNames
 	 */
 	public function setClassNames(array $classNames)
 	{
@@ -42,7 +42,7 @@ class AnnotationDriver extends Doctrine\ORM\Mapping\Driver\AnnotationDriver
 
 
 	/**
-	 * @return Nette\Utils\Finder
+	 * @return \Nette\Utils\Finder
 	 */
 	private function createFilesIterator()
 	{
