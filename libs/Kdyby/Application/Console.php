@@ -46,7 +46,6 @@ class Console extends Application
 
 		try {
 			// run the console
-			$this->onStartup($this);
 			$exitCode = $cli->run($this->consoleInput, $this->consoleOutput);
 
 		} catch (\Exception $e) {
