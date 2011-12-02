@@ -112,7 +112,7 @@ class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity
 
 	/**
 	 * @internal
-	 * @PostLoad
+	 * @Orm:PostLoad
 	 */
 	public function postLoad()
 	{
@@ -138,8 +138,9 @@ class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity
 	/**
 	 * Sets a list of roles that the user is a member of.
 	 *
-	 * @param array $roles
-	 * @return Identity
+	 * @param \Kdyby\Security\RBAC\Role $role
+	 *
+	 * @return \Kdyby\Security\Identity
 	 */
 	public function addRole(RBAC\Role $role)
 	{
@@ -175,9 +176,9 @@ class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity
 
 
 	/**
-	 * @param RBAC\Role $role
-	 * @param RBAC\Privilege $privilege
-	 * @return RBAC\UserPermission
+	 * @param \Kdyby\Security\RBAC\Role $role
+	 * @param \Kdyby\Security\RBAC\Privilege $privilege
+	 * @return \Kdyby\Security\RBAC\UserPermission
 	 */
 	public function overridePermission(RBAC\Role $role, RBAC\Privilege $privilege)
 	{
@@ -194,7 +195,7 @@ class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity
 
 	/**
 	 * @param string $password
-	 * @return Identity
+	 * @return \Kdyby\Security\Identity
 	 */
 	public function setPassword($password)
 	{
@@ -228,7 +229,7 @@ class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity
 
 	/**
 	 * @param string $username
-	 * @return Identity
+	 * @return \Kdyby\Security\Identity
 	 */
 	public function setUsername($username)
 	{
@@ -250,7 +251,7 @@ class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity
 
 	/**
 	 * @param string $name
-	 * @return Identity
+	 * @return \Kdyby\Security\Identity
 	 */
 	public function setName($name)
 	{
@@ -272,7 +273,7 @@ class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity
 
 	/**
 	 * @param string $email
-	 * @return Identity
+	 * @return \Kdyby\Security\Identity
 	 */
 	public function setEmail($email)
 	{
@@ -283,7 +284,7 @@ class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity
 
 
 	/**
-	 * @return Kdyby\Domain\Users\IdentityInfo
+	 * @return \Kdyby\Domain\Users\IdentityInfo
 	 */
 	public function getInfo()
 	{
@@ -314,7 +315,7 @@ class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity
 
 	/**
 	 * @param bool $isRobot
-	 * @return Identity
+	 * @return \Kdyby\Security\Identity
 	 */
 	public function setRobot($isRobot = TRUE)
 	{
@@ -325,7 +326,7 @@ class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity
 
 
 	/**
-	 * @return Datetime
+	 * @return \DateTime
 	 */
 	public function getCreatedTime()
 	{
@@ -335,7 +336,7 @@ class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity
 
 
 	/**
-	 * @return Datetime
+	 * @return \Datetime
 	 */
 	public function getDeletedTime()
 	{
@@ -345,7 +346,7 @@ class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity
 
 
 	/**
-	 * @return Datetime
+	 * @return \Datetime
 	 */
 	public function getApproveTime()
 	{
@@ -356,7 +357,7 @@ class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity
 
 	/**
 	 * @internal
-	 * @throws Nette\InvalidStateException
+	 * @throws \Nette\InvalidStateException
 	 */
 	public function markDeleted()
 	{
@@ -372,7 +373,7 @@ class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity
 
 	/**
 	 * @internal
-	 * @throws Nette\InvalidStateException
+	 * @throws \Nette\InvalidStateException
 	 */
 	public function markActive()
 	{

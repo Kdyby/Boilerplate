@@ -15,7 +15,7 @@ namespace Kdyby\Doctrine\Entities;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
- * @MappedSuperClass
+ * @Orm:MappedSuperclass
  *
  * @property int $id
  * @property string $name

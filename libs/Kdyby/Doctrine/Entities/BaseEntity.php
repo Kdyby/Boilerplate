@@ -19,8 +19,7 @@ use Nette\Environment;
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  * @author Jan Smitka
  *
- * @MappedSuperclass
- * @HasLifecycleCallbacks
+ * @Orm:MappedSuperclass
  *
  * @property-read int $id
  */

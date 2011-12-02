@@ -18,7 +18,7 @@ use Kdyby;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
- * @MappedSuperClass
+ * @Orm:MappedSuperclass
  *
  * @property-read int $id
  */

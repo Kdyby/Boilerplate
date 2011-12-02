@@ -21,7 +21,7 @@ use Nette;
  * Entity(repositoryClass="Kdyby\Doctrine\Repositories\NestedTreeRepository")
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
- * @MappedSuperclass
+ * @Orm:MappedSuperclass
  * @gedmo:Tree(type="nested")
  */
 abstract class NestedNode extends IdentifiedEntity implements Gedmo\Tree\Node
