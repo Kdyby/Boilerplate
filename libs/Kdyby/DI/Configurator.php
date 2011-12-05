@@ -219,11 +219,7 @@ class Configurator extends Nette\Object implements IConfigurator
 
 		// try to load cache
 		$cached = $cache->load($key);
-		if ($cached) {
-			require $cached['file'];
-			fclose($cached['handle']);
-
-		} else {
+		if (!$cached) {
 			// build container class
 			$container = $this->buildContainer();
 			$classDump = $this->dumpContainer($container, $class);
@@ -232,8 +228,13 @@ class Configurator extends Nette\Object implements IConfigurator
 			$cache->save($key, $classDump, array(
 				Cache::FILES => array_merge((array)$this->getConfigFile(), $this->getImportedFiles())
 			));
-			Nette\Utils\LimitedScope::evaluate($classDump);
+
+			// load cache
+			$cached = $cache->load($key);
 		}
+
+		require $cached['file'];
+		@fclose($cached['handle']); // intentionally @
 
 		// initialize container
 		$this->container = new $class();
