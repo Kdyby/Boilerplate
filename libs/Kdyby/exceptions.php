@@ -134,7 +134,7 @@ class DirectoryNotWritableException extends IOException
 	 * @param string $directory
 	 * @return \Kdyby\DirectoryNotWritableException
 	 */
-	public function fromDir($directory)
+	public static function fromDir($directory)
 	{
 		return new static("Unable to write to directory '$directory'. Please, make this directory writable.");
 	}
