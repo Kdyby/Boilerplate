@@ -76,8 +76,8 @@ abstract class QueryObjectBase implements Kdyby\Persistence\IQueryObject
 		}
 
 		$class = $this->getReflection()->getMethod('doCreateQuery')->getDeclaringClass();
-		throw new Nette\InvalidStateException("Method " . $class . "::doCreateQuery() must return" .
-				" instanceof Doctrine\\ORM\\Query or instaceof Doctrine\\ORM\\QueryBuilder, " .
+		throw new Kdyby\UnexpectedValueException("Method " . $class . "::doCreateQuery() must return" .
+				" instanceof Doctrine\\ORM\\Query or instanceof Doctrine\\ORM\\QueryBuilder, " .
 				Kdyby\Tools\Mixed::getType($query) . " given.");
 	}
 
@@ -133,7 +133,7 @@ abstract class QueryObjectBase implements Kdyby\Persistence\IQueryObject
 
 	/**
 	 * @internal For Debugging purposes only!
-	 * @return Doctrine\ORM\Query
+	 * @return \Doctrine\ORM\Query
 	 */
 	public function getLastQuery()
 	{

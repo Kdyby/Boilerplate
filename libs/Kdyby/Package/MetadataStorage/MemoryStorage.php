@@ -44,7 +44,7 @@ class MemoryStorage extends Nette\Object implements Kdyby\Package\IMetadataStora
 	public function load($packageName)
 	{
 		if (!class_exists($packageName)) {
-			throw new Nette\InvalidArgumentException("Package '" . $packageName . "' not found.");
+			throw new Kdyby\InvalidArgumentException("Package '" . $packageName . "' not found.");
 		}
 
 		$lName = strtolower($packageName);

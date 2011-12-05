@@ -32,10 +32,12 @@ final class Arrays extends Nette\Object
 
 	/**
 	 * Static class - cannot be instantiated.
+	 *
+	 * @throws \Kdyby\StaticClassException
 	 */
 	final public function __construct()
 	{
-		throw new Nette\StaticClassException;
+		throw new Kdyby\StaticClassException;
 	}
 
 
@@ -127,7 +129,7 @@ final class Arrays extends Nette\Object
 	public static function callOnRef(& $arr, $key, $callback)
 	{
 		if (!is_callable($callback, TRUE)) {
-			throw new Nette\InvalidArgumentException("Invalid callback.");
+			throw new Kdyby\InvalidArgumentException("Invalid callback.");
 		}
 
 		return $callback(Nette\Utils\Arrays::getRef($arr, $key));

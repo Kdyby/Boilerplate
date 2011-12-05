@@ -64,7 +64,7 @@ class ModuleCascadeRegistry extends Nette\FreezableObject
 	public function getNamespaceDirectory($namespace)
 	{
 		if (!isset($this->modules[$namespace])) {
-			throw new Nette\InvalidArgumentException("Namespace " . $namespace . " is not registered.");
+			throw new Kdyby\InvalidArgumentException("Namespace " . $namespace . " is not registered.");
 		}
 
 		return realpath($this->modules[$namespace]);
@@ -79,7 +79,7 @@ class ModuleCascadeRegistry extends Nette\FreezableObject
 	public function getDirectoryNamespace($directory)
 	{
 		if (!($namespace = array_search($directory, $this->modules))) {
-			throw new Nette\InvalidArgumentException("Directory " . $directory . " is not registered.");
+			throw new Kdyby\InvalidArgumentException("Directory " . $directory . " is not registered.");
 		}
 
 		return $namespace;

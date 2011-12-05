@@ -71,7 +71,7 @@ class Soap extends Nette\Object implements IProtocol
 	{
 		if ($this->client === NULL) {
 			if ($this->getService() === NULL) {
-				throw new Nette\InvalidStateException("SoapClient service is not set.");
+				throw new Kdyby\InvalidStateException("SoapClient service is not set.");
 			}
 
 			$this->client = new \SoapClient($this->getService(), $this->options);

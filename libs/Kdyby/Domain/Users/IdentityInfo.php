@@ -46,7 +46,7 @@ class IdentityInfo extends Kdyby\Doctrine\Entities\IdentifiedEntity
 	public function setIdentity(Kdyby\Security\Identity $identity)
 	{
 		if ($identity->getInfo() !== $this) {
-			throw new Nette\InvalidArgumentException("Given identity does not own this info object.");
+			throw new Kdyby\InvalidArgumentException("Given identity does not own this info object.");
 		}
 
 		$this->identity = $identity;
@@ -77,7 +77,7 @@ class IdentityInfo extends Kdyby\Doctrine\Entities\IdentifiedEntity
 	public function __set($name, $value)
 	{
 		if (!Mixed::isSerializable($value)) {
-			throw new Nette\NotImplementedException;
+			throw new Kdyby\NotImplementedException;
 		}
 
 		if (isset($this->{$name})) {

@@ -23,10 +23,12 @@ final class Objects extends Nette\Object
 
 	/**
 	 * Static class - cannot be instantiated.
+	 *
+	 * @throws \Kdyby\StaticClassException
 	 */
 	final public function __construct()
 	{
-		throw new Nette\StaticClassException;
+		throw new Kdyby\StaticClassException;
 	}
 
 
@@ -36,7 +38,7 @@ final class Objects extends Nette\Object
 	 * @param string $path
 	 * @param object|array $entity
 	 * @param boolean $need
-	 * @throws Nette\InvalidArgumentException
+	 * @throws Kdyby\InvalidArgumentException
 	 * @return mixed
 	 */
 	public static function expand($path, $entity, $need = TRUE)
@@ -79,7 +81,7 @@ final class Objects extends Nette\Object
 		}
 
 		if ($need) {
-			throw new Nette\InvalidStateException("Given" . (is_object($object) ? " entity " . get_class($object) : " array") . " has no parameter named '" . $paramName . "'.");
+			throw new Kdyby\InvalidStateException("Given" . (is_object($object) ? " entity " . get_class($object) : " array") . " has no parameter named '" . $paramName . "'.");
 		}
 	}
 
@@ -89,12 +91,12 @@ final class Objects extends Nette\Object
 	 * @param object $object
 	 * @param array $options
 	 * @param boolean $exceptionOnInvalid
-	 * @throws Nette\InvalidArgumentException
+	 * @throws Kdyby\InvalidArgumentException
 	 */
 	public static function setProperties($object, array $options, $exceptionOnInvalid = TRUE)
 	{
 		if (!is_object($object)) {
-			throw new Nette\InvalidArgumentException("Can by applied only to objects.");
+			throw new Kdyby\InvalidArgumentException("Can by applied only to objects.");
 		}
 
 		foreach	($options as $name => $value) {
@@ -109,7 +111,7 @@ final class Objects extends Nette\Object
 	 * @param string $propertyName
 	 * @param mixed $value
 	 * @param boolean $exceptionOnInvalid
-	 * @throws Nette\InvalidArgumentException
+	 * @throws \Kdyby\InvalidArgumentException
 	 */
 	public static function setProperty($object, $propertyName, $value, $exceptionOnInvalid = TRUE)
 	{
@@ -123,7 +125,7 @@ final class Objects extends Nette\Object
 			$object->$method($value);
 
 		} elseif ($exceptionOnInvalid) {
-			throw new Nette\InvalidArgumentException("Option with name $propertyName does not exist.");
+			throw new Kdyby\InvalidArgumentException("Option with name $propertyName does not exist.");
 		}
 	}
 

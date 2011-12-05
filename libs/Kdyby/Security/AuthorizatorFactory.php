@@ -51,7 +51,7 @@ class AuthorizatorFactory extends Nette\Object
 		}
 
 		if (!$division) {
-			throw new Nette\InvalidStateException("Unknown division '" . $divisionName . "'.");
+			throw new Kdyby\InvalidStateException("Unknown division '" . $divisionName . "'.");
 		}
 
 		$session = $this->context->session->getSection('Kdyby.Security.Permission/' . $division->name);

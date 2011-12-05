@@ -70,7 +70,7 @@ class RequestManager extends Nette\Object
 	public function storePreviousRequest($expiration = '+ 10 minutes')
 	{
 		if (count($this->application->getRequests()) < 2) {
-			throw new Nette\InvalidStateException("Only one request was server during application life cycle");
+			throw new Kdyby\InvalidStateException("Only one request was server during application life cycle");
 		}
 
 		return $this->storeRequest(current(array_slice($this->application->getRequests(), -2, 1)), $expiration);

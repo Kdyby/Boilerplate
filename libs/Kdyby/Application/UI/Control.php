@@ -67,7 +67,7 @@ abstract class Control extends Nette\Application\UI\Control
 	public function getContext()
 	{
 		if (!$this->context) {
-			throw new Nette\InvalidStateException("Missing context, component wasn't yet attached to presenter.");
+			throw new Kdyby\InvalidStateException("Missing context, component wasn't yet attached to presenter.");
 		}
 
 		return $this->context;

@@ -41,7 +41,7 @@ class EntityValuesMapper extends EntityMetadataMapper
 				continue;
 			}
 
-			throw new Nette\InvalidArgumentException("Given data contains unknown field '" . $property . "'.");
+			throw new Kdyby\InvalidArgumentException("Given data contains unknown field '" . $property . "'.");
 		}
 	}
 

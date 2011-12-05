@@ -55,7 +55,7 @@ class Division extends Nette\Object
 	public function __construct($name)
 	{
 		if (!is_string($name)) {
-			throw new Nette\InvalidArgumentException("Given name is not string, " . gettype($name) . " given.");
+			throw new Kdyby\InvalidArgumentException("Given name is not string, " . gettype($name) . " given.");
 		}
 
 		$this->name = $name;
@@ -124,7 +124,7 @@ class Division extends Nette\Object
 
 		$privilege = $permission->getPrivilege();
 		if (!$this->hasPrivilege($privilege)) {
-			throw new Nette\InvalidArgumentException("Privilege '" . $privilege->getName() . "' for given permission is not registered in division '" . $this->getName(). "'.");
+			throw new Kdyby\InvalidArgumentException("Privilege '" . $privilege->getName() . "' for given permission is not registered in division '" . $this->getName(). "'.");
 		}
 
 		if (!$this->hasPermission($permission)) {

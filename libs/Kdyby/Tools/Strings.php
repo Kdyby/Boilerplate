@@ -23,10 +23,12 @@ final class Strings extends Nette\Object
 
 	/**
 	 * Static class - cannot be instantiated.
+	 *
+	 * @throws \Kdyby\StaticClassException
 	 */
 	final public function __construct()
 	{
-		throw new Nette\StaticClassException;
+		throw new Kdyby\StaticClassException;
 	}
 
 

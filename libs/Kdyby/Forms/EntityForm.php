@@ -100,8 +100,8 @@ class EntityForm extends Kdyby\Application\UI\Form
 	 */
 	public function setOnSaveRestore($restore)
 	{
-		if (!is_string($redirect) || $redirect == "") {
-			throw new Nette\InvalidArgumentException("Given key must be string.");
+		if (!is_string($restore) || $restore == "") {
+			throw new Kdyby\InvalidArgumentException("Given key must be string.");
 		}
 
 		$this->onSaveRestore = $restore;

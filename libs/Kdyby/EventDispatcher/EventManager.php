@@ -80,7 +80,7 @@ class EventManager extends Nette\Object
     {
 		foreach ((array)$events as $eventName) {
 			if (!method_exists($listener, $eventName)) {
-				throw new Nette\InvalidStateException("Event listener '" . get_class($listener) . "' has no method '" . $eventName . "'");
+				throw new Kdyby\InvalidStateException("Event listener '" . get_class($listener) . "' has no method '" . $eventName . "'");
 			}
 
 			$this->listeners[$eventName][] = $listener;

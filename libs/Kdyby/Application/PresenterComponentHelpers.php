@@ -26,7 +26,7 @@ class PresenterComponentHelpers extends Nette\Object
 	 */
 	final public function __construct()
 	{
-		throw new Nette\StaticClassException("Cannot instantiate static class " . get_class($this));
+		throw new Kdyby\StaticClassException("Cannot instantiate static class " . get_class($this));
 	}
 
 

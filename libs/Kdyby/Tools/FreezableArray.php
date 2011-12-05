@@ -91,7 +91,7 @@ class FreezableArray extends Nette\FreezableObject implements \ArrayAccess, \Cou
 	public function filter($filter)
 	{
 		if (!is_callable($filter)) {
-			throw new \InvalidArgumentException("Given filter is not callable");
+			throw new Kdyby\InvalidArgumentException("Given filter is not callable");
 		}
 
 		return array_filter($this->array, callback($filter));
@@ -106,7 +106,7 @@ class FreezableArray extends Nette\FreezableObject implements \ArrayAccess, \Cou
 	public function map($mapper)
 	{
 		if (!is_callable($mapper)) {
-			throw new \InvalidArgumentException("Given mapper is not callable");
+			throw new Kdyby\InvalidArgumentException("Given mapper is not callable");
 		}
 
 		return array_map(callback($mapper), $this->array);
@@ -140,7 +140,7 @@ class FreezableArray extends Nette\FreezableObject implements \ArrayAccess, \Cou
 	public function offsetGet($key)
 	{
 		if (!$this->offsetExists($key)) {
-			throw new Nette\MemberAccessException("Cannot read an undeclared item {$class}['{$key}'].");
+			throw new Kdyby\OutOfRangeException("Cannot read an undeclared item '$key'.");
 		}
 
 		return $this->array[$key];

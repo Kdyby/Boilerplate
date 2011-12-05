@@ -39,11 +39,11 @@ class UserPermission extends BasePermission
 	public function __construct(Privilege $privilege, Nette\Security\IRole $identity)
 	{
 		if (!$identity instanceof Identity) {
-			throw new Nette\InvalidArgumentException("Given role is not instanceof Kdyby\\Security\\Identity, '" . get_class($identity) . "' given");
+			throw new Kdyby\InvalidArgumentException("Given role is not instanceof Kdyby\\Security\\Identity, '" . get_class($identity) . "' given");
 		}
 
 		if ($this->identity !== NULL) {
-			throw new Nette\InvalidStateException("Association with identity is immutable.");
+			throw new Kdyby\InvalidStateException("Association with identity is immutable.");
 		}
 
 		$this->identity = $identity;

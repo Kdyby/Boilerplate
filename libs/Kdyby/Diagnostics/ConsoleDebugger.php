@@ -40,11 +40,11 @@ class ConsoleDebugger extends Nette\Object
 
 
 	/**
-	 * @throws Nette\StaticClassException
+	 * @throws \Kdyby\StaticClassException
 	 */
 	final public function __construct()
 	{
-		throw new Nette\StaticClassException;
+		throw new Kdyby\StaticClassException;
 	}
 
 
@@ -57,7 +57,7 @@ class ConsoleDebugger extends Nette\Object
 	public static function enable($browser)
 	{
 		if (!strpos($browser, '%s')) {
-			throw new \Nette\InvalidArgumentException("Browser command must contain '%s', '$browser' given.");
+			throw new Kdyby\InvalidArgumentException("Browser command must contain '%s', '$browser' given.");
 		}
 
 		self::$browser = $browser;

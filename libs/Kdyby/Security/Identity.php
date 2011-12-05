@@ -183,7 +183,7 @@ class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity
 	public function overridePermission(RBAC\Role $role, RBAC\Privilege $privilege)
 	{
 		if (!$this->roles->contains($role)) {
-			throw new Nette\InvalidArgumentException("User '" . $this->getUsername() . "' does not have role '" . $role->getName() . "' in division '" . $role->getDivision()->getName() . "'.");
+			throw new Kdyby\InvalidArgumentException("User '" . $this->getUsername() . "' does not have role '" . $role->getName() . "' in division '" . $role->getDivision()->getName() . "'.");
 		}
 
 		$permission = new RBAC\UserPermission($privilege, $this);
@@ -357,12 +357,12 @@ class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity
 
 	/**
 	 * @internal
-	 * @throws \Nette\InvalidStateException
+	 * @throws \Kdyby\InvalidStateException
 	 */
 	public function markDeleted()
 	{
 		if (!$this->approved) {
-			throw new Nette\InvalidStateException("Identity was already deleted");
+			throw new Kdyby\InvalidStateException("Identity was already deleted");
 		}
 
 		$this->approved = FALSE;
@@ -373,12 +373,12 @@ class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity
 
 	/**
 	 * @internal
-	 * @throws \Nette\InvalidStateException
+	 * @throws \Kdyby\InvalidStateException
 	 */
 	public function markActive()
 	{
 		if ($this->approved) {
-			throw new Nette\InvalidStateException("Identity is already approved");
+			throw new Kdyby\InvalidStateException("Identity is already approved");
 		}
 
 		$this->approved = TRUE;

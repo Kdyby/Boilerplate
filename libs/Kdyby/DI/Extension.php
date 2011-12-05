@@ -73,7 +73,7 @@ abstract class Extension extends Nette\Object implements ExtensionInterface
 	{
 		$className = get_class($this);
 		if (substr($className, -9) != 'Extension') {
-			throw new Nette\InvalidStateException('This extension does not follow the naming convention; you must overwrite the getAlias() method.');
+			throw new Kdyby\InvalidStateException('This extension does not follow the naming convention; you must overwrite the getAlias() method.');
 		}
 		$classBaseName = substr(strrchr($className, '\\'), 1, -9);
 

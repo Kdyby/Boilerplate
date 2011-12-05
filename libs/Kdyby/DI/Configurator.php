@@ -34,8 +34,9 @@ use Symfony\Component\HttpKernel\DependencyInjection\MergeExtensionConfiguration
 
 
 
-// functions
+// functions & exceptions
 require_once __DIR__ . '/../functions.php';
+require_once __DIR__ . '/../exceptions.php';
 
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
@@ -266,7 +267,7 @@ class Configurator extends Nette\Object implements IConfigurator
 	{
 		foreach (array('logs' => $this->params['logDir']) as $name => $dir) {
 			if (!is_dir($dir) || !is_writable($dir)) {
-				throw new \RuntimeException(sprintf("Unable to write in the %s directory (%s)\n", $name, $dir));
+				throw Kdyby\DirectoryNotWritableException::fromDir($dir);
 			}
 		}
 
@@ -503,7 +504,7 @@ class Configurator extends Nette\Object implements IConfigurator
 		$uniq = uniqid('_', TRUE);
 		umask(0000);
 		if (!@mkdir("$dir/$uniq", 0777)) { // @ - is escalated to exception
-			throw new Nette\InvalidStateException("Unable to write to directory '$dir'. Make this directory writable.");
+			throw new Kdyby\DirectoryNotWritableException($dir);
 		}
 
 		// tests subdirectory mode
@@ -566,7 +567,7 @@ class Configurator extends Nette\Object implements IConfigurator
 		}
 
 		if (!is_writable($params['logDir'])) {
-			throw new Nette\IOException("Logging directory '" . $params['logDir'] . "' is not writable.");
+			throw new Kdyby\DirectoryNotWritableException("Logging directory '" . $params['logDir'] . "' is not writable.");
 		}
 
 		Debugger::$logDirectory = $params['logDir'];

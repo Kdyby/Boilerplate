@@ -55,7 +55,7 @@ class TypeMapper extends Nette\Object
 	{
 		if (!isset($this->instances[$type])) {
 			if (!self::$typesMap[$type]) {
-				throw new Nette\MemberAccessException("Unkwnown type " . $type . ".");
+				throw new Kdyby\InvalidArgumentException("Unkwnown type " . $type . ".");
 			}
 
 			$this->instances[$type] = new self::$typesMap[$type]();

@@ -108,7 +108,7 @@ abstract class NestedNode extends IdentifiedEntity implements Gedmo\Tree\Node
 	public function setUseRoot($useRoot)
 	{
 		if (!$this->isRoot()) {
-			throw new Nette\InvalidStateException("Whether or not to 'use root' can be set only on root node.");
+			throw new Kdyby\InvalidStateException("Whether or not to 'use root' can be set only on root node.");
 		}
 
 		$this->useRoot = (bool)$useRoot;

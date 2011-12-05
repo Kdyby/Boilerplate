@@ -21,7 +21,7 @@ $params = array(
 
 // setup debugger
 if (!is_writable($params['logDir'])) {
-	throw new Nette\IOException("Logging directory '" . $params['logDir'] . "' is not writable.");
+	throw new Kdyby\DirectoryNotWritableException("Logging directory '" . $params['logDir'] . "' is not writable.");
 }
 Debugger::enable(Debugger::DEVELOPMENT);
 Debugger::$logDirectory = $params['logDir'];
@@ -31,7 +31,7 @@ Debugger::$maxLen = 4096;
 
 // create configurator
 if (!is_writable($params['tempDir'])) {
-	throw new Nette\IOException("Temp directory '" . $params['tempDir'] . "' is not writable.");
+	throw new Kdyby\DirectoryNotWritableException("Temp directory '" . $params['tempDir'] . "' is not writable.");
 }
 $configurator = new Kdyby\Tests\Configurator($params, new \Kdyby\Packages\DefaultPackages());
 $configurator->setEnvironment('test');

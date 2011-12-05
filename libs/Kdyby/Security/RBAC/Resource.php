@@ -41,11 +41,11 @@ class Resource extends Nette\Object implements Nette\Security\IResource
 	public function __construct($name, $description = NULL)
 	{
 		if (!is_string($name)) {
-			throw new Nette\InvalidArgumentException("Given name is not string, " . gettype($name) . " given.");
+			throw new Kdyby\InvalidArgumentException("Given name is not string, " . gettype($name) . " given.");
 		}
 
 		if (substr_count($name, Privilege::DELIMITER)) {
-			throw new Nette\InvalidArgumentException("Given name must not containt " . Privilege::DELIMITER);
+			throw new Kdyby\InvalidArgumentException("Given name must not containt " . Privilege::DELIMITER);
 		}
 
 		$this->name = $name;

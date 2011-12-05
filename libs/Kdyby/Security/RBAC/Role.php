@@ -48,7 +48,7 @@ class Role extends Nette\Object implements Nette\Security\IRole
 	public function __construct($name, Division $division)
 	{
 		if (!is_string($name)) {
-			throw new Nette\InvalidArgumentException("Given name is not string, " . gettype($name) . " given.");
+			throw new Kdyby\InvalidArgumentException("Given name is not string, " . gettype($name) . " given.");
 		}
 
 		$this->name = $name;

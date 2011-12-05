@@ -154,7 +154,7 @@ class SandboxRecycler extends Nette\Object
 		// deleting classes
 		foreach ($proxies as $proxy) {
 			if (!@unlink($proxy->getRealpath())) {
-				throw new Nette\IOException("Proxy class " . $proxy->getBaseName() . " cannot be deleted.");
+				throw new Kdyby\IOException("Proxy class " . $proxy->getBaseName() . " cannot be deleted.");
 			}
 		}
 

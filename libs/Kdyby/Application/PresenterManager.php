@@ -139,7 +139,7 @@ class PresenterManager extends Nette\Application\PresenterFactory implements Net
 			}
 		}
 
-		throw new Nette\InvalidArgumentException("Presenter $presenterClass does not belong to any active package.");
+		throw new Kdyby\InvalidArgumentException("Presenter $presenterClass does not belong to any active package.");
 	}
 
 

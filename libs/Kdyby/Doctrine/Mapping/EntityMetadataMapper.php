@@ -129,7 +129,7 @@ abstract class EntityMetadataMapper extends Nette\Object
 	{
 		$meta = $this->getMetadata($entity);
 		if (!$this->hasAssocation($entity, $assocation)) {
-			throw new Nette\InvalidArgumentException("Entity '" . get_class($entity) . "' has no association '" . $assocation . "'.");
+			throw new Kdyby\InvalidArgumentException("Entity '" . get_class($entity) . "' has no association '" . $assocation . "'.");
 		}
 
 		return $meta->getFieldValue($entity, $assocation);
@@ -160,7 +160,7 @@ abstract class EntityMetadataMapper extends Nette\Object
 
 		if (!$entity instanceof $assocMapping['targetEntity']) {
 			$declaringClass = $meta->getReflectionProperty($assocation)->getDeclaringClass();
-			throw new Nette\InvalidArgumentException("Collection " . $declaringClass->getName() . '::$' . $assocation . " cannot contain entity of type '" . get_class($entity) . "'.");
+			throw new Kdyby\InvalidArgumentException("Collection " . $declaringClass->getName() . '::$' . $assocation . " cannot contain entity of type '" . get_class($entity) . "'.");
 		}
 
 		$this->getAssocation($entity, $assocation)->add($element);

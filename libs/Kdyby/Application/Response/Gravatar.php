@@ -48,7 +48,7 @@ class Gravatar extends Nette\Object implements IResponse
 	public function __construct($email, $size)
 	{
 		if ((int) $size < 1 || (int) $size > 512) {
-			throw new \InvalidArgumentException('Unsupported size `' . $size . '`, Gravatar API expects `1 - 512`.');
+			throw new Kdyby\InvalidArgumentException('Unsupported size `' . $size . '`, Gravatar API expects `1 - 512`.');
 		}
 
 

@@ -56,7 +56,7 @@ class TempClassGenerator extends Nette\Object
 		}
 
 		if (!file_put_contents($file, $content)) {
-			throw new Nette\IOException($file . " is not writable");
+			throw Kdyby\DirectoryNotWritableException::fromDir(dirname($file));
 		}
 
 		if (!class_exists($class, FALSE)) {

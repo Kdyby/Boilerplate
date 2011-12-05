@@ -77,7 +77,7 @@ class EventManagerTest extends Kdyby\Tests\TestCase
 
 
 	/**
-	 * @expectedException Nette\InvalidStateException
+	 * @expectedException Kdyby\InvalidStateException
 	 */
 	public function testListenerDontHaveRequiredMethodException()
 	{

@@ -38,7 +38,7 @@ class ApplicationEventInvoker extends Nette\Object implements Kdyby\DI\IContaine
 	{
 		foreach ($packages as $package) {
 			if (!$package instanceof IPackage) {
-				throw new Nette\InvalidArgumentException("Given object does not implement 'Kdyby\\Package\\IPackage'.");
+				throw new Kdyby\InvalidArgumentException("Given object does not implement 'Kdyby\\Package\\IPackage'.");
 			}
 
 			$this->packages[] = $package;
@@ -53,7 +53,7 @@ class ApplicationEventInvoker extends Nette\Object implements Kdyby\DI\IContaine
 	public function attach(Application $application)
 	{
 		if ($this->attached) {
-			throw new Nette\InvalidStateException("EventInvoker is already attached to an application.");
+			throw new Kdyby\InvalidStateException("EventInvoker is already attached to an application.");
 		}
 
 		$application->onStartup[] = array($this, 'onStartup');

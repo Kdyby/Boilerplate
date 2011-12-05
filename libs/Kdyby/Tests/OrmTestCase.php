@@ -200,7 +200,7 @@ abstract class OrmTestCase extends TestCase
 			return $this->createNeonDataSet($file);
 
 		} elseif ($file !== NULL) {
-			throw new Nette\NotImplementedException("Handling of filetype $extension is not implemented yet.");
+			throw new Kdyby\NotImplementedException("Handling of file type $extension is not implemented yet.");
 		}
 
 		$resolver = new Tools\DataSetFilenameResolver($this);

@@ -42,11 +42,11 @@ class JsonSerializer extends Nette\Object
 		$decoder = $decoder ?: 'Nette\Utils\Json::decode';
 
 		if (!is_callable($encoder)) {
-			throw new Nette\InvalidArgumentException("Given encoder is not callable");
+			throw new Kdyby\InvalidArgumentException("Given encoder is not callable");
 		}
 
 		if (!is_callable($decoder)) {
-			throw new Nette\InvalidArgumentException("Given decoder is not callable");
+			throw new Kdyby\InvalidArgumentException("Given decoder is not callable");
 		}
 
 		$this->encoder = callback($encoder);
@@ -105,7 +105,7 @@ class JsonSerializer extends Nette\Object
 			}
 		}
 
-		throw new Nette\NotImplementedException();
+		throw new Kdyby\NotImplementedException();
 	}
 
 
@@ -131,7 +131,7 @@ class JsonSerializer extends Nette\Object
 		} else {
 			if (is_object($data)) {
 				if (!class_exists($classType = $data->{self::CLASS_TYPE})) {
-					throw new Nette\InvalidStateException("Class '" . $classType . "' not found");
+					throw new Kdyby\InvalidStateException("Class '" . $classType . "' not found");
 				}
 
 				unset($data->{self::CLASS_TYPE});
@@ -164,7 +164,7 @@ class JsonSerializer extends Nette\Object
 			}
 		}
 
-		throw new Nette\NotImplementedException();
+		throw new Kdyby\NotImplementedException();
 	}
 
 }

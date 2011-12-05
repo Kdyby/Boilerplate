@@ -53,7 +53,7 @@ class EntityDefaultsListener extends Nette\Object implements Doctrine\Common\Eve
 
 		$refl = new ClassType($meta->customRepositoryClassName);
 		if (!$refl->implementsInterface('Kdyby\Persistence\IDao')) {
-			throw new Nette\InvalidStateException("Your repository class for entity '" . $meta->name . "' should extend 'Kdyby\\Doctrine\\Dao'.");
+			throw new Kdyby\InvalidStateException("Your repository class for entity '" . $meta->name . "' should extend 'Kdyby\\Doctrine\\Dao'.");
 		}
 	}
 

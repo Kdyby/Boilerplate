@@ -252,12 +252,12 @@ class NeonFileLoader extends Symfony\Component\DependencyInjection\Loader\FileLo
 
 		if (isset($service['tags'])) {
 			if (!is_array($service['tags'])) {
-				throw new \InvalidArgumentException(sprintf('Parameter "tags" must be an array for service "%s" in %s.', $id, $file));
+				throw new Kdyby\InvalidArgumentException(sprintf('Parameter "tags" must be an array for service "%s" in %s.', $id, $file));
 			}
 
 			foreach ($service['tags'] as $tag) {
 				if (!isset($tag['name'])) {
-					throw new \InvalidArgumentException(sprintf('A "tags" entry is missing a "name" key for service "%s" in %s.', $id, $file));
+					throw new Kdyby\InvalidArgumentException(sprintf('A "tags" entry is missing a "name" key for service "%s" in %s.', $id, $file));
 				}
 
 				$name = $tag['name'];
@@ -294,7 +294,7 @@ class NeonFileLoader extends Symfony\Component\DependencyInjection\Loader\FileLo
 	 *
 	 * @return array
 	 *
-	 * @throws \InvalidArgumentException When service file is not valid
+	 * @throws \Kdyby\InvalidArgumentException When service file is not valid
 	 */
 	private function validate($content, $file)
 	{
@@ -312,7 +312,7 @@ class NeonFileLoader extends Symfony\Component\DependencyInjection\Loader\FileLo
 				{
 					return $ext->getAlias();
 				}, $this->container->getExtensions()));
-				throw new \InvalidArgumentException(sprintf(
+				throw new Kdyby\InvalidArgumentException(sprintf(
 					'There is no extension able to load the configuration for "%s" (in %s). Looked for namespace "%s", found %s',
 					$namespace,
 					$file,

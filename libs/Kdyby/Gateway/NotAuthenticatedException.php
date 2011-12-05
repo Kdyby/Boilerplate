@@ -15,7 +15,7 @@ namespace Kdyby\Gateway;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class NotAuthenticatedException extends \Nette\InvalidStateException
+class NotAuthenticatedException extends \Kdyby\InvalidStateException
 {
 
 }

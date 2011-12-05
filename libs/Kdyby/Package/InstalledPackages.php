@@ -36,7 +36,7 @@ class InstalledPackages extends Nette\Object implements \IteratorAggregate, IPac
 	public function __construct($appDir)
 	{
 		if (!is_dir($appDir)) {
-			throw new Nette\InvalidArgumentException("Please provide an application directory %appDir%.");
+			throw new Kdyby\InvalidArgumentException("Please provide an application directory %appDir%.");
 		}
 
 		$this->appDir = $appDir;
@@ -73,13 +73,13 @@ class InstalledPackages extends Nette\Object implements \IteratorAggregate, IPac
 			}, $list);
 
 			if (!$list) {
-				throw new \Nette\InvalidStateException("File '$file' is corrupted! Fix the file, or delete it.");
+				throw new Kdyby\InvalidStateException("File '$file' is corrupted! Fix the file, or delete it.");
 			}
 
 			return $list;
 
 		} catch (JsonException $e) {
-			throw new Nette\InvalidStateException("Packages file '$file' is corrupted!", NULL, $e);
+			throw new Kdyby\InvalidStateException("Packages file '$file' is corrupted!", NULL, $e);
 		}
 	}
 
@@ -105,7 +105,7 @@ class InstalledPackages extends Nette\Object implements \IteratorAggregate, IPac
 		}, $default->getPackages());
 
 		if (!@file_put_contents($file, Json::encode($list))) {
-			throw new Nette\IOException("File '$file' is not writable.");
+			throw Kdyby\FileNotWritableException::fromFile($file);
 		}
 		@chmod($file, 0777);
 

@@ -52,11 +52,11 @@ class CollectionContainer extends Nette\Forms\Container
 		$this->monitor('Kdyby\Forms\EntityForm');
 
 		if (!is_callable($containerFactory) && !$containerFactory instanceof EntityContainer) {
-			throw new Nette\InvalidArgumentException("Given container factory must be either callable or instanceof Kdyby\\Forms\\Containers\\Doctrine\\EntityContainer.");
+			throw new Kdyby\InvalidArgumentException("Given container factory must be either callable or instanceof Kdyby\\Forms\\Containers\\Doctrine\\EntityContainer.");
 		}
 
 		if ($containerFactory instanceof EntityContainer && $containerFactory->parent) {
-			throw new Nette\InvalidArgumentException("Given entity container must not be attached.");
+			throw new Kdyby\InvalidArgumentException("Given entity container must not be attached.");
 		}
 
 		$this->parentEntity = $parentEntity;
@@ -71,7 +71,7 @@ class CollectionContainer extends Nette\Forms\Container
 	public function setEntityFactory($entityFactory)
 	{
 		if (!is_callable($entityFactory)) {
-			throw new Nette\InvalidArgumentException("Given entity factory is not callable.");
+			throw new Kdyby\InvalidArgumentException("Given entity factory is not callable.");
 		}
 
 		$this->entityFactory = $entityFactory;
@@ -85,7 +85,7 @@ class CollectionContainer extends Nette\Forms\Container
 	public function getCollection()
 	{
 		if (!$this->collection) {
-			throw new Nette\InvalidStateException("Collection is not yet available. Container must be attached to form first.");
+			throw new Kdyby\InvalidStateException("Collection is not yet available. Container must be attached to form first.");
 		}
 
 		return $this->collection;

@@ -124,7 +124,7 @@ class PackageMeta extends Kdyby\Doctrine\Entities\IdentifiedEntity
 	public function setStatus($status)
 	{
 		if (!defined('self::STATUS_' . strtoupper($status))) {
-			throw new Nette\InvalidArgumentException("Invalida package status given '" . $status . "'.");
+			throw new Kdyby\InvalidArgumentException("Invalida package status given '" . $status . "'.");
 		}
 
 		$this->status = strtolower($status);

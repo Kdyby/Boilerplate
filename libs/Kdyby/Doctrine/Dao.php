@@ -52,7 +52,7 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 
 		if ($values) {
 			if (!$this->entityMapper) {
-				throw new Nette\InvalidArgumentException("EntityMapper service was not injected, therefore DAO cannot set values.");
+				throw new Kdyby\InvalidArgumentException("EntityMapper service was not injected, therefore DAO cannot set values.");
 
 			} else {
 				$this->entityMapper->load($entity, $values);
@@ -90,7 +90,7 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 		}
 
 		if (!$entity instanceof $this->_entityName) {
-			throw new Nette\InvalidArgumentException("Entity is not instanceof " . $this->_entityName . ", instanceof '" . get_class($entity) . "' given.");
+			throw new Kdyby\InvalidArgumentException("Entity is not instanceof " . $this->_entityName . ", instanceof '" . get_class($entity) . "' given.");
 		}
 
 		$this->getEntityManager()->persist($entity);
@@ -140,7 +140,7 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 		}
 
 		if (!$entity instanceof $this->_entityName) {
-			throw new Nette\InvalidArgumentException("Entity is not instanceof " . $this->_entityName . ', ' . get_class($entity) . ' given.');
+			throw new Kdyby\InvalidArgumentException("Entity is not instanceof " . $this->_entityName . ', ' . get_class($entity) . ' given.');
 		}
 
 		$this->getEntityManager()->remove($entity);
@@ -262,7 +262,7 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 			return NULL;
 
 		} catch (NonUniqueResultException $e) { // this should never happen!
-			throw new Nette\InvalidStateException("You have to setup your query using ->setMaxResult(1).", NULL, $e);
+			throw new Kdyby\InvalidStateException("You have to setup your query using ->setMaxResult(1).", NULL, $e);
 
 		} catch (\Exception $e) {
 			return $this->handleQueryExceptions($e, $queryObject);

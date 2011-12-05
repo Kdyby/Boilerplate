@@ -10,8 +10,6 @@
 
 namespace Kdyby;
 
-use Nette;
-
 
 
 /**
@@ -28,11 +26,11 @@ final class Framework
 
 
 	/**
-	 * @throws Nette\StaticClassException
+	 * @throws \Kdyby\StaticClassException
 	 */
 	final public function __construct()
 	{
-		throw new Nette\StaticClassException;
+		throw new StaticClassException;
 	}
 
 }

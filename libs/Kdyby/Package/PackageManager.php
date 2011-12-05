@@ -47,12 +47,12 @@ class PackageManager extends Nette\Object
 	{
 		foreach ($packages as $packageClass) {
 			if (isset($this->packages[$packageClass])) {
-				throw new Nette\InvalidArgumentException("Package '$packageClass' is already active.");
+				throw new Kdyby\InvalidArgumentException("Package '$packageClass' is already active.");
 			}
 
 			$package = new $packageClass;
 			if (!$package instanceof IPackage) {
-				throw new Nette\InvalidArgumentException("Package '$packageClass' does not implement 'Kdyby\\Package\\IPackage'.");
+				throw new Kdyby\InvalidArgumentException("Package '$packageClass' does not implement 'Kdyby\\Package\\IPackage'.");
 			}
 
 			$this->packages[$package->getName()] = $package;
@@ -80,7 +80,7 @@ class PackageManager extends Nette\Object
 	public function getPackage($packageName)
 	{
 		if (!isset($this->packages[$packageName])) {
-			throw new Nette\InvalidStateException("Package '$packageName' is not registered.");
+			throw new Kdyby\InvalidStateException("Package '$packageName' is not registered.");
 		}
 
 		return $this->packages[$packageName];
@@ -157,11 +157,11 @@ class PackageManager extends Nette\Object
 	public function locateResource($name)
 	{
 		if ($name[0] !== '@') {
-			throw new Nette\InvalidArgumentException('A resource name must start with @ ("' . $name . '" given).');
+			throw new Kdyby\InvalidArgumentException('A resource name must start with @ ("' . $name . '" given).');
 		}
 
 		if (strpos($name, '..') !== FALSE) {
-			throw new Nette\InvalidArgumentException('File name "' . $name . '" contains invalid characters (..).');
+			throw new Kdyby\InvalidArgumentException('File name "' . $name . '" contains invalid characters (..).');
 		}
 
 		$packageName = substr($name, 1);
@@ -179,7 +179,7 @@ class PackageManager extends Nette\Object
 		}
 
 
-		throw new Nette\InvalidArgumentException('Unable to find file "' . $name . '".');
+		throw new Kdyby\InvalidArgumentException('Unable to find file "' . $name . '".');
 	}
 
 }

@@ -68,7 +68,7 @@ abstract class BasePermission extends Nette\Object
 	public function internalSetDivision(Division $division)
 	{
 		if (!$division->hasPrivilege($this->getPrivilege())) {
-			throw new Nette\InvalidArgumentException("Privilege '" . $this->getPrivilege()->getName() . "' in permission is not allowed within given division " . $division->getName());
+			throw new Kdyby\InvalidArgumentException("Privilege '" . $this->getPrivilege()->getName() . "' in permission is not allowed within given division " . $division->getName());
 		}
 
 		$this->division = $division;

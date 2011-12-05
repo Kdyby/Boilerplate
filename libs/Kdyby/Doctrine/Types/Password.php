@@ -36,7 +36,7 @@ class Password extends StringType
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
 		if (!$value instanceof Kdyby\Types\Password) {
-			throw new Nette\InvalidArgumentException('Expected instanceof Kdyby\Types\Password, ' . Mixed::getType($value) . ' given');
+			throw new Kdyby\InvalidArgumentException('Expected instanceof Kdyby\Types\Password, ' . Mixed::getType($value) . ' given');
 		}
 
         return $value->getHash();

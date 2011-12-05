@@ -149,7 +149,7 @@ class Replicator extends Container
 	{
 		if ($name) {
 			if (isset($this->created[$name])) {
-				throw new Nette\InvalidArgumentException("Container with name '$name' already exists.");
+				throw new Kdyby\InvalidArgumentException("Container with name '$name' already exists.");
 			}
 
 			return $this[$name];
@@ -174,12 +174,13 @@ class Replicator extends Container
 	/**
 	 * @param Container $container
 	 * @param boolean $cleanUpGroups
-	 * @throws Nette\InvalidArgumentException
+	 *
+	 * @throws \Kdyby\InvalidArgumentException
 	 */
 	public function remove(Container $container, $cleanUpGroups = FALSE)
 	{
 		if (!$container->parent === $this) {
-			throw new Nette\InvalidArgumentException('Given component ' . $container->name . ' is not children of ' . $this->name . '.');
+			throw new Kdyby\InvalidArgumentException('Given component ' . $container->name . ' is not children of ' . $this->name . '.');
 		}
 
 		// to check if form was submitted by this one

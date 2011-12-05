@@ -51,7 +51,7 @@ class DataSetFilenameResolver extends Nette\Object
 			}
 		}
 
-		throw new Nette\IOException("File '" . $file . "' not found.");
+		throw new Kdyby\FileNotFoundException("File '" . $file . "' not found.");
 	}
 
 
