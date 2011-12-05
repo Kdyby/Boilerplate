@@ -23,19 +23,22 @@ use Nette;
 class CacheTest extends Kdyby\Tests\TestCase
 {
 
-	/** @var Nette\Caching\IStorage */
+	/** @var \Nette\Caching\Storages\FileStorage */
 	private $storage;
 
-	/** @var Cache */
+	/** @var \Kdyby\Doctrine\Cache */
 	private $cache;
 
 
 
 	public function setUp()
 	{
-		Kdyby\Tools\FileSystem::cleanDir(TEMP_DIR . '/cache');
+		$tempDir = $this->getContext()->expand('%tempDir%');
 
-		$this->storage = Nette\Environment::getService('cacheStorage');
+		Kdyby\Tools\FileSystem::cleanDir($tempDir . '/cache');
+
+		$journal = $this->getContext()->get('cache.data_storage.journal');
+		$this->storage = new Nette\Caching\Storages\FileStorage($tempDir, $journal);
 		$this->cache = new Cache($this->storage);
 	}
 

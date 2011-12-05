@@ -1,3 +1,10 @@
+parameters:
+  cache.data_storage.class: Nette\Caching\Storages\MemoryStorage
+
+services:
+  cache.data_storage:
+    class: %cache.data_storage.class%
+
 doctrine:
   dbal:
     driver: pdo_sqlite

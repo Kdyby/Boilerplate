@@ -184,11 +184,10 @@ class SandboxBuilder extends Nette\Object implements ISandboxBuilder
 	protected function createAnnotationReader()
 	{
 		$reader = new AnnotationReader();
-		$reader->setDefaultAnnotationNamespace('Doctrine\ORM\Mapping\\');
-		// $reader->setAnnotationNamespaceAlias('Kdyby\Doctrine\Mapping\\', 'Kdyby');
+		$reader->setAnnotationNamespaceAlias('Kdyby\Doctrine\Mapping\\', 'Kdyby');
+		$reader->setAnnotationNamespaceAlias('Doctrine\ORM\Mapping\\', 'Orm');
 
 		$reader->setIgnoreNotImportedAnnotations(TRUE);
-		$reader->setEnableParsePhpImports(FALSE);
 
 		return new CachedReader(new IndexedReader($reader), $this->getCache());
 	}

@@ -17,21 +17,19 @@ use Nette;
 
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
- * @Entity @Table(name="names_table")
+ * @Orm:Entity
+ * @Orm:Table(name="names_table")
  */
-class EntityWithUniqueColumns extends Nette\Object
+class EntityWithUniqueColumns extends Kdyby\Doctrine\Entities\IdentifiedEntity
 {
 
-	/** @Column(type="integer") @Id @GeneratedValue */
-	public $id;
-
-	/** @Column(type="string", unique=TRUE) */
+	/** @Orm:Column(type="string", unique=TRUE) */
 	public $email;
 
-	/** @Column(type="string") */
+	/** @Orm:Column(type="string") */
 	public $name;
 
-	/** @Column(type="string", nullable=TRUE) */
+	/** @Orm:Column(type="string", nullable=TRUE) */
 	public $address;
 
 

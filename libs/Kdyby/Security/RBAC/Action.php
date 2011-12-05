@@ -21,11 +21,8 @@ use Nette;
  * @Orm:Entity
  * @Orm:Table(name="rbac_actions")
  */
-class Action extends Nette\Object
+class Action extends Kdyby\Doctrine\Entities\IdentifiedEntity
 {
-
-	/** @Orm:Id @Orm:Column(type="integer") @Orm:GeneratedValue @var integer */
-	private $id;
 
 	/** @Orm:Column(type="string", unique=TRUE) @var string */
 	private $name;
