@@ -34,7 +34,8 @@ class Mixed extends Nette\Object
 
 
 	/**
-	 * @param mixed $object
+	 * @param mixed $value
+	 * @return string
 	 */
 	public static function getType($value)
 	{
@@ -46,7 +47,7 @@ class Mixed extends Nette\Object
 	/**
 	 * @param mixed $value
 	 * @param boolean $short
-	 * @return strng
+	 * @return string
 	 */
 	public static function toString($value, $short = FALSE)
 	{

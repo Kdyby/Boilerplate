@@ -75,7 +75,7 @@ class EntityForm extends Kdyby\Application\UI\Form
 
 
 	/**
-	 * @return Mapping\EntityFormMapper
+	 * @return \Kdyby\Forms\Mapping\EntityFormMapper
 	 */
 	public function getMapper()
 	{

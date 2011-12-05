@@ -92,11 +92,11 @@ class InstalledPackages extends Nette\Object implements \IteratorAggregate, IPac
 	{
 		$default = array();
 		if (class_exists('Kdyby\Packages\DefaultPackages')) {
-			$packages = new \Kdyby\Packages\DefaultPackages();
+			$packages = new Kdyby\Packages\DefaultPackages();
 			$default = $packages->getPackages();
 		}
 		if (class_exists('Kdyby\Packages\CmsPackages')) {
-			$packages = new \Kdyby\Packages\CmsPackages();
+			$packages = new Kdyby\Packages\CmsPackages();
 			$default = array_merge($default, $packages->getPackages());
 		}
 

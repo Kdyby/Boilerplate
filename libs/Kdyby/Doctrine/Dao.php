@@ -37,7 +37,10 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 
 
 	/**
+	 * @param array $arguments
 	 * @param array $values
+	 *
+	 * @return object
 	 */
 	public function createNew($arguments = array(), $values = array())
 	{
@@ -64,7 +67,7 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 
 
 	/**
-	 * @param EntityValuesMapper $mapper
+	 * @param \Kdyby\Doctrine\Mapping\EntityValuesMapper $mapper
 	 */
 	public function setEntityMapper(EntityValuesMapper $mapper)
 	{
@@ -184,8 +187,9 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 
 
 	/**
-	 * @param string $alias
-	 * @return Doctrine\ORM\Query
+	 * @param string $dql
+	 *
+	 * @return \Doctrine\ORM\Query
 	 */
 	public function createQuery($dql = NULL)
 	{
@@ -195,8 +199,8 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 
 
 	/**
-	 * @param callabke $callback
-	 * @return type
+	 * @param callable $callback
+	 * @return mixed|boolean
 	 */
 	public function transactional($callback)
 	{
@@ -218,7 +222,7 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 
 
 	/**
-	 * @param IQueryObject $queryObject
+	 * @param \Kdyby\Persistence\IQueryObject $queryObject
 	 * @return integer
 	 */
 	public function count(IQueryObject $queryObject)
@@ -234,7 +238,7 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 
 
 	/**
-	 * @param IQueryObject $queryObject
+	 * @param \Kdyby\Persistence\IQueryObject $queryObject
 	 * @return array
 	 */
 	public function fetch(IQueryObject $queryObject)
@@ -250,7 +254,7 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 
 
 	/**
-	 * @param IQueryObject $queryObject
+	 * @param \Kdyby\Persistence\IQueryObject $queryObject
 	 * @return object
 	 */
 	public function fetchOne(IQueryObject $queryObject)
@@ -273,8 +277,9 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 
 	/**
 	 * @param \Exception $e
+	 * @param \Kdyby\Persistence\IQueryObject $queryObject
+	 *
 	 * @throws \Exception
-	 * @return mixed
 	 */
 	private function handleQueryExceptions(\Exception $e, IQueryObject $queryObject)
 	{
@@ -296,7 +301,7 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 
 
 	/**
-	 * @return Nette\Reflection\ClassType
+	 * @return \Nette\Reflection\ClassType
 	 */
 	public /**/static/**/ function getReflection()
 	{

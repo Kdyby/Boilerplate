@@ -16,7 +16,7 @@ use Nette;
 
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
- * 
+ *
  * @property string $service
  * @property \SoapClient $client
  */

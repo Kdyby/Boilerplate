@@ -20,6 +20,7 @@ use Nette;
 
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
+ *
  * @Orm:Entity
  * @Orm:Table(name="rbac_divisions")
  */

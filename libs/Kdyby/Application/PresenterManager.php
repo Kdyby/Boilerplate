@@ -134,7 +134,7 @@ class PresenterManager extends Nette\Application\PresenterFactory implements Net
 	public function getPresenterPackage($presenterClass)
 	{
 		foreach ($this->packages as $package) {
-			if (Nette\Utils\Strings::startsWith($presenterClass, $package->getNamespace())) {
+			if (Strings::startsWith($presenterClass, $package->getNamespace())) {
 				return $package;
 			}
 		}

@@ -172,7 +172,7 @@ class Replicator extends Container
 
 
 	/**
-	 * @param Container $container
+	 * @param \Nette\Forms\Container $container
 	 * @param boolean $cleanUpGroups
 	 *
 	 * @throws \Kdyby\InvalidArgumentException

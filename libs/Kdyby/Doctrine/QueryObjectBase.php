@@ -25,16 +25,16 @@ use Nette\Utils\Paginator;
 abstract class QueryObjectBase implements Kdyby\Persistence\IQueryObject
 {
 
-	/** @var Paginator */
+	/** @var \Nette\Utils\Paginator */
 	private $paginator;
 
-	/** @var Doctrine\ORM\Query */
+	/** @var \Doctrine\ORM\Query */
 	private $lastQuery;
 
 
 
 	/**
-	 * @param Paginator $paginator
+	 * @param \Nette\Utils\Paginator $paginator
 	 */
 	public function __construct(Paginator $paginator = NULL)
 	{
@@ -44,7 +44,7 @@ abstract class QueryObjectBase implements Kdyby\Persistence\IQueryObject
 
 
 	/**
-	 * @return Paginator
+	 * @return \Nette\Utils\Paginator
 	 */
 	public function getPaginator()
 	{
@@ -54,16 +54,16 @@ abstract class QueryObjectBase implements Kdyby\Persistence\IQueryObject
 
 
 	/**
-	 * @param IQueryable $repository
-	 * @return Doctrine\ORM\Query|Doctrine\ORM\QueryBuilder
+	 * @param \Kdyby\Persistence\IQueryable $repository
+	 * @return \Doctrine\ORM\Query|\Doctrine\ORM\QueryBuilder
 	 */
 	protected abstract function doCreateQuery(IQueryable $repository);
 
 
 
 	/**
-	 * @param IQueryable $repository
-	 * @return Doctrine\ORM\Query
+	 * @param \Kdyby\Persistence\IQueryable $repository
+	 * @return \Doctrine\ORM\Query
 	 */
 	protected function getQuery(IQueryable $repository)
 	{
@@ -84,7 +84,8 @@ abstract class QueryObjectBase implements Kdyby\Persistence\IQueryObject
 
 
 	/**
-	 * @param IQueryable $repository
+	 * @param \Kdyby\Persistence\IQueryable $repository
+	 *
 	 * @return integer
 	 */
 	public function count(IQueryable $repository)
@@ -95,7 +96,7 @@ abstract class QueryObjectBase implements Kdyby\Persistence\IQueryObject
 
 
 	/**
-	 * @param IQueryable $repository
+	 * @param \Kdyby\Persistence\IQueryable $repository
 	 * @return array
 	 */
 	public function fetch(IQueryable $repository)
@@ -116,7 +117,7 @@ abstract class QueryObjectBase implements Kdyby\Persistence\IQueryObject
 
 
 	/**
-	 * @param IQueryable $repository
+	 * @param \Kdyby\Persistence\IQueryable $repository
 	 * @return object
 	 */
 	public function fetchOne(IQueryable $repository)

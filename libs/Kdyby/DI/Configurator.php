@@ -261,7 +261,7 @@ class Configurator extends Nette\Object implements IConfigurator
 	/**
 	 * Builds the service container.
 	 *
-	 * @return ContainerBuilder The compiled service container
+	 * @return \Symfony\Component\DependencyInjection\ContainerBuilder The compiled service container
 	 */
 	private function buildContainer()
 	{
