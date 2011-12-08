@@ -1,0 +1,62 @@
+<?php
+
+/**
+ * Debug Bar: panel "dumps" template.
+ *
+ * This file is part of the Nette Framework (http://nette.org)
+ * Copyright (c) 2004, 2010 David Grudl (http://davidgrudl.com)
+ */
+
+namespace Nette\Diagnostics;
+
+use Nette;
+
+?>
+<style>
+
+	#nette-debug .nette-TemplateParamsPanel h2 {
+		font: 11pt/1.5 sans-serif;
+		margin: 0;
+		padding: 2px 8px;
+		background: #3484d2;
+		color: white;
+	}
+
+	#nette-debug .nette-TemplateParamsPanel table {
+		width: 100%;
+	}
+
+	#nette-debug .nette-TemplateParamsPanel a {
+		color: #333;
+		background: transparent;
+	}
+
+	#nette-debug .nette-TemplateParamsPanel a abbr {
+		font-family: sans-serif;
+		color: #999;
+	}
+
+	#nette-debug .nette-TemplateParamsPanel pre .php-array, #nette-debug .nette-TemplateParamsPanel pre .php-object {
+		color: #c16549;
+	}
+
+</style>
+
+
+<h1>Template parameters</h1>
+
+<div class="nette-inner nette-TemplateParamsPanel">
+<?php foreach ($data as $name => $params): ?>
+	<h2><?php echo htmlspecialchars($name) ?></h2>
+
+	<table>
+	<?php $i = 0 ?>
+	<?php foreach ($params as $key => $dump): ?>
+	<tr class="<?php echo $i++ % 2 ? 'nette-alt' : '' ?>">
+		<th><?php echo htmlspecialchars($key) ?></th>
+		<td><?php echo $dump ?></td>
+	</tr>
+	<?php endforeach ?>
+	</table>
+<?php endforeach ?>
+</div>
