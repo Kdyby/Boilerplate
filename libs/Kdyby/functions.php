@@ -15,11 +15,36 @@ use Nette\Diagnostics\Helpers;
 
 
 /**
+ * Bar dump shortcut.
  * @see Nette\Diagnostics\Debugger::barDump
  * @author Filip Procházka <filip.prochazka@kdyby.org>
+ *
+ * @param mixed $var
+ * @param string $title
+ *
+ * @return mixed
  */
 function bd($var, $title = NULL) {
 	return callback('Nette\Diagnostics\Debugger', 'barDump')->invokeArgs(func_get_args());
+}
+
+
+
+/**
+ * Deep dump shortcut.
+ * @see Nette\Diagnostics\Debugger::dump
+ *
+ * @param mixed $var
+ * @param integer $maxDepth
+ *
+ * @return mixed
+ */
+function dd($var, $maxDepth) {
+	$originalDepth = Debugger::$maxDepth;
+	Debugger::$maxDepth = $maxDepth;
+	Debugger::dump($var);
+	Debugger::$maxDepth = $originalDepth;
+	return $var;
 }
 
 
