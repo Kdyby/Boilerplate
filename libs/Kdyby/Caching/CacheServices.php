@@ -20,9 +20,9 @@ use Nette\Caching\Storages;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
- * @property-read IStorage $cacheStorage
- * @property-read Storages\IJournal $cacheJournal
- * @property-read IStorage $phpFileStorage
+ * @property-read \Nette\Caching\IStorage $cacheStorage
+ * @property-read \Nette\Caching\Storages\IJournal $cacheJournal
+ * @property-read \Nette\Caching\IStorage $phpFileStorage
  */
 class CacheServices extends Nette\DI\Container
 {
@@ -63,7 +63,7 @@ class CacheServices extends Nette\DI\Container
 		$dir = $this->tempDir . '/cache';
 		umask(0000);
 		@mkdir($dir, 0777); // @ - directory may exists
-		return new Storages\PhpFileStorage($dir);
+		return new Storages\PhpFileStorage($dir, $this->cacheJournal);
 	}
 
 
