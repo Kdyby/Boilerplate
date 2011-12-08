@@ -10,10 +10,11 @@
 
 namespace Kdyby\Application\UI;
 
-use Nette;
-use Nette\Diagnostics\Debugger;
 use Kdyby;
-use Kdyby\Application\Presentation\Bundle;
+use Kdyby\Templates\ITemplateFactory;
+use Nette;
+use Nette\Application\Responses;
+use Nette\Diagnostics\Debugger;
 
 
 
@@ -37,6 +38,35 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 
 	/** @var Nette\Http\User */
 	private $user;
+
+	/** @var \Kdyby\Templates\ITemplateFactory */
+	private $templateFactory;
+
+
+
+	/**
+	 * @param \Kdyby\Templates\ITemplateFactory $templateFactory
+	 */
+	public function setTemplateFactory(ITemplateFactory $templateFactory)
+	{
+		$this->templateFactory = $templateFactory;
+	}
+
+
+
+	/**
+	 * @param string|null $class
+	 *
+	 * @return \Kdyby\Templating\Template
+	 */
+	protected function createTemplate($class = NULL)
+	{
+		if ($this->templateFactory === NULL) {
+			return parent::createTemplate($class);
+		}
+
+		return $this->templateFactory->createTemplate($this, $class);
+	}
 
 
 
@@ -154,6 +184,25 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 		}
 
 		return $this->getContext()->user;
+	}
+
+
+
+	/**
+	 * Sends AJAX payload to the output.
+	 *
+	 * @param array|object|null $payload
+	 *
+	 * @return void
+	 * @throws \Nette\Application\AbortException
+	 */
+	public function sendPayload($payload = NULL)
+	{
+		if ($payload !== NULL) {
+			$this->sendResponse(new Responses\JsonResponse($payload));
+		}
+
+		parent::sendPayload();
 	}
 
 

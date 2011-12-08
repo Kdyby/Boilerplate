@@ -11,6 +11,7 @@
 namespace Kdyby\Application\UI;
 
 use Kdyby;
+use Kdyby\Templates\ITemplateFactory;
 use Nette;
 use Nette\Environment;
 use Nette\Utils\Strings;
@@ -29,58 +30,56 @@ use Nette\Utils\Strings;
 abstract class Control extends Nette\Application\UI\Control
 {
 
-	/** @var Nette\DI\Container */
-	private $context;
+	/** @var \Kdyby\Templates\ITemplateFactory */
+	private $templateFactory;
 
 
 
 	/**
-	 * @param Nette\ComponentModel\Container $obj
-	 * @return type
+	 * @param \Kdyby\Templates\ITemplateFactory $templateFactory
+	 */
+	public function setTemplateFactory(ITemplateFactory $templateFactory)
+	{
+		$this->templateFactory = $templateFactory;
+	}
+
+
+
+	/**
+	 * @param string|null $class
+	 *
+	 * @return \Kdyby\Templating\Template
+	 */
+	protected function createTemplate($class = NULL)
+	{
+		if ($this->templateFactory === NULL) {
+			return parent::createTemplate($class);
+		}
+
+		return $this->templateFactory->createTemplate($this, $class);
+	}
+
+
+
+	/**
+	 * @param \Nette\ComponentModel\IComponent $obj
 	 */
 	protected function attached($obj)
 	{
 		parent::attached($obj);
 
-		if (!$obj instanceof Nette\Application\UI\Presenter) {
-			return;
+		if ($obj instanceof Nette\Application\UI\Presenter) {
+			$this->attachedToPresenter();
 		}
-
-		$this->setContext($obj->getContext());
 	}
 
 
 
 	/**
-	 * @param Nette\DI\Container $context
 	 */
-	public function setContext(Nette\DI\Container $context)
+	protected function attachedToPresenter()
 	{
-		$this->context = $context;
-	}
 
-
-
-	/**
-	 * @return Kdyby\DI\Container
-	 */
-	public function getContext()
-	{
-		if (!$this->context) {
-			throw new Kdyby\InvalidStateException("Missing context, component wasn't yet attached to presenter.");
-		}
-
-		return $this->context;
-	}
-
-
-
-	/**
-	 * @return Kdyby\Templating\FileTemplate
-	 */
-	protected function createTemplate($class = NULL)
-	{
-		return $this->getContext()->templateFactory->createTemplate($this, $class);
 	}
 
 }
