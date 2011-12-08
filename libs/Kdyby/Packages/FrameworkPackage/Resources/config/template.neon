@@ -1,0 +1,16 @@
+parameters:
+  template.factory.class: Kdyby\Templates\TemplateFactory
+  latte.engine.class: Nette\Latte\Engine
+
+services:
+  template.factory:
+    class: %template.factory.class%
+    arguments:
+      - '@latte.engine'
+      - '@http.context'
+      - '@http.user'
+      - '@cache.phpfile_storage'
+      - '@cache.data_storage'
+
+  latte.engine:
+    class: %latte.engine.class%

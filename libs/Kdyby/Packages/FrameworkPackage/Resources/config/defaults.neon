@@ -1,0 +1,27 @@
+parameters:
+  configurator.class: Kdyby\DI\Configurator
+
+services:
+  presenter_abstract:
+    abstract: TRUE
+    calls:
+      - [setHttpContext, ['@http.context']]
+      - [setApplication, ['@application']]
+      - [setSession, ['@http.session']]
+      - [setUser, ['@http.user']]
+      - [setTemplateFactory, ['@template.factory']]
+
+
+  # Nette Framework compatibility aliases
+  presenterFactory: '@application.presenter_factory'
+  router: '@application.router'
+  httpRequest: '@http.request'
+  httpResponse: '@http.response'
+  httpContext: '@http.context'
+  session: '@http.session'
+  user: '@http.user'
+  cacheStorage: '@cache.data_storage'
+  templateCacheStorage: '@cache.phpfile_storage'
+  cacheJournal: '@cache.data_storage.journal'
+  robotLoader: '@loader.robot'
+  authenticator: '@security.authenticator'

@@ -1,0 +1,7 @@
+parameters:
+  loader.robot.class: Kdyby\Loaders\RobotLoader
+
+services:
+  loader.robot:
+    class: %loader.robot.class%
+    configurator: [%configurator.class%, configureRobotLoader]

@@ -1,0 +1,15 @@
+parameters:
+  security.authenticator.class: Kdyby\Security\Authenticator
+  doctrine.dao.class: Kdyby\Doctrine\Dao
+
+services:
+  security.authenticator:
+    class: %security.authenticator.class%
+    arguments: ['@security.identityDao']
+
+  security.identityDao:
+    class: %doctrine.dao.class%
+    factory_service: doctrine
+    factory_method: getRepository
+    arguments: ['Kdyby\Security\Identity']
+    public: FALSE
