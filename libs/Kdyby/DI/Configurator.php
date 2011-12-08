@@ -234,7 +234,7 @@ class Configurator extends Nette\Object implements IConfigurator
 			$cached = $cache->load($key);
 		}
 
-		require $cached['file'];
+		require_once $cached['file'];
 		@fclose($cached['handle']); // intentionally @
 
 		// initialize container
