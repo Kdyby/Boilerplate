@@ -13,6 +13,7 @@ namespace Kdyby\Application;
 use Kdyby;
 use Kdyby\Package\PackageManager;
 use Nette;
+use Nette\Reflection\ClassType;
 use Nette\Utils\Strings;
 use Symfony;
 use Symfony\Component\DependencyInjection\Container;
@@ -63,6 +64,12 @@ class PresenterManager extends Nette\Application\PresenterFactory implements Net
 			return parent::getPresenterClass($name);
 		}
 
+		$serviceName = $this->formatServiceNameFromPresenter($name);
+		if ($this->container->has($serviceName)) {
+			$reflection = new ClassType($this->container->getParameter($serviceName . '.class'));
+			return $reflection->getName();
+		}
+
 		list($package, $shortName) = explode(':', $name, 2);
 		$package = $this->packageManager->getPackage($package);
 
@@ -73,7 +80,7 @@ class PresenterManager extends Nette\Application\PresenterFactory implements Net
 		}
 
 
-		$reflection = new Nette\Reflection\ClassType($class);
+		$reflection = new ClassType($class);
 		$class = $reflection->getName();
 
 		if (!$reflection->implementsInterface('Nette\Application\IPresenter')) {
