@@ -68,10 +68,13 @@ class TemplateParametersPanel extends Nette\Object implements Nette\Diagnostics\
 			return;
 		}
 
-		$params = $component->getTemplate()->getParameters();
+		$template = $component->getTemplate();
+		if (!$template instanceof \Nette\Templating\Template) {
+			return;
+		}
 
 		$dump = array();
-		foreach ((array)$params as $key => $val) {
+		foreach ($template->getParameters() as $key => $val) {
 			$dump[$key] = Nette\Diagnostics\Helpers::clickableDump($val);
 		}
 
