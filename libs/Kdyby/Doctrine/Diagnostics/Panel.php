@@ -126,7 +126,7 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 	 */
 	protected function renderStyles()
 	{
-		return '<style> #nette-debug td.nette-Doctrine2Panel-sql { background: white !important }
+		return '<style> #nette-debug td.nette-Doctrine2Panel-sql { background: white !important}
 			#nette-debug .nette-Doctrine2Panel-source { color: #BBB !important }
 			#nette-debug nette-Doctrine2Panel tr table { margin: 8px 0; max-height: 150px; overflow:auto } </style>';
 	}
@@ -148,9 +148,7 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 		$s .= '</td><td class="nette-Doctrine2Panel-sql">' . Connection::highlightSql($sql);
 		if ($source) {
 			list($file, $line) = $source;
-			$s .= (Debugger::$editor ? "<a href='{$h(\Nette\Diagnostics\Helpers::editorLink($file, $line))}'" : '<span')
-				. " class='nette-Doctrine2Panel-source' title='{$h($file)}:$line'>"
-				. "{$h(basename(dirname($file)) . '/' . basename($file))}:$line" . (Debugger::$editor ? '</a>' : '</span>');
+			$s .= Nette\Diagnostics\Helpers::editorLink($file, $line);
 		}
 
 		$s .= '</td><td>';
@@ -168,7 +166,7 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 	 * @param \Exception $e
 	 * @return void|array
 	 */
-	public function renderException(\Exception $e)
+	public function renderException($e)
 	{
 		if ($e instanceof \PDOException && count($this->queries)) {
 			return $this->renderPdoException($e);
