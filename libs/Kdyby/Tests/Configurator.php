@@ -21,6 +21,33 @@ use Nette;
 class Configurator extends Kdyby\DI\Configurator
 {
 
+	/** @var \Kdyby\Tests\Configurator */
+	private static $configurator;
+
+
+
+	/**
+	 * @param array $params
+	 * @param \Kdyby\Package\IPackageList $packageFinder
+	 */
+	public function __construct($params = NULL, Kdyby\Package\IPackageList $packageFinder = NULL)
+	{
+		parent::__construct($params, $packageFinder);
+		static::$configurator = $this;
+	}
+
+
+
+	/**
+	 * @return \Kdyby\DI\SystemContainer
+	 */
+	public static function getTestsContainer()
+	{
+		return static::$configurator->getContainer();
+	}
+
+
+
 	/**
 	 * @return string
 	 */

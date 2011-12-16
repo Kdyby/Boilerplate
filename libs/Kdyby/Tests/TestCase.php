@@ -37,14 +37,16 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 	 */
 	public function __construct($name = NULL, array $data = array(), $dataName = '')
 	{
-		$this->context = Nette\Environment::getContext();
+		$this->context = Kdyby\Tests\Configurator::getTestsContainer();
+		$this->tempClassGenerator = new Tools\TempClassGenerator($this->getContext()->expand('%tempDir%'));
+
 		parent::__construct($name, $data, $dataName);
 	}
 
 
 
 	/**
-	 * @return Kdyby\DI\IContainer
+	 * @return \Kdyby\DI\SystemContainer
 	 */
 	public function getContext()
 	{
@@ -111,10 +113,6 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 	 */
 	private function getTempClassGenerator()
 	{
-		if ($this->tempClassGenerator === NULL) {
-			$this->tempClassGenerator = new Tools\TempClassGenerator($this->getContext()->expand('%tempDir%'));
-		}
-
 		return $this->tempClassGenerator;
 	}
 

@@ -24,14 +24,8 @@ use Nette\ObjectMixin;
 abstract class OrmTestCase extends TestCase
 {
 
-	/** @var \Kdyby\Tests\ORM\MemoryDatabaseManager */
-	private static $databaseManager;
-
-	/** @var \Kdyby\Tests\ORM\Sandbox */
+	/** @var \Kdyby\Tests\ORM\SandboxRegistry */
 	private $ormSandbox;
-
-	/** @var \Doctrine\ORM\EntityManager */
-	private $em;
 
 
 
@@ -40,26 +34,18 @@ abstract class OrmTestCase extends TestCase
 	 */
 	final protected function getEntityManager()
 	{
-		if ($this->em === NULL) {
-			$this->em = $this->getOrmSandbox()->entityManager;
-
-			// Load fixtures
-			$this->getOrmSandbox()->eventManager
-				->dispatchEvent('loadFixtures', new ORM\EventArgs($this->em, $this));
-		}
-
-		return $this->em;
+		return $this->getOrm()->getEntityManager();
 	}
 
 
 
 	/**
-	 * @return \Kdyby\Tests\ORM\Sandbox
+	 * @return \Kdyby\Tests\ORM\SandboxRegistry
 	 */
-	final protected function getOrmSandbox()
+	final protected function getOrm()
 	{
 		if ($this->ormSandbox === NULL) {
-			$this->ormSandbox = $this->getDatabaseManager()->refresh();
+			$this->createOrmSandbox();
 		}
 
 		return $this->ormSandbox;
@@ -68,28 +54,59 @@ abstract class OrmTestCase extends TestCase
 
 
 	/**
-	 * Creates unique database session
-	 *
 	 * @param array $entities
 	 */
-	final protected function setupOrmSandbox(array $entities)
+	final protected function createOrmSandbox(array $entities = NULL)
 	{
-		$this->ormSandbox = $this->getDatabaseManager()->refresh($entities);
+		$params = array(
+			'wwwDir' => $this->getContext()->expand('%wwwDir%'),
+			'appDir' => $this->getContext()->expand('%appDir%')
+		);
+
+		$config = new ORM\SandboxConfigurator($params);
+		if (is_array($entities)) {
+			$config->setEntities($entities);
+		}
+
+		$config->refreshSchema();
+		$config->generateProxyClasses();
+
+		$this->ormSandbox = $config->getRegistry();
+		$this->ormSandbox->loadFixtures($this);
+	}
+
+
+	/********************* EntityManager shortcuts *********************/
+
+
+	/**
+	 * @param string $entityName
+	 * @return \Kdyby\Doctrine\Dao
+	 */
+	protected function getDao($entityName)
+	{
+		if (is_object($entityName)) {
+			$entityName = get_class($entityName);
+		}
+
+		return $this->getEntityManager()->getRepository($entityName);
 	}
 
 
 
 	/**
-	 * @return \Kdyby\Tests\ORM\MemoryDatabaseManager
+	 * @param string $className
+	 * @return \Kdyby\Doctrine\Mapping\ClassMetadata
 	 */
-	final private function getDatabaseManager()
+	protected function getMetadata($className)
 	{
-		if (self::$databaseManager === NULL) {
-			self::$databaseManager = new ORM\MemoryDatabaseManager($this->getContext());
+		if (is_object($className)) {
+			$className = get_class($className);
 		}
 
-		return self::$databaseManager;
+		return $this->getEntityManager()->getClassMetadata($className);
 	}
+
 
 
 	/********************* Asserts *********************/
@@ -146,43 +163,12 @@ abstract class OrmTestCase extends TestCase
 						$actualValue = current($actualValue);
 					}
 
-				} catch (\Exception $e) { }
+				} catch (\Exception $e) {
+				}
 			}
 
 			$this->assertSame($value, $actualValue, "Property '" . $property . "' of '" . $entityName . "' equals given value.");
 		}
-	}
-
-
-	/********************* EntityManager shortcuts *********************/
-
-
-	/**
-	 * @param string $entityName
-	 * @return \Kdyby\Doctrine\Dao
-	 */
-	protected function getDao($entityName)
-	{
-		if (is_object($entityName)) {
-			$entityName = get_class($entityName);
-		}
-
-		return $this->getEntityManager()->getRepository($entityName);
-	}
-
-
-
-	/**
-	 * @param string $className
-	 * @return \Kdyby\Doctrine\Mapping\ClassMetadata
-	 */
-	protected function getMetadata($className)
-	{
-		if (is_object($className)) {
-			$className = get_class($className);
-		}
-
-		return $this->getEntityManager()->getClassMetadata($className);
 	}
 
 

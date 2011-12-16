@@ -85,7 +85,7 @@ class Configurator extends Nette\Object implements IConfigurator
 	 * @param array $params
 	 * @param \Kdyby\Package\IPackageList $packageFinder
 	 */
-	public function __construct($params = NULL, \Kdyby\Package\IPackageList $packageFinder = NULL)
+	public function __construct($params = NULL, Kdyby\Package\IPackageList $packageFinder = NULL)
 	{
 		// path defaults
 		$this->params = static::defaultPaths($params);
@@ -136,8 +136,7 @@ class Configurator extends Nette\Object implements IConfigurator
 			return;
 		}
 
-		Debugger::$productionMode = $this->params['productionMode'];
-		Debugger::$consoleMode = $this->params['consoleMode'];
+		static::setupDebuggerMode($this->params);
 
 		$this->initializePackages();
 		$this->initializeContainer();
@@ -342,8 +341,6 @@ class Configurator extends Nette\Object implements IConfigurator
 		)) . "\n\n";
 
 		// prepare Nette environment
-		$nContainer = new Nette\DI\Container;
-		$nContainer->parameters['tempDir'] = $this->params['tempDir'];
 		$classDump .= $this->checkTempDir($this->params['tempDir']);
 
 		return $classDump;
@@ -524,7 +521,7 @@ class Configurator extends Nette\Object implements IConfigurator
 	 *
 	 * @return array
 	 */
-	public static function defaultPaths($params)
+	protected static function defaultPaths($params)
 	{
 		// public root
 		if ($params === NULL) {
@@ -560,7 +557,7 @@ class Configurator extends Nette\Object implements IConfigurator
 	 *
 	 * @param array $params
 	 */
-	public static function setupDebugger(array $params)
+	protected static function setupDebugger(array $params)
 	{
 		if (!is_dir($params['logDir'])) {
 			@mkdir($params['logDir'], 0777);
@@ -573,6 +570,17 @@ class Configurator extends Nette\Object implements IConfigurator
 		Debugger::$logDirectory = $params['logDir'];
 		Debugger::$strictMode = TRUE;
 		Debugger::enable(Debugger::PRODUCTION);
+	}
+
+
+
+	/**
+	 * @param array $params
+	 */
+	protected static function setupDebuggerMode(array $params)
+	{
+		Debugger::$productionMode = $params['productionMode'];
+		Debugger::$consoleMode = $params['consoleMode'];
 	}
 
 }

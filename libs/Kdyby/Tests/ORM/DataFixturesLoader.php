@@ -21,20 +21,20 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class DataFixturesListener extends Nette\Object implements Doctrine\Common\EventSubscriber
+class DataFixturesLoader extends Nette\Object
 {
 
-	/** @var DataFixtures\Loader */
+	/** @var \Doctrine\Common\DataFixtures\Loader */
 	private $loader;
 
-	/** @var DataFixtures\Executor\AbstractExecutor */
+	/** @var \Doctrine\Common\DataFixtures\Executor\AbstractExecutor */
 	private $executor;
 
 
 
 	/**
-	 * @param DataFixtures\Loader $loader
-	 * @param DataFixtures\Executor\AbstractExecutor $executor
+	 * @param \Doctrine\Common\DataFixtures\Loader $loader
+	 * @param \Doctrine\Common\DataFixtures\Executor\AbstractExecutor $executor
 	 */
 	public function __construct(DataFixtures\Loader $loader, DataFixtures\Executor\AbstractExecutor $executor)
 	{
@@ -45,25 +45,13 @@ class DataFixturesListener extends Nette\Object implements Doctrine\Common\Event
 
 
 	/**
-	 * @return array
-	 */
-	public function getSubscribedEvents()
-	{
-		return array(
-			'loadFixtures'
-		);
-	}
-
-
-
-	/**
 	 * Appends Data Fixtures to current database DataSet
 	 *
-	 * @param EventArgs $eventArgs
+	 * @param \Kdyby\Tests\OrmTestCase $testCase
 	 */
-	public function loadFixtures(EventArgs $eventArgs)
+	public function loadFixtures(OrmTestCase $testCase)
 	{
-		$this->addFixtureClasses($this->getTestFixtureClasses($eventArgs->getTestCase()));
+		$this->addFixtureClasses($this->getTestFixtureClasses($testCase));
 		$this->executor->execute($this->loader->getFixtures(), TRUE);
 	}
 
@@ -102,7 +90,7 @@ class DataFixturesListener extends Nette\Object implements Doctrine\Common\Event
 
 
 	/**
-	 * @param OrmTestCase $testCase
+	 * @param \Kdyby\Tests\OrmTestCase $testCase
 	 * @return array
 	 */
 	private function getTestFixtureClasses(OrmTestCase $testCase)
@@ -111,11 +99,20 @@ class DataFixturesListener extends Nette\Object implements Doctrine\Common\Event
 		$annotations = $method->getAnnotations();
 
 		return array_map(function ($class) use ($method) {
-			if (substr_count($class, '\\') !== 0) {
+			if (class_exists($class)) {
 				return $class;
 			}
 
-			return $method->getDeclaringClass()->getNamespaceName() . '\\' .  $class;
+			$testCaseNs = $method->getDeclaringClass()->getNamespaceName();
+			if (class_exists($prefixed = $testCaseNs . '\\' . $class)) {
+				return $prefixed;
+			}
+
+			if (class_exists($prefixed = $testCaseNs . '\\Fixture\\' . $class)) {
+				return $prefixed;
+			}
+
+			throw new Kdyby\InvalidStateException("Fixtures $class for test " . $method . " could not be loaded.");
 		}, isset($annotations['Fixture']) ? $annotations['Fixture'] : array());
 	}
 
