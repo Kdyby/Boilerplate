@@ -52,6 +52,8 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 	}
 
 
+	/********************* Asserts *********************/
+
 
 	/**
 	 * @param array|\Nette\Callback|\Closure $callback
@@ -61,29 +63,8 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 	 */
 	public function assertEventHasCallback($callback, $object, $eventName, $count = NULL)
 	{
-		$this->assertInstanceOf('Nette\Object', $object, 'Object supports events');
-		$this->assertObjectHasAttribute($eventName, $object, 'Object has event');
-
-		// deeply extract callback
-		$extractCallback = function ($callback) use (&$extractCallback) {
-			if ($callback instanceof Nette\Callback) {
-				return $extractCallback($callback->getNative());
-			}
-			return callback($callback);
-		};
-
-		$event = array_map($extractCallback, $object->$eventName);
-		$this->assertNotEmpty($event, 'Event contains listeners');
-
-		$callback = $extractCallback($callback);
-		$targets = array_filter($event, function ($target) use ($callback) {
-			return $target == $callback;
-		});
-		$this->assertNotNull($targets, 'Similar listener is in event');
-
-		if ($count !== NULL) {
-			$this->assertEquals($count, count($targets), 'Listener is in stack ' . $count . ' times');
-		}
+		$constraint = new Constraint\EventHasCallbackConstraint($object, $eventName, $count);
+		self::assertThat($callback, $constraint, NULL);
 	}
 
 
@@ -97,47 +78,10 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 	 */
 	public function assertContainsCombinations($collection, array $lists, array $mappers, $allowOnlyMentioned = TRUE, $allowDuplications = FALSE)
 	{
-		$mappers = array_map('callback', $mappers);
-		$this->assertSame(count($lists), count($mappers), "Count of given lists equals to count of given mappers");
-
-		$valueCounts = $keys = array();
-		foreach ($collection as $item) {
-			foreach ($mappers as $i => $mapper) {
-				$keys[$i] = $mapper($item);
-			}
-			Kdyby\Tools\Arrays::callOnRef($valueCounts, $keys, function (&$value) {
-				$value += 1;
-			});
-		}
-
-		if ($allowDuplications === FALSE) {
-			$counts = array_values(array_unique(Kdyby\Tools\Arrays::flatMap($valueCounts)));
-			$this->assertSame(array(1), $counts, "Collection contains duplications");
-		}
-
-		$foundLists = array_fill(0, count($lists), array());
-		$inList = Kdyby\Tools\Arrays::flatMapAssoc($valueCounts, function ($value, $keys) use ($lists, &$foundLists) {
-			$return = TRUE;
-			foreach ($keys as $i => $key) {
-				$foundLists[$i][] = $key;
-				if (!in_array($key, $lists[$i])) {
-					$return = $keys;
-				}
-			}
-			return $return;
-		});
-
-		if ($allowOnlyMentioned === TRUE) {
-			$notMentioned = array_filter($inList, function ($isIn) { return $isIn !== TRUE; });
-			$literal = $notMentioned ? "'" . implode(', ', current($notMentioned)) . "'" : NULL;
-			$this->assertEmpty($notMentioned, "The collection contains combination " . $literal . ", that cannot be assembled from given lists.");
-		}
-
-		foreach ($foundLists as $i => $list) {
-			$diff = array_diff($lists[$i], $list);
-			$literal = $diff ? "'" . implode(', ', $diff) . "'" : NULL;
-			$this->assertEmpty($diff, "There are all given values " . $literal . " in collection");
-		}
+		$constraint = new Constraint\ContainsCombinationConstraint($lists, $mappers);
+		$constraint->allowDuplications = $allowDuplications;
+		$constraint->allowOnlyMentioned = $allowOnlyMentioned;
+		self::assertThat($collection, $constraint, NULL);
 	}
 
 
