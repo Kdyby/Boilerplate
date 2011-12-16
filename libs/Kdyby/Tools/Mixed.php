@@ -39,7 +39,7 @@ class Mixed extends Nette\Object
 	 */
 	public static function getType($value)
 	{
-		return is_object($value) ? get_class($value) : gettype($value);
+		return is_object($value) ? 'instanceof ' . get_class($value) : gettype($value);
 	}
 
 
