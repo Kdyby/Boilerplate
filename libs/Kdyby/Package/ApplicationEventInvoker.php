@@ -93,6 +93,20 @@ class ApplicationEventInvoker extends Nette\Object implements Kdyby\DI\IContaine
 
 
 	/**
+	 * Occurs before the application loads presenter
+	 *
+	 * @param \Kdyby\Application\Application $sender
+	 */
+	public function onDebug()
+	{
+		foreach ($this->packages as $package) {
+			$package->onDebug();
+		}
+	}
+
+
+
+	/**
 	 * Occurs when a new request is ready for dispatch
 	 *
 	 * @param \Kdyby\Application\Application $sender

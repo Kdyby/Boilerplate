@@ -33,4 +33,17 @@ class FrameworkPackage extends Kdyby\Package\Package
 		}
 	}
 
+
+
+	/**
+	 * Occurs before the application loads presenter
+	 */
+	public function onDebug()
+	{
+		Nette\Application\Diagnostics\RoutingPanel::initialize(
+			$this->container->get('application'),
+			$this->container->get('http.request')
+		);
+	}
+
 }

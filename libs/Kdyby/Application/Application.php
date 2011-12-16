@@ -77,6 +77,11 @@ class Application extends Nette\Application\Application
 		$invoker = $this->packageManager->createInvoker();
 		$invoker->setContainer($container);
 		$invoker->attach($this);
+
+		// call onDebug
+		if (Debugger::$productionMode === FALSE) {
+			$invoker->onDebug();
+		}
 	}
 
 

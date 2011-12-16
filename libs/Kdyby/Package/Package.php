@@ -112,6 +112,15 @@ abstract class Package extends Nette\Object implements IPackage
 	/**
 	 * Occurs before the application loads presenter
 	 */
+	public function onDebug()
+	{
+	}
+
+
+
+	/**
+	 * Occurs before the application loads presenter
+	 */
 	public function onStartup()
 	{
 	}
