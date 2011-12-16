@@ -496,7 +496,7 @@ class Configurator extends Nette\Object implements IConfigurator
 	private function checkTempDir($tempDir)
 	{
 		$code = '';
-		$dir = $tempDir . '/cache';
+		$dir = $tempDir;
 		umask(0000);
 		@mkdir($dir, 0777); // @ - directory may exists
 

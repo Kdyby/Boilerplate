@@ -47,10 +47,7 @@ class CacheServices extends Nette\DI\Container
 	 */
 	protected function createServiceCacheStorage()
 	{
-		$dir = $this->tempDir . '/cache';
-		umask(0000);
-		@mkdir($dir, 0777); // @ - directory may exists
-		return new Storages\FileStorage($dir, $this->cacheJournal);
+		return new Storages\FileStorage($this->tempDir, $this->cacheJournal);
 	}
 
 
@@ -60,10 +57,7 @@ class CacheServices extends Nette\DI\Container
 	 */
 	protected function createServicePhpFileStorage()
 	{
-		$dir = $this->tempDir . '/cache';
-		umask(0000);
-		@mkdir($dir, 0777); // @ - directory may exists
-		return new Storages\PhpFileStorage($dir, $this->cacheJournal);
+		return new Storages\PhpFileStorage($this->tempDir, $this->cacheJournal);
 	}
 
 
