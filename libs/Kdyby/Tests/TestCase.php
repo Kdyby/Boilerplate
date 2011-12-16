@@ -112,7 +112,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 	private function getTempClassGenerator()
 	{
 		if ($this->tempClassGenerator === NULL) {
-			$this->tempClassGenerator = new Tools\TempClassGenerator($this->getContext()->expand('%tempDir%/cache'));
+			$this->tempClassGenerator = new Tools\TempClassGenerator($this->getContext()->expand('%tempDir%'));
 		}
 
 		return $this->tempClassGenerator;

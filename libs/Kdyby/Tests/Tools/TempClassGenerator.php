@@ -12,6 +12,7 @@ namespace Kdyby\Tests\Tools;
 
 use Kdyby;
 use Nette;
+use Nette\Utils\Finder;
 
 
 
@@ -33,7 +34,21 @@ class TempClassGenerator extends Nette\Object
 	 */
 	public function __construct($tempDir)
 	{
-		$this->tempDir = $tempDir;
+		$this->tempDir = $tempDir . '/classes';
+		@mkdir($this->tempDir, 0777);
+
+		$this->clean();
+	}
+
+
+
+	/**
+	 */
+	public function clean()
+	{
+		foreach (Finder::findFiles('Entity_*.php')->in($this->tempDir) as $file) {
+			@unlink($file->getRealpath());
+		}
 	}
 
 
