@@ -25,7 +25,7 @@ class NonLockingUniqueInserterTest extends Kdyby\Tests\OrmTestCase
 
 	public function setup()
 	{
-		$this->setupOrmSandbox(array(
+		$this->createOrmSandbox(array(
 			'Kdyby\Tests\Doctrine\Tools\EntityWithUniqueColumns'
 		));
 	}

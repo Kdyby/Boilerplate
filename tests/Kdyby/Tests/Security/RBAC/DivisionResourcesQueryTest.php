@@ -23,7 +23,7 @@ class DivisionResourcesQueryTest extends Kdyby\Tests\OrmTestCase
 
 	/**
 	 * @group database
-	 * @Fixture('Kdyby\Tests\Security\RBAC\AclData')
+	 * @Fixture('AclData')
 	 */
 	public function testFetchingResources()
 	{

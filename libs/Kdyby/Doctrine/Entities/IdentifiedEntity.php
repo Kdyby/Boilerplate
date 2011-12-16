@@ -25,15 +25,20 @@ use Kdyby;
 abstract class IdentifiedEntity extends BaseEntity
 {
 
-	/** @Orm:Id @Orm:Column(type="integer") @Orm:GeneratedValue */
+	/**
+	 * @Orm:Id
+	 * @Orm:Column(type="integer")
+	 * @Orm:GeneratedValue
+	 * @var integer
+	 */
 	private $id;
 
 
 
 	/**
-	 * @return int
+	 * @return integer
 	 */
-	public function getId()
+	final public function getId()
 	{
 		return $this->id;
 	}

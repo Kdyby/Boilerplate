@@ -53,16 +53,6 @@ class Action extends Kdyby\Doctrine\Entities\IdentifiedEntity
 
 
 	/**
-	 * @return integer
-	 */
-	public function getId()
-	{
-		return $this->id;
-	}
-
-
-
-	/**
 	 * @return string
 	 */
 	public function getName()

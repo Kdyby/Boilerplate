@@ -46,7 +46,7 @@ class UserPermissionsQueryTest extends Kdyby\Tests\OrmTestCase
 
 	/**
 	 * @group database
-	 * @Fixture('Kdyby\Tests\Security\RBAC\AclData')
+	 * @Fixture('AclData')
 	 */
 	public function testFetchingClientAdminPermissions()
 	{
@@ -73,7 +73,7 @@ class UserPermissionsQueryTest extends Kdyby\Tests\OrmTestCase
 
 	/**
 	 * @group database
-	 * @Fixture('Kdyby\Tests\Security\RBAC\AclData')
+	 * @Fixture('AclData')
 	 */
 	public function testFetchingClientBlogPermissions()
 	{
@@ -100,7 +100,7 @@ class UserPermissionsQueryTest extends Kdyby\Tests\OrmTestCase
 
 	/**
 	 * @group database
-	 * @Fixture('Kdyby\Tests\Security\RBAC\AclData')
+	 * @Fixture('AclData')
 	 */
 	public function testFetchingClientForumPermissions()
 	{

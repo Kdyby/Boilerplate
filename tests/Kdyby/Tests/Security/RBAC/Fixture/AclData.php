@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Tests\Security\RBAC\Fixtures;
+namespace Kdyby\Tests\Security\RBAC\Fixture;
 
 use Doctrine;
 use Kdyby;

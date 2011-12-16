@@ -11,7 +11,9 @@
 namespace Kdyby\Security;
 
 use Kdyby;
+use Kdyby\Packages\DoctrinePackage\Registry;
 use Nette;
+use Nette\Http;
 use Nette\Security\IIdentity;
 use Nette\Security\Permission;
 
@@ -23,38 +25,61 @@ use Nette\Security\Permission;
 class AuthorizatorFactory extends Nette\Object
 {
 
-	/** @var AuthorizatorFactoryContext */
-	private $context;
+	/** @var \Nette\Http\User */
+	private $user;
+
+	/** @var \Nette\Http\User */
+	private $session;
+
+	/** @var \Nette\Http\User */
+	private $divisions;
+
+	/** @var \Nette\Http\User */
+	private $resources;
+
+	/** @var \Nette\Http\User */
+	private $rolePermissions;
+
+	/** @var \Nette\Http\User */
+	private $userPermissions;
 
 
 
 	/**
-	 * @param AuthorizatorFactoryContext $context
+	 * @param \Nette\Http\User $user
+	 * @param \Nette\Http\Session $session
+	 * @param \Kdyby\Packages\DoctrinePackage\Registry $registry
 	 */
-	public function __construct(AuthorizatorFactoryContext $context)
+	public function __construct(Http\User $user, Http\Session $session, Registry $registry)
 	{
-		$this->context = $context;
+		$this->user = $user;
+		$this->session = $session;
+		$this->divisions = $registry->getDao('Kdyby\Security\RBAC\Division');
+		$this->resources = $registry->getDao('Kdyby\Security\RBAC\Resource');
+		$this->rolePermissions = $registry->getDao('Kdyby\Security\RBAC\RolePermission');
+		$this->userPermissions = $registry->getDao('Kdyby\Security\RBAC\UserPermission');
 	}
 
 
 
 	/**
-	 * @param IIdentity $identity
-	 * @param RBAC\Division $division
-	 * @return Permission
+	 * @param \Nette\Security\IIdentity $identity
+	 * @param \Kdyby\Security\RBAC\Division $division
+	 *
+	 * @return \Nette\Security\Permission
 	 */
 	public function create(IIdentity $identity, RBAC\Division $division = NULL)
 	{
 		if ($division === NULL) {
-			$divisionName = $this->context->user->getNamespace();
-			$division = $this->context->divisionsDao->findByName($divisionName);
+			$divisionName = $this->user->getNamespace();
+			$division = $this->divisions->findByName($divisionName);
 		}
 
 		if (!$division) {
 			throw new Kdyby\InvalidStateException("Unknown division '" . $divisionName . "'.");
 		}
 
-		$session = $this->context->session->getSection('Kdyby.Security.Permission/' . $division->name);
+		$session = $this->session->getSection('Kdyby.Security.Permission/' . $division->getName());
 		if (isset($session['permission']) && $session['identity'] === $identity->getId()) {
 			return $session['permission'];
 		}
@@ -63,7 +88,7 @@ class AuthorizatorFactory extends Nette\Object
 		$permission = $this->doCreatePermission();
 
 		// find resources
-		$resources = $this->context->resourceDao->fetch(new RBAC\DivisionResourcesQuery($division));
+		$resources = $this->resources->fetch(new RBAC\DivisionResourcesQuery($division));
 		foreach ($resources as $resource) {
 			$permission->addResource($resource->name);
 		}
@@ -73,7 +98,7 @@ class AuthorizatorFactory extends Nette\Object
 			$permission->addRole($role->getRoleId());
 
 			// identity role rules
-			$rules = $this->context->rolePermissionDao->fetch(new RBAC\RolePermissionsQuery($role));
+			$rules = $this->rolePermissions->fetch(new RBAC\RolePermissionsQuery($role));
 			foreach ($rules as $rule) {
 				if ($rule->getDivision() !== $division) {
 					continue;
@@ -84,7 +109,7 @@ class AuthorizatorFactory extends Nette\Object
 		}
 
 		// identity specific rules
-		$rules = $this->context->userPermissionDao->fetch(new RBAC\UserPermissionsQuery($identity, $division));
+		$rules = $this->userPermissions->fetch(new RBAC\UserPermissionsQuery($identity, $division));
 		foreach ($rules as $rule) {
 			if ($rule->getDivision() !== $division) {
 				continue;
@@ -100,7 +125,7 @@ class AuthorizatorFactory extends Nette\Object
 
 
 	/**
-	 * @return Permission
+	 * @return \Nette\Security\Permission
 	 */
 	protected function doCreatePermission()
 	{

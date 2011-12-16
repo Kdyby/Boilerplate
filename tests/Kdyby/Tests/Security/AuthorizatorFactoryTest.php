@@ -33,8 +33,11 @@ class AuthorizatorFactoryTest extends Kdyby\Tests\OrmTestCase
 
 	public function setUp()
 	{
-		$this->context = new AuthorizatorFactoryContextMock($this, $this->getEntityManager());
-		$this->factory = new AuthorizatorFactory($this->context);
+		$this->factory = new AuthorizatorFactory($this->getMock(
+			'Nette\Http\User', array(), array(), '', FALSE
+		), $this->getMock(
+			'Nette\Http\Session', array(), array(), '', FALSE
+		), $this->getOrm());
 	}
 
 
@@ -60,7 +63,7 @@ class AuthorizatorFactoryTest extends Kdyby\Tests\OrmTestCase
 
 	/**
 	 * @group database
-	 * @Fixture('Kdyby\Tests\Security\RBAC\AclData')
+	 * @Fixture('RBAC\Fixture\AclData')
 	 */
 	public function testPermissionsOfHosiplanForBlog()
 	{
@@ -81,7 +84,7 @@ class AuthorizatorFactoryTest extends Kdyby\Tests\OrmTestCase
 
 	/**
 	 * @group database
-	 * @Fixture('Kdyby\Tests\Security\RBAC\AclData')
+	 * @Fixture('RBAC\Fixture\AclData')
 	 */
 	public function testPermissionsOfClientForAdmin()
 	{
@@ -102,7 +105,7 @@ class AuthorizatorFactoryTest extends Kdyby\Tests\OrmTestCase
 
 	/**
 	 * @group database
-	 * @Fixture('Kdyby\Tests\Security\RBAC\AclData')
+	 * @Fixture('RBAC\Fixture\AclData')
 	 */
 	public function testPermissionsOfClientForForum()
 	{
