@@ -119,11 +119,7 @@ class PresenterManager extends Nette\Application\PresenterFactory implements Net
 
 		} else {
 			$class = $this->getPresenterClass($name);
-
-			$presenter = new $class;
-			if ($this->container) {
-				$presenter->setContext($this->container);
-			}
+			$presenter = new $class($this->container);
 		}
 
 		$presenter->invalidLinkMode = $this->container->getParameter('productionMode')
