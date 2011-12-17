@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Tests\Tests;
+namespace Kdyby\Tests\Tests\Constraint;
 
 use Kdyby;
 use Nette;
@@ -25,7 +25,22 @@ class ObjectWithEventMock extends Nette\Object
 	public $onEvent = array();
 
 
-	public function foo() {  }
-	public static function staticFoo() { }
+
+	public function foo()
+	{
+	}
+
+
+
+	public static function staticFoo()
+	{
+	}
+
+
+
+	public function __invoke()
+	{
+		return TRUE;
+	}
 
 }

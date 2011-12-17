@@ -65,6 +65,8 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 	 */
 	public function assertEventHasCallback($callback, $object, $eventName, $count = NULL)
 	{
+		$this->assertCallable($callback);
+
 		$constraint = new Constraint\EventHasCallbackConstraint($object, $eventName, $count);
 		self::assertThat($callback, $constraint, NULL);
 	}
@@ -102,6 +104,18 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 			$this->assertTrue($callback($item), "Item #" . $i . " matches the conditions from callback.");
 			$i++;
 		}
+	}
+
+
+
+	/**
+	 * @param callable $callback
+	 * @param string $message
+	 */
+	public function assertCallable($callback, $message = NULL)
+	{
+		$constraint = new Constraint\IsCallableConstraint();
+		self::assertThat($callback, $constraint, $message);
 	}
 
 

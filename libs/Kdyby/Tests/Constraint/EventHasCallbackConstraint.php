@@ -59,6 +59,8 @@ class EventHasCallbackConstraint extends \PHPUnit_Framework_Constraint
 	 */
 	protected function matches($callback)
 	{
+		$callback = $this->extractCallback($callback);
+
 		if (!$this->object instanceof Nette\Object) {
 			$this->fail($callback, 'Given object does not supports events');
 		}
@@ -67,23 +69,16 @@ class EventHasCallbackConstraint extends \PHPUnit_Framework_Constraint
 			$this->fail($callback, 'Object does not have event ' . $this->eventName);
 		}
 
-		// deeply extract callback
-		$extractCallback = function ($callback) use (&$extractCallback) {
-			if ($callback instanceof Nette\Callback) {
-				return $extractCallback($callback->getNative());
-			}
-			return callback($callback);
-		};
+		$event = array();
+		foreach ($this->object->{$this->eventName} as $listener) {
+			$event[] = $this->extractCallback($listener);
+		}
 
-		$event = array_map($extractCallback, $this->object->{$this->eventName});
 		if (empty($event)) {
 			$this->fail($callback, 'Event does not contain listeners');
 		}
 
-		$callback = $extractCallback($callback);
-		$targets = array_filter($event, function ($target) use ($callback) {
-			return $target == $callback;
-		});
+		$targets = $this->findSameCallback($event, $callback);
 		if (empty($targets)) {
 			$this->fail($callback, 'Event does not contain given listener');
 		}
@@ -98,13 +93,49 @@ class EventHasCallbackConstraint extends \PHPUnit_Framework_Constraint
 
 
 	/**
+	 * @param array $listeners
+	 * @param callable $callback
+	 * @return array
+	 */
+	protected function findSameCallback(array $listeners, $callback)
+	{
+		$comparer = new CallbackEqualsCallbackConstraint($callback);
+		return array_filter($listeners, function ($target) use ($comparer) {
+			try {
+				$comparer->evaluate($target);
+				return TRUE;
+
+			} catch (\PHPUnit_Framework_ExpectationFailedException $e) {
+				return FALSE;
+			}
+		});
+
+	}
+
+
+
+	/**
+	 * @param callable $callback
+	 * @return \Nette\Callback
+	 */
+	protected function extractCallback($callback)
+	{
+		if ($callback instanceof Nette\Callback) {
+			return $this->extractCallback($callback->getNative());
+		}
+		return callback($callback);
+	}
+
+
+
+	/**
 	 * Returns a string representation of the constraint.
 	 *
 	 * @return string
 	 */
 	public function toString()
 	{
-		return 'Object does not contain given listener in event ' . $this->eventName;
+		return "is listening in event '" . $this->eventName . "' in object of '" . get_class($this->object) . "'";
 	}
 
 }
