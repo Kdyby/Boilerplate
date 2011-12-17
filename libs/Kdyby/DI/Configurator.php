@@ -264,12 +264,6 @@ class Configurator extends Nette\Object implements IConfigurator
 	 */
 	private function buildContainer()
 	{
-		foreach (array('logs' => $this->params['logDir']) as $name => $dir) {
-			if (!is_dir($dir) || !is_writable($dir)) {
-				throw Kdyby\DirectoryNotWritableException::fromDir($dir);
-			}
-		}
-
 		// create new container
 		$container = new ContainerBuilder(new ParameterBag($this->params));
 
@@ -493,7 +487,7 @@ class Configurator extends Nette\Object implements IConfigurator
 	private function checkTempDir($tempDir)
 	{
 		$code = '';
-		$dir = $tempDir;
+		$dir = $tempDir . '/cache';
 		umask(0000);
 		@mkdir($dir, 0777); // @ - directory may exists
 

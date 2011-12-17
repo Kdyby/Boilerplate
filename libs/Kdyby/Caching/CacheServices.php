@@ -37,6 +37,10 @@ class CacheServices extends Nette\DI\Container
 	 */
 	public function __construct($tempDir)
 	{
+		if (!is_dir($tempDir . '/cache')) {
+			mkdir($tempDir . '/cache', 0777);
+		}
+
 		$this->tempDir = $tempDir;
 	}
 
@@ -47,7 +51,7 @@ class CacheServices extends Nette\DI\Container
 	 */
 	protected function createServiceCacheStorage()
 	{
-		return new Storages\FileStorage($this->tempDir, $this->cacheJournal);
+		return new Storages\FileStorage($this->tempDir . '/cache', $this->cacheJournal);
 	}
 
 
@@ -57,7 +61,7 @@ class CacheServices extends Nette\DI\Container
 	 */
 	protected function createServicePhpFileStorage()
 	{
-		return new Storages\PhpFileStorage($this->tempDir, $this->cacheJournal);
+		return new Storages\PhpFileStorage($this->tempDir . '/cache', $this->cacheJournal);
 	}
 
 
