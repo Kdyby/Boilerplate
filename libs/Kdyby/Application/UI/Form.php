@@ -60,6 +60,10 @@ class Form extends Nette\Application\UI\Form
 			if (method_exists($this, 'handle' . $name . 'Click')) {
 				$submitControl->onClick[] = callback($this, 'handle' . $name . 'Click');
 			}
+
+			if (method_exists($this, 'handle' . $name . 'InvalidClick')) {
+				$submitControl->onInvalidClick[] = callback($this, 'handle' . $name . 'InvalidClick');
+			}
 		}
 	}
 

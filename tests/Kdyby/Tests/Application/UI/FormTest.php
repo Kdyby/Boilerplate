@@ -30,6 +30,7 @@ class FormTest extends Kdyby\Tests\TestCase
 		$this->assertEventHasCallback(array($form, 'handleError'), $form, 'onError');
 		$this->assertEventHasCallback(array($form, 'handleValidate'), $form, 'onValidate');
 		$this->assertEventHasCallback(array($form, 'handleSaveClick'), $form['save'], 'onClick');
+		$this->assertEventHasCallback(array($form, 'handleSaveInvalidClick'), $form['save'], 'onInvalidClick');
 		$this->assertEventHasCallback(array($form, 'handleFooBarEditClick'), $form['foo']['bar']['edit'], 'onClick');
 	}
 
@@ -81,6 +82,13 @@ class MockForm extends Form
 
 
 	public function handleSaveClick()
+	{
+		throw new Kdyby\NotImplementedException;
+	}
+
+
+
+	public function handleSaveInvalidClick()
 	{
 		throw new Kdyby\NotImplementedException;
 	}
