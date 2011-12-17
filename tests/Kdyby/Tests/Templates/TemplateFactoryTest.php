@@ -68,7 +68,6 @@ class TemplateFactoryTest extends Kdyby\Tests\TestCase
 	public function testIntegrationCreateTemplateForControl()
 	{
 		$this->component = $this->getMock('Kdyby\Application\UI\Control');
-
 		$this->component->expects($this->once())
 			->method('getPresenter')
 			->with($this->equalTo(FALSE))
@@ -83,8 +82,6 @@ class TemplateFactoryTest extends Kdyby\Tests\TestCase
 	{
 		// presenter
 		$this->component = $this->getMock('Kdyby\Application\UI\Presenter', array('hasFlashSession'));
-		$this->component->setContext($this->getContext());
-
 		$this->component->expects($this->once())
 			->method('hasFlashSession')
 			->will($this->returnValue(FALSE));
