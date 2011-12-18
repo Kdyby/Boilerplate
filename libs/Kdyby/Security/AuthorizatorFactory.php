@@ -68,8 +68,15 @@ class AuthorizatorFactory extends Nette\Object
 	 *
 	 * @return \Nette\Security\Permission
 	 */
-	public function create(IIdentity $identity, RBAC\Division $division = NULL)
+	public function create(IIdentity $identity = NULL, RBAC\Division $division = NULL)
 	{
+		if ($identity === NULL) {
+			$identity = $this->user->getIdentity();
+			if (!$identity instanceof IIdentity) {
+				return new SimplePermission(); // default stub
+			}
+		}
+
 		if ($division === NULL) {
 			$divisionName = $this->user->getNamespace();
 			$division = $this->divisions->findByName($divisionName);
