@@ -22,16 +22,36 @@ use Nette;
 class FormTest extends Kdyby\Tests\TestCase
 {
 
+	/** @var \Kdyby\Tests\Application\UI\MockForm */
+	private $form;
+
+
+	public function setup()
+	{
+		$this->form = new MockForm();
+	}
+
+
 	public function testCreation()
 	{
-		$form = new MockForm();
-		$this->assertInstanceOf('Nette\Forms\Controls\TextInput', $form->getComponent('name', FALSE));
-		$this->assertEventHasCallback(array($form, 'handleSuccess'), $form, 'onSuccess');
-		$this->assertEventHasCallback(array($form, 'handleError'), $form, 'onError');
-		$this->assertEventHasCallback(array($form, 'handleValidate'), $form, 'onValidate');
-		$this->assertEventHasCallback(array($form, 'handleSaveClick'), $form['save'], 'onClick');
-		$this->assertEventHasCallback(array($form, 'handleSaveInvalidClick'), $form['save'], 'onInvalidClick');
-		$this->assertEventHasCallback(array($form, 'handleFooBarEditClick'), $form['foo']['bar']['edit'], 'onClick');
+		$this->assertInstanceOf('Nette\Forms\Controls\TextInput', $this->form->getComponent('name', FALSE));
+	}
+
+
+	public function testAttachingEvents()
+	{
+		$this->assertEventHasCallback(array($this->form, 'handleSuccess'), $this->form, 'onSuccess');
+		$this->assertEventHasCallback(array($this->form, 'handleError'), $this->form, 'onError');
+		$this->assertEventHasCallback(array($this->form, 'handleValidate'), $this->form, 'onValidate');
+	}
+
+
+
+	public function testAttachingButtonEvents()
+	{
+		$this->assertEventHasCallback(array($this->form, 'handleSaveClick'), $this->form['save'], 'onClick');
+		$this->assertEventHasCallback(array($this->form, 'handleSaveInvalidClick'), $this->form['save'], 'onInvalidClick');
+		$this->assertEventHasCallback(array($this->form, 'handleFooBarEditClick'), $this->form['foo']['bar']['edit'], 'onClick');
 	}
 
 }
@@ -68,13 +88,6 @@ class MockForm extends Form
 
 
 	public function handleValidate()
-	{
-		throw new Kdyby\NotImplementedException;
-	}
-
-
-
-	public function handleInvalidSubmit()
 	{
 		throw new Kdyby\NotImplementedException;
 	}

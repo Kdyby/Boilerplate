@@ -32,39 +32,7 @@ class Form extends Nette\Application\UI\Form
 
 		// overriding constructor is ugly...
 		$this->configure();
-
-		// automatically attach methods
-		if (method_exists($this, 'handleSuccess')) {
-			$this->onSuccess[] = callback($this, 'handleSuccess');
-		}
-
-		if (method_exists($this, 'handleError')) {
-			$this->onError[] = callback($this, 'handleError');
-		}
-
-		if (method_exists($this, 'handleValidate')) {
-			$this->onValidate[] = callback($this, 'handleValidate');
-		}
-
-		if (method_exists($this, 'handleInvalidSubmit')) {
-			$this->onInvalidSubmit[] = callback($this, 'handleInvalidSubmit');
-		}
-
-		foreach ($this->getComponents(TRUE, 'Nette\Forms\ISubmitterControl') as $submitControl) {
-			$name = ucfirst((Nette\Utils\Strings::replace(
-				$submitControl->lookupPath('Nette\Forms\Form'), '~\-(.)~i', function ($m) {
-					return strtoupper($m[1]);
-				}
-			)));
-
-			if (method_exists($this, 'handle' . $name . 'Click')) {
-				$submitControl->onClick[] = callback($this, 'handle' . $name . 'Click');
-			}
-
-			if (method_exists($this, 'handle' . $name . 'InvalidClick')) {
-				$submitControl->onInvalidClick[] = callback($this, 'handle' . $name . 'InvalidClick');
-			}
-		}
+		$this->attachHandlers();
 	}
 
 
@@ -82,11 +50,47 @@ class Form extends Nette\Application\UI\Form
 
 
 	/**
-	 * Method get's called on construction
+	 * Method gets called on construction
 	 */
 	protected function configure()
 	{
 
+	}
+
+
+
+	/**
+	 * Automatically attach methods
+	 */
+	protected function attachHandlers()
+	{
+		if (method_exists($this, 'handleSuccess')) {
+			$this->onSuccess[] = callback($this, 'handleSuccess');
+		}
+
+		if (method_exists($this, 'handleError')) {
+			$this->onError[] = callback($this, 'handleError');
+		}
+
+		if (method_exists($this, 'handleValidate')) {
+			$this->onValidate[] = callback($this, 'handleValidate');
+		}
+
+		foreach ($this->getComponents(TRUE, 'Nette\Forms\ISubmitterControl') as $submitControl) {
+			$name = ucfirst((Nette\Utils\Strings::replace(
+				$submitControl->lookupPath('Nette\Forms\Form'), '~\-(.)~i', function ($m) {
+					return strtoupper($m[1]);
+				}
+			)));
+
+			if (method_exists($this, 'handle' . $name . 'Click')) {
+				$submitControl->onClick[] = callback($this, 'handle' . $name . 'Click');
+			}
+
+			if (method_exists($this, 'handle' . $name . 'InvalidClick')) {
+				$submitControl->onInvalidClick[] = callback($this, 'handle' . $name . 'InvalidClick');
+			}
+		}
 	}
 
 
