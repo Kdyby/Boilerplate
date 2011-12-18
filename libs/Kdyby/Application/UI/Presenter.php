@@ -40,7 +40,13 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	private $user;
 
 	/** @var \Kdyby\Templates\ITemplateFactory */
-	private $templateFactory;
+	protected $templateFactory;
+
+
+
+	public function __construct()
+	{
+	}
 
 
 

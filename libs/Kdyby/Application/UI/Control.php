@@ -13,7 +13,6 @@ namespace Kdyby\Application\UI;
 use Kdyby;
 use Kdyby\Templates\ITemplateFactory;
 use Nette;
-use Nette\Environment;
 use Nette\Utils\Strings;
 
 
@@ -21,11 +20,8 @@ use Nette\Utils\Strings;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
- * @property-read Presenter $presenter
- * @property Kdyby\Templates\FileTemplate $template
- *
- * @method Presenter getPresenter() getPresenter()
- * @method Kdyby\Templates\FileTemplate getTemplate() getTemplate()
+ * @property-read \Kdyby\Application\UI\Presenter $presenter
+ * @method \Kdyby\Application\UI\Presenter getPresenter() getPresenter()
  */
 abstract class Control extends Nette\Application\UI\Control
 {
@@ -68,7 +64,7 @@ abstract class Control extends Nette\Application\UI\Control
 	{
 		parent::attached($obj);
 
-		if ($obj instanceof Nette\Application\UI\Presenter) {
+		if ($obj instanceof Nette\Application\UI\Presenter) {
 			$this->attachedToPresenter();
 		}
 	}
