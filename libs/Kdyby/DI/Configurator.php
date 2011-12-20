@@ -49,9 +49,6 @@ class Configurator extends Nette\Object implements IConfigurator
 
 	const CACHE_CONFIG_NS = 'Kdyby.Configuration';
 
-	/** @var string */
-	public $environment = 'prod';
-
 	/** @var array */
 	public $params = array();
 
@@ -108,7 +105,6 @@ class Configurator extends Nette\Object implements IConfigurator
 	 */
 	public function setEnvironment($name)
 	{
-		$this->environment = $name;
 		$this->params['environment'] = $name;
 		$this->params['consoleMode'] = $name === 'console' ? : PHP_SAPI === 'cli';
 	}
@@ -212,7 +208,7 @@ class Configurator extends Nette\Object implements IConfigurator
 	private function initializeContainer()
 	{
 		$class = $this->getContainerClass();
-		$key = array($this->environment, $class);
+		$key = array($this->params['environment'], $class);
 
 		// for caching ContainerClass
 		$cache = $this->getCache()->create(self::CACHE_CONFIG_NS, TRUE);
@@ -252,7 +248,7 @@ class Configurator extends Nette\Object implements IConfigurator
 	protected function getContainerClass()
 	{
 		$name = preg_replace('/[^a-zA-Z0-9_]+/', '', basename($this->params['appDir']));
-		return ucfirst($name) . ucfirst($this->environment) . 'ProjectContainer';
+		return ucfirst($name) . ucfirst($this->params['environment']) . 'ProjectContainer';
 	}
 
 
@@ -315,7 +311,7 @@ class Configurator extends Nette\Object implements IConfigurator
 	 */
 	protected function getConfigFile()
 	{
-		return $this->params['appDir'] . '/config/config_' . $this->environment . '.neon';
+		return $this->params['appDir'] . '/config/config_' . $this->params['environment'] . '.neon';
 	}
 
 

@@ -21,6 +21,8 @@ use Nette\Templating\ITemplate;
 
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
+ *
+ * @property-read \Nette\Latte\Engine $latteEngine
  */
 class TemplateFactory extends Nette\Object implements ITemplateFactory
 {
@@ -60,6 +62,26 @@ class TemplateFactory extends Nette\Object implements ITemplateFactory
 		$this->user = $user;
 		$this->templateStorage = $templateStorage;
 		$this->cacheStorage = $cacheStorage;
+	}
+
+
+
+	/**
+	 * @param \Nette\Latte\Engine $latteEngine
+	 */
+	public function setLatteEngine(Nette\Latte\Engine $latteEngine)
+	{
+		$this->latteEngine = $latteEngine;
+	}
+
+
+
+	/**
+	 * @return \Nette\Latte\Engine
+	 */
+	public function getLatteEngine()
+	{
+		return $this->latteEngine;
 	}
 
 

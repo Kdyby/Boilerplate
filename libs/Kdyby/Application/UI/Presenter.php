@@ -21,41 +21,26 @@ use Nette\Diagnostics\Debugger;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
- * @property-read Kdyby\DI\Container $context
- * @property Kdyby\Templates\ITheme $theme
+ * @property-read \Kdyby\DI\Container $context
+ * @property-read \Kdyby\Http\User $user
+ *
+ * @method \Kdyby\Http\User getUser() getUser()
  */
 abstract class Presenter extends Nette\Application\UI\Presenter
 {
 
-	/** @var Nette\Http\Context */
-	private $httpContext;
-
-	/** @var Nette\Application\Application */
-	private $application;
-
-	/** @var Nette\Http\Session */
-	private $session;
-
-	/** @var Nette\Http\User */
-	private $user;
-
-	/** @var \Kdyby\Templates\ITemplateFactory */
+	/** @var \Kdyby\Templates\TemplateFactory */
 	protected $templateFactory;
 
 
 
-	public function __construct()
-	{
-	}
-
-
-
 	/**
-	 * @param \Kdyby\Templates\ITemplateFactory $templateFactory
+	 * @param \Kdyby\DI\IContainer $container
 	 */
-	public function setTemplateFactory(ITemplateFactory $templateFactory)
+	public function __construct(Kdyby\DI\IContainer $container)
 	{
-		$this->templateFactory = $templateFactory;
+		parent::__construct($container);
+		$this->templateFactory = $container->get('template.factory');
 	}
 
 
@@ -67,129 +52,7 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	 */
 	protected function createTemplate($class = NULL)
 	{
-		if ($this->templateFactory === NULL) {
-			return parent::createTemplate($class);
-		}
-
 		return $this->templateFactory->createTemplate($this, $class);
-	}
-
-
-
-	/**
-	 * @return \Nette\Http\Request
-	 */
-	protected function getHttpRequest()
-	{
-		return $this->getHttpContext()->getRequest();
-	}
-
-
-
-	/**
-	 * @return \Nette\Http\Response
-	 */
-	protected function getHttpResponse()
-	{
-		return $this->getHttpContext()->getResponse();
-	}
-
-
-
-	/**
-	 * @param \Nette\Http\Context $httpContext
-	 */
-	public function setHttpContext(Nette\Http\Context $httpContext)
-	{
-		$this->httpContext = $httpContext;
-	}
-
-
-
-	/**
-	 * @return \Nette\Http\Context
-	 */
-	protected function getHttpContext()
-	{
-		if ($this->httpContext !== NULL) {
-			return $this->httpContext;
-		}
-
-		return parent::getHttpContext();
-	}
-
-
-
-	/**
-	 * @param \Nette\Application\Application $application
-	 */
-	public function setApplication(Nette\Application\Application $application)
-	{
-		$this->application = $application;
-	}
-
-
-
-	/**
-	 * @return \Nette\Application\Application
-	 */
-	public function getApplication()
-	{
-		if ($this->application !== NULL) {
-			return $this->application;
-		}
-
-		return parent::getApplication();
-	}
-
-
-
-	/**
-	 * @param \Nette\Http\Session $session
-	 */
-	public function setSession(Nette\Http\Session $session)
-	{
-		$this->session = $session;
-	}
-
-
-
-	/**
-	 * @param string|NULL $namespace
-	 *
-	 * @return \Nette\Http\Session
-	 */
-	public function getSession($namespace = NULL)
-	{
-		if ($this->session !== NULL) {
-			return $namespace === NULL ? $this->session : $this->session->getSection($namespace);
-		}
-
-		return parent::getSession($namespace);
-	}
-
-
-
-	/**
-	 * @param \Nette\Http\User $user
-	 */
-	public function setUser(Nette\Http\User $user)
-	{
-		$this->user = $user;
-	}
-
-
-
-	/**
-	 * @return \Nette\Http\User
-	 */
-	public function getUser()
-	{
-		if ($this->user !== NULL) {
-			return $this->user;
-		}
-
-		return $this->getContext()->user;
 	}
 
 
@@ -220,6 +83,38 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	{
 		parent::afterRender();
 		Kdyby\Diagnostics\TemplateParametersPanel::register($this);
+	}
+
+
+
+	/**
+	 * @param string $name
+	 * @return \Nette\ComponentModel\IComponent
+	 */
+	protected function createComponent($name)
+	{
+		$method = 'createComponent' . ucfirst($name);
+		if (method_exists($this, $method)) {
+			$this->checkRequirements($this->getReflection()->getMethod($method));
+		}
+
+		return parent::createComponent($name);
+	}
+
+
+
+	/**
+	 * Checks for requirements such as authorization.
+	 *
+	 * @param \Reflector $element
+	 *
+	 * @return void
+	 */
+	public function checkRequirements($element)
+	{
+		if ($element instanceof \Reflector) {
+			$this->getUser()->protectElement($element);
+		}
 	}
 
 }

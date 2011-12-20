@@ -21,13 +21,13 @@ use Nette\Utils\Strings;
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
  * @property-read \Kdyby\Application\UI\Presenter $presenter
- * @method \Kdyby\Application\UI\Presenter getPresenter() getPresenter()
+ * @method \Kdyby\Application\UI\Presenter getPresenter() getPresenter(bool $need = TRUE)
  */
 abstract class Control extends Nette\Application\UI\Control
 {
 
 	/** @var \Kdyby\Templates\ITemplateFactory */
-	private $templateFactory;
+	protected $templateFactory;
 
 
 
@@ -58,24 +58,34 @@ abstract class Control extends Nette\Application\UI\Control
 
 
 	/**
-	 * @param \Nette\ComponentModel\IComponent $obj
+	 * @param string $name
+	 *
+	 * @return \Nette\ComponentModel\IComponent
 	 */
-	protected function attached($obj)
+	protected function createComponent($name)
 	{
-		parent::attached($obj);
-
-		if ($obj instanceof Nette\Application\UI\Presenter) {
-			$this->attachedToPresenter();
+		$method = 'createComponent' . ucfirst($name);
+		if (method_exists($this, $method)) {
+			$this->checkRequirements($this->getReflection()->getMethod($method));
 		}
+
+		return parent::createComponent($name);
 	}
 
 
 
 	/**
+	 * Checks for requirements such as authorization.
+	 *
+	 * @param \Reflector $element
+	 *
+	 * @return void
 	 */
-	protected function attachedToPresenter()
+	public function checkRequirements($element)
 	{
-
+		if ($element instanceof \Reflector && $presenter = $this->getPresenter(FALSE)) {
+			$presenter->getUser()->protectElement($element);
+		}
 	}
 
 }

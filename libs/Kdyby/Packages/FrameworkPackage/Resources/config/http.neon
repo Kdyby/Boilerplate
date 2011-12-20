@@ -4,7 +4,7 @@ parameters:
   http.response.class: Nette\Http\Response
   http.context.class: Nette\Http\Context
   http.session.class: Nette\Http\Session
-  http.user.class: Nette\Http\User
+  http.user.class: Kdyby\Http\User
   http.user_context.class: Kdyby\Http\UserContext
 
 services:

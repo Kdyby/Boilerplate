@@ -2,16 +2,6 @@ parameters:
   configurator.class: Kdyby\DI\Configurator
 
 services:
-  presenter_abstract:
-    abstract: TRUE
-    calls:
-      - [setHttpContext, ['@http.context']]
-      - [setApplication, ['@application']]
-      - [setSession, ['@http.session']]
-      - [setUser, ['@http.user']]
-      - [setTemplateFactory, ['@template.factory']]
-
-
   # Nette Framework compatibility aliases
   presenterFactory: '@application.presenter_factory'
   router: '@application.router'

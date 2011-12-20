@@ -27,6 +27,11 @@ use Nette;
 class Container extends Symfony\Component\DependencyInjection\Container implements IContainer
 {
 
+	/** @var array */
+	protected $parameters;
+
+
+
 	/********************* Nette\DI\IContainer *********************/
 
 
@@ -103,7 +108,7 @@ class Container extends Symfony\Component\DependencyInjection\Container implemen
 	public function __get($name)
 	{
 		if ($name === 'params' || $name === 'parameters') {
-			return $this->getParameterBag()->all();
+			return new ParameterBag($this->getParameterBag());
 		}
 
 		return $this->getService($name);

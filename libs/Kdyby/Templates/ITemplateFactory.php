@@ -23,7 +23,7 @@ interface ITemplateFactory
 
 	/**
 	 * @param Nette\ComponentModel\Component $component
-	 * @return Nette\Templating\ITemplate
+	 * @return \Nette\Templating\Template
 	 */
 	function createTemplate(Nette\ComponentModel\Component $component);
 
