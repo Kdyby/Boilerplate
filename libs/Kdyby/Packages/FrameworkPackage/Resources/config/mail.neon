@@ -1,6 +1,0 @@
-parameters:
-  mail.mailer.class: Nette\Mail\SendmailMailer
-
-services:
-  mail.mailer:
-    class: %mail.mailer.class%
