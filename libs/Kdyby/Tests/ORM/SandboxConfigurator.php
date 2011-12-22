@@ -23,7 +23,7 @@ use Nette\Utils\Finder;
  *
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class SandboxConfigurator extends Kdyby\DI\Configurator
+class SandboxConfigurator extends Kdyby\Config\Configurator
 {
 
 	/**
@@ -31,7 +31,7 @@ class SandboxConfigurator extends Kdyby\DI\Configurator
 	 */
 	public function __construct($params = NULL)
 	{
-		parent::__construct($params, new Kdyby\Packages\DefaultPackages());
+		parent::__construct($params, new Kdyby\Package\DefaultPackages());
 		$this->setEnvironment('console');
 		$this->setProductionMode(TRUE);
 	}
@@ -43,7 +43,7 @@ class SandboxConfigurator extends Kdyby\DI\Configurator
 	 */
 	final public function getRegistry()
 	{
-		$registry = $this->getContainer()->get('doctrine');
+		$registry = $this->getContainer()->doctrine;
 		if (!$registry instanceof SandboxRegistry) {
 			throw new Kdyby\UnexpectedValueException("Service 'doctrine' must be instance of 'Kdyby\\Tests\\ORM\\SandboxRegistry', instance of '" . get_class($registry) . "' given.");
 		}
@@ -54,23 +54,11 @@ class SandboxConfigurator extends Kdyby\DI\Configurator
 
 
 	/**
-	 * Gets the container class.
-	 *
-	 * @return string The container class
-	 */
-	protected function getContainerClass()
-	{
-		return 'DoctrineConsoleContainer';
-	}
-
-
-
-	/**
 	 * @return string
 	 */
-	protected function getConfigFile()
+	public function getConfigFile()
 	{
-		return $this->params['appDir'] . '/config.orm.neon';
+		return $this->parameters['appDir'] . '/config.orm.neon';
 	}
 
 
@@ -118,7 +106,6 @@ class SandboxConfigurator extends Kdyby\DI\Configurator
 
 			// prepare schema
 			$classes = $em->getMetadataFactory()->getAllMetadata();
-			$schemaTool->dropDatabase();
 			$schemaTool->createSchema($classes);
 		}
 	}

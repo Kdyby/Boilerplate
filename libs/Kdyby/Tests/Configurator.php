@@ -18,7 +18,7 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class Configurator extends Kdyby\DI\Configurator
+class Configurator extends Kdyby\Config\Configurator
 {
 
 	/** @var \Kdyby\Tests\Configurator */
@@ -28,9 +28,9 @@ class Configurator extends Kdyby\DI\Configurator
 
 	/**
 	 * @param array $params
-	 * @param \Kdyby\Package\IPackageList $packageFinder
+	 * @param \Kdyby\Packages\IPackageList $packageFinder
 	 */
-	public function __construct($params = NULL, Kdyby\Package\IPackageList $packageFinder = NULL)
+	public function __construct($params = NULL, Kdyby\Packages\IPackageList $packageFinder = NULL)
 	{
 		parent::__construct($params, $packageFinder);
 		static::$configurator = $this;
@@ -51,9 +51,9 @@ class Configurator extends Kdyby\DI\Configurator
 	/**
 	 * @return string
 	 */
-	protected function getConfigFile()
+	public function getConfigFile()
 	{
-		return $this->params['appDir'] . '/config.neon';
+		return $this->parameters['appDir'] . '/config.neon';
 	}
 
 }

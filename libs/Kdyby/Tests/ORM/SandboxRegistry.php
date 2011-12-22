@@ -22,7 +22,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class SandboxRegistry extends Kdyby\Packages\DoctrinePackage\Registry
+class SandboxRegistry extends Kdyby\Package\DoctrinePackage\Registry
 {
 	/**
 	 * @var \Kdyby\Tests\ORM\DataFixturesLoader[]
@@ -41,8 +41,8 @@ class SandboxRegistry extends Kdyby\Packages\DoctrinePackage\Registry
 
 			foreach ($this->getEntityManagerNames() as $emName) {
 				$this->fixtureLoaders[] = new DataFixturesLoader(
-					$this->container->get($emName . '.data_fixtures.loader'),
-					$this->container->get($emName . '.data_fixtures.executor')
+					$this->container->getService($emName . '_dataFixtures_loader'),
+					$this->container->getService($emName . '_dataFixtures_executor')
 				);
 			}
 		}

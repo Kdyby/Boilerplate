@@ -60,7 +60,8 @@ abstract class OrmTestCase extends TestCase
 	{
 		$params = array(
 			'wwwDir' => $this->getContext()->expand('%wwwDir%'),
-			'appDir' => $this->getContext()->expand('%appDir%')
+			'appDir' => $this->getContext()->expand('%appDir%'),
+			'container' => array('class' => 'ConsoleOrmContainer')
 		);
 
 		$config = new ORM\SandboxConfigurator($params);
