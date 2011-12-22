@@ -19,7 +19,7 @@ use Nette;
  * @author Patrik Votoček
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class EntityManagerHelper extends Kdyby\DI\ContainerHelper
+class EntityManagerHelper extends Kdyby\Console\ContainerHelper
 {
 
 	/**
@@ -27,7 +27,7 @@ class EntityManagerHelper extends Kdyby\DI\ContainerHelper
      */
     public function getEntityManager()
     {
-        return $this->container->getEntityManager();
+        return $this->container->doctrine->getEntityManager();
     }
 
 
