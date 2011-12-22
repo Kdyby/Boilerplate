@@ -103,11 +103,14 @@ class UserMockBuilder extends Nette\Object
 	{
 		$this->session = $this->test->getMock('Nette\Http\Session', array(), array(), "", FALSE);
 
-		$context = new Kdyby\DI\Container();
+		$context = new Nette\DI\Container();
+		$context->classes = array(
+			'nette\security\iauthenticator' => 'authenticator',
+			'nette\security\iauthorizator' => 'authorizator',
+		);
 		$context->addService('authenticator', new Kdyby\Security\SimpleAuthenticator($identity));
 		$context->addService('authorizator', $permission);
-		$context->addService('session', $this->session);
-		$user = new Nette\Http\User($context);
+		$user = new Kdyby\Http\User($this->session, $context);
 
 		$sectionName = 'Nette.Web.User/' . $userNamespace;
 		$section = new SessionSection($this->session, $sectionName);
@@ -148,7 +151,12 @@ class UserMockBuilder extends Nette\Object
 	 */
 	private function injectSection(User $user, SessionSection $section)
 	{
-		$sessionRefl = $user->getReflection()->getProperty('session');
+		$refl = $user->getReflection();
+		while ($refl->getName() !== 'Nette\Http\User') {
+			$refl = $refl->getParentClass();
+		}
+
+		$sessionRefl = $refl->getProperty('section');
 		$sessionRefl->setAccessible(TRUE);
 		$sessionRefl->setValue($user, $this->section = $section);
 	}
