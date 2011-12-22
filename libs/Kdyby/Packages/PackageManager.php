@@ -23,98 +23,33 @@ use Symfony;
 class PackageManager extends Nette\Object
 {
 
-	/** @var \Kdyby\Package\IPackage[] */
-	private $packages = array();
-
-	/** @var \Kdyby\Package\IMetadataStorage */
-	private $metadataStorage;
+	/** @var \Kdyby\Packages\PackagesContainer */
+	private $packages;
 
 
 
 	/**
+	 * @param \Kdyby\Packages\PackagesContainer $packages
 	 */
-	public function __construct()
+	public function setActive(PackagesContainer $packages)
 	{
-		$this->metadataStorage = new MetadataStorage\MemoryStorage();
+		$this->packages = $packages;
 	}
 
 
+
 	/**
-	 * @param array $packages
-	 * @return \Kdyby\Package\IPackage[]
+	 * @param string $name
+	 * @return \Kdyby\Packages\Package
+	 * @throws \Kdyby\InvalidArgumentException
 	 */
-	public function activate(array $packages)
+	public function getPackage($name)
 	{
-		foreach ($packages as $packageClass) {
-			if (isset($this->packages[$packageClass])) {
-				throw new Kdyby\InvalidArgumentException("Package '$packageClass' is already active.");
-			}
-
-			$package = new $packageClass;
-			if (!$package instanceof IPackage) {
-				throw new Kdyby\InvalidArgumentException("Package '$packageClass' does not implement 'Kdyby\\Package\\IPackage'.");
-			}
-
-			$this->packages[$package->getName()] = $package;
+		if (!isset($this->packages[$name])) {
+			throw new Kdyby\InvalidArgumentException('Package named "' . $name . '" is not active.');
 		}
 
-		return $this->packages;
-	}
-
-
-
-	/**
-	 * @return \Kdyby\Package\IPackage[]
-	 */
-	public function getPackages()
-	{
-		return $this->packages;
-	}
-
-
-
-	/**
-	 * @param string $packageName
-	 * @return \Kdyby\Package\IPackage
-	 */
-	public function getPackage($packageName)
-	{
-		if (!isset($this->packages[$packageName])) {
-			throw new Kdyby\InvalidStateException("Package '$packageName' is not registered.");
-		}
-
-		return $this->packages[$packageName];
-	}
-
-
-
-	/**
-	 * @return \Kdyby\Package\ApplicationEventInvoker
-	 */
-	public function createInvoker()
-	{
-		return new ApplicationEventInvoker($this->getPackages());
-	}
-
-
-
-	/**
-	 * @param \Kdyby\Package\IMetadataStorage $storage
-	 */
-	public function setMetadataStorage(IMetadataStorage $storage)
-	{
-		$this->metadataStorage = $storage;
-	}
-
-
-
-	/**
-	 * @param string $packageName
-	 * @return \Kdyby\Package\PackageMeta
-	 */
-	public function getPackageMeta($packageName)
-	{
-		return $this->metadataStorage->load($packageName);
+		return $this->packages[$name];
 	}
 
 
@@ -128,7 +63,7 @@ class PackageManager extends Nette\Object
 	 */
 	public function isClassInActivePackage($class)
 	{
-		foreach ($this->getPackages() as $package) {
+		foreach ($this->packages as $package) {
 			if (strpos($class, $package->getNamespace()) === 0) {
 				return TRUE;
 			}

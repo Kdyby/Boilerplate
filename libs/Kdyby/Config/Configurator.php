@@ -35,12 +35,12 @@ class Configurator extends Nette\Object
 {
 
 	/** @var array */
-	protected $parameters = array();
+	public $parameters = array();
 
 	/** @var boolean */
 	private $initialized = FALSE;
 
-	/** @var \Kdyby\Package\PackagesContainer */
+	/** @var \Kdyby\Packages\PackagesContainer */
 	private $packages;
 
 	/** @var \Nette\DI\Container */
@@ -50,9 +50,9 @@ class Configurator extends Nette\Object
 
 	/**
 	 * @param array $parameters
-	 * @param \Kdyby\Package\IPackageList $packageFinder
+	 * @param \Kdyby\Packages\IPackageList $packageFinder
 	 */
-	public function __construct($parameters = NULL, Kdyby\Package\IPackageList $packageFinder = NULL)
+	public function __construct($parameters = NULL, Kdyby\Packages\IPackageList $packageFinder = NULL)
 	{
 		// path defaults
 		$this->parameters = static::defaultPaths($parameters);
@@ -61,8 +61,8 @@ class Configurator extends Nette\Object
 		static::setupDebugger($this->parameters);
 
 		// finder
-		$packageFinder = $packageFinder ?: new Kdyby\Package\InstalledPackages($this->parameters['appDir']);
-		$this->packages = new Kdyby\Package\PackagesContainer($packageFinder);
+		$packageFinder = $packageFinder ?: new Kdyby\Packages\InstalledPackages($this->parameters['appDir']);
+		$this->packages = new Kdyby\Packages\PackagesContainer($packageFinder);
 
 		// environment
 		$this->setProductionMode();
@@ -147,7 +147,7 @@ class Configurator extends Nette\Object
 
 
 	/**
-	 * @return \Kdyby\Package\PackagesContainer
+	 * @return \Kdyby\Packages\PackagesContainer
 	 */
 	public function getPackages()
 	{
@@ -158,7 +158,7 @@ class Configurator extends Nette\Object
 
 
 	/**
-	 * @return \Nette\DI\Container
+	 * @return \SystemContainer|\Nette\DI\Container
 	 */
 	public function getContainer()
 	{
@@ -173,48 +173,11 @@ class Configurator extends Nette\Object
 
 
 	/**
-	 * @param \Nette\Application\Application $application
-	 */
-	public static function configureApplication(Nette\Application\Application $application)
-	{
-		if (Presenter::$invalidLinkMode === NULL) {
-			Presenter::$invalidLinkMode = Debugger::$productionMode
-				? Presenter::INVALID_LINK_SILENT
-				: Presenter::INVALID_LINK_WARNING;
-		}
-
-		$application->catchExceptions = Debugger::$productionMode;
-	}
-
-
-
-	/**
-	 * @param \Nette\Loaders\RobotLoader $robot
-	 */
-	public static function configureRobotLoader(Nette\Loaders\RobotLoader $robot)
-	{
-		$robot->autoRebuild = $robot->autoRebuild ? !Debugger::$productionMode : FALSE;
-	}
-
-
-
-	/**
 	 * @param \Kdyby\Doctrine\Diagnostics\Panel $panel
 	 */
 	public static function configureDbalSqlLogger(Kdyby\Doctrine\Diagnostics\Panel $panel)
 	{
 		$panel->registerBarPanel(Debugger::$bar);
-	}
-
-
-
-	/**
-	 * @param Nette\Application\IRouter $router
-	 */
-	public static function configureDefaultRouter(Nette\Application\IRouter $router)
-	{
-		$router[] = new Nette\Application\Routers\Route('index.php', 'Homepage:default', Nette\Application\Routers\Route::ONE_WAY);
-		$router[] = new Nette\Application\Routers\Route('<presenter>/<action>[/<id>]', 'Homepage:default');
 	}
 
 

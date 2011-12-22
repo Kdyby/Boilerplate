@@ -22,27 +22,26 @@ use Nette\Diagnostics\Debugger;
 class Application extends Nette\Application\Application
 {
 
-	/** @var \Kdyby\DI\IConfigurator */
+	/** @var \Kdyby\Config\Configurator */
 	private $configurator;
 
 	/** @var \Kdyby\Application\RequestManager */
 	private $requestsManager;
 
-	/** @var \Kdyby\Package\PackageManager */
+	/** @var \Kdyby\Packages\PackageManager */
 	private $packageManager;
 
 
 
 	/**
-	 * @param array|string|\Kdyby\DI\IConfigurator $params
+	 * @param array|string|\Nette\Config\Configurator $params
 	 * @param string $environment
 	 * @param string $productionMode
 	 */
 	public function __construct($params = NULL, $environment = NULL, $productionMode = NULL)
 	{
-		if ($params instanceof Kdyby\DI\IConfigurator) {
+		if ($params instanceof Kdyby\Config\Configurator) {
 			$this->configurator = $params;
-			$params = $this->configurator->params;
 
 		} else {
 			$this->configurator = $this->createConfigurator($params);
@@ -60,27 +59,27 @@ class Application extends Nette\Application\Application
 
 		// inject application instance
 		$container = $this->configurator->getContainer();
-		$container->set('application', $this);
+		$container->addService('application', $this);
 
 		// dependencies
-		$this->packageManager = $container->get('application.package_manager');
-		$this->requestsManager = $container->get('application.stored_requests_manager');
+		$this->packageManager = $container->application_packageManager;
+		$this->requestsManager = $container->application_storedRequestsManager;
 		parent::__construct(
-			$container->get('application.presenter_factory'),
-			$container->get('application.router'),
-			$container->get('http.request'),
-			$container->get('http.response'),
-			$container->get('http.session')
+			$container->presenterFactory,
+			$container->router,
+			$container->httpRequest,
+			$container->httpResponse,
+			$container->session
 		);
 
 		// wire events
-		$invoker = $this->packageManager->createInvoker();
-		$invoker->setContainer($container);
-		$invoker->attach($this);
+		$packages = $this->configurator->getPackages();
+		$packages->setContainer($container);
+		$packages->attach($this);
 
-		// call onDebug
+		// call debug
 		if (Debugger::$productionMode === FALSE) {
-			$invoker->onDebug();
+			$packages->debug();
 		}
 	}
 
@@ -89,19 +88,19 @@ class Application extends Nette\Application\Application
 	/**
 	 * @param array $params
 	 *
-	 * @return \Kdyby\DI\IConfigurator
+	 * @return \Kdyby\Config\Configurator
 	 */
 	protected function createConfigurator($params)
 	{
-		return new Kdyby\DI\Configurator($params);
+		return new Kdyby\Config\Configurator($params);
 	}
 
 
 
 	/**
-	 * @return \Kdyby\DI\IConfigurator
+	 * @return \Kdyby\Config\Configurator
 	 */
-	protected function getConfigurator()
+	public function getConfigurator()
 	{
 		return $this->configurator;
 	}

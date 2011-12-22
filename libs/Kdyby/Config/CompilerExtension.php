@@ -54,7 +54,7 @@ class CompilerExtension extends Nette\Config\CompilerExtension
 	 */
 	public static function getOptions(array $given, array $defaults, $keepNull = FALSE)
 	{
-		$options = array_intersect_assoc($given, $defaults) + $defaults;
+		$options = array_intersect_key($given, $defaults) + $defaults;
 
 		if ($keepNull === TRUE) {
 			return $options;

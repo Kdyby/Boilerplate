@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Package;
+namespace Kdyby\Packages;
 
 use Kdyby;
 use Kdyby\Application\Application;
@@ -23,7 +23,7 @@ use Symfony;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class PackagesContainer extends Nette\Object implements \IteratorAggregate
+class PackagesContainer extends Nette\Object implements \IteratorAggregate, \ArrayAccess
 {
 
 	/**
@@ -104,8 +104,10 @@ class PackagesContainer extends Nette\Object implements \IteratorAggregate
 
 	/**
 	 * Occurs before the application loads presenter
+	 *
+	 * @param \Kdyby\Application\Application $application
 	 */
-	public function startup()
+	public function startup(Application $application)
 	{
 		foreach ($this->packages as $package) {
 			$package->startup();
@@ -117,9 +119,10 @@ class PackagesContainer extends Nette\Object implements \IteratorAggregate
 	/**
 	 * Occurs when a new request is ready for dispatch
 	 *
+	 * @param \Kdyby\Application\Application $application
 	 * @param \Nette\Application\Request $request
 	 */
-	public function request(App\Request $request)
+	public function request(Application $application, App\Request $request)
 	{
 		foreach ($this->packages as $package) {
 			$package->request($request);
@@ -131,9 +134,10 @@ class PackagesContainer extends Nette\Object implements \IteratorAggregate
 	/**
 	 * Occurs when a new response is received
 	 *
+	 * @param \Kdyby\Application\Application $application
 	 * @param \Nette\Application\IResponse $response
 	 */
-	public function response(App\IResponse $response)
+	public function response(Application $application, App\IResponse $response)
 	{
 		foreach ($this->packages as $package) {
 			$package->response($response);
@@ -145,9 +149,10 @@ class PackagesContainer extends Nette\Object implements \IteratorAggregate
 	/**
 	 * Occurs when an unhandled exception occurs in the application
 	 *
+	 * @param \Kdyby\Application\Application $application
 	 * @param \Exception $e
 	 */
-	public function error(\Exception $e)
+	public function error(Application $application, \Exception $e)
 	{
 		foreach ($this->packages as $package) {
 			$package->error($e);
@@ -159,9 +164,10 @@ class PackagesContainer extends Nette\Object implements \IteratorAggregate
 	/**
 	 * Occurs before the application shuts down
 	 *
+	 * @param \Kdyby\Application\Application $application
 	 * @param \Exception|NULL $e
 	 */
-	public function shutdown(\Exception $e = NULL)
+	public function shutdown(Application $application, \Exception $e = NULL)
 	{
 		foreach ($this->packages as $package) {
 			$package->shutdown($e);
@@ -229,4 +235,50 @@ class PackagesContainer extends Nette\Object implements \IteratorAggregate
 	{
 		return new \ArrayIterator($this->packages);
 	}
+
+
+
+	/**
+	 * @param string $offset
+	 * @return bool
+	 */
+	public function offsetExists($offset)
+	{
+		return isset($this->packages[$offset]);
+	}
+
+
+
+	/**
+	 * @param string $offset
+	 * @return \Kdyby\Packages\Package
+	 */
+	public function offsetGet($offset)
+	{
+		return $this->packages[$offset];
+	}
+
+
+
+	/**
+	 * @param string $offset
+	 * @param mixed $value
+	 * @throws \Kdyby\NotSupportedException
+	 */
+	public function offsetSet($offset, $value)
+	{
+		throw new Kdyby\NotSupportedException;
+	}
+
+
+
+	/**
+	 * @param string $offset
+	 * @throws \Kdyby\NotSupportedException
+	 */
+	public function offsetUnset($offset)
+	{
+		throw new Kdyby\NotSupportedException;
+	}
+
 }
