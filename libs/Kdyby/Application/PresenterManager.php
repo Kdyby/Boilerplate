@@ -11,12 +11,10 @@
 namespace Kdyby\Application;
 
 use Kdyby;
-use Kdyby\Package\PackageManager;
+use Kdyby\Packages\PackageManager;
 use Nette;
 use Nette\Reflection\ClassType;
 use Nette\Utils\Strings;
-use Symfony;
-use Symfony\Component\DependencyInjection\Container;
 
 
 
@@ -26,20 +24,20 @@ use Symfony\Component\DependencyInjection\Container;
 class PresenterManager extends Nette\Application\PresenterFactory implements Nette\Application\IPresenterFactory
 {
 
-	/** @var Kdyby\DI\IContainer */
+	/** @var \Nette\DI\Container */
 	private $container;
 
-	/** @var \Kdyby\Package\PackageManager */
+	/** @var \Kdyby\Packages\PackageManager */
 	private $packageManager;
 
 
 
 	/**
-	 * @param \Kdyby\Package\PackageManager $packageManager
-	 * @param \Kdyby\DI\IContainer $container
+	 * @param \Kdyby\Packages\PackageManager $packageManager
+	 * @param \Nette\DI\Container $container
 	 * @param string $appDir
 	 */
-	public function __construct(PackageManager $packageManager, Kdyby\DI\IContainer $container, $appDir)
+	public function __construct(PackageManager $packageManager, Nette\DI\Container $container, $appDir)
 	{
 		parent::__construct($appDir, $container);
 
@@ -52,7 +50,7 @@ class PresenterManager extends Nette\Application\PresenterFactory implements Net
 	/**
 	 * @param  string  presenter name
 	 * @return string  class name
-	 * @throws InvalidPresenterException
+	 * @throws \Kdyby\Application\InvalidPresenterException
 	 */
 	public function getPresenterClass(& $name)
 	{
@@ -65,8 +63,8 @@ class PresenterManager extends Nette\Application\PresenterFactory implements Net
 		}
 
 		$serviceName = $this->formatServiceNameFromPresenter($name);
-		if ($this->container->has($serviceName)) {
-			$reflection = new ClassType($this->container->getParameter($serviceName . '.class'));
+		if ($this->container->hasService($serviceName)) {
+			$reflection = new ClassType($this->container->getService($serviceName));
 			return $reflection->getName();
 		}
 
@@ -109,21 +107,18 @@ class PresenterManager extends Nette\Application\PresenterFactory implements Net
 	/**
 	 * Finds presenter service in DI Container, or creates new object
 	 * @param string $name
-	 * @return IPresenter
+	 * @return \Nette\Application\IPresenter
 	 */
 	public function createPresenter($name)
 	{
 		$serviceName = $this->formatServiceNameFromPresenter($name);
-		if ($this->container->has($serviceName)) {
-			$presenter = $this->container->get($serviceName);
+		if ($this->container->hasService($serviceName)) {
+			$presenter = $this->container->getService($serviceName);
 
 		} else {
 			$class = $this->getPresenterClass($name);
 			$presenter = new $class($this->container);
 		}
-
-		$presenter->invalidLinkMode = $this->container->getParameter('productionMode')
-			? UI\Presenter::INVALID_LINK_SILENT : UI\Presenter::INVALID_LINK_WARNING;
 
 		return $presenter;
 	}
@@ -132,7 +127,7 @@ class PresenterManager extends Nette\Application\PresenterFactory implements Net
 
 	/**
 	 * @param string $presenterClass
-	 * @return \Kdyby\Package\IPackage
+	 * @return \Kdyby\Package\Package
 	 */
 	public function getPresenterPackage($presenterClass)
 	{
@@ -157,10 +152,9 @@ class PresenterManager extends Nette\Application\PresenterFactory implements Net
 	 */
 	public function formatServiceNameFromPresenter($presenter)
 	{
-		return strtolower(Strings::replace(strtr($presenter, ':', '.'), array(
-			'~([A-Z]+)([A-Z][a-z])~' => '\\1_\\2',
-			'~([a-z\d])([A-Z])~' => '\\1_\\2'
-		))) . '_presenter';
+		return Strings::replace($presenter, '/(^|:)+(.)/', function ($match) {
+			return (':' === $match[1] ? '_' : '') . strtolower($match[2]);
+		}) . 'Presenter';
 	}
 
 
@@ -175,8 +169,8 @@ class PresenterManager extends Nette\Application\PresenterFactory implements Net
 	 */
 	public function formatPresenterFromServiceName($name)
 	{
-		return Strings::replace(substr($name, 0, -10), '/(^|_|\.)+(.)/', function ($match) {
-			return ('.' === $match[1] ? ':' : '') . strtoupper($match[2]);
+		return Strings::replace(substr($name, 0, -9), '/(^|_)+(.)/', function ($match) {
+			return ('_' === $match[1] ? ':' : '') . strtoupper($match[2]);
 		});
 	}
 
@@ -204,9 +198,9 @@ class PresenterManager extends Nette\Application\PresenterFactory implements Net
 
 	/**
 	 * @param string $presenter
-	 * @param \Kdyby\Package\IPackage $package
+	 * @param \Kdyby\Packages\Package $package
 	 */
-	public function formatClassFromPresenter($presenter, \Kdyby\Package\IPackage $package)
+	public function formatClassFromPresenter($presenter, Kdyby\Packages\Package $package)
 	{
 		return $package->getNamespace() . '\\Presenter\\' . $this->formatPresenterClass($presenter);
 	}

@@ -22,18 +22,19 @@ use Nette;
 class PresenterManagerTest extends Kdyby\Tests\TestCase
 {
 
-	/** @var  */
+	/** @var \Kdyby\Application\PresenterManager */
 	private $manager;
 
 
 
 	public function setup()
 	{
-		$pm = new \Kdyby\Package\PackageManager();
-		$pm->activate($this->getPackages());
+		$pm = new Kdyby\Packages\PackageManager();
+		$pm->setActive($this->getPackages());
 
-		$container = new \Kdyby\DI\Container();
-		$container->setParameter('productionMode', TRUE);
+		$container = new Nette\DI\Container();
+		$container->addService('templateFactory', (object)NULL);
+		$container->parameters['productionMode'] = TRUE;
 		$this->manager = new PresenterManager($pm,
 			$container,
 			$this->getContext()->expand('%appDir%')
@@ -43,15 +44,15 @@ class PresenterManagerTest extends Kdyby\Tests\TestCase
 
 
 	/**
-	 * @return array
+	 * @return \Kdyby\Packages\PackagesContainer
 	 */
 	private function getPackages()
 	{
-		$defaultPackages = new \Kdyby\Packages\DefaultPackages();
-		return array_merge($defaultPackages->getPackages(), array(
+		$defaultPackages = new Kdyby\Package\DefaultPackages();
+		return new Kdyby\Packages\PackagesContainer(array_merge($defaultPackages->getPackages(), array(
 			'Kdyby\\Tests\\Application\\Mocks\\BarPackage\\BarPackage',
 			'Kdyby\\Tests\\Application\\Mocks\\FooPackage\\FooPackage',
-		));
+		)));
 	}
 
 
@@ -92,10 +93,10 @@ class PresenterManagerTest extends Kdyby\Tests\TestCase
 	public function dataServiceNamesAndPresenters()
 	{
 		return array(
-			array('FooPackage:Foo', 'foo_package.foo_presenter'),
-			array('BarPackage:FooFoo', 'bar_package.foo_foo_presenter'),
-			array('BarPackage:Foo:FooBar', 'bar_package.foo.foo_bar_presenter'),
-			array('FooBarPackage:Foo:FooBar', 'foo_bar_package.foo.foo_bar_presenter'),
+			array('FooPackage:Foo', 'fooPackage_fooPresenter'),
+			array('BarPackage:FooFoo', 'barPackage_fooFooPresenter'),
+			array('BarPackage:Foo:FooBar', 'barPackage_foo_fooBarPresenter'),
+			array('FooBarPackage:Foo:FooBar', 'fooBarPackage_foo_fooBarPresenter'),
 		);
 	}
 
@@ -139,8 +140,8 @@ class PresenterManagerTest extends Kdyby\Tests\TestCase
 	 */
 	public function testCreatePresenterFromPackageUsingContainer($class, $name)
 	{
-		$pm = new \Kdyby\Package\PackageManager();
-		$pm->activate($this->getPackages());
+		$pm = new Kdyby\Packages\PackageManager();
+		$pm->setActive($this->getPackages());
 
 		$manager = new PresenterManager($pm,
 			$this->createContainerWithPresenters(),
@@ -165,13 +166,14 @@ class PresenterManagerTest extends Kdyby\Tests\TestCase
 			'Kdyby\Tests\Application\Mocks\FooPackage\Presenter\BarModule\BarBarPresenter' => 'FooPackage:Bar:BarBar',
 		);
 
-		$container = new \Kdyby\DI\Container();
+		$container = new Nette\DI\Container();
+		$container->addService('templateFactory', (object)NULL);
 		foreach ($presenters as $presenterClass => $presenter) {
 			$serviceName = $this->manager->formatServiceNameFromPresenter($presenter);
-			$container->set($serviceName, new $presenterClass);
+			$container->addService($serviceName, new $presenterClass($container));
 		}
 
-		$container->setParameter('productionMode', TRUE);
+		$container->parameters['productionMode'] = TRUE;
 		return $container;
 	}
 
@@ -257,7 +259,7 @@ class PresenterManagerTest extends Kdyby\Tests\TestCase
 
 /** Bar package simulation */
 namespace Kdyby\Tests\Application\Mocks\BarPackage;
-class BarPackage extends \Kdyby\Package\Package
+class BarPackage extends \Kdyby\Packages\Package
 {
 
 }
@@ -277,7 +279,7 @@ class BarPresenter extends \Kdyby\Application\UI\Presenter
 
 /** Foo package simulation */
 namespace Kdyby\Tests\Application\Mocks\FooPackage;
-class FooPackage extends \Kdyby\Package\Package
+class FooPackage extends \Kdyby\Packages\Package
 {
 
 }
