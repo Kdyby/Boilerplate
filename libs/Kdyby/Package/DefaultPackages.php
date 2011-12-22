@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Tests\Fixtures\BarPackage;
+namespace Kdyby\Package;
 
 use Kdyby;
 use Nette;
@@ -18,7 +18,14 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class BarPackage extends Kdyby\Packages\Package
+class DefaultPackages extends Kdyby\Packages\DirectoryPackages
 {
+
+    /**
+     */
+    public function __construct()
+    {
+        parent::__construct(__DIR__, __NAMESPACE__);
+    }
 
 }

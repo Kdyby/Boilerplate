@@ -11,7 +11,7 @@
 namespace Kdyby\Security;
 
 use Kdyby;
-use Kdyby\Packages\DoctrinePackage\Registry;
+use Kdyby\Package\DoctrinePackage\Registry;
 use Nette;
 use Nette\Http;
 use Nette\Security\IIdentity;
@@ -48,7 +48,7 @@ class AuthorizatorFactory extends Nette\Object
 	/**
 	 * @param \Nette\Http\User $user
 	 * @param \Nette\Http\Session $session
-	 * @param \Kdyby\Packages\DoctrinePackage\Registry $registry
+	 * @param \Kdyby\Package\DoctrinePackage\Registry $registry
 	 */
 	public function __construct(Http\User $user, Http\Session $session, Registry $registry)
 	{

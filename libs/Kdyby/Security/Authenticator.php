@@ -23,13 +23,13 @@ use Nette\Security\AuthenticationException;
 class Authenticator extends Nette\Object implements Nette\Security\IAuthenticator
 {
 
-	/** @var Dao */
+	/** @var \Kdyby\Doctrine\Dao */
 	private $users;
 
 
 
 	/**
-	 * @param Dao $users
+	 * @param \Kdyby\Doctrine\Dao $users
 	 */
 	public function __construct(Dao $users)
 	{

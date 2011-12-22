@@ -1,13 +1,14 @@
-parameters:
-  cache.data_storage.class: Nette\Caching\Storages\MemoryStorage
-
-services:
-  cache.data_storage:
-    class: %cache.data_storage.class%
-
-doctrine:
-  dbal:
+dbal:
     driver: pdo_sqlite
     memory: TRUE
-  orm:
-    auto_mapping: TRUE
+
+
+services:
+    doctrine:
+        _extends: doctrine
+        class: Kdyby\Tests\ORM\SandboxRegistry
+
+    cacheStorage:
+        _extends: cacheStorage
+        class: Nette\Caching\Storages\MemoryStorage
+        arguments: []

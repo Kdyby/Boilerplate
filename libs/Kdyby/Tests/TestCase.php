@@ -46,7 +46,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 
 
 	/**
-	 * @return \Kdyby\DI\SystemContainer
+	 * @return \SystemContainer|\Nette\DI\Container
 	 */
 	public function getContext()
 	{

@@ -33,15 +33,10 @@ Debugger::$maxLen = 4096;
 if (!is_writable($params['tempDir'])) {
 	throw new Kdyby\DirectoryNotWritableException("Temp directory '" . $params['tempDir'] . "' is not writable.");
 }
-$configurator = new Kdyby\Tests\Configurator($params, new \Kdyby\Packages\DefaultPackages());
+$configurator = new Kdyby\Tests\Configurator($params, new Kdyby\Package\DefaultPackages());
 $configurator->setEnvironment('test');
 $configurator->setProductionMode(TRUE);
-
-
-
-// make container accessible globally
-$container = $configurator->container;
-Nette\Environment::setContext($container);
+$container = $configurator->getContainer();
 
 
 // start session on time
