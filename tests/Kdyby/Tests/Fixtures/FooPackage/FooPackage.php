@@ -18,7 +18,7 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class FooPackage extends Kdyby\Package\Package
+class FooPackage extends Kdyby\Packages\Package
 {
 
 }
