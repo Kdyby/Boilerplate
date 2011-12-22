@@ -30,6 +30,25 @@ class TemplateParametersPanel extends Nette\Object implements Nette\Diagnostics\
 
 
 	/**
+	 * @param \Nette\Application\UI\PresenterComponent $component
+	 */
+	public function addComponent(UI\PresenterComponent $component)
+	{
+		if (!$component->getReflection()->hasMethod('getTemplate')) {
+			return;
+		}
+
+		$template = $component->getTemplate();
+		if (!$template instanceof \Nette\Templating\Template) {
+			return;
+		}
+
+		$this->components[$component->getUniqueId() ? : 'presenter'] = $template;
+	}
+
+
+
+	/**
 	 * Renders HTML code for custom tab.
 	 * @return string
 	 */
@@ -52,7 +71,7 @@ class TemplateParametersPanel extends Nette\Object implements Nette\Diagnostics\
 	public function getPanel()
 	{
 		ob_start();
-		$data = $this->components;
+		$data = $this->getComponents();
 		require __DIR__ . '/templates/bar.templateparams.panel.phtml';
 		return ob_get_clean();
 	}
@@ -60,26 +79,18 @@ class TemplateParametersPanel extends Nette\Object implements Nette\Diagnostics\
 
 
 	/**
-	 * @param \Nette\Application\UI\PresenterComponent $component
+	 * @return array
 	 */
-	public function addComponent(UI\PresenterComponent $component)
+	private function getComponents()
 	{
-		if (!$component->getReflection()->hasMethod('getTemplate')) {
-			return;
-		}
-
-		$template = $component->getTemplate();
-		if (!$template instanceof \Nette\Templating\Template) {
-			return;
-		}
-
 		$dump = array();
-		foreach ($template->getParameters() as $key => $val) {
-			$dump[$key] = Nette\Diagnostics\Helpers::clickableDump($val);
+		foreach ($this->components as $name => $component) {
+			foreach ($component->getTemplate()->getParameters() as $key => $val) {
+				$dump[$name][$key] = Nette\Diagnostics\Helpers::clickableDump($val);
+			}
 		}
 
-		$name = $component->getUniqueId() ?: 'presenter';
-		$this->components[$name] = $dump;
+		return $dump;
 	}
 
 
