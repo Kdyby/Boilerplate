@@ -27,23 +27,20 @@ class FrameworkPackage extends Kdyby\Packages\Package
 	 */
 	public function startup()
 	{
-		$session = $this->container->get('http.session');
-		if ($session->exists()) {
-			$session->start();
-		}
+//		if ($this->container->session->exists()) {
+//			$this->container->session->start();
+//		}
 	}
 
 
 
 	/**
-	 * Occurs before the application loads presenter
+	 * @param \Nette\Config\Configurator $config
+	 * @param \Nette\Config\Compiler $compiler
 	 */
-	public function debug()
+	public function compile(Nette\Config\Configurator $config, Nette\Config\Compiler $compiler)
 	{
-		Nette\Application\Diagnostics\RoutingPanel::initialize(
-			$this->container->get('application'),
-			$this->container->get('http.request')
-		);
+		$compiler->addExtension('kdyby', new DI\FrameworkExtension());
 	}
 
 }
