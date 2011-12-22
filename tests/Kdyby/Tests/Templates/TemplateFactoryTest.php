@@ -26,19 +26,16 @@ class TemplateFactoryTest extends Kdyby\Tests\TestCase
 	/** @var \Kdyby\Application\UI\Control */
 	private $component;
 
-	/** @var \Kdyby\DI\Container */
-	private $context;
-
 
 
 	public function setUp()
 	{
 		$this->templateFactory = new Kdyby\Templates\TemplateFactory(
-			$this->getContext()->get('latte.engine'),
-			$this->getContext()->get('http.context'),
-			$this->getContext()->get('http.user'),
-			$this->getContext()->get('cache.phpfile_storage'),
-			$this->getContext()->get('cache.data_storage')
+			$this->getContext()->latte,
+			$this->getContext()->httpContext,
+			$this->getContext()->user,
+			$this->getContext()->templateCacheStorage,
+			$this->getContext()->cacheStorage
 		);
 
 		$this->component = new ControlMock();
@@ -81,7 +78,9 @@ class TemplateFactoryTest extends Kdyby\Tests\TestCase
 	public function testIntegrationCreateTemplateForPresenter()
 	{
 		// presenter
-		$this->component = $this->getMock('Kdyby\Application\UI\Presenter', array('hasFlashSession'));
+		$container = new Nette\DI\Container();
+		$container->templateFactory = $this->templateFactory;
+		$this->component = $this->getMock('Kdyby\Application\UI\Presenter', array('hasFlashSession'), array($container));
 		$this->component->expects($this->once())
 			->method('hasFlashSession')
 			->will($this->returnValue(FALSE));
