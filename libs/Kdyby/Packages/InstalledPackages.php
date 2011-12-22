@@ -11,11 +11,10 @@
 namespace Kdyby\Packages;
 
 use Kdyby;
-use Kdyby\Tools\Json;
 use Nette;
 use Nette\Reflection\ClassType;
 use Nette\Utils\Finder;
-use Nette\Utils\JsonException;
+use Nette\Utils\Neon;
 
 
 
@@ -59,28 +58,23 @@ class InstalledPackages extends Nette\Object implements \IteratorAggregate, IPac
 	 */
 	public function getPackages()
 	{
-		$file = $this->appDir . '/config/installed-packages.json';
+		$file = $this->appDir . '/config/packages.neon';
+		if (!file_exists($file)) {
+			$this->supplyDefaultPackages($file);
+		}
+
 		try {
-			if (!file_exists($file)) {
-				$list = $this->supplyDefaultPackages($file);
+			$list = (array)Neon::decode(@file_get_contents($file));
 
-			} else {
-				$list = (array)Json::decode($file);
-			}
-
-			$list = array_map(function ($package) {
-				return $package->class;
-			}, $list);
-
-			if (!$list) {
-				throw new Kdyby\InvalidStateException("File '$file' is corrupted! Fix the file, or delete it.");
-			}
-
-			return $list;
-
-		} catch (JsonException $e) {
+		} catch (Nette\Utils\NeonException $e) {
 			throw new Kdyby\InvalidStateException("Packages file '$file' is corrupted!", NULL, $e);
 		}
+
+		if (!$list) {
+			throw new Kdyby\InvalidStateException("File '$file' is corrupted! Fix the file, or delete it.");
+		}
+
+		return $list;
 	}
 
 
@@ -100,16 +94,12 @@ class InstalledPackages extends Nette\Object implements \IteratorAggregate, IPac
 			$default = array_merge($default, $packages->getPackages());
 		}
 
-		$list = array_map(function ($package) {
-			return (object)array('class' => $package);
-		}, $default->getPackages());
-
-		if (!@file_put_contents($file, Json::encode($list))) {
+		if (!@file_put_contents($file, Neon::encode($default, Neon::BLOCK))) {
 			throw Kdyby\FileNotWritableException::fromFile($file);
 		}
 		@chmod($file, 0777);
 
-		return $list;
+		return $default;
 	}
 
 }

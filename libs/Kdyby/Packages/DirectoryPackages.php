@@ -74,7 +74,7 @@ class DirectoryPackages extends Nette\Object implements \IteratorAggregate, IPac
 	 */
 	protected function isPackage(ClassType $refl)
 	{
-		return $refl->implementsInterface('Kdyby\Package\IPackage') && !$refl->isAbstract();
+		return $refl->isSubclassOf('Kdyby\Packages\Package') && !$refl->isAbstract();
 	}
 
 
