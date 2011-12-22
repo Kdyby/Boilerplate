@@ -23,7 +23,7 @@ class DirectoryPackagesTest extends \Kdyby\Tests\TestCase
 
     public function testGettingPackages()
     {
-        $finder = new \Kdyby\Package\DirectoryPackages(__DIR__ . '/../Fixtures', 'Kdyby\\Tests\\Fixtures');
+        $finder = new Kdyby\Packages\DirectoryPackages(__DIR__ . '/../Fixtures', 'Kdyby\\Tests\\Fixtures');
         $this->assertEquals(array(
                  'Kdyby\\Tests\\Fixtures\\BarPackage\\BarPackage',
                  'Kdyby\\Tests\\Fixtures\\FooPackage\\FooPackage',
