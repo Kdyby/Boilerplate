@@ -48,13 +48,19 @@ class AnnotationExtension extends Kdyby\Config\CompilerExtension
 		}
 
 		$container->addDefinition('annotationReader_indexed')
-			->setClass('Doctrine\Common\Annotations\IndexedReader', array('@annotationReader'));
+			->setClass('Doctrine\Common\Annotations\IndexedReader', array('@annotationReader'))
+			->setInternal(TRUE)
+			->setShared(FALSE);
 
 		$container->addDefinition('annotationReader_cached')
-			->setClass('Kdyby\Doctrine\Annotations\CachedReader', array('@annotationReader_indexed', '@annotationReader_cached_cache'));
+			->setClass('Kdyby\Doctrine\Annotations\CachedReader', array('@annotationReader_indexed', '@annotationReader_cached_cache'))
+			->setInternal(TRUE)
+			->setShared(FALSE);
 
 		$container->addDefinition('annotationReader_cached_cache')
-			->setClass('Kdyby\Doctrine\Cache', array('@cacheStorage'));
+			->setClass('Kdyby\Doctrine\Cache', array('@cacheStorage'))
+			->setInternal(TRUE)
+			->setShared(FALSE);
 	}
 
 }

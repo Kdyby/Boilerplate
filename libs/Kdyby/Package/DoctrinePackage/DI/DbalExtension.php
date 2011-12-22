@@ -34,6 +34,7 @@ class DbalExtension extends Kdyby\Config\CompilerExtension
 		'port' => 3306,
 		'user' => NULL,
 		'password' => NULL,
+		'charset' => 'UTF8',
 		'driver' => 'pdo_mysql',
 		'driverClass' => NULL,
 		'options' => NULL,
@@ -69,6 +70,7 @@ class DbalExtension extends Kdyby\Config\CompilerExtension
 	{
 		$connections = isset($config['connections']) ? $config['connections'] : array('default' => $config);
 
+		// default connection
 		if (empty($config['defaultConnection'])) {
 			$keys = array_keys($connections);
 			$config['defaultConnection'] = reset($keys);
@@ -76,10 +78,16 @@ class DbalExtension extends Kdyby\Config\CompilerExtension
 		$container->parameters['doctrine_defaultConnection'] = $config['defaultConnection'];
 
 		// Validators::assertFields($config['types'], 'class')
-		$container->parameters['doctrine_dbal_connectionFactory_types'] = $config['types'] + $this->defaultTypes;
+		$types = $this->defaultTypes;
+		if (isset($config['types'])) {
+			Validators::assertField($config, 'types', 'array');
+			$types = $config['types'] + $types;
+		}
+		$container->parameters['doctrine_dbal_connectionFactory_types'] = $types;
 
+		// connections list
 		foreach (array_keys($connections) as $name) {
-			$container->parameters['doctrine_connections'][$name] = 'doctrine_dba_' . $name . 'Connection';
+			$container->parameters['doctrine_connections'][$name] = 'doctrine_dbal_' . $name . 'Connection';
 		}
 
 		// load connections
@@ -113,7 +121,9 @@ class DbalExtension extends Kdyby\Config\CompilerExtension
 
 			$container->addDefinition($connectionName . '_logger')
 				->setClass('Kdyby\Doctrine\Diagnostics\Panel')
-				->setFactory('Kdyby\Doctrine\Diagnostics\Panel::register');
+				->setFactory('Kdyby\Doctrine\Diagnostics\Panel::register')
+				->setInternal(TRUE)
+				->setShared(FALSE);
 
 			if ($config['logging']) {
 				$configuration->addSetup('setSQLLogger', array('@' . $connectionName . '_logger'));
@@ -132,7 +142,9 @@ class DbalExtension extends Kdyby\Config\CompilerExtension
 
 		// connection factory
 		$container->addDefinition($connectionName . '_factory')
-			->setClass('Kdyby\Package\DoctrinePackage\ConnectionFactory', array('%doctrine_dbal_connectionFactory_types%'));
+			->setClass('Kdyby\Package\DoctrinePackage\ConnectionFactory', array('%doctrine_dbal_connectionFactory_types%'))
+			->setInternal(TRUE)
+			->setShared(FALSE);
 
 		$mappingTypes = array();
 		if (isset($config['mapping_types'])) {
@@ -142,6 +154,7 @@ class DbalExtension extends Kdyby\Config\CompilerExtension
 
 		// connection
 		$container->addDefinition($connectionName)
+			->setClass('Doctrine\DBAL\Connection')
 			->setFactory('@' . $connectionName . '_factory::createConnection', array(
 				$options,
 				'@' . $connectionName . '_configuration',

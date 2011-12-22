@@ -55,7 +55,7 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 	 */
 	public $mappingsDefaults = array(
 		'mapping' => TRUE,
-		'type' => 'annotation',
+		'type' => NULL,
 		'dir' => FALSE,
 		'alias' => FALSE,
 		'prefix' => FALSE
@@ -127,20 +127,24 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 	{
 		$this->entityManagers = isset($config['entityManagers']) ? $config['entityManagers'] : array('default' => $config);
 
+		// default entity manger
 		if (empty($config['defaultEntityManager'])) {
 			$keys = array_keys($this->entityManagers);
 			$config['defaultEntityManager'] = reset($keys);
 		}
 		$container->parameters['doctrine_defaultEntityManager'] = $config['defaultEntityManager'];
 
+		// entity managers list
 		foreach (array_keys($this->entityManagers) as $name) {
 			$container->parameters['doctrine_entityManagers'][$name] = 'doctrine_orm_' . $name . 'EntityManager';
 		}
 
+		// proxy options
 		foreach (self::getOptions($config, $this->proxyDefaults) as $key => $value) {
 			$container->parameters['doctrine_orm_' . $key] = $value;
 		}
 
+		// load entity managers
 		foreach ($this->entityManagers as $name => $entityManager) {
 			$entityManager['name'] = $name;
 			$this->loadOrmEntityManager($container, $entityManager);
@@ -164,6 +168,7 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 
 		// options
 		$options = self::getOptions($config, $this->entityManagerDefaults);
+		$options['name'] = $config['name'];
 		$options['autoMapping'] = !isset($config['mappings']) && $options['autoMapping'];
 		if ($options['autoMapping']) {
 			if (count($this->entityManagers) > 1) {
@@ -216,6 +221,7 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 
 		// entity manager
 		$container->addDefinition($entityManagerName)
+			->setClass('Doctrine\ORM\EntityManager')
 			->setFactory('Doctrine\ORM\EntityManager::create', array(
 				'@' . $connectionName,
 				'@' . $entityManagerName . '_configuration'
@@ -305,7 +311,7 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 
 		// automatically register package mappings
 		if ($config['autoMapping']) {
-			foreach (array_keys($container->parameters['kdyby.packages']) as $package) {
+			foreach (array_keys($container->parameters['kdyby_packages']) as $package) {
 				if (!isset($mappings[$package])) {
 					$mappings[$package] = NULL;
 				}
@@ -318,12 +324,12 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 			}
 
 			// options
-			$options = self::getOptions($mappingConfig, $this->mappingsDefaults);
+			$options = self::getOptions((array)$mappingConfig, $this->mappingsDefaults, TRUE);
 			$options['name'] = $mappingName;
 			$options['dir'] = $container->expand($options['dir']);
 
 			// a package configuration is detected by realizing that the specified dir is not absolute and existing
-			$options['package'] = !file_exists($config['dir']);
+			$options['package'] = !file_exists($options['dir']);
 
 			$this->loadPackageMappingInformation($container, $options, $config);
 		}

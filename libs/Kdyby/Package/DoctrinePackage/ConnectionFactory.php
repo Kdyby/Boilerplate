@@ -42,14 +42,16 @@ class ConnectionFactory extends Nette\Object
 
 
 
-    /**
-     * Create a connection by name.
-     *
-     * @param array         $params
-     * @param Configuration $config
-     * @param EventManager  $eventManager
-     * @return Doctrine\DBAL\Connection
-     */
+	/**
+	 * Create a connection by name.
+	 *
+	 * @param array $params
+	 * @param \Doctrine\DBAL\Configuration $config
+	 * @param \Doctrine\Common\EventManager  $eventManager
+	 * @param array $mappingTypes
+	 *
+	 * @return \Doctrine\DBAL\Connection
+	 */
     public function createConnection(array $params, Configuration $config = NULL, EventManager $eventManager = NULL, array $mappingTypes = array())
     {
         if (!$this->initialized) {
