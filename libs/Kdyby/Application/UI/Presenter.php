@@ -35,12 +35,12 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 
 
 	/**
-	 * @param \Kdyby\DI\IContainer $container
+	 * @param \Nette\DI\Container $container
 	 */
-	public function __construct(Kdyby\DI\IContainer $container)
+	public function __construct(Nette\DI\Container $container)
 	{
 		parent::__construct($container);
-		$this->templateFactory = $container->get('template.factory');
+		$this->templateFactory = $container->templateFactory;
 	}
 
 
