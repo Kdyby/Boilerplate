@@ -14,8 +14,7 @@ use Kdyby;
 use Nette;
 use Nette\Diagnostics\Debugger;
 use Symfony;
-use Symfony\Component\Console\Input\ArgvInput;
-use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console;
 
 
 
@@ -38,8 +37,8 @@ class Application extends Kdyby\Application\Application
 	 */
 	public function run()
 	{
-		$this->consoleInput = new ArgvInput();
-		$this->consoleOutput = new ConsoleOutput();
+		$this->consoleInput = new Console\Input\ArgvInput();
+		$this->consoleOutput = new Console\Output\ConsoleOutput();
 
 		// package errors should not be handled by console life-cycle
 		$cli = $this->createApplication();
@@ -78,8 +77,7 @@ class Application extends Kdyby\Application\Application
 		$container = $this->getConfigurator()->getContainer();
 
 		// create
-		$consoleClass = $container->getParameter('console.application.class');
-		$cli = new $consoleClass(
+		$cli = new Console\Application(
 			Kdyby\Framework::NAME . " Command Line Interface",
 			Kdyby\Framework::VERSION
 		);
@@ -89,12 +87,11 @@ class Application extends Kdyby\Application\Application
 		$cli->setAutoExit(FALSE);
 
 		// set helpers
-		$cli->setHelperSet($container->get('console.helpers'));
+		$cli->setHelperSet($container->console_helpers);
 
 		// register packages
-		foreach ($this->getConfigurator()->getPackages() as $package) {
-			$package->registerCommands($cli);
-		}
+		$this->getConfigurator()
+			->getPackages()->registerCommands($cli);
 
 		return $cli;
 	}
