@@ -36,6 +36,10 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 			$container->addDependency(ClassType::from($packageClass)->getFileName());
 		}
 
+		foreach ($this->compiler->getExtensions() as $extension) {
+			$container->addDependency(ClassType::from($extension)->getFileName());
+		}
+
 		// http
 		$container->getDefinition('user')
 			->setClass('Kdyby\Http\User');
