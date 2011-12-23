@@ -243,7 +243,7 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 	/**
 	 * Registers panel to debugger
 	 *
-	 * @param Bar $bar
+	 * @param \Nette\Diagnostics\Bar $bar
 	 */
 	public function registerBarPanel(Bar $bar)
 	{
@@ -255,7 +255,7 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 	/**
 	 * Registers panel in bluescreen
 	 *
-	 * @param BlueScreen $blueScreen
+	 * @param \Nette\Diagnostics\BlueScreen $blueScreen
 	 */
 	public function registerBluescreen(BlueScreen $blueScreen)
 	{
