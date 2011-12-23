@@ -40,7 +40,7 @@ class DoctrinePackage extends Kdyby\Packages\Package
 		$compiler->addExtension('orm', new DI\OrmExtension());
 		$compiler->addExtension('migration', new DI\MigrationExtension());
 		$compiler->addExtension('fixture', new DI\FixtureExtension());
-		$compiler->addExtension('doctrine', new DI\DoctrineExtension());
+		$compiler->addExtension('doctrineExt', new DI\DoctrineExtension());
 	}
 
 
