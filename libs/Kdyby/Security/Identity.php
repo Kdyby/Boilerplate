@@ -29,7 +29,7 @@ use Nette\Utils\Strings;
  * @Orm:HasLifecycleCallbacks
  *
  * @property-read mixed $id
- * @property array $roles
+ * @property \Kdyby\Security\RBAC\Role[] $roles
  */
 class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity, Nette\Security\IRole, \Serializable
 {
@@ -59,6 +59,7 @@ class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity
 	 *		joinColumns={@Orm:JoinColumn(name="role_id", referencedColumnName="id")},
 	 *		inverseJoinColumns={@Orm:JoinColumn(name="user_id", referencedColumnName="id")}
 	 *	)
+	 * @var \Kdyby\Security\RBAC\Role[]
 	 */
 	private $roles;
 

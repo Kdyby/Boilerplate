@@ -21,9 +21,29 @@ use Nette\Security\IAuthorizator;
 
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
+ *
+ *
+ * @method \Kdyby\Security\RBAC\Role[] getRoles() getRoles()
+ * @method \Kdyby\Security\Identity getIdentity() getIdentity()
  */
 class User extends Nette\Http\User
 {
+
+	/**
+	 * Returns a list of effective roles that a user has been granted.
+	 * @return array
+	 */
+	public function getRoles()
+	{
+		if (!$this->isLoggedIn()) {
+			return array($this->guestRole);
+		}
+
+		$identity = $this->getIdentity();
+		return $identity ? $identity->getRoleIds() : array($this->authenticatedRole);
+	}
+
+
 
 	/**
 	 * @param string $resource
