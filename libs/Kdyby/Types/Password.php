@@ -134,7 +134,7 @@ class Password extends Nette\Object
 	 */
 	protected function hashPassword($password, $salt = NULL)
 	{
-		return sha1($salt . self::SEPARATOR . (string) $password);
+		return hash('sha512', $salt . self::SEPARATOR . (string)$password);
 	}
 
 
