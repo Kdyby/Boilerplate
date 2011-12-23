@@ -16,6 +16,7 @@ use Kdyby\Caching\CacheServices;
 use Kdyby\Packages\PackageManager;
 use Nette;
 use Nette\Application\UI\Presenter;
+use Nette\Caching\Storages\FileStorage;
 use Nette\DI\Container as NContainer;
 use Nette\Diagnostics\Debugger;
 use Nette\Reflection\ClassType;
@@ -127,6 +128,16 @@ class Configurator extends Nette\Object
 
 		// configure
 		$configurator = $this->createConfigurator();
+
+		// robot loader autoRebuild
+		foreach (Nette\Loaders\AutoLoader::getLoaders() as $loader) {
+			if ($loader instanceof Nette\Loaders\RobotLoader) {
+				$loader->autoRebuild = !$this->parameters['productionMode'];
+				$loader->setCacheStorage(new FileStorage($this->parameters['tempDir'] . '/cache'));
+			}
+		}
+
+		// create container
 		$configurator->onCompile[] = callback($this->packages, 'compile');
 		$configurator->addConfig($this->getConfigFile(), Nette\Config\Configurator::NONE);
 		$this->container = $configurator->createContainer();
