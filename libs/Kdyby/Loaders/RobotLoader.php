@@ -25,6 +25,21 @@ class RobotLoader extends Nette\Loaders\RobotLoader
 
 	const CACHE_NAMESPACE = 'Nette.RobotLoader';
 
+	/**
+	 * @var bool
+	 */
+	public $autoRebuild = FALSE;
+
+
+
+	/**
+	 */
+	public function __construct()
+	{
+		parent::__construct();
+		$this->setCacheStorage(new Nette\Caching\Storages\MemoryStorage());
+	}
+
 
 
 	/**
