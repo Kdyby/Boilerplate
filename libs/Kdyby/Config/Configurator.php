@@ -15,6 +15,7 @@ use Kdyby;
 use Kdyby\Caching\CacheServices;
 use Kdyby\Packages\PackageManager;
 use Nette;
+use Nette\Application\Routers\Route;
 use Nette\Application\UI\Presenter;
 use Nette\Caching\Storages\FileStorage;
 use Nette\DI\Container as NContainer;
