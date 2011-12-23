@@ -182,6 +182,17 @@ class Configurator extends Nette\Object
 
 
 
+	/**
+	 * @param \Nette\Application\Routers\RouteList $router
+	 */
+	public static function configureDefaultRouter(Nette\Application\Routers\RouteList $router)
+	{
+		$router[] = new Route('index.php', 'Homepage:default', Route::ONE_WAY);
+		$router[] = new Route('<presenter>/<action>[/<id>]', 'Homepage:default');
+	}
+
+
+
 	/********************* service factories *********************/
 
 
