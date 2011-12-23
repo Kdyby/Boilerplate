@@ -42,7 +42,7 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 
 		// http
 		$container->getDefinition('user')
-			->setClass('Kdyby\Http\User');
+			->setClass('Kdyby\Http\User', array('@session', '@container', '@security_identityDao'));
 
 		// application
 		$container->addDefinition('application_storedRequestsManager')
@@ -78,7 +78,12 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 
 		// security
 		$container->addDefinition('authenticator')
-			->setClass('Kdyby\Security\Authenticator', array('@security_identityDao'));
+			->setFactory('@user');
+
+		$container->addDefinition('security_identityDao')
+			->setFactory('@doctrine::getDao', array('Kdyby\Security\Identity'))
+			->setInternal(TRUE)
+			->setShared(FALSE);
 
 		$container->addDefinition('authorizator')
 			->setClass('Nette\Security\IAuthorizator')
@@ -88,11 +93,6 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 			->setClass('Kdyby\Security\AuthorizatorFactory', array('@user', '@session', '@doctrine'))
 			->setShared(FALSE)
 			->setInternal(TRUE);
-
-		$container->addDefinition('security_identityDao')
-			->setFactory('@doctrine::getDao', array('Kdyby\Security\Identity'))
-			->setInternal(TRUE)
-			->setShared(FALSE);
 
 		// template
 		$container->addDefinition('latte')

@@ -31,7 +31,7 @@ class IdentityByNameOrEmailQuery extends Kdyby\Doctrine\QueryObjectBase
 
 	/**
 	 * @param string $nameOrEmail
-	 * @param Paginator $paginator
+	 * @param \Nette\Utils\Paginator $paginator
 	 */
 	public function __construct($nameOrEmail, Paginator $paginator = NULL)
 	{
@@ -52,8 +52,8 @@ class IdentityByNameOrEmailQuery extends Kdyby\Doctrine\QueryObjectBase
 
 
 	/**
-	 * @param IQueryable $repository
-	 * @return Doctrine\ORM\QueryBuilder
+	 * @param \Kdyby\Persistence\IQueryable $repository
+	 * @return \Doctrine\ORM\QueryBuilder
 	 */
 	protected function doCreateQuery(IQueryable $repository)
 	{

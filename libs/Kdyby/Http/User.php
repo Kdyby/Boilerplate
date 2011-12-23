@@ -11,11 +11,13 @@
 namespace Kdyby\Http;
 
 use Kdyby;
+use Kdyby\Doctrine\Dao;
 use Nette;
 use Nette\Http;
 use Nette\Application\ForbiddenRequestException;
 use Nette\Reflection;
 use Nette\Security\IAuthorizator;
+use Nette\Security\AuthenticationException;
 
 
 
@@ -26,8 +28,50 @@ use Nette\Security\IAuthorizator;
  * @method \Kdyby\Security\RBAC\Role[] getRoles() getRoles()
  * @method \Kdyby\Security\Identity getIdentity() getIdentity()
  */
-class User extends Nette\Http\User
+class User extends Nette\Http\User implements Nette\Security\IAuthenticator
 {
+
+	/** @var \Kdyby\Doctrine\Dao */
+	private $users;
+
+
+
+	/**
+	 * @param \Nette\Http\Session $session
+	 * @param \Nette\DI\IContainer $context
+	 * @param \Kdyby\Doctrine\Dao $users
+	 */
+	public function __construct(Http\Session $session, Nette\DI\IContainer $context, Dao $users)
+	{
+		parent::__construct($session, $context);
+		$this->users = $users;
+	}
+
+
+
+	/**
+	 * @param array $credentials
+	 *
+	 * @return Nette\Security\IIdentity
+	 */
+	public function authenticate(array $credentials)
+	{
+		$identity = $this->users->fetchOne(new Kdyby\Security\IdentityByNameOrEmailQuery($credentials[self::USERNAME]));
+
+		if (!$identity instanceof Nette\Security\IIdentity) {
+			throw new AuthenticationException('User not found', self::IDENTITY_NOT_FOUND);
+
+		} elseif (!$identity->isPasswordValid($credentials[self::PASSWORD])) {
+			throw new AuthenticationException('Invalid password', self::INVALID_CREDENTIAL);
+
+		} elseif (!$identity->isApproved()) {
+			throw new AuthenticationException('Account is not approved', self::NOT_APPROVED);
+		}
+
+		return $identity;
+	}
+
+
 
 	/**
 	 * Returns a list of effective roles that a user has been granted.
