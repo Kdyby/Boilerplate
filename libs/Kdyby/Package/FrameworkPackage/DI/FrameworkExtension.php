@@ -56,21 +56,27 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 
 		// console
 		$container->addDefinition('console_helpers')
-			->setClass('Symfony\Component\Console\Helper\HelperSet')
-			->addSetup('set', array('@console_helper_serviceContainer', 'di'))
-			->addSetup('set', array('@console_helper_ormEntityManager', 'em'))
-			->addSetup('set', array('@console_helper_dbalConnection', 'db'));
+			->setClass('Symfony\Component\Console\Helper\HelperSet');
 
 		$container->addDefinition('console_helper_serviceContainer')
-			->setClass('Kdyby\Console\ContainerHelper', array('@container'));
+			->setClass('Kdyby\Console\ContainerHelper', array('@container'))
+			->addTag('console_helper', array('alias' => 'di'));
 
 		$container->addDefinition('console_helper_ormEntityManager')
-			->setClass('Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper', array('@doctrine_orm_entityManager'));
+			->setClass('Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper', array('@doctrine_orm_entityManager'))
+			->addTag('console_helper', array('alias' => 'em'));
 
 		$container->addDefinition('console_helper_dbalConnection')
-			->setClass('Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper', array('@doctrine_dbal_connection'));
+			->setClass('Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper', array('@doctrine_dbal_connection'))
+			->addTag('console_helper', array('alias' => 'db'));
 
-		// use tags Symfony\Component\Console\Helper\HelperInterface
+		$container->addDefinition('console_helper_cacheStorage')
+			->setClass('Kdyby\Console\StorageHelper', array('@cacheStorage'))
+			->addTag('console_helper', array('alias' => 'cacheStorage'));
+
+		$container->addDefinition('console_helper_phpFileStorage')
+			->setClass('Kdyby\Console\StorageHelper', array('@phpFileStorage'))
+			->addTag('console_helper', array('alias' => 'phpFileStorage'));
 
 		// cache
 		$container->addDefinition('phpFileStorage')
@@ -100,6 +106,31 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 
 		$container->addDefinition('templateFactory')
 			->setClass('Kdyby\Templates\TemplateFactory', array('@latte', '@httpContext', '@user', '@templateCacheStorage', '@cacheStorage'));
+	}
+
+
+
+	/**
+	 * @param \Nette\DI\ContainerBuilder $container
+	 */
+	public function beforeCompile(ContainerBuilder $container)
+	{
+		$this->registerConsoleHelpers($container);
+	}
+
+
+
+	/**
+	 * @param \Nette\DI\ContainerBuilder $container
+	 */
+	protected function registerConsoleHelpers(ContainerBuilder $container)
+	{
+		$helpers = $container->getDefinition('console_helpers');
+
+		foreach ($container->findByTag('console_helper') as $helper => $meta) {
+			$alias = isset($meta['alias']) ? $meta['alias'] : NULL;
+			$helpers->addSetup('set', array('@' . $helper, $alias));
+		}
 	}
 
 }

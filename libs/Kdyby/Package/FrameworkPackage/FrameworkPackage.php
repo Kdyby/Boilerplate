@@ -11,8 +11,9 @@
 namespace Kdyby\Package\FrameworkPackage;
 
 use Kdyby;
+use Kdyby\Console\Command as FwCommand;
 use Nette;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony;
 
 
 
@@ -27,9 +28,9 @@ class FrameworkPackage extends Kdyby\Packages\Package
 	 */
 	public function startup()
 	{
-//		if ($this->container->session->exists()) {
-//			$this->container->session->start();
-//		}
+		if ($this->container->session->exists()) {
+			$this->container->session->start();
+		}
 	}
 
 
@@ -41,6 +42,21 @@ class FrameworkPackage extends Kdyby\Packages\Package
 	public function compile(Nette\Config\Configurator $config, Nette\Config\Compiler $compiler)
 	{
 		$compiler->addExtension('kdyby', new DI\FrameworkExtension());
+	}
+
+
+
+	/**
+	 * @param \Symfony\Component\Console\Application $app
+	 */
+	public function registerCommands(Symfony\Component\Console\Application $app)
+	{
+		parent::registerCommands($app);
+
+		$app->addCommands(array(
+			// cache
+			new FwCommand\CacheCommand()
+		));
 	}
 
 }

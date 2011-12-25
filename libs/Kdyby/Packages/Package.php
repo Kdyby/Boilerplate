@@ -34,7 +34,7 @@ abstract class Package extends Nette\Object
 	/** @var string */
 	protected $extension;
 
-	/** @var \Nette\DI\Container */
+	/** @var \SystemContainer|\Nette\DI\Container */
 	protected $container;
 
 

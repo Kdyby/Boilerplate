@@ -19,30 +19,30 @@ use Symfony;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class ContainerHelper extends Symfony\Component\Console\Helper\Helper
+class StorageHelper extends Symfony\Component\Console\Helper\Helper
 {
 
-	/** @var \Nette\DI\Container */
-	protected $container;
+	/** @var Nette\Caching\IStorage */
+	protected $storage;
 
 
 
 	/**
-	 * @param \Nette\DI\Container $container
+	 * @param \Nette\Caching\IStorage $storage
 	 */
-	public function __construct(Nette\DI\Container $container)
+	public function __construct(Nette\Caching\IStorage $storage)
 	{
-		$this->container = $container;
+		$this->storage = $storage;
 	}
 
 
 
 	/**
-	 * @return \Nette\DI\Container
+	 * @return \Nette\Caching\IStorage
 	 */
-	public function getContainer()
+	public function getStorage()
 	{
-		return $this->container;
+		return $this->storage;
 	}
 
 
@@ -52,7 +52,7 @@ class ContainerHelper extends Symfony\Component\Console\Helper\Helper
 	 */
 	public function getName()
 	{
-		return 'diContainer';
+		return 'storage';
 	}
 
 }
