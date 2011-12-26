@@ -75,7 +75,7 @@ abstract class Package extends Nette\Object
 	 */
 	public function getNamespace()
 	{
-		return $this->reflection->getNamespaceName();
+		return $this->getReflection()->getNamespaceName();
 	}
 
 
@@ -99,7 +99,7 @@ abstract class Package extends Nette\Object
 	 */
 	public function getPath()
 	{
-		return dirname($this->reflection->getFileName());
+		return dirname($this->getReflection()->getFileName());
 	}
 
 

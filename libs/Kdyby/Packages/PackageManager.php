@@ -13,7 +13,6 @@ namespace Kdyby\Packages;
 use Kdyby;
 use Nette;
 use Nette\Utils\Finder;
-use Symfony;
 
 
 
@@ -23,7 +22,7 @@ use Symfony;
 class PackageManager extends Nette\Object
 {
 
-	/** @var \Kdyby\Packages\PackagesContainer */
+	/** @var \Kdyby\Packages\PackagesContainer|\Kdyby\Packages\Package[] */
 	private $packages;
 
 
@@ -65,7 +64,7 @@ class PackageManager extends Nette\Object
 	{
 		foreach ($this->packages as $package) {
 			if (strpos($class, $package->getNamespace()) === 0) {
-				return TRUE;
+				return class_exists($class);
 			}
 		}
 
@@ -87,9 +86,11 @@ class PackageManager extends Nette\Object
 	 *
 	 * @param string $name  A resource name to locate
 	 *
-	 * @return string|array
+	 * @return array
+	 * @throws \Kdyby\InvalidArgumentException
+	 * @internal
 	 */
-	public function locateResource($name)
+	public function formatResourcePaths($name)
 	{
 		if ($name[0] !== '@') {
 			throw new Kdyby\InvalidArgumentException('A resource name must start with @ ("' . $name . '" given).');
@@ -105,14 +106,38 @@ class PackageManager extends Nette\Object
 			list($packageName, $path) = explode('/', $packageName, 2);
 		}
 
-		$package = $this->packageManager->getPackage($packageName);
-		if (file_exists($file = rtrim($package->getPath . '/Resources/' . $path, '/'))) {
-			return $file;
+		$package = $this->getPackage($packageName);
+		return array_map(function ($path) { return rtrim($path, '/'); }, array(
+			$package->getPath() . '/Resources/' . $path,
+			$package->getPath() . '/' . $path
+		));
+	}
 
-		} elseif (file_exists($file = rtrim($package->getPath . '/' . $path, '/'))) {
-			return $file;
+
+
+	/**
+	 * Returns the file path for a given resource.
+	 *
+	 * A Resource can be a file or a directory.
+	 *
+	 * The resource name must follow the following pattern:
+	 *
+	 *	 @<PackageName>/path/to/a/file.something
+	 *
+	 * Looks first into Resources directory, than into package root.
+	 *
+	 * @param string $name  A resource name to locate
+	 *
+	 * @throws \Kdyby\InvalidArgumentException
+	 * @return string|array
+	 */
+	public function locateResource($name)
+	{
+		foreach ($this->formatResourcePaths($name) as $path) {
+			if (file_exists($path)) {
+				return $path;
+			}
 		}
-
 
 		throw new Kdyby\InvalidArgumentException('Unable to find file "' . $name . '".');
 	}
