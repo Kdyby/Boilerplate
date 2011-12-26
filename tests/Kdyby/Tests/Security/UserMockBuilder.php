@@ -110,7 +110,12 @@ class UserMockBuilder extends Nette\Object
 		);
 		$context->addService('authenticator', new Kdyby\Security\SimpleAuthenticator($identity));
 		$context->addService('authorizator', $permission);
-		$user = new Kdyby\Http\User($this->session, $context);
+
+		$dao = $this->test->getMockBuilder('Kdyby\Doctrine\Dao')
+			->disableOriginalConstructor()
+			->getMock();
+
+		$user = new Kdyby\Http\User($this->session, $context, $dao);
 
 		$sectionName = 'Nette.Web.User/' . $userNamespace;
 		$section = new SessionSection($this->session, $sectionName);
