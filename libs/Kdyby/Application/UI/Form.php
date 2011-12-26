@@ -32,8 +32,32 @@ class Form extends Nette\Application\UI\Form
 
 		// overriding constructor is ugly...
 		$this->configure();
-		$this->attachHandlers();
 	}
+
+
+
+	/**
+	 * Method gets called on construction
+	 */
+	protected function configure()
+	{
+
+	}
+
+
+
+	/**
+	 * @param \Nette\ComponentModel\Container $obj
+	 */
+	protected function attached($obj)
+	{
+		if ($obj instanceof Nette\Application\IPresenter) {
+			$this->attachHandlers();
+		}
+
+		parent::attached($obj);
+	}
+
 
 
 
@@ -45,16 +69,6 @@ class Form extends Nette\Application\UI\Form
 	public function getUniqueId()
 	{
 		return $this->lookupPath('Nette\Application\UI\Presenter', TRUE);
-	}
-
-
-
-	/**
-	 * Method gets called on construction
-	 */
-	protected function configure()
-	{
-
 	}
 
 
