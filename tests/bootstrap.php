@@ -34,8 +34,6 @@ if (!is_writable($params['tempDir'])) {
 	throw new Kdyby\DirectoryNotWritableException("Temp directory '" . $params['tempDir'] . "' is not writable.");
 }
 $configurator = new Kdyby\Tests\Configurator($params, new Kdyby\Package\DefaultPackages());
-$configurator->setEnvironment('test');
-$configurator->setProductionMode(TRUE);
 $container = $configurator->getContainer();
 
 
@@ -47,6 +45,7 @@ $container->session->start();
 foreach (Nette\Utils\Finder::findFiles('exception*.html', '*.log')->in($params['logDir']) as $file) {
 	@unlink($file->getRealpath());
 }
+
 
 // don't you dare to "backup globals"!
 unset($params, $configurator, $container, $file);

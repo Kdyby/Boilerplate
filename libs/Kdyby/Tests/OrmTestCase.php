@@ -61,6 +61,7 @@ abstract class OrmTestCase extends TestCase
 		$params = array(
 			'wwwDir' => $this->getContext()->expand('%wwwDir%'),
 			'appDir' => $this->getContext()->expand('%appDir%'),
+			'tempDir' => $this->getContext()->expand('%tempDir%'),
 			'container' => array('class' => 'ConsoleOrmContainer')
 		);
 

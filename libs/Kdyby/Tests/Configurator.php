@@ -33,6 +33,8 @@ class Configurator extends Kdyby\Config\Configurator
 	public function __construct($params = NULL, Kdyby\Packages\IPackageList $packageFinder = NULL)
 	{
 		parent::__construct($params, $packageFinder);
+		$this->setEnvironment('test');
+		$this->setProductionMode(TRUE);
 		static::$configurator = $this;
 	}
 

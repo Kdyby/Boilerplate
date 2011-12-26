@@ -1,14 +1,4 @@
-dbal:
-    driver: pdo_sqlite
-    memory: TRUE
-
 
 services:
-    doctrine:
-        _extends: doctrine
-        class: Kdyby\Tests\ORM\SandboxRegistry
-
     cacheStorage:
-        _extends: cacheStorage
         class: Nette\Caching\Storages\MemoryStorage
-        arguments: []
