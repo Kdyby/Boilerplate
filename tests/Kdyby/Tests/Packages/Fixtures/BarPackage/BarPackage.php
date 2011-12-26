@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Tests\Fixtures\BarPackage;
+namespace Kdyby\Tests\Packages\Fixtures\BarPackage;
 
 use Kdyby;
 use Nette;

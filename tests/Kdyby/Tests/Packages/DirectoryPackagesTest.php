@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Tests\Package;
+namespace Kdyby\Tests\Packages;
 
 use Kdyby;
 use Nette;
@@ -18,15 +18,15 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class DirectoryPackagesTest extends \Kdyby\Tests\TestCase
+class DirectoryPackagesTest extends Kdyby\Tests\TestCase
 {
 
     public function testGettingPackages()
     {
-        $finder = new Kdyby\Packages\DirectoryPackages(__DIR__ . '/../Fixtures', 'Kdyby\\Tests\\Fixtures');
+        $finder = new Kdyby\Packages\DirectoryPackages(__DIR__ . '/Fixtures', 'Kdyby\Tests\Packages\Fixtures');
         $this->assertEquals(array(
-                 'Kdyby\\Tests\\Fixtures\\BarPackage\\BarPackage',
-                 'Kdyby\\Tests\\Fixtures\\FooPackage\\FooPackage',
+                 'Kdyby\Tests\Packages\Fixtures\BarPackage\BarPackage',
+                 'Kdyby\Tests\Packages\Fixtures\FooPackage\FooPackage',
             ), $finder->getPackages());
     }
 

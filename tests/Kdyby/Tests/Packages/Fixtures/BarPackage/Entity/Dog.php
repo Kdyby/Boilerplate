@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Tests\Fixtures\FooPackage;
+namespace Kdyby\Tests\Packages\Fixtures\BarPackage\Entity;
 
 use Kdyby;
 use Nette;
@@ -17,8 +17,13 @@ use Nette;
 
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
+ *
+ * @Orm:Entity()
  */
-class FooPackage extends Kdyby\Packages\Package
+class Dog extends Nette\Object
 {
+
+	/** @Orm:Column() */
+	private $id;
 
 }
