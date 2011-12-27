@@ -55,7 +55,7 @@ class PackagesContainer extends Nette\Object implements \IteratorAggregate, \Arr
 
 
 	/**
-	 * @return \Kdyby\Package\Package[]
+	 * @return \Kdyby\Packages\Package[]
 	 */
 	public function getPackages()
 	{

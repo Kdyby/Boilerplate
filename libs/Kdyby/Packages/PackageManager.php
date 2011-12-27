@@ -38,6 +38,16 @@ class PackageManager extends Nette\Object
 
 
 	/**
+	 * @return \Kdyby\Packages\Package[]
+	 */
+	public function getPackages()
+	{
+		return $this->packages->getPackages();
+	}
+
+
+
+	/**
 	 * @param string $name
 	 * @return \Kdyby\Packages\Package
 	 * @throws \Kdyby\InvalidArgumentException
