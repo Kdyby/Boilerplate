@@ -98,9 +98,8 @@ class PackageManager extends Nette\Object
 	 *
 	 * @return array
 	 * @throws \Kdyby\InvalidArgumentException
-	 * @internal
 	 */
-	public function formatResourcePaths($name)
+	protected function formatResourcePaths($name)
 	{
 		if ($name[0] !== '@') {
 			throw new Kdyby\InvalidArgumentException('A resource name must start with @ ("' . $name . '" given).');
