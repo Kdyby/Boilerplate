@@ -101,10 +101,9 @@ class FormulaeManager extends Nette\Object
 	{
 		$am = $this->factory->getAssetManager();
 		foreach ($this->formulae as $name => $formula) {
-			$am->set($name, $formula($this->factory));
+			$asset = $formula($this->factory);
+			$am->set($name, $asset);
 		}
-
-		fd($am); die('d');
 
 		$this->writer->writeManagerAssets($am);
 	}

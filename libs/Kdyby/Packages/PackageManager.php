@@ -116,10 +116,10 @@ class PackageManager extends Nette\Object
 		}
 
 		$package = $this->getPackage($packageName);
-		return array_map(function ($path) { return rtrim($path, '/'); }, array(
+		return array(
 			$package->getPath() . '/Resources/' . $path,
 			$package->getPath() . '/' . $path
-		));
+		);
 	}
 
 

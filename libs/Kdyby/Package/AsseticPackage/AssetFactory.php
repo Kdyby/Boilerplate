@@ -63,9 +63,10 @@ class AssetFactory extends Assetic\Factory\AssetFactory
 		// expand bundle notation
 		if ('@' == $input[0] && strpos($input, '/') !== FALSE) {
 			list($packageName) = explode('/', substr($input, 1), 2);
+			$packagePath = $this->packageManager->getPackage($packageName)->getPath();
 
 			// use the bundle path as this asset's root
-			$options['root'] = array($this->packageManager->getPackage($packageName)->getPath());
+			$options['root'] = array($packagePath . '/Resources/public');
 
 			// canonicalize the input
 			if (FALSE !== ($pos = strpos($input, '*'))) {

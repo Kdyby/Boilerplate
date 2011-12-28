@@ -40,6 +40,9 @@ class FormulaeManagerTest extends Kdyby\Tests\TestCase
 	/** @var \Nette\DI\Container */
 	private $container;
 
+	/** @var string */
+	private $baseDir;
+
 
 
 	public function setup()
@@ -50,18 +53,18 @@ class FormulaeManagerTest extends Kdyby\Tests\TestCase
 			'Kdyby\Tests\Package\Fixtures\FooPackage\FooPackage'
 		)));
 
-		$baseDir = $this->getContext()->expand('%tempDir%/public');
-		if (!is_dir($baseDir)) {
-			mkdir($baseDir, 0777, TRUE);
+		$this->baseDir = $this->getContext()->expand('%tempDir%/public');
+		if (!is_dir($this->baseDir)) {
+			mkdir($this->baseDir, 0777, TRUE);
 		}
 
 		$debug = TRUE;
 		$this->container = new Nette\DI\Container();
-		$this->factory = new AssetFactory($this->packageManager, $this->container, $baseDir, $debug);
+		$this->factory = new AssetFactory($this->packageManager, $this->container, $this->baseDir, $debug);
 		$this->factory->setAssetManager(new Assetic\AssetManager());
 		$this->factory->setFilterManager(new Assetic\FilterManager());
 
-		$this->writer = new Assetic\AssetWriter($baseDir);
+		$this->writer = new Assetic\AssetWriter($this->baseDir);
 		$this->manager = new FormulaeManager($this->factory, $this->writer, $debug);
 	}
 
@@ -69,22 +72,30 @@ class FormulaeManagerTest extends Kdyby\Tests\TestCase
 
 	public function testRegisterAssets_FromTemplate()
 	{
-		$deps = array(
-			'@FooPackage/public/css/lorem.css',
-			'@BarPackage/public/css/bar.css',
-			'@BarPackage/public/css/baz.css',
-			'@BarPackage/public/css/foo.css'
-		);
-
 		$this->manager->register(function (AssetFactory $factory) {
-			return $factory->createAsset(array(
+				return $factory->createAsset(array(
+					'@FooPackage/public/css/lorem.css',
+					'@BarPackage/public/css/*.css'
+				));
+
+			}, NULL, array_map(callback($this->packageManager, 'locateResource'), array(
 				'@FooPackage/public/css/lorem.css',
-				'@BarPackage/public/css/*.css'
-			));
+				'@BarPackage/public/css/bar.css',
+				'@BarPackage/public/css/baz.css',
+				'@BarPackage/public/css/foo.css'
+			)));
 
-		}, NULL, array_map(callback($this->packageManager, 'locateResource'), $deps));
-
+		// publish asset
 		$this->manager->ensure();
+
+		// get created asset instance
+		$am = $this->factory->getAssetManager();
+		$asset = $am->get(current($am->getNames()));
+
+		// check compiled content
+		$expected = file_get_contents(__DIR__ . '/FormulaeManager.fromTemplate.compiled.css');
+		$value = file_get_contents($this->baseDir . '/' . $asset->getTargetPath());
+		$this->assertEquals($expected, $value);
 	}
 
 
