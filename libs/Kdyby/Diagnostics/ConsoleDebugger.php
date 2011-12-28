@@ -94,7 +94,7 @@ class ConsoleDebugger extends Nette\Object
 		}
 
 		if ($logFile = self::findExceptionDump($exception)) {
-			exec(sprintf(self::$browser, escapeshellarg('file://' . $logFile)));
+			static::openFile($logFile);
 			self::$alreadyShowed = TRUE;
 		}
 	}
@@ -108,7 +108,7 @@ class ConsoleDebugger extends Nette\Object
 	protected static function findExceptionDump(\Exception $exception)
 	{
 		if (!is_dir(Debugger::$logDirectory)) {
-			return;
+			return NULL;
 		}
 
 		$exceptions = Nette\Utils\Finder::findFiles('exception*' . md5($exception) . '.html')
@@ -117,6 +117,22 @@ class ConsoleDebugger extends Nette\Object
 		foreach ($exceptions as $file) {
 			return $file->getRealpath();
 		}
+	}
+
+
+
+	/**
+	 * Opens given file in browser
+	 *
+	 * @param $file
+	 */
+	public static function openFile($file)
+	{
+		if (!self::$enabled) {
+			return;
+		}
+
+		exec(sprintf(self::$browser, escapeshellarg('file://' . $file)));
 	}
 
 }
