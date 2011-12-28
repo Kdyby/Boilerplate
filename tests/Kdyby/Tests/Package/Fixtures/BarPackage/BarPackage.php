@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Tests\Packages\Fixtures\FooPackage;
+namespace Kdyby\Tests\Package\Fixtures\BarPackage;
 
 use Kdyby;
 use Nette;
@@ -18,7 +18,7 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class FooPackage extends Kdyby\Packages\Package
+class BarPackage extends Kdyby\Packages\Package
 {
 
 }

@@ -40,8 +40,8 @@ class PackageManagerTest extends Kdyby\Tests\TestCase
 	private function getPackages()
 	{
 		return new Kdyby\Packages\PackagesContainer(array(
-			'Kdyby\Tests\Packages\Fixtures\BarPackage\BarPackage',
-			'Kdyby\Tests\Packages\Fixtures\FooPackage\FooPackage'
+			'Kdyby\Tests\Package\Fixtures\BarPackage\BarPackage',
+			'Kdyby\Tests\Package\Fixtures\FooPackage\FooPackage'
 		));
 	}
 
@@ -50,16 +50,16 @@ class PackageManagerTest extends Kdyby\Tests\TestCase
 	public function testSetActive()
 	{
 		$this->manager->setActive($this->getPackages());
-		$this->assertInstanceOf('Kdyby\Tests\Packages\Fixtures\BarPackage\BarPackage', $this->manager->getPackage('BarPackage'));
-		$this->assertInstanceOf('Kdyby\Tests\Packages\Fixtures\FooPackage\FooPackage', $this->manager->getPackage('FooPackage'));
+		$this->assertInstanceOf('Kdyby\Tests\Package\Fixtures\BarPackage\BarPackage', $this->manager->getPackage('BarPackage'));
+		$this->assertInstanceOf('Kdyby\Tests\Package\Fixtures\FooPackage\FooPackage', $this->manager->getPackage('FooPackage'));
 	}
 
 
 
     public function testIsClassInActivePackage()
     {
-		$this->assertTrue($this->manager->isClassInActivePackage('Kdyby\Tests\Packages\Fixtures\BarPackage\Entity\Dog'));
-		$this->assertFalse($this->manager->isClassInActivePackage('Kdyby\Tests\Packages\Fixtures\BarPackage\Entity\Cat'));
+		$this->assertTrue($this->manager->isClassInActivePackage('Kdyby\Tests\Package\Fixtures\BarPackage\Entity\Dog'));
+		$this->assertFalse($this->manager->isClassInActivePackage('Kdyby\Tests\Package\Fixtures\BarPackage\Entity\Cat'));
 		$this->assertFalse($this->manager->isClassInActivePackage('Kdyby\Dog'));
     }
 
@@ -69,9 +69,9 @@ class PackageManagerTest extends Kdyby\Tests\TestCase
 	 * @expectedException Kdyby\InvalidArgumentException
 	 * @expectedExceptionMessage A resource name must start with @ ("word" given).
 	 */
-	public function testFormatResourcePathsDoesNotStartWithAtException()
+	public function testLocateResource_DoesNotStartWithAtException()
 	{
-		$this->manager->formatResourcePaths('word');
+		$this->manager->locateResource('word');
 	}
 
 
@@ -80,9 +80,9 @@ class PackageManagerTest extends Kdyby\Tests\TestCase
 	 * @expectedException Kdyby\InvalidArgumentException
 	 * @expectedExceptionMessage File name "@word/../lorem" contains invalid characters (..).
 	 */
-	public function testFormatResourcePathsContainsDoubleDotException()
+	public function testLocateResource_ContainsDoubleDotException()
 	{
-		$this->manager->formatResourcePaths('@word/../lorem');
+		$this->manager->locateResource('@word/../lorem');
 	}
 
 
@@ -90,38 +90,29 @@ class PackageManagerTest extends Kdyby\Tests\TestCase
 	/**
 	 * @return array
 	 */
-	public function dataFormatPaths()
+	public function dataLocateResource()
 	{
-		$foo = __DIR__ . '/Fixtures/FooPackage';
-		$bar = __DIR__ . '/Fixtures/BarPackage';
+		$foo = realpath(__DIR__ . '/../Package/Fixtures/FooPackage');
+		$bar = realpath(__DIR__ . '/../Package/Fixtures/BarPackage');
 
 		return array(
-			array('@BarPackage/public/css/bar.css', array(
-				$bar . '/Resources/public/css/bar.css',
-				$bar . '/public/css/bar.css',
-			)),
-			array('@BarPackage/public/css/*.css', array(
-				$bar . '/Resources/public/css/*.css',
-				$bar . '/public/css/*.css',
-			)),
-			array('@FooPackage/public/js/plugin.js', array(
-				$foo . '/Resources/public/js/plugin.js',
-				$foo . '/public/js/plugin.js',
-			)),
+			array('@BarPackage/public/css/bar.css', $bar . '/Resources/public/css/bar.css'),
+			array('@BarPackage/public/css/lipsum.css', $bar . '/public/css/lipsum.css'),
+			array('@FooPackage/public/css/lorem.css', $foo . '/Resources/public/css/lorem.css'),
 		);
 	}
 
 
 
 	/**
-	 * @dataProvider dataFormatPaths
+	 * @dataProvider dataLocateResource
 	 *
 	 * @param $path
 	 * @param $expected
 	 */
-	public function testFormatResourcePaths($path, $expected)
+	public function testLocateResource($path, $expected)
 	{
-		$this->assertEquals($expected, $this->manager->formatResourcePaths($path));
+		$this->assertEquals($expected, $this->manager->locateResource($path));
 	}
 
 
@@ -130,7 +121,7 @@ class PackageManagerTest extends Kdyby\Tests\TestCase
 	 * @expectedException Kdyby\InvalidArgumentException
 	 * @expectedExceptionMessage Unable to find file "@FooPackage/public/js/plugin.js"
 	 */
-	public function testLocateResourceNonExistingFileException()
+	public function testLocateResource_NonExistingFileException()
 	{
 		$this->manager->locateResource('@FooPackage/public/js/plugin.js');
 	}

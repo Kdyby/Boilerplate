@@ -35,7 +35,10 @@ class FormulaeManager extends Nette\Object
 	private $formulae = array();
 
 	/** @var array */
-	private $files = array();
+	private $targets = array();
+
+	/** @var array */
+	private $deps = array();
 
 
 
@@ -57,12 +60,11 @@ class FormulaeManager extends Nette\Object
 	 * @param string $file
 	 * @param \Closure $formula
 	 */
-	public function register($formula, $file = NULL)
+	public function register($formula, $file = NULL, array $deps = array())
 	{
 		$this->formulae[] = $callback = callback($formula);
-		if ($file !== NULL) {
-			$this->files[$file] = $callback;
-		}
+		$this->targets[$file][] = $callback;
+		$this->deps += array_flip($deps);
 	}
 
 
@@ -72,12 +74,19 @@ class FormulaeManager extends Nette\Object
 	 */
 	public function ensure()
 	{
+		$time = 0;
 		if ($this->debug) {
-			return $this->rebuild();
+			foreach (array_keys($this->deps) as $dep) {
+				if (!file_exists($dep)) {
+					throw new Kdyby\InvalidStateException('File "' . $dep . '" does not exists.');
+				}
+
+				$time = max(filemtime($dep), $time);
+			}
 		}
 
-		foreach (array_keys($this->files) as $file) {
-			if (!file_exists($file)) {
+		foreach (array_keys($this->targets) as $file) {
+			if (!file_exists($file) || filemtime($file) < $time) {
 				return $this->rebuild();
 			}
 		}
