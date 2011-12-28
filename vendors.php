@@ -25,6 +25,7 @@ $deps = array(
 	array('doctrine-migrations', 'http://github.com/doctrine/migrations.git', 'origin/HEAD'),
 	array('doctrine-extensions', 'http://github.com/beberlei/DoctrineExtensions.git', 'origin/HEAD'),
 	array('doctrine-gedmo', 'http://github.com/l3pp4rd/DoctrineExtensions.git', '2.1.x'),
+	array('assetic', 'https://github.com/kriswallsmith/assetic.git', 'v1.0.2'),
 	array('texy', 'http://github.com/dg/texy.git', 'origin/HEAD'),
 	array('apigen', 'http://github.com/apigen/apigen.git', '2.3.0'),
 );
