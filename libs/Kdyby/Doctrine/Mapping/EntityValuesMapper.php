@@ -23,7 +23,8 @@ class EntityValuesMapper extends EntityMetadataMapper
 
 	/**
 	 * @param object $entity
-	 * @return array
+	 * @param array $data
+	 * @return void
 	 */
 	public function load($entity, $data)
 	{
@@ -33,7 +34,7 @@ class EntityValuesMapper extends EntityMetadataMapper
 				continue;
 			}
 
-			if ($this->hasAssocation($entity, $property)) {
+			if ($this->hasAssociation($entity, $property)) {
 				$this->clearAssociation($entity, $property);
 				foreach ($value as $element) {
 					$this->addAssociationElement($entity, $property, $element);
@@ -49,7 +50,7 @@ class EntityValuesMapper extends EntityMetadataMapper
 
 	/**
 	 * @param object $entity
-	 * @return $data
+	 * @return array
 	 */
 	public function save($entity)
 	{

@@ -48,7 +48,7 @@ class EntityFormMapper extends Kdyby\Doctrine\Mapping\EntityMetadataMapper
 	 * @param IComponent $component
 	 * @return BaseMapper
 	 */
-	public function assing($entity, IComponent $component)
+	public function assign($entity, IComponent $component)
 	{
 		$this->assignment->attach($entity, $component);
 		return $this;

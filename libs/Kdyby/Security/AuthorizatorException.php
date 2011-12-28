@@ -162,7 +162,7 @@ class AuthorizatorException extends \Exception
 	 */
 	public static function divisionDoNotContainPermission(RBAC\Division $division, RBAC\BasePermission $permission)
 	{
-		return new self("Cannot assing division " . $division->getName() . " to a " . $permission->getAsMessage());
+		return new self("Cannot assign division " . $division->getName() . " to a " . $permission->getAsMessage());
 	}
 
 
