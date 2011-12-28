@@ -58,6 +58,8 @@ class FormulaeManagerTest extends Kdyby\Tests\TestCase
 		$debug = TRUE;
 		$this->container = new Nette\DI\Container();
 		$this->factory = new AssetFactory($this->packageManager, $this->container, $baseDir, $debug);
+		$this->factory->setAssetManager(new Assetic\AssetManager());
+		$this->factory->setFilterManager(new Assetic\FilterManager());
 
 		$this->writer = new Assetic\AssetWriter($baseDir);
 		$this->manager = new FormulaeManager($this->factory, $this->writer, $debug);
@@ -65,33 +67,24 @@ class FormulaeManagerTest extends Kdyby\Tests\TestCase
 
 
 
-	public function testRegisterAssets()
+	public function testRegisterAssets_FromTemplate()
 	{
-		$fooCss = $this->packageManager->locateResource('@FooPackage/public/css/lorem.css');
-		$barCss1 = $this->packageManager->locateResource('@BarPackage/public/css/bar.css');
-		$barCss2 = $this->packageManager->locateResource('@BarPackage/public/css/baz.css');
-		$barCss3 = $this->packageManager->locateResource('@BarPackage/public/css/foo.css');
+		$deps = array(
+			'@FooPackage/public/css/lorem.css',
+			'@BarPackage/public/css/bar.css',
+			'@BarPackage/public/css/baz.css',
+			'@BarPackage/public/css/foo.css'
+		);
 
 		$this->manager->register(function (AssetFactory $factory) {
-			$factory->createAsset(array(
+			return $factory->createAsset(array(
 				'@FooPackage/public/css/lorem.css',
 				'@BarPackage/public/css/*.css'
 			));
-		}, NULL, array($fooCss, $barCss1, $barCss2, $barCss3));
-	}
 
+		}, NULL, array_map(callback($this->packageManager, 'locateResource'), $deps));
 
-
-	public function testRegisterAssetsFromTemplate()
-	{
-
-	}
-
-
-
-	public function testWriteAssets()
-	{
-
+		$this->manager->ensure();
 	}
 
 

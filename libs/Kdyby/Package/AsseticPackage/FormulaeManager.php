@@ -99,9 +99,14 @@ class FormulaeManager extends Nette\Object
 	 */
 	private function rebuild()
 	{
-		foreach ($this->formulae as $formula) {
-			$asset = $formula($this->factory);
+		$am = $this->factory->getAssetManager();
+		foreach ($this->formulae as $name => $formula) {
+			$am->set($name, $formula($this->factory));
 		}
+
+		fd($am); die('d');
+
+		$this->writer->writeManagerAssets($am);
 	}
 
 }
