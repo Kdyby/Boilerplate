@@ -110,72 +110,72 @@ abstract class EntityMetadataMapper extends Nette\Object
 
 	/**
 	 * @param object $entity
-	 * @param string $assocation
+	 * @param string $association
 	 * @return bool
 	 */
-	protected function hasAssocation($entity, $assocation)
+	protected function hasAssociation($entity, $association)
 	{
-		return $this->getMetadata($entity)->hasAssociation($assocation);
+		return $this->getMetadata($entity)->hasAssociation($association);
 	}
 
 
 
 	/**
 	 * @param object $entity
-	 * @param string $assocation
+	 * @param string $association
 	 * @return \Doctrine\Common\Collections\Collection
 	 */
-	private function getAssocation($entity, $assocation)
+	private function getAssociation($entity, $association)
 	{
 		$meta = $this->getMetadata($entity);
-		if (!$this->hasAssocation($entity, $assocation)) {
-			throw new Kdyby\InvalidArgumentException("Entity '" . get_class($entity) . "' has no association '" . $assocation . "'.");
+		if (!$this->hasAssociation($entity, $association)) {
+			throw new Kdyby\InvalidArgumentException("Entity '" . get_class($entity) . "' has no association '" . $association . "'.");
 		}
 
-		return $meta->getFieldValue($entity, $assocation);
+		return $meta->getFieldValue($entity, $association);
 	}
 
 
 
 	/**
 	 * @param object $entity
-	 * @param string $assocation
+	 * @param string $association
 	 */
-	protected function clearAssociation($entity, $assocation)
+	protected function clearAssociation($entity, $association)
 	{
-		$this->getAssocation($entity, $assocation)->clear();
+		$this->getAssociation($entity, $association)->clear();
 	}
 
 
 
 	/**
 	 * @param object $entity
-	 * @param string $assocation
+	 * @param string $association
 	 * @param object $element
 	 */
-	protected function addAssociationElement($entity, $assocation, $element)
+	protected function addAssociationElement($entity, $association, $element)
 	{
 		$meta = $this->getMetadata($entity);
-		$assocMapping = $meta->getAssociationMapping($assocation);
+		$assocMapping = $meta->getAssociationMapping($association);
 
 		if (!$entity instanceof $assocMapping['targetEntity']) {
-			$declaringClass = $meta->getReflectionProperty($assocation)->getDeclaringClass();
-			throw new Kdyby\InvalidArgumentException("Collection " . $declaringClass->getName() . '::$' . $assocation . " cannot contain entity of type '" . get_class($entity) . "'.");
+			$declaringClass = $meta->getReflectionProperty($association)->getDeclaringClass();
+			throw new Kdyby\InvalidArgumentException("Collection " . $declaringClass->getName() . '::$' . $association . " cannot contain entity of type '" . get_class($entity) . "'.");
 		}
 
-		$this->getAssocation($entity, $assocation)->add($element);
+		$this->getAssociation($entity, $association)->add($element);
 	}
 
 
 
 	/**
 	 * @param object $entity
-	 * @param string $assocation
+	 * @param string $association
 	 * @return array
 	 */
-	protected function getAssociationElements($entity, $assocation)
+	protected function getAssociationElements($entity, $association)
 	{
-		$collection = $this->getMetadata($entity)->getFieldValue($entity, $assocation);
+		$collection = $this->getMetadata($entity)->getFieldValue($entity, $association);
 		return $collection->toArray();
 	}
 

@@ -37,8 +37,8 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 
 
 	/**
-	 * @param array $arguments
-	 * @param array $values
+	 * @param array $arguments Arguments for entity's constructor
+	 * @param array $values Values to be set via mapper
 	 *
 	 * @return object
 	 */

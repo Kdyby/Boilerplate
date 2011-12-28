@@ -105,7 +105,7 @@ class CollectionContainer extends Nette\Forms\Container
 		}
 
 		$form = $obj;
-		$this->collection = $form->getMapper()->getAssocation($this->parentEntity, $this->name);
+		$this->collection = $form->getMapper()->getAssociation($this->parentEntity, $this->name);
 		$parentMeta = $form->getMapper()->getEntityMetadata($this->parentEntity);
 		$assocMapping = $parentMeta->getAssociationMapping($this->name);
 

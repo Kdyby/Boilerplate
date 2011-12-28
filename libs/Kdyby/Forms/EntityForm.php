@@ -53,7 +53,7 @@ class EntityForm extends Kdyby\Application\UI\Form
 		$this->mapper = $mapper;
 		$this->entity = $entity;
 
-		$this->getMapper()->assing($entity, $this);
+		$this->getMapper()->assign($entity, $this);
 
 		parent::__construct();
 	}
@@ -162,7 +162,7 @@ class EntityForm extends Kdyby\Application\UI\Form
 	 */
 	public function addOneToOne($name)
 	{
-		$entity = $this->getMapper()->getAssocation($this->getEntity(), $name);
+		$entity = $this->getMapper()->getAssociation($this->getEntity(), $name);
 		return $this[$name] = new Containers\Doctrine\EntityContainer($entity);
 	}
 
@@ -174,7 +174,7 @@ class EntityForm extends Kdyby\Application\UI\Form
 	 */
 	public function addManyToOne($name)
 	{
-		$entity = $this->getMapper()->getAssocation($this->getEntity(), $name);
+		$entity = $this->getMapper()->getAssociation($this->getEntity(), $name);
 		return $this[$name] = new Containers\Doctrine\EntityContainer($entity);
 	}
 
