@@ -20,7 +20,7 @@ use Nette\Utils\Strings;
  * Class uses methods view<view>([param1 [, param2]]) as alias
  * for Latte's {control component:<view>, [param1 [, param2]]}
  *
- * Also tryies to find latte file, named as the <view> and use it as template,
+ * Also tries to find latte file, named as the <view> and use it as template,
  * if nothing is in method output
  *
  * @author Filip Procházka <filip.prochazka@kdyby.org>
@@ -60,7 +60,7 @@ abstract class LookoutControl extends Control
 
 
 	/**
-	 * Get's called before rendering
+	 * Gets called before rendering
 	 */
 	protected function beforeRender() { }
 
@@ -83,7 +83,7 @@ abstract class LookoutControl extends Control
 
 		$viewMethod = 'view' . ucfirst($this->view);
 
-		// allways call
+		// always call
 		call_user_func_array(array($this, 'beforeRender'), $this->renderParams);
 
 		$dir = dirname($this->reflection->fileName);
@@ -109,7 +109,7 @@ abstract class LookoutControl extends Control
 
 		echo $output;
 
-		// allways call
+		// always call
 		call_user_func_array(array($this, 'afterRender'), $this->renderParams);
 
 		$this->view = NULL;
@@ -119,7 +119,7 @@ abstract class LookoutControl extends Control
 
 
 	/**
-	 * Get's called before rendering
+	 * Gets called after rendering
 	 */
 	protected function afterRender() { }
 

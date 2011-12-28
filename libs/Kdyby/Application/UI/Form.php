@@ -48,7 +48,7 @@ class Form extends Nette\Application\UI\Form
 
 
 	/**
-	 * Method get's called on construction
+	 * Method gets called on construction
 	 */
 	protected function configure()
 	{

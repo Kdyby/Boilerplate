@@ -61,7 +61,7 @@ class EntityContainer extends Nette\Forms\Container
 		parent::attached($obj);
 
 		if ($obj instanceof Kdyby\Forms\EntityForm) {
-			$obj->getMapper()->assing($this->entity, $this);
+			$obj->getMapper()->assign($this->entity, $this);
 		}
 	}
 

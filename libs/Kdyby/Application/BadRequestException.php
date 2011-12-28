@@ -36,7 +36,7 @@ class BadRequestException extends Nette\Application\BadRequestException
 	 */
 	public static function nonExisting()
 	{
-		return new static("This page does not realy exists.", 404);
+		return new static("This page does not really exist.", 404);
 	}
 
 }
