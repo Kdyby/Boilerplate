@@ -18,7 +18,7 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-final class FileSystem extends Nette\Object
+final class Filesystem extends Nette\Object
 {
 
 	/**
@@ -34,13 +34,25 @@ final class FileSystem extends Nette\Object
 
 
 	/**
+	 * @param string $file
+	 */
+	public static function rm($file)
+	{
+		@unlink((string)$file);
+	}
+
+
+
+	/**
 	 * @param string $directory
+	 * @param bool $recursive
+	 *
 	 * @return boolean
 	 */
-	public static function rmDir($directory)
+	public static function rmDir($directory, $recursive = TRUE)
 	{
-		self::cleanDir($directory);
-		return @rmdir($directory);
+		$recursive && self::cleanDir((string)$directory);
+		return @rmdir((string)$directory);
 	}
 
 
@@ -56,9 +68,10 @@ final class FileSystem extends Nette\Object
 
 		foreach (Nette\Utils\Finder::find('*')->from($directory)->childFirst() as $file) {
 			if ($file->isDir()) {
-				@rmdir($file->getPathname());
+				static::rmDir($file, FALSE);
+
 			} else {
-				@unlink($file->getPathname());
+				static::rm($file);
 			}
 		}
 	}
