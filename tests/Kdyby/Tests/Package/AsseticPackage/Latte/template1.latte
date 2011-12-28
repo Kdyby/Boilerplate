@@ -1,0 +1,5 @@
+{javascript '@BarPackage/public/js/jQuery.js',
+    "@BarPackage/public/js/jQuery.plugin.js", filter => 'closure', 'output' => 'assetic/main.js', 'root' => 'root'}
+
+{stylesheet '@BarPackage/public/css/*.less', 'filters' => 'less,yui', 'root' => 'root'}
+{stylesheet '@BarPackage/public/css/*.css', 'filter' => 'yui', 'output' => 'assetic/main.css'}

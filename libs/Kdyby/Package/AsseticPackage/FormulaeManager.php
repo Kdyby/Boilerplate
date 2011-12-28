@@ -13,6 +13,7 @@ namespace Kdyby\Package\AsseticPackage;
 use Assetic;
 use Kdyby;
 use Nette;
+use Nette\Utils\PhpGenerator as Code;
 
 
 
@@ -25,7 +26,7 @@ class FormulaeManager extends Nette\Object
 	/** @var \Assetic\Factory\AssetFactory */
 	private $factory;
 
-	/** @var \Assetic\AssetWriter */
+	/** @var \Kdyby\Package\AsseticPackage\AssetWriter */
 	private $writer;
 
 	/** @var bool */
@@ -57,14 +58,50 @@ class FormulaeManager extends Nette\Object
 
 
 	/**
+	 * @param string|array $input
+	 * @return array
+	 */
+	public function getInputDependencies($input)
+	{
+		$deps = array();
+		foreach ($this->factory->createAsset($input) as $asset) {
+			$deps[] = $asset->getSourceRoot() . '/' . $asset->getSourcePath();
+		}
+
+		if (!$deps) {
+			throw new Kdyby\InvalidStateException('There are no dependencies for given input "' . implode('", "', $input) . '".');
+		}
+
+		return $deps;
+	}
+
+
+
+	/**
+	 * @param array $assets
+	 * @param array $filters
+	 * @param array $options
+	 */
+	public function getTargetPath(array $assets, array $filters, array $options)
+	{
+		$asset = $this->factory->createAsset($assets, $filters, $options);
+		return $this->writer->getWriteToDir() . '/' . $asset->getTargetPath();
+	}
+
+
+
+	/**
+	 * @param mixed $formula
 	 * @param string $file
-	 * @param \Closure $formula
+	 * @param array $deps
 	 */
 	public function register($formula, $file = NULL, array $deps = array())
 	{
 		$this->formulae[] = $callback = callback($formula);
-		$this->targets[$file][] = $callback;
 		$this->deps += array_flip($deps);
+		if ($file !== NuLL) {
+			$this->targets[$file][] = $callback;
+		}
 	}
 
 
@@ -100,9 +137,8 @@ class FormulaeManager extends Nette\Object
 	private function rebuild()
 	{
 		$am = $this->factory->getAssetManager();
-		foreach ($this->formulae as $name => $formula) {
-			$asset = $formula($this->factory);
-			$am->set($name, $asset);
+		foreach ($this->formulae as $i => $formula) {
+			$am->set($i, $formula($this->factory));
 		}
 
 		$this->writer->writeManagerAssets($am);

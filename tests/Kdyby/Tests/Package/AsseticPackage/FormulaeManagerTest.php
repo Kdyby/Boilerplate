@@ -70,15 +70,23 @@ class FormulaeManagerTest extends Kdyby\Tests\TestCase
 
 
 
+	protected function tearDown()
+	{
+		Kdyby\Tools\Filesystem::rmDir($this->baseDir);
+	}
+
+
+
 	public function testRegisterAssets_FromTemplate()
 	{
+		$mapper = callback($this->packageManager, 'locateResource');
 		$this->manager->register(function (AssetFactory $factory) {
 				return $factory->createAsset(array(
 					'@FooPackage/public/css/lorem.css',
 					'@BarPackage/public/css/*.css'
-				));
+				), array(), array('name' => 'assetic/748f692.css'));
 
-			}, NULL, array_map(callback($this->packageManager, 'locateResource'), array(
+			}, $this->baseDir . '/assetic/748f692.css', array_map($mapper, array(
 				'@FooPackage/public/css/lorem.css',
 				'@BarPackage/public/css/bar.css',
 				'@BarPackage/public/css/baz.css',
@@ -97,6 +105,5 @@ class FormulaeManagerTest extends Kdyby\Tests\TestCase
 		$value = file_get_contents($this->baseDir . '/' . $asset->getTargetPath());
 		$this->assertEquals($expected, $value);
 	}
-
 
 }
