@@ -15,6 +15,7 @@ use Nette;
 use Nette\DI\ContainerBuilder;
 use Nette\Utils\Validators;
 use Nette\Reflection\ClassType;
+use Nette\Utils\PhpGenerator as Code;
 
 
 
@@ -101,11 +102,8 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 			->setInternal(TRUE);
 
 		// template
-		$container->addDefinition('latte')
-			->setClass('Nette\Latte\Engine');
-
-		$container->addDefinition('templateFactory')
-			->setClass('Kdyby\Templates\TemplateFactory', array('@latte', '@httpContext', '@user', '@templateCacheStorage', '@cacheStorage'));
+		$container->addDefinition('templateConfigurator')
+			->setClass('Kdyby\Templates\TemplateConfigurator');
 	}
 
 
@@ -116,6 +114,7 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 	public function beforeCompile(ContainerBuilder $container)
 	{
 		$this->registerConsoleHelpers($container);
+		$this->registerMacroFactories($container);
 	}
 
 
@@ -130,6 +129,20 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 		foreach ($container->findByTag('console_helper') as $helper => $meta) {
 			$alias = isset($meta['alias']) ? $meta['alias'] : NULL;
 			$helpers->addSetup('set', array('@' . $helper, $alias));
+		}
+	}
+
+
+
+	/**
+	 * @param \Nette\DI\ContainerBuilder $container
+	 */
+	protected function registerMacroFactories(ContainerBuilder $container)
+	{
+		$config = $container->getDefinition('templateConfigurator');
+
+		foreach ($container->findByTag('latte_macro') as $factory => $meta) {
+			$config->addSetup('addFactory', array($factory));
 		}
 	}
 

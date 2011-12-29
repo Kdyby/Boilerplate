@@ -11,7 +11,7 @@
 namespace Kdyby\Application\UI;
 
 use Kdyby;
-use Kdyby\Templates\ITemplateFactory;
+use Kdyby\Templates\ITemplateConfigurator;
 use Nette;
 use Nette\Utils\Strings;
 
@@ -20,23 +20,26 @@ use Nette\Utils\Strings;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
+ * @property-read \Nette\Templating\FileTemplate $template
+ * @method \Nette\Templating\FileTemplate getTemplate() getTemplate()
+ *
  * @property-read \Kdyby\Application\UI\Presenter $presenter
  * @method \Kdyby\Application\UI\Presenter getPresenter() getPresenter(bool $need = TRUE)
  */
 abstract class Control extends Nette\Application\UI\Control
 {
 
-	/** @var \Kdyby\Templates\ITemplateFactory */
-	protected $templateFactory;
+	/** @var \Kdyby\Templates\ITemplateConfigurator */
+	protected $templateConfigurator;
 
 
 
 	/**
-	 * @param \Kdyby\Templates\ITemplateFactory $templateFactory
+	 * @param \Kdyby\Templates\ITemplateConfigurator $configurator
 	 */
-	public function setTemplateFactory(ITemplateFactory $templateFactory)
+	public function setTemplateConfigurator(ITemplateConfigurator $configurator)
 	{
-		$this->templateFactory = $templateFactory;
+		$this->templateConfigurator = $configurator;
 	}
 
 
@@ -48,11 +51,29 @@ abstract class Control extends Nette\Application\UI\Control
 	 */
 	protected function createTemplate($class = NULL)
 	{
-		if ($this->templateFactory === NULL) {
-			return parent::createTemplate($class);
+		$template = parent::createTemplate($class);
+		if ($this->templateConfigurator !== NULL) {
+			$this->templateConfigurator->configure($template);
 		}
 
-		return $this->templateFactory->createTemplate($this, $class);
+		return $template;
+	}
+
+
+
+	/**
+	 * @param \Nette\Templating\Template $template
+	 *
+	 * @return void
+	 */
+	public function templatePrepareFilters($template)
+	{
+		if ($this->templateConfigurator !== NULL) {
+			$this->templateConfigurator->prepareFilters($template);
+
+		} else {
+			$template->registerFilter(new Nette\Latte\Engine);
+		}
 	}
 
 

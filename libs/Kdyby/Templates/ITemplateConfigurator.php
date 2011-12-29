@@ -18,17 +18,18 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-interface ITheme
+interface ITemplateConfigurator
 {
 
 	/**
-	 * @param Nette\Templating\ITemplate $template
+	 * @param \Nette\Templating\Template $template
 	 */
-	function setupTemplate(Nette\Templating\ITemplate $template);
+	function configure(Nette\Templating\Template $template);
+
 
 	/**
-	 * @param Nette\Latte\Parser $parser
+	 * @param \Nette\Templating\Template $template
 	 */
-	function installMacros(Nette\Latte\Parser $parser);
+	function prepareFilters(Nette\Templating\Template $template);
 
 }

@@ -11,7 +11,7 @@
 namespace Kdyby\Application\UI;
 
 use Kdyby;
-use Kdyby\Templates\ITemplateFactory;
+use Kdyby\Templates\ITemplateConfigurator;
 use Nette;
 use Nette\Application\Responses;
 use Nette\Diagnostics\Debugger;
@@ -21,7 +21,7 @@ use Nette\Diagnostics\Debugger;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
- * @property-read \Kdyby\DI\Container $context
+ * @property-read \SystemContainer|\Nette\DI\Container $container
  * @property-read \Kdyby\Http\User $user
  *
  * @method \Kdyby\Http\User getUser() getUser()
@@ -29,8 +29,14 @@ use Nette\Diagnostics\Debugger;
 abstract class Presenter extends Nette\Application\UI\Presenter
 {
 
-	/** @var \Kdyby\Templates\TemplateFactory */
-	protected $templateFactory;
+	/** @persistent */
+	public $backlink;
+
+	/** @var \SystemContainer|\Nette\DI\Container */
+	private $container;
+
+	/** @var \Kdyby\Templates\ITemplateConfigurator */
+	protected $templateConfigurator;
 
 
 
@@ -40,7 +46,32 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	public function __construct(Nette\DI\Container $container)
 	{
 		parent::__construct($container);
-		$this->templateFactory = $container->templateFactory;
+		$this->container = $container;
+
+		if ($container->hasService('templateConfigurator')) {
+			$this->setTemplateConfigurator($container->templateConfigurator);
+		}
+	}
+
+
+
+	/**
+	 * @todo temporary solution!
+	 * @return \SystemContainer|\Nette\DI\Container
+	 */
+	public function getContainer()
+	{
+		return $this->container;
+	}
+
+
+
+	/**
+	 * @param \Kdyby\Templates\ITemplateConfigurator $configurator
+	 */
+	public function setTemplateConfigurator(ITemplateConfigurator $configurator)
+	{
+		$this->templateConfigurator = $configurator;
 	}
 
 
@@ -48,11 +79,33 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	/**
 	 * @param string|null $class
 	 *
-	 * @return \Kdyby\Templating\Template
+	 * @return \Nette\Templating\Template
 	 */
 	protected function createTemplate($class = NULL)
 	{
-		return $this->templateFactory->createTemplate($this, $class);
+		$template = parent::createTemplate($class);
+		if ($this->templateConfigurator !== NULL) {
+			$this->templateConfigurator->configure($template);
+		}
+
+		return $template;
+	}
+
+
+
+	/**
+	 * @param \Nette\Templating\Template $template
+	 *
+	 * @return void
+	 */
+	public function templatePrepareFilters($template)
+	{
+		if ($this->templateConfigurator !== NULL) {
+			$this->templateConfigurator->prepareFilters($template);
+
+		} else {
+			$template->registerFilter(new Nette\Latte\Engine);
+		}
 	}
 
 
@@ -72,17 +125,6 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 		}
 
 		parent::sendPayload();
-	}
-
-
-
-	/**
-	 * If Debugger is enabled, print template variables to debug bar
-	 */
-	protected function afterRender()
-	{
-		parent::afterRender();
-		Kdyby\Diagnostics\TemplateParametersPanel::register($this);
 	}
 
 
@@ -115,6 +157,17 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 		if ($element instanceof \Reflector) {
 			$this->getUser()->protectElement($element);
 		}
+	}
+
+
+
+	/**
+	 * If Debugger is enabled, print template variables to debug bar
+	 */
+	protected function afterRender()
+	{
+		parent::afterRender();
+		Kdyby\Diagnostics\TemplateParametersPanel::register($this);
 	}
 
 }
