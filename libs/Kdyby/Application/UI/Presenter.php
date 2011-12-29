@@ -69,7 +69,7 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	/**
 	 * @param \Kdyby\Templates\ITemplateConfigurator $configurator
 	 */
-	public function setTemplateConfigurator(ITemplateConfigurator $configurator)
+	public function setTemplateConfigurator(ITemplateConfigurator $configurator = NULL)
 	{
 		$this->templateConfigurator = $configurator;
 	}

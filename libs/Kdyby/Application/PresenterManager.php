@@ -120,7 +120,7 @@ class PresenterManager extends Nette\Application\PresenterFactory implements Net
 			$presenter = new $class($this->container);
 		}
 
-		if (method_exists($presenter, 'setTemplateConfigurator')) {
+		if (method_exists($presenter, 'setTemplateConfigurator') && $this->container->hasService('templateConfigurator')) {
 			$presenter->setTemplateConfigurator($this->container->templateConfigurator);
 		}
 

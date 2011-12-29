@@ -37,7 +37,7 @@ abstract class Control extends Nette\Application\UI\Control
 	/**
 	 * @param \Kdyby\Templates\ITemplateConfigurator $configurator
 	 */
-	public function setTemplateConfigurator(ITemplateConfigurator $configurator)
+	public function setTemplateConfigurator(ITemplateConfigurator $configurator = NULL)
 	{
 		$this->templateConfigurator = $configurator;
 	}
