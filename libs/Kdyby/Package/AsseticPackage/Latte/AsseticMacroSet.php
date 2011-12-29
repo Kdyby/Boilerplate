@@ -19,7 +19,6 @@ use Nette\Latte;
 
 
 /**
- * @internal
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class AsseticMacroSet extends Latte\Macros\MacroSet

@@ -22,6 +22,14 @@ use Nette\Utils\Validators;
  */
 class AsseticExtension extends Kdyby\Config\CompilerExtension
 {
+	/** @var array */
+	public $asseticDefaults = array(
+		'read_from' => '%wwwDir%',
+		'write_to' => '%tempDir%/public',
+		'debug' => '%kdyby_debug%'
+	);
+
+
 
 	/**
 	 * @param \Nette\DI\ContainerBuilder $container
@@ -29,11 +37,12 @@ class AsseticExtension extends Kdyby\Config\CompilerExtension
 	 */
 	public function loadConfiguration(ContainerBuilder $container, array $config)
 	{
-		if (!isset($config['read_from'])) {
-			$config['read_from'] = '%wwwDir%';
-		}
-		if (!isset($config['write_to'])) {
-			$config['write_to'] = '%read_from%';
+		$options = self::getOptions($config, $this->asseticDefaults);
+		$debug = (bool)$container->expand($options['debug']);
+		$container->parameters['assetic_debug'] = $debug;
+
+		if ($debug) {
+			$options['write_to'] = '%tempDir%/public';
 		}
 
 		$container->addDefinition('assetic_filterManager')
@@ -44,19 +53,22 @@ class AsseticExtension extends Kdyby\Config\CompilerExtension
 
 		$container->addDefinition('assetic_assetFactory')
 			->setClass('Kdyby\Package\AsseticPackage\AssetFactory', array(
-				'@application_packageManager', '@container', $config['read_from'], '%kdyby_debug%'
+				'@application_packageManager', '@container', $options['read_from'], $debug
 			))
 			->addSetup('setAssetManager', array('@assetic_assetManager'))
 			->addSetup('setFilterManager', array('@assetic_filterManager'));
 
 		$container->addDefinition('assetic_assetWriter')
-			->setClass('Kdyby\Package\AsseticPackage\Writer\AssetWriter', array($config['write_to']));
+			->setClass('Kdyby\Package\AsseticPackage\Writer\AssetWriter', array($options['write_to']));
 
 		$container->addDefinition('assetic_formulaeManager')
 			->setClass('Kdyby\Package\AsseticPackage\FormulaeManager', array(
-				'@assetic_assetFactory', '@assetic_assetWriter'
+				'@assetic_assetFactory', '@assetic_assetWriter', $debug
 			));
 
+		$container->addDefinition('asseticPackage_asseticPresenter')
+			->setClass('Kdyby\Package\AsseticPackage\Presenter\AsseticPresenter', array($options['read_from']))
+			->setAutowired(FALSE);
 	}
 
 }
