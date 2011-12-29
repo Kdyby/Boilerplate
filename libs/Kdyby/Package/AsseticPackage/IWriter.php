@@ -19,31 +19,24 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class AssetWriter extends Assetic\AssetWriter
+interface IWriter
 {
 
-	/** @var string */
-	private $dir;
-
-
+	/**
+	 * @param \Assetic\AssetManager $am
+	 */
+	function writeManagerAssets(Assetic\AssetManager $am);
 
 	/**
-	 * @param string $dir
+	 * @param \Assetic\Asset\AssetInterface $asset
 	 */
-	public function __construct($dir)
-	{
-		parent::__construct($dir);
-		$this->dir = $dir;
-	}
-
-
+    function writeAsset(Assetic\Asset\AssetInterface $asset);
 
 	/**
-	 * @return string
+	 * @param string $assetOutput
+	 * @param integer $unixtime
+	 * @return bool
 	 */
-	public function getWriteToDir()
-	{
-		return $this->dir;
-	}
+	function isFresh($assetOutput, $unixtime);
 
 }

@@ -50,7 +50,7 @@ class AsseticExtension extends Kdyby\Config\CompilerExtension
 			->addSetup('setFilterManager', array('@assetic_filterManager'));
 
 		$container->addDefinition('assetic_assetWriter')
-			->setClass('Kdyby\Package\AsseticPackage\AssetWriter', array($config['write_to']));
+			->setClass('Kdyby\Package\AsseticPackage\Writer\AssetWriter', array($config['write_to']));
 
 		$container->addDefinition('assetic_formulaeManager')
 			->setClass('Kdyby\Package\AsseticPackage\FormulaeManager', array(

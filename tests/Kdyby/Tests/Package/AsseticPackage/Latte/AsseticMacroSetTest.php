@@ -13,7 +13,7 @@ namespace Kdyby\Tests\Package\AsseticPackage\Latte;
 use Assetic;
 use Kdyby;
 use Kdyby\Package\AsseticPackage\AssetFactory;
-use Kdyby\Package\AsseticPackage\AssetWriter;
+use Kdyby\Package\AsseticPackage\Writer\AssetWriter;
 use Kdyby\Package\AsseticPackage\FormulaeManager;
 use Kdyby\Package\AsseticPackage\Latte\AsseticMacroSet;
 use Nette;

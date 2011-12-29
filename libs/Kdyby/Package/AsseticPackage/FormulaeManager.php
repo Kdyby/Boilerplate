@@ -28,8 +28,11 @@ class FormulaeManager extends Nette\Object
 	/** @var \Assetic\Factory\AssetFactory */
 	private $factory;
 
-	/** @var \Kdyby\Package\AsseticPackage\AssetWriter */
+	/** @var \Kdyby\Package\AsseticPackage\IWriter */
 	private $writer;
+
+	/** @var \Assetic\AssetManager */
+	private $assetManager;
 
 	/** @var bool */
 	private $debug;
@@ -50,12 +53,13 @@ class FormulaeManager extends Nette\Object
 
 	/**
 	 * @param \Assetic\Factory\AssetFactory $factory
-	 * @param \Kdyby\Package\AsseticPackage\AssetWriter $writer
+	 * @param \Kdyby\Package\AsseticPackage\IWriter $writer
 	 * @param bool $debug
 	 */
-	public function __construct(Assetic\Factory\AssetFactory $factory, AssetWriter $writer, $debug = FALSE)
+	public function __construct(Assetic\Factory\AssetFactory $factory, IWriter $writer, $debug = FALSE)
 	{
 		$this->factory = $factory;
+		$this->assetManager = $factory->getAssetManager();
 		$this->writer = $writer;
 		$this->debug = $debug;
 	}
@@ -144,8 +148,7 @@ class FormulaeManager extends Nette\Object
 		}
 
 		foreach (array_keys($this->formulae) as $file) {
-			$file = $this->writer->getWriteToDir() . '/' . $file;
-			if (!file_exists($file) || filemtime($file) < $time) {
+			if (!$this->writer->isFresh($file, $time)) {
 				return $this->rebuild();
 			}
 		}
@@ -158,13 +161,12 @@ class FormulaeManager extends Nette\Object
 	 */
 	private function rebuild()
 	{
-		$am = $this->factory->getAssetManager();
 		$i = 1;
 		foreach ($this->formulae as $formula) {
-			$am->set($i++, $formula($this->factory));
+			$this->assetManager->set($i++, $formula($this->factory));
 		}
 
-		$this->writer->writeManagerAssets($am);
+		$this->writer->writeManagerAssets($this->assetManager);
 	}
 
 }

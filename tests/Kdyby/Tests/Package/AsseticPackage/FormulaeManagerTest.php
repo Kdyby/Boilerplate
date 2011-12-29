@@ -12,7 +12,7 @@ namespace Kdyby\Tests\Package\AsseticPackage;
 
 use Assetic;
 use Kdyby;
-use Kdyby\Package\AsseticPackage\AssetWriter;
+use Kdyby\Package\AsseticPackage\Writer\AssetWriter;
 use Kdyby\Package\AsseticPackage\AssetFactory;
 use Kdyby\Package\AsseticPackage\FormulaeManager;
 use Kdyby\Packages\PackageManager;
@@ -35,7 +35,7 @@ class FormulaeManagerTest extends Kdyby\Tests\TestCase
 	/** @var \Kdyby\Package\AsseticPackage\AssetFactory */
 	private $factory;
 
-	/** @var \Kdyby\Package\AsseticPackage\AssetWriter */
+	/** @var \Kdyby\Package\AsseticPackage\IWriter */
 	private $writer;
 
 	/** @var \Nette\DI\Container */
