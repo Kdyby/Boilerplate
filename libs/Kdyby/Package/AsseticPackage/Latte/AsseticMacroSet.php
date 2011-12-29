@@ -78,7 +78,7 @@ class AsseticMacroSet extends Latte\Macros\MacroSet
 	public function javascriptMacro(Latte\MacroNode $node, Latte\PhpWriter $writer)
 	{
 		$args = $this->readArguments($node->tokenizer, $writer);
-		$this->prolog[] = $this->createFactory($args);
+		$this->prolog[] = $this->createFactory($args, FormulaeManager::TYPE_JAVASCRIPT);
 
 		return "";
 	}
@@ -94,7 +94,7 @@ class AsseticMacroSet extends Latte\Macros\MacroSet
 	public function stylesheetMacro(Latte\MacroNode $node, Latte\PhpWriter $writer)
 	{
 		$args = $this->readArguments($node->tokenizer, $writer);
-		$this->prolog[] = $this->createFactory($args);
+		$this->prolog[] = $this->createFactory($args, FormulaeManager::TYPE_STYLESHEET);
 
 		return "";
 	}
@@ -170,8 +170,11 @@ class AsseticMacroSet extends Latte\Macros\MacroSet
 
 	/**
 	 * @param array $args
+	 * @param string $type
+	 *
+	 * @return string
 	 */
-	private function createFactory(array $args)
+	private function createFactory(array $args, $type)
 	{
 		list($assets, $filters, $options) = $this->partitionArguments($args);
 		$deps = $this->manager->getInputDependencies($assets);
@@ -182,7 +185,7 @@ class AsseticMacroSet extends Latte\Macros\MacroSet
 		$factory->addParameter('factory')->typeHint = 'Assetic\Factory\AssetFactory';
 		$factory->addBody('return $factory->createAsset(?, ?, ?);', array($assets, $filters, $options));
 
-		return Code\Helpers::formatArgs('$template->_am->register(' . (string)$factory . ', ?, ?)', array($targetPath, $deps));
+		return Code\Helpers::formatArgs('$template->_am->register(' . (string)$factory . ', ?, ?, ?)', array($targetPath, $type, $deps));
 	}
 
 }

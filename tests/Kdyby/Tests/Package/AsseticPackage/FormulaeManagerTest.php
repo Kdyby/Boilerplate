@@ -12,6 +12,7 @@ namespace Kdyby\Tests\Package\AsseticPackage;
 
 use Assetic;
 use Kdyby;
+use Kdyby\Package\AsseticPackage\AssetWriter;
 use Kdyby\Package\AsseticPackage\AssetFactory;
 use Kdyby\Package\AsseticPackage\FormulaeManager;
 use Kdyby\Packages\PackageManager;
@@ -34,7 +35,7 @@ class FormulaeManagerTest extends Kdyby\Tests\TestCase
 	/** @var \Kdyby\Package\AsseticPackage\AssetFactory */
 	private $factory;
 
-	/** @var \Assetic\AssetWriter */
+	/** @var \Kdyby\Package\AsseticPackage\AssetWriter */
 	private $writer;
 
 	/** @var \Nette\DI\Container */
@@ -64,7 +65,7 @@ class FormulaeManagerTest extends Kdyby\Tests\TestCase
 		$this->factory->setAssetManager(new Assetic\AssetManager());
 		$this->factory->setFilterManager(new Assetic\FilterManager());
 
-		$this->writer = new Assetic\AssetWriter($this->baseDir);
+		$this->writer = new AssetWriter($this->baseDir);
 		$this->manager = new FormulaeManager($this->factory, $this->writer, $debug);
 	}
 

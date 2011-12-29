@@ -22,6 +22,8 @@ use Nette\Utils\PhpGenerator as Code;
  */
 class FormulaeManager extends Nette\Object
 {
+	const TYPE_STYLESHEET = 'css';
+	const TYPE_JAVASCRIPT = 'js';
 
 	/** @var \Assetic\Factory\AssetFactory */
 	private $factory;
@@ -36,7 +38,10 @@ class FormulaeManager extends Nette\Object
 	private $formulae = array();
 
 	/** @var array */
-	private $targets = array();
+	private $types = array(
+		self::TYPE_STYLESHEET => array(),
+		self::TYPE_JAVASCRIPT => array()
+	);
 
 	/** @var array */
 	private $deps = array();
@@ -45,10 +50,10 @@ class FormulaeManager extends Nette\Object
 
 	/**
 	 * @param \Assetic\Factory\AssetFactory $factory
-	 * @param \Assetic\AssetWriter $writer
+	 * @param \Kdyby\Package\AsseticPackage\AssetWriter $writer
 	 * @param bool $debug
 	 */
-	public function __construct(Assetic\Factory\AssetFactory $factory, Assetic\AssetWriter $writer, $debug = FALSE)
+	public function __construct(Assetic\Factory\AssetFactory $factory, AssetWriter $writer, $debug = FALSE)
 	{
 		$this->factory = $factory;
 		$this->writer = $writer;
@@ -81,11 +86,13 @@ class FormulaeManager extends Nette\Object
 	 * @param array $assets
 	 * @param array $filters
 	 * @param array $options
+	 *
+	 * @return string
 	 */
 	public function getTargetPath(array $assets, array $filters, array $options)
 	{
 		$asset = $this->factory->createAsset($assets, $filters, $options);
-		return $this->writer->getWriteToDir() . '/' . $asset->getTargetPath();
+		return $asset->getTargetPath();
 	}
 
 
@@ -93,15 +100,29 @@ class FormulaeManager extends Nette\Object
 	/**
 	 * @param mixed $formula
 	 * @param string $file
+	 * @param string $type
 	 * @param array $deps
 	 */
-	public function register($formula, $file = NULL, array $deps = array())
+	public function register($formula, $file, $type, array $deps = array())
 	{
-		$this->formulae[] = $callback = callback($formula);
-		$this->deps += array_flip($deps);
-		if ($file !== NuLL) {
-			$this->targets[$file][] = $callback;
+		if (isset($this->formulae[$file])) {
+			throw new Kdyby\InvalidArgumentException('Output file "' . $file . '" is already registered.');
 		}
+
+		$this->formulae[$file] = $callback = callback($formula);
+		$this->types[$type][] = $file;
+		$this->deps += array_flip($deps);
+	}
+
+
+
+	/**
+	 * @param string $type
+	 * @return string[]
+	 */
+	public function getAssets($type)
+	{
+		return $this->types[$type];
 	}
 
 
@@ -122,7 +143,8 @@ class FormulaeManager extends Nette\Object
 			}
 		}
 
-		foreach (array_keys($this->targets) as $file) {
+		foreach (array_keys($this->formulae) as $file) {
+			$file = $this->writer->getWriteToDir() . '/' . $file;
 			if (!file_exists($file) || filemtime($file) < $time) {
 				return $this->rebuild();
 			}
@@ -137,8 +159,9 @@ class FormulaeManager extends Nette\Object
 	private function rebuild()
 	{
 		$am = $this->factory->getAssetManager();
-		foreach ($this->formulae as $i => $formula) {
-			$am->set($i, $formula($this->factory));
+		$i = 1;
+		foreach ($this->formulae as $formula) {
+			$am->set($i++, $formula($this->factory));
 		}
 
 		$this->writer->writeManagerAssets($am);

@@ -73,10 +73,9 @@ class AsseticMacroSetTest extends Kdyby\Tests\TestCase
 
 
 
-	public function test()
+	public function testParsing()
 	{
-		$output = $this->parser->parse(file_get_contents(__DIR__ . '/template1.latte'));
-		var_dump($output);die('d');
+		$this->parser->parse(file_get_contents(__DIR__ . '/template1.latte'));
 	}
 
 }
