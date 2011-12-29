@@ -77,6 +77,9 @@ class Application extends Nette\Application\Application
 		$packages->setContainer($container);
 		$packages->attach($this);
 
+		// activate packages
+		$this->packageManager->setActive($packages);
+
 		// call debug
 		if (Debugger::$productionMode === FALSE) {
 			$packages->debug();
