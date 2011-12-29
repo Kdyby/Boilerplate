@@ -35,7 +35,7 @@ class CacheTest extends Kdyby\Tests\TestCase
 	{
 		$tempDir = $this->getContext()->expand('%tempDir%');
 
-		Kdyby\Tools\FileSystem::cleanDir($tempDir . '/cache');
+		Kdyby\Tools\Filesystem::cleanDir($tempDir . '/cache');
 
 		$journal = $this->getContext()->cacheJournal;
 		$this->storage = new Nette\Caching\Storages\FileStorage($tempDir, $journal);
