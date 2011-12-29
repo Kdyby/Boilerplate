@@ -33,12 +33,10 @@ class AsseticMacroSet extends Latte\Macros\MacroSet
 
 
 	/**
-	 * @param \Nette\Latte\Parser $parser
 	 * @param \Kdyby\Package\AsseticPackage\FormulaeManager $manager
 	 */
-	public function __construct(Latte\Parser $parser, FormulaeManager $manager)
+	public function setManager(FormulaeManager $manager)
 	{
-		parent::__construct($parser);
 		$this->manager = $manager;
 	}
 
@@ -46,13 +44,14 @@ class AsseticMacroSet extends Latte\Macros\MacroSet
 
 	/**
 	 * @param \Nette\Latte\Parser $parser
-	 * @param \Kdyby\Package\AsseticPackage\FormulaeManager $manager
+	 * @return \Kdyby\Package\AsseticPackage\Latte\AsseticMacroSet
 	 */
-	public static function install(Latte\Parser $parser, FormulaeManager $manager)
+	public static function install(Latte\Parser $parser)
 	{
-		$me = new static($parser, $manager);
+		$me = new static($parser);
 		$me->addMacro('javascript', array($me, 'javascriptMacro'));
 		$me->addMacro('stylesheet', array($me, 'stylesheetMacro'));
+		return $me;
 	}
 
 
@@ -175,6 +174,10 @@ class AsseticMacroSet extends Latte\Macros\MacroSet
 	 */
 	private function createFactory(array $args, $type)
 	{
+		if ($this->manager === NULL) {
+			throw new Kdyby\InvalidStateException('Please provide instance of Kdyby\Package\AsseticPackage\FormulaeManager using ' . get_called_class() . '::setManager().');
+		}
+
 		list($assets, $filters, $options) = $this->partitionArguments($args);
 		$deps = $this->manager->getInputDependencies($assets);
 

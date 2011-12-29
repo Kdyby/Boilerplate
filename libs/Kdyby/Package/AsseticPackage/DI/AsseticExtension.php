@@ -24,8 +24,8 @@ class AsseticExtension extends Kdyby\Config\CompilerExtension
 {
 	/** @var array */
 	public $asseticDefaults = array(
-		'read_from' => '%wwwDir%',
-		'write_to' => '%tempDir%/public',
+		'publicDir' => '%wwwDir%',
+		'prefix' => 'static',
 		'debug' => '%kdyby_debug%'
 	);
 
@@ -38,11 +38,23 @@ class AsseticExtension extends Kdyby\Config\CompilerExtension
 	public function loadConfiguration(ContainerBuilder $container, array $config)
 	{
 		$options = self::getOptions($config, $this->asseticDefaults);
-		$debug = (bool)$container->expand($options['debug']);
-		$container->parameters['assetic_debug'] = $debug;
+		$container->parameters['assetic_debug'] = $debug = (bool)$container->expand($options['debug']);
+
+		$options['publicDir'] = $debug ? '%tempDir%/public' : $options['publicDir'] . '/' . $options['prefix'];
+		$container->parameters['assetic_publicPrefix'] = $options['prefix'];
+		$prefix = $options['prefix'] . '/';
 
 		if ($debug) {
-			$options['write_to'] = '%tempDir%/public';
+			$container->addDefinition('asseticPackage_asseticPresenter')
+				->setClass('Kdyby\Package\AsseticPackage\Presenter\AsseticPresenter', array($options['publicDir']))
+				->setAutowired(FALSE);
+
+			$container->addDefinition('assetic_route_asset')
+				->setClass('Nette\Application\Routers\Route', array("/$prefix<path .*>", array(
+					'presenter' => 'AsseticPackage:Assetic',
+				)))
+				->setAutowired(FALSE)
+				->addTag('route', array('priority' => 100));
 		}
 
 		$container->addDefinition('assetic_filterManager')
@@ -53,22 +65,25 @@ class AsseticExtension extends Kdyby\Config\CompilerExtension
 
 		$container->addDefinition('assetic_assetFactory')
 			->setClass('Kdyby\Package\AsseticPackage\AssetFactory', array(
-				'@application_packageManager', '@container', $options['read_from'], $debug
+				'@application_packageManager', '@container', $options['publicDir'], $debug
 			))
 			->addSetup('setAssetManager', array('@assetic_assetManager'))
 			->addSetup('setFilterManager', array('@assetic_filterManager'));
 
 		$container->addDefinition('assetic_assetWriter')
-			->setClass('Kdyby\Package\AsseticPackage\Writer\AssetWriter', array($options['write_to']));
+			->setClass('Kdyby\Package\AsseticPackage\Writer\AssetWriter', array($options['publicDir']));
 
 		$container->addDefinition('assetic_formulaeManager')
 			->setClass('Kdyby\Package\AsseticPackage\FormulaeManager', array(
-				'@assetic_assetFactory', '@assetic_assetWriter', $debug
+				'@assetic_assetFactory', '@assetic_assetWriter', $prefix, $debug
 			));
 
-		$container->addDefinition('asseticPackage_asseticPresenter')
-			->setClass('Kdyby\Package\AsseticPackage\Presenter\AsseticPresenter', array($options['read_from']))
-			->setAutowired(FALSE);
+		$container->addDefinition('assetic_assetMacros')
+			->setClass('Kdyby\Package\AsseticPackage\Latte\AsseticMacroSet')
+			->setFactory('Kdyby\Package\AsseticPackage\Latte\AsseticMacroSet::install', array('%parser%'))
+			->addSetup('setManager', array('@assetic_formulaeManager'))
+			->setParameters(array('parser'))
+			->addTag('latte_macro');
 	}
 
 }

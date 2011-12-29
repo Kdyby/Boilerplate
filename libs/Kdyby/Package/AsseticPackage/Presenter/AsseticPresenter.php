@@ -44,7 +44,7 @@ class AsseticPresenter extends Nette\Object implements Nette\Application\IPresen
 	 */
 	public function run(Nette\Application\Request $request)
 	{
-		return new AssetResponse(trim($request->parameters['path'], '/'));
+		return new AssetResponse(trim(@$request->parameters['path'], '/'));
 	}
 
 }

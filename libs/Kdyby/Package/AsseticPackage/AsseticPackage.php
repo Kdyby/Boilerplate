@@ -12,7 +12,6 @@ namespace Kdyby\Package\AsseticPackage;
 
 use Kdyby;
 use Nette;
-use Nette\Application\Routers\Route;
 
 
 
@@ -29,20 +28,6 @@ class AsseticPackage extends Kdyby\Packages\Package
 	public function compile(Nette\Config\Configurator $config, Nette\Config\Compiler $compiler)
 	{
 		$compiler->addExtension('assetic', new DI\AsseticExtension());
-	}
-
-
-
-	/**
-	 */
-	public function startup()
-	{
-		if ($this->container->parameters['assetic_debug']) {
-			$router = $this->container->router;
-			$router[] = new Route("/<path .*>", array(
-				'presenter' => 'AsseticPackage:AsseticPresenter',
-			));
-		}
 	}
 
 }

@@ -34,6 +34,9 @@ class FormulaeManager extends Nette\Object
 	/** @var \Assetic\AssetManager */
 	private $assetManager;
 
+	/** @var string */
+	private $prefix;
+
 	/** @var bool */
 	private $debug;
 
@@ -56,11 +59,12 @@ class FormulaeManager extends Nette\Object
 	 * @param \Kdyby\Package\AsseticPackage\IWriter $writer
 	 * @param bool $debug
 	 */
-	public function __construct(Assetic\Factory\AssetFactory $factory, IWriter $writer, $debug = FALSE)
+	public function __construct(Assetic\Factory\AssetFactory $factory, IWriter $writer, $prefix, $debug = FALSE)
 	{
 		$this->factory = $factory;
 		$this->assetManager = $factory->getAssetManager();
 		$this->writer = $writer;
+		$this->prefix = $prefix;
 		$this->debug = $debug;
 	}
 
@@ -114,7 +118,7 @@ class FormulaeManager extends Nette\Object
 		}
 
 		$this->formulae[$file] = $callback = callback($formula);
-		$this->types[$type][] = $file;
+		$this->types[$type][] = $this->prefix . $file;
 		$this->deps += array_flip($deps);
 	}
 
