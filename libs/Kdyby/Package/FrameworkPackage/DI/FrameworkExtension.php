@@ -146,4 +146,36 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 		}
 	}
 
+
+
+	/**
+	 * @param \Nette\DI\ContainerBuilder $container
+	 * @param \Nette\Utils\PhpGenerator\ClassType $class
+	 */
+	public function afterCompile(ContainerBuilder $container, Code\ClassType $class)
+	{
+		$this->compileRouter($container, $class->methods['initialize']);
+	}
+
+
+
+	/**
+	 * @param \Nette\DI\ContainerBuilder $container
+	 * @param \Nette\Utils\PhpGenerator\Method $initialize
+	 */
+	protected function compileRouter(ContainerBuilder $container, Code\Method $initialize)
+	{
+		$routes = array();
+
+		foreach ($container->findByTag('route') as $route => $meta) {
+			$priority = isset($meta['priority']) ? $meta['priority'] : (int)$meta;
+			$routes[$priority][] = $route;
+		}
+
+		krsort($routes);
+		foreach (Kdyby\Tools\Arrays::flatMap($routes) as $route) {
+			$initialize->addBody('$this->router[] = $this->?;', array($route));
+		}
+	}
+
 }
