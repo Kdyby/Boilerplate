@@ -61,7 +61,8 @@ class AsseticMacroSetTest extends Kdyby\Tests\TestCase
 		$this->parser = $engine->parser;
 
 		// macros
-		AsseticMacroSet::install($this->parser, $this->manager);
+		$macros = AsseticMacroSet::install($this->parser);
+		$macros->setManager($this->manager);
 	}
 
 
