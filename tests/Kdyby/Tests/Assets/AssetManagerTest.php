@@ -80,6 +80,4 @@ class AssetManagerTest extends Kdyby\Tests\TestCase
 		$this->assertSame($asset, $this->manager->getOutputAsset($options['name']));
 	}
 
-
-
 }

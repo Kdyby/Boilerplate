@@ -152,7 +152,3 @@ class PublicStorageTest extends Kdyby\Tests\TestCase
 	}
 
 }
-
-
-
-
