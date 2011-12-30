@@ -8,9 +8,10 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Package\AsseticPackage;
+namespace Kdyby\Assets;
 
 use Assetic;
+use Assetic\Asset\AssetInterface;
 use Kdyby;
 use Nette;
 
@@ -19,7 +20,7 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-interface IWriter
+interface IStorage
 {
 
 	/**
@@ -30,25 +31,20 @@ interface IWriter
 	/**
 	 * @param \Assetic\Asset\AssetInterface $asset
 	 */
-    function writeAsset(Assetic\Asset\AssetInterface $asset);
+    function writeAsset(AssetInterface $asset);
 
 	/**
-	 * @param $assetOutput
+	 * @param string|\Assetic\Asset\AssetInterface $asset
+	 *
 	 * @return string
 	 */
-	function getAssetUrl($assetOutput);
+	function getAssetUrl($asset);
 
 	/**
-	 * @param $assetOutput
-	 * @return string
-	 */
-	function getAssetRealpath($assetOutput);
-
-	/**
-	 * @param string $assetOutput
-	 * @param integer $unixtime
+	 * @param \Assetic\Asset\AssetInterface $asset
+	 *
 	 * @return bool
 	 */
-	function isFresh($assetOutput, $unixtime);
+	function isFresh(AssetInterface $asset);
 
 }

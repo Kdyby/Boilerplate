@@ -8,11 +8,12 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Package\AsseticPackage;
+namespace Kdyby\Assets;
 
 use Assetic;
 use Kdyby;
 use Nette;
+use Nette\DI\Container;
 
 
 
@@ -26,18 +27,27 @@ class FilterManager extends Assetic\FilterManager
 	protected $container;
 
 	/** @var array */
-	protected $filterIds;
+	protected $filterIds = array();
 
 
 
 	/**
 	 * @param \Nette\DI\Container $container
-	 * @param array $filterIds
 	 */
-	public function __construct(Nette\DI\Container $container, array $filterIds = array())
+	public function __construct(Container $container)
 	{
 		$this->container = $container;
-		$this->filterIds = $filterIds;
+	}
+
+
+
+	/**
+	 * @param string $serviceId
+	 * @param string $filterName
+	 */
+	public function registerFilterService($serviceId, $filterName)
+	{
+		$this->filterIds[$filterName] = $serviceId;
 	}
 
 

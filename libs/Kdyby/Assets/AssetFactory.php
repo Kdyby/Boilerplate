@@ -8,12 +8,13 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Package\AsseticPackage;
+namespace Kdyby\Assets;
 
 use Assetic;
 use Kdyby;
 use Kdyby\Packages\PackageManager;
 use Nette;
+use Nette\DI\Container;
 
 
 
@@ -22,6 +23,7 @@ use Nette;
  */
 class AssetFactory extends Assetic\Factory\AssetFactory
 {
+
 	/** @var \Kdyby\Packages\PackageManager */
 	private $packageManager;
 
@@ -31,19 +33,16 @@ class AssetFactory extends Assetic\Factory\AssetFactory
 
 
 	/**
-	 * Constructor.
-	 *
 	 * @param \Kdyby\Packages\PackageManager $packageManager
 	 * @param \Nette\DI\Container $container
 	 * @param string $baseDir
-	 * @param bool $debug
 	 */
-	public function __construct(PackageManager $packageManager, Nette\DI\Container $container, $baseDir, $debug = FALSE)
+	public function __construct(PackageManager $packageManager, Container $container, $baseDir)
 	{
 		$this->packageManager = $packageManager;
 		$this->container = $container;
 
-		parent::__construct($baseDir, $debug);
+		parent::__construct($baseDir, FALSE);
 	}
 
 

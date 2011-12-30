@@ -22,15 +22,15 @@ use Nette;
 class AsseticPresenter extends Nette\Object implements Nette\Application\IPresenter
 {
 
-	/** @var string */
+	/** @var \Kdyby\Assets\IStorage */
 	private $writer;
 
 
 
 	/**
-	 * @param \Kdyby\Package\AsseticPackage\IWriter $writer
+	 * @param \Kdyby\Assets\IStorage $writer
 	 */
-	public function __construct(Kdyby\Package\AsseticPackage\IWriter $writer)
+	public function __construct(Kdyby\Assets\IStorage $writer)
 	{
 		$this->writer = $writer;
 	}
@@ -44,7 +44,7 @@ class AsseticPresenter extends Nette\Object implements Nette\Application\IPresen
 	 */
 	public function run(Nette\Application\Request $request)
 	{
-		$outputAsset = trim(@$request->parameters['path'], '/');
+		$outputAsset = trim(@$request->parameters['name'], '/');
 		return new AssetResponse($this->writer->getAssetRealpath($outputAsset));
 	}
 
