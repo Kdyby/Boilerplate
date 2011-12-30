@@ -14,7 +14,6 @@ use Doctrine;
 use Doctrine\Common\Collections\ArrayCollection;
 use Kdyby;
 use Nette;
-use Nette\ObjectMixin;
 
 
 
