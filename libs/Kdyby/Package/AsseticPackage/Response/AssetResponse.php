@@ -79,6 +79,7 @@ class AssetResponse extends Nette\Object implements Nette\Application\IResponse
 	{
 		$httpResponse->setContentType($this->getContentType());
 		$httpResponse->setHeader('Content-Length', filesize($this->file));
+		$httpResponse->setHeader('Content-Disposition', 'inline');
 
 		$handle = fopen($this->file, 'r');
 		while (!feof($handle)) {

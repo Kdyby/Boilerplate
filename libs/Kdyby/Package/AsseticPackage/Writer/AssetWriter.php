@@ -25,15 +25,45 @@ class AssetWriter extends Assetic\AssetWriter implements Kdyby\Package\AsseticPa
 	/** @var string */
 	private $dir;
 
+	/** @var string */
+	private $baseUrl;
+
 
 
 	/**
 	 * @param string $dir
+	 * @param \Nette\Http\Request $httpRequest
+	 * @param string $prefix
 	 */
-	public function __construct($dir)
+	public function __construct($dir, Nette\Http\Request $httpRequest, $prefix)
 	{
 		parent::__construct($dir);
 		$this->dir = $dir;
+		$this->baseUrl = rtrim($httpRequest->getUrl()->getBaseUrl(), '/') . '/' . $prefix;
+	}
+
+
+
+	/**
+	 * @param $assetOutput
+	 *
+	 * @return string
+	 */
+	public function getAssetUrl($assetOutput)
+	{
+		return $this->baseUrl . '/' . $assetOutput;
+	}
+
+
+
+	/**
+	 * @param $assetOutput
+	 *
+	 * @return string
+	 */
+	public function getAssetRealpath($assetOutput)
+	{
+		return $this->dir . '/' . $assetOutput;
 	}
 
 

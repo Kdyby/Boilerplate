@@ -23,16 +23,16 @@ class AsseticPresenter extends Nette\Object implements Nette\Application\IPresen
 {
 
 	/** @var string */
-	private $readFrom;
+	private $writer;
 
 
 
 	/**
-	 * @param string $readFrom
+	 * @param \Kdyby\Package\AsseticPackage\IWriter $writer
 	 */
-	public function __construct($readFrom)
+	public function __construct(Kdyby\Package\AsseticPackage\IWriter $writer)
 	{
-		$this->readFrom = $readFrom;
+		$this->writer = $writer;
 	}
 
 
@@ -44,7 +44,8 @@ class AsseticPresenter extends Nette\Object implements Nette\Application\IPresen
 	 */
 	public function run(Nette\Application\Request $request)
 	{
-		return new AssetResponse(trim(@$request->parameters['path'], '/'));
+		$outputAsset = trim(@$request->parameters['path'], '/');
+		return new AssetResponse($this->writer->getAssetRealpath($outputAsset));
 	}
 
 }

@@ -42,15 +42,14 @@ class AsseticExtension extends Kdyby\Config\CompilerExtension
 
 		$options['publicDir'] = $debug ? '%tempDir%/public' : $options['publicDir'] . '/' . $options['prefix'];
 		$container->parameters['assetic_publicPrefix'] = $options['prefix'];
-		$prefix = $options['prefix'] . '/';
 
 		if ($debug) {
 			$container->addDefinition('asseticPackage_asseticPresenter')
-				->setClass('Kdyby\Package\AsseticPackage\Presenter\AsseticPresenter', array($options['publicDir']))
+				->setClass('Kdyby\Package\AsseticPackage\Presenter\AsseticPresenter', array('@assetic_assetWriter'))
 				->setAutowired(FALSE);
 
 			$container->addDefinition('assetic_route_asset')
-				->setClass('Nette\Application\Routers\Route', array("/$prefix<path .*>", array(
+				->setClass('Nette\Application\Routers\Route', array('/' . $options['prefix'] . '/<path .*>', array(
 					'presenter' => 'AsseticPackage:Assetic',
 				)))
 				->setAutowired(FALSE)
@@ -71,11 +70,13 @@ class AsseticExtension extends Kdyby\Config\CompilerExtension
 			->addSetup('setFilterManager', array('@assetic_filterManager'));
 
 		$container->addDefinition('assetic_assetWriter')
-			->setClass('Kdyby\Package\AsseticPackage\Writer\AssetWriter', array($options['publicDir']));
+			->setClass('Kdyby\Package\AsseticPackage\Writer\AssetWriter', array(
+				$options['publicDir'], '@httpRequest', $options['prefix']
+			));
 
 		$container->addDefinition('assetic_formulaeManager')
 			->setClass('Kdyby\Package\AsseticPackage\FormulaeManager', array(
-				'@assetic_assetFactory', '@assetic_assetWriter', $prefix, $debug
+				'@assetic_assetFactory', '@assetic_assetWriter', $debug
 			));
 
 		$container->addDefinition('assetic_assetMacros')

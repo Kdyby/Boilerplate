@@ -187,7 +187,7 @@ class AsseticMacroSet extends Latte\Macros\MacroSet
 		$factory->addParameter('factory')->typeHint = 'Assetic\Factory\AssetFactory';
 		$factory->addBody('return $factory->createAsset(?, ?, ?);', array($assets, $filters, $options));
 
-		return Code\Helpers::formatArgs('$template->_fm->register(' . (string)$factory . ', ?, ?, ?)', array($targetPath, $type, $deps));
+		return Code\Helpers::formatArgs('$template->_fm->register(' . (string)$factory . ', ?, ?, ?, ?);', array($targetPath, $type, $options, $deps));
 	}
 
 }

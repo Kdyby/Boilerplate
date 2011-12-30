@@ -33,6 +33,18 @@ interface IWriter
     function writeAsset(Assetic\Asset\AssetInterface $asset);
 
 	/**
+	 * @param $assetOutput
+	 * @return string
+	 */
+	function getAssetUrl($assetOutput);
+
+	/**
+	 * @param $assetOutput
+	 * @return string
+	 */
+	function getAssetRealpath($assetOutput);
+
+	/**
 	 * @param string $assetOutput
 	 * @param integer $unixtime
 	 * @return bool

@@ -34,9 +34,6 @@ class FormulaeManager extends Nette\Object
 	/** @var \Assetic\AssetManager */
 	private $assetManager;
 
-	/** @var string */
-	private $prefix;
-
 	/** @var bool */
 	private $debug;
 
@@ -59,12 +56,11 @@ class FormulaeManager extends Nette\Object
 	 * @param \Kdyby\Package\AsseticPackage\IWriter $writer
 	 * @param bool $debug
 	 */
-	public function __construct(Assetic\Factory\AssetFactory $factory, IWriter $writer, $prefix, $debug = FALSE)
+	public function __construct(Assetic\Factory\AssetFactory $factory, IWriter $writer, $debug = FALSE)
 	{
 		$this->factory = $factory;
 		$this->assetManager = $factory->getAssetManager();
 		$this->writer = $writer;
-		$this->prefix = $prefix;
 		$this->debug = $debug;
 	}
 
@@ -109,16 +105,17 @@ class FormulaeManager extends Nette\Object
 	 * @param mixed $formula
 	 * @param string $file
 	 * @param string $type
+	 * @param array $options
 	 * @param array $deps
 	 */
-	public function register($formula, $file, $type, array $deps = array())
+	public function register($formula, $file, $type, array $options, array $deps = array())
 	{
 		if (isset($this->formulae[$file])) {
 			throw new Kdyby\InvalidArgumentException('Output file "' . $file . '" is already registered.');
 		}
 
 		$this->formulae[$file] = $callback = callback($formula);
-		$this->types[$type][] = $this->prefix . $file;
+		$this->types[$type][] = array('src' => $this->writer->getAssetUrl($file)) + $options;
 		$this->deps += array_flip($deps);
 	}
 
