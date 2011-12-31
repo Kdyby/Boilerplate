@@ -42,7 +42,7 @@ $container->session->start();
 
 
 // delete exception reports from last run
-foreach (Nette\Utils\Finder::findFiles('exception*.html', '*.log')->in($params['logDir']) as $file) {
+foreach (Nette\Utils\Finder::findFiles('exception*.html', '*.log', 'dump*.html')->in($params['logDir']) as $file) {
 	@unlink($file->getRealpath());
 }
 
