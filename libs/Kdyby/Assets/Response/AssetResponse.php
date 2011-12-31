@@ -9,7 +9,7 @@
  * the file license.txt that was distributed with this source code.
  */
 
-namespace Kdyby\Package\AsseticPackage\Response;
+namespace Kdyby\Assets\Response;
 
 use Kdyby;
 use Nette;
@@ -24,45 +24,22 @@ use Nette;
  */
 class AssetResponse extends Nette\Object implements Nette\Application\IResponse
 {
+	/** @var \Kdyby\Assets\Storage\CacheStorage */
+	private $storage;
+
 	/** @var string */
-	private $file;
+	private $assetOutput;
 
 
 
 	/**
-	 * @param string $file
+	 * @param \Kdyby\Assets\Storage\CacheStorage $storage
+	 * @param string $assetOutput
 	 */
-	public function __construct($file)
+	public function __construct(Kdyby\Assets\Storage\CacheStorage $storage, $assetOutput)
 	{
-		if (!is_file($file)) {
-			throw new Nette\Application\BadRequestException("File '$file' doesn't exist.");
-		}
-
-		$this->file = $file;
-	}
-
-
-
-	/**
-	 * Returns the path to a file.
-	 *
-	 * @return string
-	 */
-	final public function getFile()
-	{
-		return $this->file;
-	}
-
-
-
-	/**
-	 * Returns the MIME content type of a downloaded file.
-	 *
-	 * @return string
-	 */
-	final public function getContentType()
-	{
-		return Nette\Utils\MimeTypeDetector::fromFile($this->file);
+		$this->storage = $storage;
+		$this->assetOutput = $assetOutput;
 	}
 
 
@@ -77,15 +54,10 @@ class AssetResponse extends Nette\Object implements Nette\Application\IResponse
 	 */
 	public function send(Nette\Http\IRequest $httpRequest, Nette\Http\IResponse $httpResponse)
 	{
-		$httpResponse->setContentType($this->getContentType());
-		$httpResponse->setHeader('Content-Length', filesize($this->file));
+		$httpResponse->setContentType($this->storage->getContentType($this->assetOutput));
 		$httpResponse->setHeader('Content-Disposition', 'inline');
 
-		$handle = fopen($this->file, 'r');
-		while (!feof($handle)) {
-			echo fread($handle, 4e6);
-		}
-		fclose($handle);
+		echo $this->storage->readAsset($this->assetOutput);
 	}
 
 }

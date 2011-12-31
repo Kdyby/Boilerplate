@@ -10,7 +10,10 @@
 
 namespace Kdyby\Assets\Latte;
 
+use Assetic;
 use Kdyby;
+use Kdyby\Assets\FormulaeManager;
+use Kdyby\Assets\AssetFactory;
 use Nette;
 use Nette\Utils\PhpGenerator as Code;
 use Nette\Latte;
@@ -198,13 +201,20 @@ class AsseticMacroSet extends Latte\Macros\MacroSet
 
 		// array for AssetCollection
 		$assets = "array(\n";
-		foreach ($this->factory->createAsset($inputs, array(), $options) as $leaf) {
-			$assets .= "\t" . Code\Helpers::formatArgs('unserialize(?)', serialize($leaf)) . ",\n";
+		foreach ($asset = $this->factory->createAsset($inputs, array(), $options) as $leaf) {
+			$assets .= "\t" . Code\Helpers::formatArgs('unserialize(?)', array(serialize($leaf))) . ",\n";
 		}
 		$assets = substr($assets, 0, -2) . "\n)";
 
+		if ($asset instanceof Assetic\Asset\AssetInterface) {
+			$options['output'] = $asset->getTargetPath();
+
+		} else {
+			throw new Kdyby\InvalidStateException('Assetic wasn\'t able to create asset from your input "' . implode('", "', $inputs) . '".');
+		}
+
 		// registration code
-		return Code\Helpers::formatArgs('$template->_fm->register(new \Assetic\Asset\AssetCollection(' . $assets . '), ?, ?, ?)', array(
+		return Code\Helpers::formatArgs('$template->_fm->register(new Assetic\Asset\AssetCollection(' . $assets . '), ?, ?, ?);', array(
 			$type, $filters, $options
 		));
 	}

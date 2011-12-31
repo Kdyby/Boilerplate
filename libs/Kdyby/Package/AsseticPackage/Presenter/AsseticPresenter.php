@@ -11,7 +11,7 @@
 namespace Kdyby\Package\AsseticPackage\Presenter;
 
 use Kdyby;
-use Kdyby\Package\AsseticPackage\Response\AssetResponse;
+use Kdyby\Assets\Response\AssetResponse;
 use Nette;
 
 
@@ -22,17 +22,17 @@ use Nette;
 class AsseticPresenter extends Nette\Object implements Nette\Application\IPresenter
 {
 
-	/** @var \Kdyby\Assets\IStorage */
-	private $writer;
+	/** @var \Kdyby\Assets\Storage\CacheStorage */
+	private $storage;
 
 
 
 	/**
-	 * @param \Kdyby\Assets\IStorage $writer
+	 * @param \Kdyby\Assets\Storage\CacheStorage $storage
 	 */
-	public function __construct(Kdyby\Assets\IStorage $writer)
+	public function __construct(Kdyby\Assets\Storage\CacheStorage $storage)
 	{
-		$this->writer = $writer;
+		$this->storage = $storage;
 	}
 
 
@@ -44,8 +44,9 @@ class AsseticPresenter extends Nette\Object implements Nette\Application\IPresen
 	 */
 	public function run(Nette\Application\Request $request)
 	{
-		$outputAsset = trim(@$request->parameters['name'], '/');
-		return new AssetResponse($this->writer->getAssetRealpath($outputAsset));
+		$path = trim($request->parameters['prefix'], '/');
+		$path .= '/' . trim($request->parameters['name'], '/');
+		return new AssetResponse($this->storage, $path);
 	}
 
 }

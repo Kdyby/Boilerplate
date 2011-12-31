@@ -25,7 +25,7 @@ class AsseticExtension extends Kdyby\Config\CompilerExtension
 	/** @var array */
 	public $asseticDefaults = array(
 		'publicDir' => '%wwwDir%',
-		'output' => 'static/*',
+		'prefix' => 'static',
 		'debug' => '%kdyby_debug%'
 	);
 
@@ -38,23 +38,24 @@ class AsseticExtension extends Kdyby\Config\CompilerExtension
 	public function loadConfiguration(ContainerBuilder $container, array $config)
 	{
 		$options = self::getOptions($config, $this->asseticDefaults);
-		$container->parameters['assetic_debug'] = $debug = (bool)$container->expand($options['debug']);
-
-		$options['publicDir'] = $debug ? '%tempDir%/public' : $options['publicDir'] . '/' . $options['prefix'];
-		$container->parameters['assetic_publicPrefix'] = $options['output'];
+		$options['output'] = $options['prefix'] . '/*';
+		$container->parameters += array(
+			'assetic_debug' => $debug = (bool)$container->expand($options['debug']),
+			'assetic_outputMask' => $options['output']
+		);
 
 		if ($debug) {
 			$container->addDefinition('assetic_assetStorage')
-				->setClass('Kdyby\Assets\Storage\PublicStorage', array(
-				$options['publicDir'], '@httpRequest'
+				->setClass('Kdyby\Assets\Storage\CacheStorage', array(
+				'@cacheStorage', '%tempDir%/cache', '@httpRequest'
 			));
 
 			$container->addDefinition('asseticPackage_asseticPresenter')
 				->setClass('Kdyby\Package\AsseticPackage\Presenter\AsseticPresenter', array('@assetic_assetStorage'))
-				->setAutowired(FALSE);
+				->setParameters(array());
 
 			$container->addDefinition('assetic_route_asset')
-				->setClass('Nette\Application\Routers\Route', array('/' . str_replace('*', '/<name .*>', $options['output']), array(
+				->setClass('Nette\Application\Routers\Route', array('/<prefix ' . $options['prefix'] . '>/<name .*>', array(
 					'presenter' => 'AsseticPackage:Assetic',
 				)))
 				->setAutowired(FALSE)
@@ -63,7 +64,7 @@ class AsseticExtension extends Kdyby\Config\CompilerExtension
 		} else {
 			$container->addDefinition('assetic_assetStorage')
 				->setClass('Kdyby\Assets\Storage\PublicStorage', array(
-				$options['publicDir'], '@httpRequest'
+				$options['publicDir'] . '/' . $options['prefix'], '@httpRequest'
 			));
 		}
 

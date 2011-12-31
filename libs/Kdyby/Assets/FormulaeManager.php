@@ -77,6 +77,10 @@ class FormulaeManager extends Nette\Object
 	 */
 	public function register(AssetInterface $asset, $type, $filters = array(), $options = array())
 	{
+		if (isset($options['output'])) {
+			$asset->setTargetPath($options['output']);
+		}
+
 		$this->types[$type][] = $this->assetManager->add($asset, $filters, $options);
 	}
 

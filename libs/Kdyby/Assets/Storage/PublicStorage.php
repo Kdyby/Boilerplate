@@ -66,6 +66,18 @@ class PublicStorage extends Nette\Object implements Kdyby\Assets\IStorage
 
 
 	/**
+	 * @param string $assetOutput
+	 *
+	 * @return \Assetic\Asset\AssetInterface
+	 */
+	public function readAsset($assetOutput)
+	{
+		throw new Kdyby\NotSupportedException;
+	}
+
+
+
+	/**
 	 * @param string|\Assetic\Asset\AssetInterface $asset
 	 *
 	 * @return string
@@ -94,38 +106,7 @@ class PublicStorage extends Nette\Object implements Kdyby\Assets\IStorage
 			return FALSE;
 		}
 
-		return filemtime($file) > $this->getLastModify($asset);
-	}
-
-
-
-	/**
-	 * @param \Assetic\Asset\AssetInterface $asset
-	 * @return mixed
-	 */
-	private function getLastModify(AssetInterface $asset)
-	{
-		return max(array_map(callback('filemtime'), $this->getAssetDeps($asset)));
-	}
-
-
-
-	/**
-	 * @param \Assetic\Asset\AssetInterface $asset
-	 * @return array
-	 */
-	private function getAssetDeps(AssetInterface $asset)
-	{
-		$deps = array();
-		foreach ($asset as $leaf) {
-			$dep = $leaf->getSourceRoot() . '/' . $leaf->getSourcePath();
-			if (!file_exists($dep)) {
-				throw new Kdyby\InvalidStateException('Source file "' . $dep . '" for asset "' . $asset->getTargetPath() . '" doesn\'t exists.');
-			}
-
-			$deps[] = $dep;
-		}
-		return $deps;
+		return filemtime($file) > $asset->getLastModified();
 	}
 
 }
