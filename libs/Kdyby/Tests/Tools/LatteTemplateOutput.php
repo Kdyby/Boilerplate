@@ -50,6 +50,8 @@ class LatteTemplateOutput extends Nette\Object
 
 	/**
 	 * @param string $latte
+	 *
+	 * @return \Kdyby\Tests\Tools\LatteTemplateOutput
 	 */
 	public function parse($latte)
 	{
@@ -84,6 +86,8 @@ class LatteTemplateOutput extends Nette\Object
 		$this->prolog = implode("\n", $this->prolog);
 		$this->macro = implode("\n", $this->macro);
 		$this->epilog = implode("\n", $this->epilog);
+
+		return $this;
 	}
 
 }

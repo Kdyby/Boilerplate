@@ -66,8 +66,7 @@ abstract class LatteTestCase extends TestCase
 		}
 
 		$latteTemplate = new Tools\LatteTemplateOutput($this->parser);
-		$latteTemplate->parse($latte);
-		$this->outputTemplate = $latteTemplate;
+		$this->outputTemplate = $latteTemplate->parse($latte);
 	}
 
 

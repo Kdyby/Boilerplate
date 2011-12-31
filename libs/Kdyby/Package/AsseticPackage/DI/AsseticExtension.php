@@ -92,7 +92,6 @@ class AsseticExtension extends Kdyby\Config\CompilerExtension
 		$container->addDefinition('assetic_assetMacros')
 			->setClass('Kdyby\Assets\Latte\AsseticMacroSet')
 			->setFactory('Kdyby\Assets\Latte\AsseticMacroSet::install', array('%parser%'))
-			->addSetup('setManager', array('@assetic_formulaeManager'))
 			->addSetup('setFactory', array('@assetic_assetFactory'))
 			->setParameters(array('parser'))
 			->addTag('latte_macro');

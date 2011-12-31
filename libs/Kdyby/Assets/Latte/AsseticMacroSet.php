@@ -26,24 +26,11 @@ use Nette\Latte;
 class AsseticMacroSet extends Latte\Macros\MacroSet
 {
 
-	/** @var \Kdyby\Assets\FormulaeManager */
-	private $manager;
-
 	/** @var \Kdyby\Assets\AssetFactory */
 	private $factory;
 
 	/** @var array */
 	private $prolog = array();
-
-
-
-	/**
-	 * @param \Kdyby\Assets\FormulaeManager $manager
-	 */
-	public function setManager(FormulaeManager $manager)
-	{
-		$this->manager = $manager;
-	}
 
 
 
@@ -189,9 +176,6 @@ class AsseticMacroSet extends Latte\Macros\MacroSet
 	 */
 	private function createFactory(array $args, $type)
 	{
-		if ($this->manager === NULL) {
-			throw new Kdyby\InvalidStateException('Please provide instance of Kdyby\Assets\FormulaeManager using ' . get_called_class() . '::setManager().');
-		}
 		if ($this->factory === NULL) {
 			throw new Kdyby\InvalidStateException('Please provide instance of Kdyby\Assets\AssetFactory using ' . get_called_class() . '::setFactory().');
 		}
@@ -207,7 +191,9 @@ class AsseticMacroSet extends Latte\Macros\MacroSet
 		$assets = substr($assets, 0, -2) . "\n)";
 
 		if ($asset instanceof Assetic\Asset\AssetInterface) {
-			$options['output'] = $asset->getTargetPath();
+			if (!isset($options['output'])) {
+				$options['output'] = $asset->getTargetPath();
+			}
 
 		} else {
 			throw new Kdyby\InvalidStateException('Assetic wasn\'t able to create asset from your input "' . implode('", "', $inputs) . '".');

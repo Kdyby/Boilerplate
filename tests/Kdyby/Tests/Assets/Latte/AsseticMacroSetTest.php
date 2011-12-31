@@ -25,9 +25,6 @@ class AsseticMacroSetTest extends Kdyby\Tests\LatteTestCase
 	/** @var \Kdyby\Assets\AssetFactory|\PHPUnit_Framework_MockObject_MockObject */
 	private $factory;
 
-	/** @var \Kdyby\Assets\FormulaeManager|\PHPUnit_Framework_MockObject_MockObject */
-	private $manager;
-
 
 
 	public function setUp()
@@ -36,28 +33,88 @@ class AsseticMacroSetTest extends Kdyby\Tests\LatteTestCase
 			->disableOriginalConstructor()
 			->getMock();
 
-		$this->manager = $this->getMockBuilder('Kdyby\Assets\FormulaeManager')
-			->disableOriginalConstructor()
-			->getMock();
-
 		$ms = $this->installMacro('Kdyby\Assets\Latte\AsseticMacroSet::install');
 		$ms->setFactory($this->factory);
-		$ms->setManager($this->manager);
 	}
 
 
 
-	public function test()
+	public function testMacroStylesheet()
 	{
-		$this->parse('{stylesheet \'@BarPackage/public/css/*.less\', \'filters\' => \'less,yui\', \'root\' => \'root\'}');
+		// prepare asset
+		$assetColl = new Assetic\Asset\AssetCollection(array(
+			$asset = new Assetic\Asset\FileAsset(realpath(__DIR__ . '/../Fixtures/lipsum.less'))
+		));
+		$assetColl->setTargetPath('static/main.css');
+		foreach ($assetColl as $asset) {
+		} // this affects all assets
+		$serialized = Nette\Utils\PhpGenerator\Helpers::formatArgs('?', array(serialize($asset)));
 
-		$this->assertLatteMacroEquals("", "Macro has no output");
+		$this->factory->expects($this->once())
+			->method('createAsset')
+			->with($this->equalTo(array($input = '@BarPackage/public/css/*.less')),
+			$this->equalTo(array()),
+			$this->equalTo(array('root' => 'root')))
+			->will($this->returnValue($assetColl));
 
-		$epilog = <<<php
+		// parse
+		$this->parse('{stylesheet \'' . $input . '\', \'filters\' => \'less,yui\', \'root\' => \'root\'}');
+
+		// verify
+		$this->assertLatteMacroEquals(" ", "Macro has no output");
+
+		$prolog = <<<php
+\$template->_fm->register(new Assetic\Asset\AssetCollection(array(
+	unserialize($serialized)
+)), 'css', array(
+	'less',
+	'yui',
+), array(
+	'root' => 'root',
+	'output' => 'static/main.css',
+));
 
 php;
+		$this->assertLattePrologEquals($prolog);
+	}
 
-		$this->assertLatteEpilogEquals($epilog);
+
+
+	public function testMacroJavascript()
+	{
+		// prepare asset
+		$assetColl = new Assetic\Asset\AssetCollection(array(
+			$asset = new Assetic\Asset\FileAsset(realpath(__DIR__ . '/../Fixtures/jQuery.js'))
+		));
+		foreach ($assetColl as $asset) {
+		} // this affects all assets
+		$serialized = Nette\Utils\PhpGenerator\Helpers::formatArgs('?', array(serialize($asset)));
+
+		$this->factory->expects($this->once())
+			->method('createAsset')
+			->with($this->equalTo(array($input = '@BarPackage/public/js/jQuery.js')),
+			$this->equalTo(array()),
+			$this->equalTo(array('root' => 'root', 'output' => 'static/main.js')))
+			->will($this->returnValue($assetColl));
+
+		// parse
+		$this->parse('{javascript \'' . $input . '\', \'filters\' => \'closure\', \'root\' => \'root\', \'output\' => \'static/main.js\'}');
+
+		// verify
+		$this->assertLatteMacroEquals(" ", "Macro has no output");
+
+		$prolog = <<<php
+\$template->_fm->register(new Assetic\Asset\AssetCollection(array(
+	unserialize($serialized)
+)), 'js', array(
+	'closure',
+), array(
+	'root' => 'root',
+	'output' => 'static/main.js',
+));
+
+php;
+		$this->assertLattePrologEquals($prolog);
 	}
 
 }
