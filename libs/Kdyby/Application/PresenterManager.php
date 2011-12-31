@@ -63,7 +63,13 @@ class PresenterManager extends Nette\Application\PresenterFactory implements Net
 		}
 
 		$serviceName = $this->formatServiceNameFromPresenter($name);
-		if ($this->container->hasService($serviceName)) {
+		if (method_exists($this->container, $method = 'create' . ucfirst($serviceName))) {
+			$factoryRefl = $this->container->getReflection()->getMethod($method);
+			if ($returnType  = $factoryRefl->getAnnotation('return')) {
+				return $returnType; // todo: verify
+			}
+
+		} elseif ($this->container->hasService($serviceName)) {
 			$reflection = new ClassType($this->container->getService($serviceName));
 			return $reflection->getName();
 		}
@@ -72,11 +78,9 @@ class PresenterManager extends Nette\Application\PresenterFactory implements Net
 		$package = $this->packageManager->getPackage($package);
 
 		$class = $this->formatClassFromPresenter($shortName, $package);
-
 		if (!class_exists($class)) {
 			throw InvalidPresenterException::missing($shortName, $class);
 		}
-
 
 		$reflection = new ClassType($class);
 		$class = $reflection->getName();
@@ -112,7 +116,10 @@ class PresenterManager extends Nette\Application\PresenterFactory implements Net
 	public function createPresenter($name)
 	{
 		$serviceName = $this->formatServiceNameFromPresenter($name);
-		if ($this->container->hasService($serviceName)) {
+		if (method_exists($this->container, $method = 'create' . ucfirst($serviceName))) {
+			$presenter = $this->container->{$method}();
+
+		} elseif ($this->container->hasService($serviceName)) {
 			$presenter = $this->container->getService($serviceName);
 
 		} else {
