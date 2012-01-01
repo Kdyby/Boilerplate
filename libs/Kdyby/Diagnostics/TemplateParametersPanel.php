@@ -24,7 +24,7 @@ use Nette\Reflection\Method;
 class TemplateParametersPanel extends Nette\Object implements Nette\Diagnostics\IBarPanel
 {
 
-	/** @var array */
+	/** @var \Nette\Templating\Template[] */
 	private $components = array();
 
 
@@ -39,7 +39,7 @@ class TemplateParametersPanel extends Nette\Object implements Nette\Diagnostics\
 		}
 
 		$template = $component->getTemplate();
-		if (!$template instanceof \Nette\Templating\Template) {
+		if (!$template instanceof Nette\Templating\Template) {
 			return;
 		}
 
@@ -84,8 +84,8 @@ class TemplateParametersPanel extends Nette\Object implements Nette\Diagnostics\
 	private function getComponents()
 	{
 		$dump = array();
-		foreach ($this->components as $name => $component) {
-			foreach ($component->getTemplate()->getParameters() as $key => $val) {
+		foreach ($this->components as $name => $template) {
+			foreach ($template->getParameters() as $key => $val) {
 				$dump[$name][$key] = Nette\Diagnostics\Helpers::clickableDump($val);
 			}
 		}
