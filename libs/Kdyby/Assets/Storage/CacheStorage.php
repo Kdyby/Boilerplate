@@ -14,6 +14,7 @@ use Assetic;
 use Assetic\Asset\AssetInterface;
 use Kdyby;
 use Kdyby\Tools\Filesystem;
+use Kdyby\Tools\MimeTypeDetector;
 use Nette;
 use Nette\Caching\Cache;
 use Nette\Caching\Storages\FileStorage;
@@ -71,7 +72,7 @@ class CacheStorage extends Nette\Object implements Kdyby\Assets\IStorage
 		// prepare
 		$tempFile = $this->tempDir . '/' . basename($asset->getTargetPath());
 		Filesystem::write($tempFile, $assetDump = $asset->dump());
-		$contentType = Nette\Utils\MimeTypeDetector::fromFile($tempFile);
+		$contentType = MimeTypeDetector::fromFile($tempFile);
 
 		// store
 		$this->cache->save($asset->getTargetPath(), $assetDump, $dp = array(
