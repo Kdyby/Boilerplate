@@ -13,6 +13,7 @@ namespace Kdyby\Package\FrameworkPackage\DI;
 use Kdyby;
 use Nette;
 use Nette\DI\ContainerBuilder;
+use Nette\DI\ServiceDefinition;
 use Nette\Utils\Validators;
 use Nette\Reflection\ClassType;
 use Nette\Utils\PhpGenerator as Code;
@@ -115,6 +116,7 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 	{
 		$this->registerConsoleHelpers($container);
 		$this->registerMacroFactories($container);
+		$this->unifyComponents($container);
 	}
 
 
@@ -144,6 +146,61 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 		foreach ($container->findByTag('latte_macro') as $factory => $meta) {
 			$config->addSetup('addFactory', array($factory));
 		}
+	}
+
+
+
+	/**
+	 * Unifies component & presenter definitions using tags.
+	 *
+	 * @param \Nette\DI\ContainerBuilder $container
+	 */
+	protected function unifyComponents(ContainerBuilder $container)
+	{
+		foreach ($container->findByTag('component') as $name => $meta) {
+			$component = $container->getDefinition($name);
+
+			if (!$component->parameters) {
+				$component->setParameters(array());
+
+			} else {
+				$component->setAutowired(FALSE)->setShared(FALSE);
+			}
+
+			if ($this->componentHasTemplate($meta) && !$this->hasTemplateConfigurator($component)) {
+				$component->addSetup('setTemplateConfigurator', array('@templateConfigurator'));
+			}
+		}
+	}
+
+
+
+	/**
+	 * @param array $meta
+	 * @return bool
+	 */
+	private function componentHasTemplate($meta)
+	{
+		return !isset($meta['template'])
+			|| (isset($meta['template']) && $meta['template'] === TRUE);
+	}
+
+
+
+	/**
+	 * @param \Nette\DI\ServiceDefinition $def
+	 *
+	 * @return bool
+	 */
+	private function hasTemplateConfigurator(ServiceDefinition $def)
+	{
+		foreach ($def->setup as $setup) {
+			if ($setup->entity === 'setTemplateConfigurator') {
+				return TRUE;
+			}
+		}
+
+		return FALSE;
 	}
 
 
