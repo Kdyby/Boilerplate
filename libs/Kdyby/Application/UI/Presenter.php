@@ -111,6 +111,62 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 
 
 	/**
+	 * @return array
+	 */
+	public function formatLayoutTemplateFiles()
+	{
+		if (!$this->isInPackage()) {
+			return parent::formatLayoutTemplateFiles();
+		}
+
+		$presenter = substr($name = $this->getName(), strrpos(':' . $name, ':'));
+		$layout = $this->layout ? $this->layout : 'layout';
+		$views = realpath(dirname($this->getReflection()->getFileName()) . '/../Resources/view');
+
+		return array(
+			"$views/$presenter/@$layout.latte",
+			"$views/$presenter.@$layout.latte",
+			"$views/@$layout.latte",
+		);
+	}
+
+
+
+	/**
+	 * @return array
+	 */
+	public function formatTemplateFiles()
+	{
+		if (!$this->isInPackage()) {
+			return parent::formatTemplateFiles();
+		}
+
+		$presenter = substr($name = $this->getName(), strrpos(':' . $name, ':'));
+		$views = realpath(dirname($this->getReflection()->getFileName()) . '/../Resources/view');
+
+		return array(
+			"$views/$presenter/$this->view.latte",
+			"$views/$presenter.$this->view.latte",
+		);
+	}
+
+
+
+	/**
+	 * Presenter is in package, when "Package" keyword is in it's namespace
+	 * and "Module" keyword is not. Because packages disallow modules.
+	 *
+	 * @return bool
+	 */
+	private function isInPackage()
+	{
+		return stripos(get_called_class(), 'Package\\') !== FALSE
+			&& stripos(get_called_class(), 'Module\\') === FALSE;
+	}
+
+
+
+	/**
 	 * Sends AJAX payload to the output.
 	 *
 	 * @param array|object|null $payload
