@@ -31,16 +31,13 @@ use Nette\Utils\Strings;
  * @property-read mixed $id
  * @property \Kdyby\Security\RBAC\Role[] $roles
  */
-class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity, Nette\Security\IRole, \Serializable
+class Identity extends Kdyby\Doctrine\Entities\IdentifiedEntity implements Nette\Security\IIdentity, Nette\Security\IRole
 {
-
-	/** @Orm:Column(type="integer") @Orm:Id @Orm:GeneratedValue */
-	private $id;
 
 	/** @Orm:Column(type="string") */
 	private $username;
 
-	/** @Orm:Column(type="password") @var Kdyby\Types\Password */
+	/** @Orm:Column(type="password") @var \Kdyby\Types\Password */
 	private $password;
 
 	/** @Orm:Column(type="string", length=5) */
@@ -53,7 +50,6 @@ class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity
 	private $email;
 
 	/**
-	 * @var Collection
 	 * @Orm:ManyToMany(targetEntity="Kdyby\Security\RBAC\Role", cascade={"persist"})
 	 * @Orm:JoinTable(name="users_roles",
 	 *		joinColumns={@Orm:JoinColumn(name="role_id", referencedColumnName="id")},
@@ -105,8 +101,6 @@ class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity
 		$this->email = $email;
 		$this->username = $username;
 		$this->setPassword($password);
-
-//		$this->address = new Kdyby\Domain\Users\Address;
 	}
 
 
@@ -125,18 +119,6 @@ class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity
 
 
 	/**
-	 * Returns the ID of user.
-	 *
-	 * @return mixed
-	 */
-	public function getId()
-	{
-		return $this->id;
-	}
-
-
-
-	/**
 	 * Sets a list of roles that the user is a member of.
 	 *
 	 * @param \Kdyby\Security\RBAC\Role $role
@@ -145,7 +127,7 @@ class Identity extends Nette\FreezableObject implements Nette\Security\IIdentity
 	 */
 	public function addRole(RBAC\Role $role)
 	{
-		$this->roles->add($role);
+		$this->roles[] = $role;
 		return $this;
 	}
 

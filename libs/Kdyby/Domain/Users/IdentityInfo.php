@@ -27,7 +27,7 @@ use Nette;
 class IdentityInfo extends Kdyby\Doctrine\Entities\IdentifiedEntity
 {
 
-	/** @var Kdyby\Security\Identity */
+	/** @var \Kdyby\Security\Identity */
 	private $identity;
 
 	/** @Orm:Column(type="string", nullable=TRUE) */
@@ -40,10 +40,10 @@ class IdentityInfo extends Kdyby\Doctrine\Entities\IdentifiedEntity
 
 	/**
 	 * @internal
-	 * @param Kdyby\Security\Identity $identity
-	 * @return IdentityInfo
+	 * @param \Kdyby\Security\Identity $identity
+	 * @return \Kdyby\Domain\Users\IdentityInfo
 	 */
-	public function setIdentity(Kdyby\Security\Identity $identity)
+	final public function setIdentity(Kdyby\Security\Identity $identity)
 	{
 		if ($identity->getInfo() !== $this) {
 			throw new Kdyby\InvalidArgumentException("Given identity does not own this info object.");

@@ -57,7 +57,8 @@ class IdentityByNameOrEmailQuery extends Kdyby\Doctrine\QueryObjectBase
 	 */
 	protected function doCreateQuery(IQueryable $repository)
 	{
-		return $this->createQueryBuilder('u')
+		return $repository->createQueryBuilder('u')
+			->leftJoin('u.info', 'i')
 			->where('u.username = :nameOrEmail')
 			->orWhere('u.email = :nameOrEmail')
 			->setParameter('nameOrEmail', $this->nameOrEmail);

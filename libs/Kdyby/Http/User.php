@@ -17,7 +17,9 @@ use Nette\Http;
 use Nette\Application\ForbiddenRequestException;
 use Nette\Reflection;
 use Nette\Security\IAuthorizator;
+use Kdyby\Security\Identity;
 use Nette\Security\AuthenticationException;
+use Kdyby\Security\SerializableIdentity;
 
 
 
@@ -52,7 +54,7 @@ class User extends Nette\Http\User implements Nette\Security\IAuthenticator
 	/**
 	 * @param array $credentials
 	 *
-	 * @return Nette\Security\IIdentity
+	 * @return \Nette\Security\IIdentity
 	 */
 	public function authenticate(array $credentials)
 	{
@@ -68,7 +70,37 @@ class User extends Nette\Http\User implements Nette\Security\IAuthenticator
 			throw new AuthenticationException('Account is not approved', self::NOT_APPROVED);
 		}
 
-		return $identity;
+		return new SerializableIdentity($identity);
+	}
+
+
+
+	/**
+	 * @todo: validation rules
+	 *
+	 * @param string $username
+	 * @param string $password
+	 * @return \Kdyby\Security\Identity
+	 */
+	public function register($username, $password)
+	{
+		return $this->users->save(new Identity($username, $password));
+	}
+
+
+
+	/**
+	 * @param bool $need
+	 * @return \Nette\Http\SessionSection
+	 */
+	protected function getSessionSection($need)
+	{
+		$section = parent::getSessionSection($need);
+		if ($section->identity instanceof SerializableIdentity && !$section->identity->isLoaded()) {
+			$section->identity->load($this->users);
+		}
+
+		return $section;
 	}
 
 

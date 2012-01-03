@@ -80,6 +80,10 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 			->setClass('Kdyby\Console\StorageHelper', array('@phpFileStorage'))
 			->addTag('console_helper', array('alias' => 'phpFileStorage'));
 
+		$container->addDefinition('console_helper_dialogHelper')
+			->setClass('Symfony\Component\Console\Helper\DialogHelper')
+			->addTag('console_helper', array('alias' => 'dialog'));
+
 		// cache
 		$container->addDefinition('phpFileStorage')
 			->setFactory('@templateCacheStorage');
@@ -90,8 +94,7 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 
 		$container->addDefinition('security_identityDao')
 			->setFactory('@doctrine::getDao', array('Kdyby\Security\Identity'))
-			->setInternal(TRUE)
-			->setShared(FALSE);
+			->setInternal(TRUE);
 
 		$container->addDefinition('authorizator')
 			->setClass('Nette\Security\IAuthorizator')
@@ -99,7 +102,6 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 
 		$container->addDefinition('security_authorizatorFactory')
 			->setClass('Kdyby\Security\AuthorizatorFactory', array('@user', '@session', '@doctrine'))
-			->setShared(FALSE)
 			->setInternal(TRUE);
 
 		// template

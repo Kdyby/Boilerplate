@@ -83,7 +83,7 @@ class AuthorizatorFactory extends Nette\Object
 		}
 
 		if (!$division) {
-			throw new Kdyby\InvalidStateException("Unknown division '" . $divisionName . "'.");
+			return new SimplePermission(); // default stub
 		}
 
 		$session = $this->session->getSection('Kdyby.Security.Permission/' . $division->getName());
