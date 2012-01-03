@@ -85,14 +85,12 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 	public function add($entity)
 	{
 		if ($entity instanceof Collection) {
-			return $this->save($entity->toArray());
-		}
+			return $this->add($entity->toArray());
 
-		if (is_array($entity)) {
+		} elseif (is_array($entity)) {
 			return array_map(array($this, 'add'), $entity);
-		}
 
-		if (!$entity instanceof $this->_entityName) {
+		} elseif (!$entity instanceof $this->_entityName) {
 			throw new Kdyby\InvalidArgumentException("Entity is not instanceof " . $this->_entityName . ", instanceof '" . get_class($entity) . "' given.");
 		}
 
@@ -271,6 +269,17 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 		} catch (\Exception $e) {
 			return $this->handleQueryExceptions($e, $queryObject);
 		}
+	}
+
+
+
+	/**
+	 * @param integer|array $id
+	 * @return \Doctrine\ORM\Proxy\Proxy
+	 */
+	public function getReference($id)
+	{
+		return $this->getEntityManager()->getReference($this->_entityName, $id);
 	}
 
 
