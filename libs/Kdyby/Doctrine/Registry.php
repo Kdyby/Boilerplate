@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Package\DoctrinePackage;
+namespace Kdyby\Doctrine;
 
 use Doctrine;
 use Doctrine\DBAL\Connection;

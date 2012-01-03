@@ -22,7 +22,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class SandboxRegistry extends Kdyby\Package\DoctrinePackage\Registry
+class SandboxRegistry extends Kdyby\Doctrine\Registry
 {
 	/**
 	 * @var \Kdyby\Tests\ORM\DataFixturesLoader[]

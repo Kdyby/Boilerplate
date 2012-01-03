@@ -33,7 +33,7 @@ class DoctrineExtension extends Kdyby\Config\CompilerExtension
 	public function loadConfiguration(ContainerBuilder $container, array $config)
 	{
 		$container->addDefinition('doctrine')
-			->setClass('Kdyby\Package\DoctrinePackage\Registry', array(
+			->setClass('Kdyby\Doctrine\Registry', array(
 				'@container',
 				'%doctrine_connections%',
 				'%doctrine_entityManagers%',
