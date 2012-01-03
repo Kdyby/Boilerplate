@@ -31,8 +31,22 @@ use Nette\ObjectMixin;
 class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persistence\IQueryable, Kdyby\Persistence\IObjectFactory
 {
 
-	/** @var EntityValuesMapper */
+	/** @var \Kdyby\Doctrine\Mapping\ValuesMapper */
 	private $entityMapper;
+
+
+
+	/**
+	 * @return \Kdyby\Doctrine\Mapping\ValuesMapper
+	 */
+	private function getEntityValuesMapper()
+	{
+		if ($this->entityMapper === NULL) {
+			$this->entityMapper = new Mapping\ValuesMapper($this->_class);
+		}
+
+		return $this->entityMapper;
+	}
 
 
 
@@ -54,24 +68,9 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 		}
 
 		if ($values) {
-			if (!$this->entityMapper) {
-				throw new Kdyby\InvalidArgumentException("EntityMapper service was not injected, therefore DAO cannot set values.");
-
-			} else {
-				$this->entityMapper->load($entity, $values);
-			}
+			$this->getEntityValuesMapper()->load($entity, $values);
 		}
 		return $entity;
-	}
-
-
-
-	/**
-	 * @param \Kdyby\Doctrine\Mapping\EntityValuesMapper $mapper
-	 */
-	public function setEntityMapper(EntityValuesMapper $mapper)
-	{
-		$this->entityMapper = $mapper;
 	}
 
 
