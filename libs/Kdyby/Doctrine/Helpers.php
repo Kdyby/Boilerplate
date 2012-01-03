@@ -19,8 +19,20 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class Helpers extends Nette\Object
+final class Helpers extends Nette\Object
 {
+
+	/**
+	 * Static class cannot be instantiated
+	 *
+	 * @throws \Kdyby\StaticClassException
+	 */
+	final public function __construct()
+	{
+		throw new Kdyby\StaticClassException;
+	}
+
+
 
 	/**
 	 * @param \Doctrine\Common\Collections\Collection $col
