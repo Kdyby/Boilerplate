@@ -52,11 +52,29 @@ abstract class Control extends Nette\Application\UI\Control
 	protected function createTemplate($class = NULL)
 	{
 		$template = parent::createTemplate($class);
+		if ($file = $this->getTemplateDefaultFile()) {
+			$template->setFile($file);
+		}
+
 		if ($this->templateConfigurator !== NULL) {
 			$this->templateConfigurator->configure($template);
 		}
 
 		return $template;
+	}
+
+
+
+	/**
+	 * Derives template path from class name.
+	 *
+	 * @return null|string
+	 */
+	protected function getTemplateDefaultFile()
+	{
+		$refl = $this->getReflection();
+		$file = dirname($refl->getFileName()) . '/' . $refl->getShortName() . '.latte';
+		return file_exists($file) ? $file : NULL;
 	}
 
 
