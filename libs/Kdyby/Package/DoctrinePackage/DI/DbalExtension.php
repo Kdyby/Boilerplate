@@ -61,13 +61,12 @@ class DbalExtension extends Kdyby\Config\CompilerExtension
 	 * 	dbname: database
 	 * 	user: root
 	 * 	password: 123
-	 *
-	 *
-	 * @param \Nette\DI\ContainerBuilder $container
-	 * @param array $config
 	 */
-	public function loadConfiguration(ContainerBuilder $container, array $config)
+	public function loadConfiguration()
 	{
+		$container = $this->getContainer();
+		$config = $this->getConfig();
+		
 		$connections = isset($config['connections']) ? $config['connections'] : array('default' => $config);
 
 		// default connection
