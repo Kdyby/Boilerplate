@@ -119,12 +119,11 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 
 
 
-	/**
-	 * @param \Nette\DI\ContainerBuilder $container
-	 * @param array $config
-	 */
-	public function loadConfiguration(ContainerBuilder $container, array $config)
+	public function loadConfiguration()
 	{
+		$container = $this->getContainer();
+		$config = $this->getConfig();
+		
 		$this->entityManagers = isset($config['entityManagers']) ? $config['entityManagers'] : array('default' => $config);
 
 		// default entity manger

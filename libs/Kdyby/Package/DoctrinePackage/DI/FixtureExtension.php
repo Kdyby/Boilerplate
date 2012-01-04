@@ -25,12 +25,10 @@ use Nette\Utils\Validators;
 class FixtureExtension extends Kdyby\Config\CompilerExtension
 {
 
-	/**
-	 * @param \Nette\DI\ContainerBuilder $container
-	 * @param array $config
-	 */
-	public function loadConfiguration(ContainerBuilder $container, array $config)
+	public function loadConfiguration()
 	{
+		$container = $this->getContainer();
+		
 		Validators::assertField($container->parameters, 'doctrine_entityManagers');
 
 		foreach ($container->parameters['doctrine_entityManagers'] as $entityManagerName) {

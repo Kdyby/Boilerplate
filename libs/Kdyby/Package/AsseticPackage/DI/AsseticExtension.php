@@ -31,12 +31,11 @@ class AsseticExtension extends Kdyby\Config\CompilerExtension
 
 
 
-	/**
-	 * @param \Nette\DI\ContainerBuilder $container
-	 * @param array $config
-	 */
-	public function loadConfiguration(ContainerBuilder $container, array $config)
+	public function loadConfiguration()
 	{
+		$container = $this->getContainer();
+		$config = $this->getConfig();
+		
 		$options = self::getOptions($config, $this->asseticDefaults);
 		$options['output'] = $options['prefix'] . '/*';
 		$container->parameters += array(

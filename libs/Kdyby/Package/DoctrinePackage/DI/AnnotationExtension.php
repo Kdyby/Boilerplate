@@ -29,12 +29,12 @@ class AnnotationExtension extends Kdyby\Config\CompilerExtension
 	 * annotation:
 	 * 	aliases:
 	 * 		Orm: Doctrine\ORM\Mapping
-	 *
-	 * @param \Nette\DI\ContainerBuilder $container
-	 * @param array $config
 	 */
-	public function loadConfiguration(ContainerBuilder $container, array $config)
+	public function loadConfiguration()
 	{
+		$container = $this->getContainer();
+		$config = $this->getConfig();
+		
 		$reader = $container->addDefinition('annotationReader')
 			->setClass('Doctrine\Common\Annotations\AnnotationReader')
 			->addSetup('setIgnoreNotImportedAnnotations', array(FALSE))
