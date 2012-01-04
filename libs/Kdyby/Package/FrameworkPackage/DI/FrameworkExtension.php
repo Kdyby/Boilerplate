@@ -26,12 +26,10 @@ use Nette\Utils\PhpGenerator as Code;
 class FrameworkExtension extends Kdyby\Config\CompilerExtension
 {
 
-	/**
-	 * @param \Nette\DI\ContainerBuilder $container
-	 * @param array $config
-	 */
-	public function loadConfiguration(ContainerBuilder $container, array $config)
+	public function loadConfiguration()
 	{
+		$container = $this->getContainer();
+		
 		// watch for package files to change
 		Validators::assertField($container->parameters, 'kdyby_packages', 'array');
 		foreach ($container->parameters['kdyby_packages'] as $packageClass) {
@@ -111,11 +109,10 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 
 
 
-	/**
-	 * @param \Nette\DI\ContainerBuilder $container
-	 */
-	public function beforeCompile(ContainerBuilder $container)
+	public function beforeCompile()
 	{
+		$container = $this->getContainer();
+		
 		$this->registerConsoleHelpers($container);
 		$this->registerMacroFactories($container);
 		$this->unifyComponents($container);
@@ -208,12 +205,11 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 
 
 	/**
-	 * @param \Nette\DI\ContainerBuilder $container
 	 * @param \Nette\Utils\PhpGenerator\ClassType $class
 	 */
-	public function afterCompile(ContainerBuilder $container, Code\ClassType $class)
+	public function afterCompile(Code\ClassType $class)
 	{
-		$this->compileRouter($container, $class->methods['initialize']);
+		$this->compileRouter($this->getContainer(), $class->methods['initialize']);
 	}
 
 

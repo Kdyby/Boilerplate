@@ -26,12 +26,10 @@ use Nette\Utils\Validators;
 class DoctrineExtension extends Kdyby\Config\CompilerExtension
 {
 
-	/**
-	 * @param \Nette\DI\ContainerBuilder $container
-	 * @param array $config
-	 */
-	public function loadConfiguration(ContainerBuilder $container, array $config)
+	public function loadConfiguration()
 	{
+		$container = $this->getContainer();
+		
 		$container->addDefinition('doctrine')
 			->setClass('Kdyby\Doctrine\Registry', array(
 				'@container',
@@ -52,12 +50,9 @@ class DoctrineExtension extends Kdyby\Config\CompilerExtension
 
 
 
-	/**
-	 * @param \Nette\DI\ContainerBuilder $container
-	 */
-	public function beforeCompile(ContainerBuilder $container)
+	public function beforeCompile()
 	{
-		$this->registerEventSubscribers($container);
+		$this->registerEventSubscribers($this->getContainer());
 	}
 
 

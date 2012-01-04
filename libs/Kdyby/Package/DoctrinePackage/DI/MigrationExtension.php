@@ -25,11 +25,7 @@ use Nette\Utils\Validators;
 class MigrationExtension extends Kdyby\Config\CompilerExtension
 {
 
-	/**
-	 * @param \Nette\DI\ContainerBuilder $container
-	 * @param array $config
-	 */
-	public function loadConfiguration(ContainerBuilder $container, array $config)
+	public function loadConfiguration()
 	{
 	}
 
