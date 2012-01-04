@@ -25,15 +25,13 @@ use Nette\Diagnostics\Debugger;
  * @property-read \Kdyby\Http\User $user
  *
  * @method \Kdyby\Http\User getUser() getUser()
+ * @method \SystemContainer|\Nette\DI\Container getContext() getContext()
  */
 abstract class Presenter extends Nette\Application\UI\Presenter
 {
 
 	/** @persistent */
 	public $backlink;
-
-	/** @var \SystemContainer|\Nette\DI\Container */
-	private $container;
 
 	/** @var \Kdyby\Templates\ITemplateConfigurator */
 	protected $templateConfigurator;
@@ -46,22 +44,10 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	public function __construct(Nette\DI\Container $container)
 	{
 		parent::__construct($container);
-		$this->container = $container;
 
 		if ($container->hasService('templateConfigurator')) {
 			$this->setTemplateConfigurator($container->templateConfigurator);
 		}
-	}
-
-
-
-	/**
-	 * @todo temporary solution!
-	 * @return \SystemContainer|\Nette\DI\Container
-	 */
-	public function getContainer()
-	{
-		return $this->container;
 	}
 
 
