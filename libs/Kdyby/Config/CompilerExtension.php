@@ -34,16 +34,6 @@ class CompilerExtension extends Nette\Config\CompilerExtension
 
 
 	/**
-	 * @return \Nette\DI\ContainerBuilder
-	 */
-	public function getContainer()
-	{
-		return $this->compiler->getContainer();
-	}
-
-
-
-	/**
 	 * Intersects the keys of defaults and given options and returns only not NULL values.
 	 *
 	 * @param array $given	   Configurations options
