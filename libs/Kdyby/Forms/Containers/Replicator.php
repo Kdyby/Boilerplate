@@ -380,7 +380,7 @@ class Replicator extends Container
 		}
 
 		return $this->httpRequest = $this->getForm()->getPresenter()
-			->getContext()->getByClass('Nette\Http\IRequest');
+			->getContext()->httpRequest;
 	}
 
 
