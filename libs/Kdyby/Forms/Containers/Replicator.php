@@ -305,6 +305,29 @@ class Replicator extends Container
 
 
 	/**
+	 * @param array $exceptChildren
+	 * @return bool
+	 */
+	public function isAllFilled(array $exceptChildren = array())
+	{
+		$components = array();
+		foreach ($this->getComponents(FALSE, 'Nette\Forms\IControl') as $control) {
+			$components[] = $control->getName();
+		}
+
+		foreach ($this->getContainers() as $container) {
+			foreach ($container->getComponents(TRUE, 'Nette\Forms\ISubmitterControl') as $button) {
+				$exceptChildren[] = $button->getName();
+			}
+		}
+
+		$filled = $this->countFilledWithout($components, array_unique($exceptChildren));
+		return $filled === count($this->getContainers());
+	}
+
+
+
+	/**
 	 * @return mixed|NULL
 	 */
 	private function getHttpData()
