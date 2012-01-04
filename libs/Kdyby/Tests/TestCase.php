@@ -12,6 +12,7 @@ namespace Kdyby\Tests;
 
 use Kdyby;
 use Nette;
+use Nette\Application\UI;
 use Nette\ObjectMixin;
 
 
@@ -116,6 +117,62 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 	{
 		$constraint = new Constraint\IsCallableConstraint();
 		self::assertThat($callback, $constraint, $message);
+	}
+
+
+	/********************* Nette Forms *********************/
+
+
+	/**
+	 * @param \Nette\Application\UI\Form $form
+	 * @param array $values
+	 */
+	protected function submitForm(UI\Form $form, array $values = array())
+	{
+		$get = $form->getMethod() !== UI\Form::POST ? $values : array();
+		$post = $form->getMethod() === UI\Form::POST ? $values : array();
+		list($post, $files) = $this->separateFilesFromPost($post);
+
+		$presenter = new Tools\UIFormTestingPresenter($this->getContext(), $form);
+		return $presenter->run(new Nette\Application\Request(
+			'presenter',
+			strtoupper($form->getMethod()),
+			array('do' => 'form-submit', 'action' => 'default') + $get,
+			$post,
+			$files
+		));
+	}
+
+
+
+	/**
+	 * @param array $post
+	 * @param array $files
+	 *
+	 * @return array
+	 */
+	private function separateFilesFromPost(array $post, array $files = array())
+	{
+		foreach ($post as $key => $value) {
+			if (is_array($value)) {
+				list($pPost, $pFiles) = $this->separateFiles($value);
+				unset($post[$key]);
+
+				if ($pPost) {
+					$post[$key] = $pPost;
+				}
+				if ($pFiles) {
+					$files[$key] = $pFiles;
+				}
+			}
+
+			if ($value instanceof Nette\Http\FileUpload) {
+				$files[$key] = $value;
+				unset($post[$key]);
+			}
+		}
+
+		return array($post, $files);
 	}
 
 
