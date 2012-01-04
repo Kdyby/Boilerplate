@@ -22,11 +22,14 @@ use Nette\Forms\Container;
 class Replicator extends Container
 {
 
-	/** @var callback */
-	private $factoryCallback;
+	/** @var bool */
+	public $forceDefault;
 
 	/** @var int */
-	private $createDefault;
+	public $createDefault;
+
+	/** @var callback */
+	protected $factoryCallback;
 
 	/** @var boolean */
 	private $submittedBy = FALSE;
@@ -34,27 +37,32 @@ class Replicator extends Container
 	/** @var array */
 	private $created = array();
 
+	/** @var \Nette\Http\IRequest */
+	private $httpRequest;
+
 
 
 	/**
 	 * @param callable $factory
 	 * @param int $createDefault
+	 * @param bool $forceDefault
 	 */
-	public function __construct($factory, $createDefault = 0)
+	public function __construct($factory, $createDefault = 0, $forceDefault = FALSE)
 	{
 		parent::__construct();
 
 		$this->monitor('Nette\Application\UI\Presenter');
 		$this->factoryCallback = callback($factory);
 		$this->createDefault = (int)$createDefault;
+		$this->forceDefault = $forceDefault;
 	}
 
 
 
 	/**
-	 * Magická továrna na komponenty
+	 * Magical component factory
 	 *
-	 * @param Nette\ComponentModel\IContainer
+	 * @param \Nette\ComponentModel\IContainer
 	 */
 	protected function attached($obj)
 	{
@@ -65,9 +73,16 @@ class Replicator extends Container
 		}
 
 		$this->loadHttpData();
-		if (!$this->getForm()->isSubmitted() && $this->createDefault > 0) {
-			foreach (range(0, $this->createDefault-1) as $key) {
-				$this->createComponent($key);
+		if ($this->createDefault > 0) {
+			if (!$this->getForm()->isSubmitted()) {
+				foreach (range(0, $this->createDefault - 1) as $key) {
+					$this->createComponent($key);
+				}
+
+			} elseif ($this->forceDefault) {
+				while ($this->getContainers()->count() < $this->createDefault) {
+					$this->createOne();
+				}
 			}
 		}
 	}
@@ -97,24 +112,42 @@ class Replicator extends Container
 
 
 	/**
-	 * Magická továrna na komponenty
+	 * Magical component factory
 	 *
 	 * @param string $name
-	 * @return Container
+	 * @return \Nette\Forms\Container
 	 */
 	protected function createComponent($name)
 	{
-		$controls = iterator_to_array($this->getComponents(FALSE, 'Nette\Forms\IControl'));
-		$firstControl = reset($controls);
-		$firstControlName = $firstControl ? $firstControl->name : NULL;
-
-		$container = new Container;
+		$container = $this->createContainer();
 		$container->currentGroup = $this->currentGroup;
-		$this->addComponent($container, $name, $firstControlName);
+		$this->addComponent($container, $name, $this->getFirstControlName());
 
 		$this->factoryCallback->invoke($container);
 
 		return $this->created[$container->name] = $container;
+	}
+
+
+
+	/**
+	 * @return string
+	 */
+	private function getFirstControlName()
+	{
+		$controls = iterator_to_array($this->getComponents(FALSE, 'Nette\Forms\IControl'));
+		$firstControl = reset($controls);
+		return $firstControl ? $firstControl->name : NULL;
+	}
+
+
+
+	/**
+	 * @return \Nette\Forms\Container
+	 */
+	protected function createContainer()
+	{
+		return new Container;
 	}
 
 
@@ -130,7 +163,7 @@ class Replicator extends Container
 
 		foreach ($this->getButtons(TRUE) as $button) {
 			if ($button->isSubmittedBy()) {
-				return TRUE;
+				return $this->submittedBy = TRUE;
 			}
 		}
 
@@ -140,33 +173,25 @@ class Replicator extends Container
 
 
 	/**
-	 * Vytvoří nový container
+	 * Create new container
 	 *
 	 * @param string|int $name
-	 * @return Container
+	 *
+	 * @return \Nette\Forms\Container
 	 */
 	public function createOne($name = NULL)
 	{
-		if ($name) {
-			if (isset($this->created[$name])) {
-				throw new Kdyby\InvalidArgumentException("Container with name '$name' already exists.");
-			}
-
-			return $this[$name];
+		if ($name === NULL) {
+			$names = array_keys($this->getContainers()->getArrayCopy());
+			$name = $names ? max($names) + 1 : 0;
 		}
 
-		$buttons = array_map(function ($control) {
-				return $control->getName();
-			}, iterator_to_array($this->getButtons()));
-
-		$containers = iterator_to_array($this->getContainers());
-		$lastContainer = end($containers);
-
-		if ($lastContainer) {
-			return $this[$lastContainer->name + 1];
+		// Container is overriden, therefore every request for getComponent($name, FALSE) would return container
+		if (isset($this->created[$name])) {
+			throw new Kdyby\InvalidArgumentException("Container with name '$name' already exists.");
 		}
 
-		return $this[0];
+		return $this[$name];
 	}
 
 
@@ -257,10 +282,10 @@ class Replicator extends Container
 	 * Counts filled values, filtered by given names
 	 *
 	 * @param array $components
-	 * @param array $subcomponents
+	 * @param array $subComponents
 	 * @return int
 	 */
-	public function countFilledWithout(array $components = array(), array $subcomponents = array())
+	public function countFilledWithout(array $components = array(), array $subComponents = array())
 	{
 		$httpData = array_diff_key((array)$this->getHttpData(), array_flip($components));
 
@@ -269,9 +294,9 @@ class Replicator extends Container
 		}
 
 		$rows = array();
-		$subcomponents = array_flip($subcomponents);
+		$subComponents = array_flip($subComponents);
 		foreach ($httpData as $item) {
-			$rows[] = array_filter(array_diff_key($item, $subcomponents)) ?: FALSE;
+			$rows[] = array_filter(array_diff_key($item, $subComponents)) ?: FALSE;
 		}
 
 		return count(array_filter($rows));
@@ -310,11 +335,29 @@ class Replicator extends Container
 
 
 	/**
-	 * @return Nette\Http\Request
+	 * @param \Nette\Http\IRequest $request
+	 *
+	 * @return \Kdyby\Forms\Containers\Replicator
+	 */
+	public function setHttpRequest(Nette\Http\IRequest $request)
+	{
+		$this->httpRequest = $request;
+		return $this;
+	}
+
+
+
+	/**
+	 * @return \Nette\Http\Request
 	 */
 	private function getHttpRequest()
 	{
-		return $this->getForm()->getPresenter()->getContext()->getService('httpRequest');
+		if ($this->httpRequest !== NULL) {
+			return $this->httpRequest;
+		}
+
+		return $this->httpRequest = $this->getForm()->getPresenter()
+			->getContext()->getByClass('Nette\Http\IRequest');
 	}
 
 
