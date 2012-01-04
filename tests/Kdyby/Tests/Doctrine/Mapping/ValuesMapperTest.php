@@ -131,6 +131,7 @@ class ValuesMapperTest extends Kdyby\Tests\OrmTestCase
 
 /**
  * @Orm:MappedSuperclass()
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class SharedFieldsEntity extends Nette\Object
 {
@@ -149,6 +150,7 @@ class SharedFieldsEntity extends Nette\Object
 
 /**
  * @Orm:Entity()
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class RootEntity extends SharedFieldsEntity
 {
@@ -187,6 +189,7 @@ class RootEntity extends SharedFieldsEntity
 
 /**
  * @Orm:Entity()
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class RelatedEntity extends SharedFieldsEntity
 {
