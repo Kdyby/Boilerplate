@@ -49,7 +49,7 @@ class CheckboxList extends Nette\Forms\Controls\BaseControl
 	 * @param string $label
 	 * @param array $items  Options from which to choose
 	 */
-	public function __construct($label, array $items = NULL)
+	public function __construct($label = NULL, array $items = NULL)
 	{
 		parent::__construct($label);
 
