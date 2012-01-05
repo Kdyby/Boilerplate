@@ -11,6 +11,7 @@
 namespace Kdyby\Doctrine;
 
 use Doctrine;
+use Doctrine\ORM\AbstractQuery;
 use DoctrineExtensions\Paginate\Paginate;
 use Kdyby;
 use Kdyby\Persistence\IQueryable;
@@ -57,7 +58,7 @@ abstract class QueryObjectBase implements Kdyby\Persistence\IQueryObject
 	 * @param \Kdyby\Persistence\IQueryable $repository
 	 * @return \Doctrine\ORM\Query|\Doctrine\ORM\QueryBuilder
 	 */
-	protected abstract function doCreateQuery(IQueryable $repository);
+	protected abstract function doCreateQuery(Kdyby\Persistence\IQueryable $repository);
 
 
 
@@ -97,9 +98,11 @@ abstract class QueryObjectBase implements Kdyby\Persistence\IQueryObject
 
 	/**
 	 * @param \Kdyby\Persistence\IQueryable $repository
+	 * @param int $hydrationMode
+	 *
 	 * @return array
 	 */
-	public function fetch(IQueryable $repository)
+	public function fetch(IQueryable $repository, $hydrationMode = AbstractQuery::HYDRATE_OBJECT)
 	{
 		$query = $this->getQuery($repository);
 
@@ -111,7 +114,7 @@ abstract class QueryObjectBase implements Kdyby\Persistence\IQueryObject
 		}
 
 		$this->lastQuery = $query;
-		return $query->getResult();
+		return $query->getResult($hydrationMode);
 	}
 
 

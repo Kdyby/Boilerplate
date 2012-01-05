@@ -11,6 +11,7 @@
 namespace Kdyby\Doctrine;
 
 use Doctrine;
+use Doctrine\ORM\AbstractQuery;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\NonUniqueResultException;
@@ -70,6 +71,7 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 		if ($values) {
 			$this->getEntityValuesMapper()->load($entity, $values);
 		}
+
 		return $entity;
 	}
 
@@ -119,7 +121,86 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 
 
 	/**
-	 * @param object|array|Collection $entity
+	 * Fetches all records like $key => $value pairs
+	 *
+	 * @param array $criteria
+	 * @param string $value
+	 * @param string $key
+	 *
+	 * @return array
+	 */
+	public function findPairs($criteria = NULL, $key = NULL, $value = NULL)
+	{
+		if (!is_array($criteria)) {
+			$value = $key;
+			$key = $criteria;
+			$criteria = array();
+		}
+
+		$builder = $this->createQueryBuilder('e')
+			->select("e.$key, e.$value");
+
+		foreach ($criteria as $k => $v) {
+			$builder->andWhere('e.' . $k . ' = :prop' . $k)
+				->setParameter('prop' . $k, $v);
+		}
+		$query = $builder->getQuery();
+
+		try {
+			$pairs = array();
+			foreach ($res = $query->getResult(AbstractQuery::HYDRATE_ARRAY) as $row) {
+				if (empty($row)) {
+					continue;
+				}
+
+				$pairs[$row[$key]] = $row[$value];
+			}
+
+			return $pairs;
+
+		} catch (\Exception $e) {
+			return $this->handleException($e, $query);
+		}
+	}
+
+
+
+	/**
+	 * Fetches all records and returns an associative array indexed by key
+	 *
+	 * @param array $criteria
+	 * @param string $key
+	 *
+	 * @return array
+	 */
+	public function findAssoc($criteria = NULL, $key = NULL)
+	{
+		if (!is_array($criteria)) {
+			$key = $criteria;
+			$criteria = array();
+		}
+
+		try {
+			$where = $params = array();
+			foreach ($criteria as $k => $v) {
+				$where[] = "e.$k = :prop$k";
+				$params["prop$k"] = $v;
+			}
+
+			$where = $where ? 'WHERE ' . implode(' AND ', $where) : NULL;
+			$query = $this->createQuery('SELECT e FROM ' . $this->getEntityName() . " e INDEX BY e.$key $where");
+			$query->setParameters($params);
+			return $query->getResult();
+
+		} catch (\Exception $e) {
+			return $this->handleException($e, $query);
+		}
+	}
+
+
+
+	/**
+	 * @param object|array|\Doctrine\Common\Collections\Collection $entity
 	 * @param boolean $withoutFlush
 	 */
 	public function delete($entity, $withoutFlush = IDao::FLUSH)
@@ -264,6 +345,69 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 
 		} catch (NonUniqueResultException $e) { // this should never happen!
 			throw new Kdyby\InvalidStateException("You have to setup your query using ->setMaxResult(1).", NULL, $e);
+
+		} catch (\Exception $e) {
+			return $this->handleQueryException($e, $queryObject);
+		}
+	}
+
+
+
+	/**
+	 * @param \Kdyby\Persistence\IQueryObject $queryObject
+	 * @param string $key
+	 * @param string $value
+	 *
+	 * @return array
+	 */
+	public function fetchPairs(IQueryObject $queryObject, $key = NULL, $value = NULL)
+	{
+		try {
+			$pairs = array();
+			foreach ($res = $queryObject->fetch($this, AbstractQuery::HYDRATE_ARRAY) as $row) {
+				$offset = $key ? $row[$key] : reset($row);
+				$pairs[$offset] = $value ? $value[$row] : next($row);
+			}
+			return array_filter($pairs); // todo: orly?
+
+		} catch (\Exception $e) {
+			return $this->handleQueryException($e, $queryObject);
+		}
+	}
+
+
+
+	/**
+	 * Fetches all records and returns an associative array indexed by key
+	 *
+	 * @param \Kdyby\Persistence\IQueryObject $queryObject
+	 * @param string $key
+	 *
+	 * @return array
+	 */
+	public function fetchAssoc(IQueryObject $queryObject, $key = NULL)
+	{
+		try {
+			$result = $queryObject->fetch($this);
+			if (empty($result)) {
+				return $result ? : NULL;
+			}
+
+			try {
+				$meta = $this->_em->getClassMetadata(get_class(current($result)));
+
+			} catch (\Exception $e) {
+				throw new Kdyby\InvalidStateException('Result of ' . get_class($queryObject) . ' is not list of entities.');
+			}
+
+			$assoc = array();
+			foreach ($result as $item) {
+				$assoc[$meta->getFieldValue($item, $key)] = $item;
+			}
+			return $assoc;
+
+		} catch (Kdyby\InvalidStateException $e) {
+			throw $e;
 
 		} catch (\Exception $e) {
 			return $this->handleQueryException($e, $queryObject);
