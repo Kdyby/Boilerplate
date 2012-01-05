@@ -37,7 +37,7 @@ class AuthorizatorFactoryTest extends Kdyby\Tests\OrmTestCase
 			'Nette\Http\User', array(), array(), '', FALSE
 		), $this->getMock(
 			'Nette\Http\Session', array(), array(), '', FALSE
-		), $this->getOrm());
+		), $this->getDoctrine());
 	}
 
 

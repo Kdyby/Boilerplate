@@ -33,7 +33,7 @@ abstract class OrmTestCase extends TestCase
 	 */
 	final protected function getEntityManager()
 	{
-		return $this->getOrm()->getEntityManager();
+		return $this->getDoctrine()->getEntityManager();
 	}
 
 
@@ -41,7 +41,7 @@ abstract class OrmTestCase extends TestCase
 	/**
 	 * @return \Kdyby\Tests\ORM\SandboxRegistry
 	 */
-	final protected function getOrm()
+	final protected function getDoctrine()
 	{
 		if ($this->ormSandbox === NULL) {
 			$this->createOrmSandbox();
