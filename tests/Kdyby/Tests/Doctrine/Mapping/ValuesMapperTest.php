@@ -33,6 +33,7 @@ class ValuesMapperTest extends Kdyby\Tests\OrmTestCase
 	{
 		$this->createOrmSandbox(array(
 			__NAMESPACE__ . '\RootEntity',
+			__NAMESPACE__ . '\RelatedEntity',
 		));
 
 		$this->mapper = new ValuesMapper($this->getMetadata(__NAMESPACE__ . '\RootEntity'), $this->getEntityManager());
