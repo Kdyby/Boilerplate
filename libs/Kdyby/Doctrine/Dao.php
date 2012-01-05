@@ -42,7 +42,7 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 	private function getEntityValuesMapper()
 	{
 		if ($this->entityMapper === NULL) {
-			$this->entityMapper = new Mapping\ValuesMapper($this->_class);
+			$this->entityMapper = new Mapping\ValuesMapper($this->_class, $this->_em);
 		}
 
 		return $this->entityMapper;
@@ -78,7 +78,7 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 	/**
 	 * Persists given entities, but does not flush.
 	 *
-	 * @param object|array|Collection $entity
+	 * @param object|array|\Doctrine\Common\Collections\Collection $entity
 	 * @return object|array
 	 */
 	public function add($entity)
@@ -102,19 +102,18 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 	/**
 	 * Persists given entities and flushes all to the storage.
 	 *
-	 * @param object|array|Collection $entity
+	 * @param object|array|\Doctrine\Common\Collections\Collection $entity
 	 * @return object|array
 	 */
 	public function save($entity = NULL)
 	{
-		if ($entity === NULL) {
+		if ($entity !== NULL) {
+			$result = $this->add($entity);
 			$this->flush();
-			return;
+			return $result;
 		}
 
-		$result = $this->add($entity);
 		$this->flush();
-		return $result;
 	}
 
 
@@ -168,7 +167,7 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 
 	/**
 	 * @param string $alias
-	 * @return Doctrine\ORM\QueryBuilder|Doctrine\CouchDB\View\AbstractQuery $qb
+	 * @return \Doctrine\ORM\QueryBuilder|\Doctrine\CouchDB\View\AbstractQuery $qb
 	 */
 	public function createQueryBuilder($alias = NULL)
 	{
@@ -190,6 +189,7 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 	 */
 	public function createQuery($dql = NULL)
 	{
+		$dql = implode(' ', func_get_args());
 		return $this->getEntityManager()->createQuery($dql);
 	}
 
