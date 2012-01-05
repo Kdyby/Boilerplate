@@ -245,7 +245,8 @@ class Registry extends Nette\Object
      * Gets the EntityRepository for an entity.
      *
      * @param string $entityName        The name of the entity.
-     * @param string $entityManagerNAme The entity manager name (null for the default one)
+     * @param string $entityManagerName The entity manager name (null for the default one)
+	 *
      * @return \Doctrine\ORM\EntityRepository
      */
     public function getRepository($entityName, $entityManagerName = NULL)
@@ -259,13 +260,29 @@ class Registry extends Nette\Object
      * Gets the Dao for an entity.
      *
      * @param string $entityName        The name of the entity.
-     * @param string $entityManagerNAme The entity manager name (null for the default one)
+     * @param string $entityManagerName The entity manager name (null for the default one)
+	 *
      * @return \Kdyby\Doctrine\Dao
      */
     public function getDao($entityName, $entityManagerName = NULL)
     {
         return $this->getEntityManager($entityManagerName)->getRepository($entityName);
     }
+
+
+
+	/**
+	 * Gets the Dao for an entity.
+	 *
+	 * @param string $entityName		The name of the entity.
+	 * @param string $entityManagerName The entity manager name (null for the default one)
+	 *
+	 * @return \Kdyby\Doctrine\Mapping\ClassMetadata
+	 */
+	public function getClassMetadata($entityName, $entityManagerName = NULL)
+	{
+		return $this->getEntityManager($entityManagerName)->getClassMetadata($entityName);
+	}
 
 
 
