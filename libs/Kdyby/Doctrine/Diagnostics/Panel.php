@@ -12,7 +12,7 @@ namespace Kdyby\Doctrine\Diagnostics;
 
 use Doctrine;
 use Kdyby;
-use Kdyby\Doctrine\SqlException;
+use Kdyby\Doctrine\QueryException;
 use Nette;
 use Nette\Diagnostics\Bar;
 use Nette\Diagnostics\BlueScreen;
@@ -172,8 +172,8 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 			return $this->renderPdoException($e);
 		}
 
-		if ($e instanceof SqlException && $e->getQuery() !== NULL) {
-			return $this->renderSqlException($e);
+		if ($e instanceof QueryException && $e->getQuery() !== NULL) {
+			return $this->renderQueryException($e);
 		}
 	}
 
@@ -197,10 +197,11 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 
 
 	/**
-	 * @param SqlException $e
+	 * @param \Kdyby\Doctrine\QueryException $e
+	 *
 	 * @return array
 	 */
-	protected function renderSqlException(SqlException $e)
+	protected function renderQueryException(QueryException $e)
 	{
 		$h = 'htmlSpecialChars';
 
