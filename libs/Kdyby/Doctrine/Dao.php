@@ -228,7 +228,7 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 			return $queryObject->count($this->getEntityManager()->createQueryBuilder());
 
 		} catch (\Exception $e) {
-			return $this->handleQueryExceptions($e, $queryObject);
+			return $this->handleQueryException($e, $queryObject);
 		}
 	}
 
@@ -244,7 +244,7 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 			return $queryObject->fetch($this);
 
 		} catch (\Exception $e) {
-			return $this->handleQueryExceptions($e, $queryObject);
+			return $this->handleQueryException($e, $queryObject);
 		}
 	}
 
@@ -266,7 +266,7 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 			throw new Kdyby\InvalidStateException("You have to setup your query using ->setMaxResult(1).", NULL, $e);
 
 		} catch (\Exception $e) {
-			return $this->handleQueryExceptions($e, $queryObject);
+			return $this->handleQueryException($e, $queryObject);
 		}
 	}
 
@@ -285,17 +285,31 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 
 	/**
 	 * @param \Exception $e
-	 * @param \Kdyby\Persistence\IQueryObject $queryObject
+	 * @param \Kdyby\Doctrine\QueryObjectBase $queryObject
 	 *
 	 * @throws \Exception
 	 */
-	private function handleQueryExceptions(\Exception $e, IQueryObject $queryObject)
+	private function handleQueryException(\Exception $e, QueryObjectBase $queryObject)
+	{
+		$this->handleException($e, $queryObject->getLastQuery(), '[' . get_class($queryObject) . '] ' . $e->getMessage());
+	}
+
+
+
+	/**
+	 * @param \Exception $e
+	 * @param \Doctrine\ORM\Query $query
+	 * @param string $message
+	 *
+	 * @throws \Exception
+	 */
+	private function handleException(\Exception $e, Doctrine\ORM\Query $query = NULL, $message = NULL)
 	{
 		if ($e instanceof Doctrine\ORM\Query\QueryException) {
-			throw new QueryException($e, '('. get_class($queryObject) . ') ' . $e->getMessage(), $queryObject->getLastQuery());
+			throw new QueryException($e, $query, $message);
 
 		} elseif ($e instanceof \PDOException) {
-			throw new SqlException($e, NULL, $queryObject->getLastQuery(), '('. get_class($queryObject) . ') ' . $e->getMessage());
+			throw new SqlException($e, $query, $message);
 
 		} else {
 			throw $e;

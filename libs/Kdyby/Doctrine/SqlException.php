@@ -12,41 +12,23 @@ namespace Kdyby\Doctrine;
 
 use Doctrine\ORM\Query;
 use Kdyby;
-use PDOException;
 
 
 
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class SqlException extends Kdyby\Persistence\Exception
+class SqlException extends QueryException
 {
 
-	/** @var Query */
-	private $query;
-
-
-
 	/**
-	 * @param PDOException $previous
-	 * @param integer $code
-	 * @param Query $query
+	 * @param \PDOException $previous
+	 * @param \Doctrine\ORM\Query $query
 	 * @param string $message
 	 */
-	public function __construct(PDOException $previous, $code = NULL, Query $query = NULL, $message = "")
+	public function __construct(\PDOException $previous, Query $query = NULL, $message = "")
 	{
-		parent::__construct($message ?: $previous->getMessage(), $code, $previous);
-		$this->query = $query;
-	}
-
-
-
-	/**
-	 * @return Query|NULL
-	 */
-	public function getQuery()
-	{
-		return $this->query;
+		parent::__construct($previous, $query, $message);
 	}
 
 }

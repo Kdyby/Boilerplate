@@ -2,7 +2,7 @@
 
 namespace Kdyby\Doctrine;
 
-use Doctrine;
+use Doctrine\ORM\Query;
 use Kdyby;
 use Nette;
 
@@ -11,29 +11,29 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class QueryException extends \Exception
+class QueryException extends Kdyby\Persistence\Exception
 {
 
-	/** @var Doctrine\ORM\Query */
+	/** @var \Doctrine\ORM\Query */
 	private $query;
 
 
 
 	/**
 	 * @param \Exception $previous
+	 * @param \Doctrine\ORM\Query $query
 	 * @param string $message
-	 * @param Doctrine\ORM\Query $query
 	 */
-	public function __construct(\Exception $previous, $message = "", Doctrine\ORM\Query $query = NULL)
+	public function __construct(\Exception $previous, Query $query = NULL, $message = "")
 	{
-		parent::__construct($message, NULL, $previous);
+		parent::__construct($message ?: $previous->getMessage(), $previous->getCode(), $previous);
 		$this->query = $query;
 	}
 
 
 
 	/**
-	 * @return Doctrine\ORM\Query
+	 * @return \Doctrine\ORM\Query
 	 */
 	public function getQuery()
 	{
