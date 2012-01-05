@@ -32,8 +32,7 @@ class QueryBuilder extends Doctrine\ORM\QueryBuilder
 	 */
 	public function getRootEntity()
 	{
-		$from = $this->getDQLPart('from');
-		return $from[0]->getFrom();
+		return current($this->getRootEntities());
 	}
 
 
