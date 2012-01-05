@@ -45,153 +45,52 @@ class FormTest extends Kdyby\Tests\OrmTestCase
 
 
 
-	public function testLoadingEntityValuesToForm()
-	{
-		$entity = new Fixtures\RootEntity("Dáda");
-
-		$form = new Form($this->getDoctrine(), $entity);
-		$form->addText('name');
-
-		$this->attachForm($form); // when attached to presenter, loads values from entities
-		$this->assertEquals("Dáda", $form['name']->value);
-	}
-
-
-
-	public function testLoadingRelatedEntityValuesToForm()
-	{
-		$entity = new Fixtures\RootEntity("Dáda");
-		$entity->daddy = new Fixtures\RelatedEntity("Motherfucker");
-
-		$form = new Form($this->getDoctrine(), $entity);
-		$form->addText('name');
-		$daddy = $form->addOne('daddy');
-		$daddy->addText('name');
-
-		$this->assertEmpty($form['name']->value);
-		$this->assertEmpty($daddy['name']->value);
-
-		$this->attachForm($form); // when attached to presenter, loads values from entities
-		$this->assertEquals("Dáda", $form['name']->value);
-		$this->assertEquals("Motherfucker", $daddy['name']->value);
-	}
-
-
-
 	/**
-	 * @return array
-	 */
-	public function dataRootWithChildren()
-	{
-		$entity = new Fixtures\RootEntity("Tahle");
-		$entity->children[] = new Fixtures\RelatedEntity('krásná', $entity);
-		$entity->children[] = new Fixtures\RelatedEntity('mladinká', $entity);
-		$entity->children[] = new Fixtures\RelatedEntity('dívenka', $entity);
-		return array(
-			array($entity, array(1 => 'krásná', 'mladinká', 'dívenka'))
-		);
-	}
-
-
-
-	/**
-	 * @dataProvider dataRootWithChildren
+	 * @param array $methods
 	 *
-	 * @param object $entity
-	 * @param array $items
+	 * @return \Kdyby\Doctrine\Forms\EntityMapper|\PHPUnit_Framework_MockObject_MockObject
 	 */
-	public function testLoadingSelectItemsFromRepository($entity, array $items)
+	private function mockMapper($methods = array())
 	{
-		$this->getDao($entity)->save($entity);
-
-		$form = new Form($this->getDoctrine(), $entity);
-		$select = $form->addSelect('children', 'Child', 'name');
-
-		$this->attachForm($form); // when attached to presenter, loads control items
-		$this->assertEquals($items, $select->getItems());
+		return $this->getMock('Kdyby\Doctrine\Forms\EntityMapper', (array)$methods, array($this->getDoctrine()));
 	}
 
 
 
-	/**
-	 * @dataProvider dataRootWithChildren
-	 *
-	 * @param object $entity
-	 * @param array $items
-	 */
-	public function testLoadingRadioItemsFromRepository($entity, array $items)
+	public function testAttached_Load()
 	{
-		$this->getDao($entity)->save($entity);
+		$mapper = $this->mockMapper(array('loadControlItems', 'load'));
+		$form = new Form($this->getDoctrine(), NULL, $mapper);
 
-		$form = new Form($this->getDoctrine(), $entity);
-		$radio = $form->addRadioList('children', 'Child', 'name');
+		$mapper->expects($this->once())
+			->method('loadControlItems')
+			->withAnyParameters();
 
-		$this->attachForm($form); // when attached to presenter, loads control items
-		$this->assertEquals($items, $radio->getItems());
+		$mapper->expects($this->once())
+			->method('load')
+			->withAnyParameters();
+
+		$this->attachForm($form);
 	}
 
 
 
-	/**
-	 * @dataProvider dataRootWithChildren
-	 *
-	 * @param object $entity
-	 * @param array $items
-	 */
-	public function testLoadingCheckboxItemsFromRepository($entity, array $items)
+	public function testAttached_Save()
 	{
-		$this->getDao($entity)->save($entity);
+		$mapper = $this->mockMapper(array('loadControlItems', 'save'));
+		$form = new Form($this->getDoctrine(), NULL, $mapper);
+		$send = $form->addSubmit('send');
+		$form->setSubmittedBy($send);
 
-		$form = new Form($this->getDoctrine(), $entity);
-		$check = $form->addCheckboxList('children', 'Child', 'name');
+		$mapper->expects($this->once())
+			->method('loadControlItems')
+			->withAnyParameters();
 
-		$this->attachForm($form); // when attached to presenter, loads control items
-		$this->assertEquals($items, $check->getItems());
-	}
+		$mapper->expects($this->once())
+			->method('save')
+			->withAnyParameters();
 
-
-
-	public function testLoadingSelectItemsFromCallback()
-	{
-		$entity = new Fixtures\RootEntity("Roman Štolpa se psychicky zhroutil.");
-		$form = new Form($this->getDoctrine(), $entity);
-
-		$items = array(1 => 'Strhaná tvář', 2 => 'slzy v očích');
-
-		$callback = $this->getMock(__NAMESPACE__ . '\CallbackMock');
-		$callback->expects($this->once())
-			->method('__invoke')
-			->with($this->equalTo($this->getDao(__NAMESPACE__ . '\Fixtures\RelatedEntity')))
-			->will($this->returnValue($items));
-
-		$select = $form->addSelect('children', 'Child', $callback);
-
-		$this->attachForm($form); // when attached to presenter, loads control items
-		$this->assertEquals($items, $select->getItems());
-	}
-
-
-
-	public function testCreatingRelatedEntityValuesToForm()
-	{
-		$entity = new Fixtures\RootEntity("Dáda");
-
-		$form = new Form($this->getDoctrine(), $entity);
-		$form->addText('name');
-
-		// when requested relation, mapper tries to create the entity
-		$this->assertNull($entity->daddy);
-		$daddy = $form->addOne('daddy');
-		$this->assertInstanceOf(__NAMESPACE__ . '\Fixtures\RelatedEntity', $entity->daddy);
-
-		$daddy->addText('name');
-
-		$this->assertEmpty($form['name']->value);
-		$this->assertEmpty($daddy['name']->value);
-
-		$this->attachForm($form); // when attached to presenter, loads values from entities
-		$this->assertEquals("Dáda", $form['name']->value);
-		$this->assertEmpty($daddy['name']->value);
+		$this->attachForm($form);
 	}
 
 
@@ -219,14 +118,13 @@ class FormTest extends Kdyby\Tests\OrmTestCase
 	public function testSelectBoxHasMapper($method, $type)
 	{
 		$entity = new Fixtures\RootEntity("Hvězda Ordinace Sandra Nováková zrušila svatbu. Víme o tom vše");
-		$container = new EntityContainer($entity);
+		$form = new Form($this->getDoctrine(), $entity, $mapper = $this->mockMapper('setControlMapper'));
 
-		$this->attachContainer($container, $mapper = $this->mockMapper('setControlMapper'));
 		$mapper->expects($this->once())
 			->method('setControlMapper')
 			->with($this->isInstanceOf($type), $this->equalTo('name'));
 
-		$container->$method('children', 'Name', 'name');
+		$form->$method('children', 'Name', 'name');
 	}
 
 
@@ -238,13 +136,11 @@ class FormTest extends Kdyby\Tests\OrmTestCase
 	 */
 	public function testSelectBoxReceivesItemsArray($method)
 	{
-		$entity = new Fixtures\RootEntity("Mariah Carey se bojí o manžela: Selhaly mu ledviny");
-		$container = new EntityContainer($entity);
-
-		$this->attachContainer($container, $mapper = $this->mockMapper('setControlMapper'));
+		$entity = new Fixtures\RootEntity("Hvězda Ordinace Sandra Nováková zrušila svatbu. Víme o tom vše");
+		$form = new Form($this->getDoctrine(), $entity, $mapper = $this->mockMapper('setControlMapper'));
 		$mapper->expects($this->never())->method('setControlMapper');
 
-		$children = $container->$method('children', 'Name', $items = array(1 => 'title'));
+		$children = $form->$method('children', 'Name', $items = array(1 => 'title'));
 		$this->assertEquals($items, $children->getItems());
 	}
 
