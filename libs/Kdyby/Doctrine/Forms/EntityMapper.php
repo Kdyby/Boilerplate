@@ -114,7 +114,7 @@ class EntityMapper extends Nette\Object
 	 * @param object $object
 	 * @return \Nette\Forms\Container
 	 */
-	protected function getComponent($object)
+	public function getComponent($object)
 	{
 		if ($this->entities->contains($object)) {
 			return $this->entities->offsetGet($object);
@@ -154,8 +154,9 @@ class EntityMapper extends Nette\Object
 	private function loadContainerControlItems($entity, $controlClass)
 	{
 		foreach ($this->getComponent($entity)->getComponents(FALSE, $controlClass) as $control) {
-			$mapper = $this->getControlMapper($control);
-			$control->setItems($mapper());
+			if ($mapper = $this->getControlMapper($control)) {
+				$control->setItems($mapper());
+			}
 		}
 	}
 
@@ -295,7 +296,7 @@ class EntityMapper extends Nette\Object
 		BaseControl::extensionMethod($name, function (BaseControl $_this, $alias) {
 			$form = $_this->getForm();
 			if ($form instanceof Form) {
-				$_this->getForm()->getMapper()->setControlAlias($_this, $alias);
+				$form->getMapper()->setControlAlias($_this, $alias);
 			}
 			return $_this;
 		});
@@ -317,19 +318,27 @@ class EntityMapper extends Nette\Object
 		$class = $this->doctrine->getClassMetadata($targetClass);
 		$dao = $this->doctrine->getDao($targetClass);
 
-		if (is_string($items) && $class->hasField($items)) {
-			$mapper = $this;
-			$items = function () use ($control, $dao, $mapper, $items, $key) {
-				$entity = $control->getParent()->getEntity();
-				$field = $mapper->getControlField($control);
+		if (is_string($items)) {
+			if ($class->hasField($items)) {
+				$mapper = $this;
+				$items = function () use ($control, $dao, $mapper, $items, $key) {
+					$entity = $control->getParent()->getEntity();
+					$field = $mapper->getControlField($control);
 
-				return $dao->fetchPairs(new ItemPairsQuery($entity, $field, $items, $key));
-			};
+					return $dao->fetchPairs(new ItemPairsQuery($entity, $field, $items, $key));
+				};
+
+			} else {
+				throw new Kdyby\InvalidArgumentException('Entity "' . $targetClass . '" has no property "' . $items . '" given.');
+			}
 
 		} elseif (is_callable($items)) {
 			$items = function () use ($items, $dao, $key) {
 				return $items($dao, $key);
 			};
+
+		} else {
+			throw new Kdyby\InvalidArgumentException('EntityMapper was not able to resolve items mapper, ' . gettype($items) . ' given.');
 		}
 
 		$this->mappers[spl_object_hash($control)] = $items;
@@ -348,7 +357,7 @@ class EntityMapper extends Nette\Object
 			return $this->mappers[$oid];
 		}
 
-		return $this->doctrine->getDao($this->getControlEntityClass($control));
+		return NULL;
 	}
 
 
@@ -384,7 +393,7 @@ class EntityMapper extends Nette\Object
 			$refl->setExtensionMethod($name, function (BaseControl $_this, $mapper, $key = 'id') {
 				$form = $_this->getForm();
 				if ($form instanceof Form) {
-					$_this->getForm()->getMapper()->setControlMapper($_this, $mapper, $key);
+					$form->getMapper()->setControlMapper($_this, $mapper, $key);
 				}
 				return $_this;
 			});
