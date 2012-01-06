@@ -155,7 +155,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 	{
 		foreach ($post as $key => $value) {
 			if (is_array($value)) {
-				list($pPost, $pFiles) = $this->separateFiles($value);
+				list($pPost, $pFiles) = $this->separateFilesFromPost($value);
 				unset($post[$key]);
 
 				if ($pPost) {
