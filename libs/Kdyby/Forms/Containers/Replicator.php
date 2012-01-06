@@ -10,6 +10,7 @@
 
 namespace Kdyby\Forms\Containers;
 
+use Kdyby;
 use Nette;
 use Nette\Forms\Container;
 
@@ -40,19 +41,30 @@ class Replicator extends Container
 	/** @var \Nette\Http\IRequest */
 	private $httpRequest;
 
+	/** @var array */
+	private $httpPost;
+
 
 
 	/**
-	 * @param callable $factory
+	 * @param callable|\Closure $factory
 	 * @param int $createDefault
 	 * @param bool $forceDefault
 	 */
 	public function __construct($factory, $createDefault = 0, $forceDefault = FALSE)
 	{
 		parent::__construct();
-
 		$this->monitor('Nette\Application\UI\Presenter');
-		$this->factoryCallback = callback($factory);
+
+		try {
+			$this->factoryCallback = callback($factory);
+		} catch (Nette\InvalidArgumentException $e) {
+			throw new Kdyby\InvalidArgumentException(
+				'Replicator requires callable factory, ' . Kdyby\Tools\Mixed::getType($factory) . ' given.',
+				NULL, $e
+			);
+		}
+
 		$this->createDefault = (int)$createDefault;
 		$this->forceDefault = $forceDefault;
 	}
@@ -74,15 +86,25 @@ class Replicator extends Container
 
 		$this->loadHttpData();
 		if ($this->createDefault > 0) {
-			if (!$this->getForm()->isSubmitted()) {
-				foreach (range(0, $this->createDefault - 1) as $key) {
-					$this->createComponent($key);
-				}
+			$this->createDefault();
+		}
+	}
 
-			} elseif ($this->forceDefault) {
-				while ($this->getContainers()->count() < $this->createDefault) {
-					$this->createOne();
-				}
+
+
+	/**
+	 * Creates default containers
+	 */
+	protected function createDefault()
+	{
+		if (!$this->getForm()->isSubmitted()) {
+			foreach (range(0, $this->createDefault - 1) as $key) {
+				$this->createOne($key);
+			}
+
+		} elseif ($this->forceDefault) {
+			while ($this->getContainers()->count() < $this->createDefault) {
+				$this->createOne();
 			}
 		}
 	}
@@ -119,7 +141,7 @@ class Replicator extends Container
 	 */
 	protected function createComponent($name)
 	{
-		$container = $this->createContainer();
+		$container = $this->createContainer($name);
 		$container->currentGroup = $this->currentGroup;
 		$this->addComponent($container, $name, $this->getFirstControlName());
 
@@ -143,9 +165,11 @@ class Replicator extends Container
 
 
 	/**
+	 * @param string $name
+	 *
 	 * @return \Nette\Forms\Container
 	 */
-	protected function createContainer()
+	protected function createContainer($name)
 	{
 		return new Container;
 	}
@@ -192,6 +216,99 @@ class Replicator extends Container
 		}
 
 		return $this[$name];
+	}
+
+
+
+	/**
+	 * Loads data received from POST
+	 */
+	protected function loadHttpData()
+	{
+		if (!$this->getForm()->isSubmitted()) {
+			return;
+		}
+
+		$values = (array)$this->getHttpData();
+		foreach ($values as $key => $value) {
+			if (is_array($value) && !$this->getComponent($key, FALSE)) {
+				$this->createOne($key);
+			}
+		}
+
+		$this->setValues($values);
+	}
+
+
+
+	/**
+	 * @param string $name
+	 * @return array|null
+	 */
+	protected function getContainerValues($name)
+	{
+		$post = $this->getHttpData();
+		return isset($post[$name]) ? $post[$name] : NULL;
+	}
+
+
+
+	/**
+	 * @return mixed|NULL
+	 */
+	private function getHttpData()
+	{
+		if ($this->httpPost !== NULL) {
+			return $this->httpPost;
+		}
+
+		$request = $this->getRequest();
+		if ($request->isPost()) {
+			$post = (array)$request->getPost();
+
+			$chain = array();
+			$parent = $this;
+
+			while (!$parent instanceof Nette\Forms\Form) {
+				$chain[] = $parent->getName();
+				$parent = $parent->getParent();
+			}
+
+			while ($chain) {
+				$post = &$post[array_pop($chain)];
+			}
+
+			return $this->httpPost = $post ?: NULL;
+		}
+
+		return NULL;
+	}
+
+
+
+	/**
+	 * @param \Nette\Application\Request $request
+	 *
+	 * @return \Kdyby\Forms\Containers\Replicator
+	 */
+	public function setRequest(Nette\Application\Request $request)
+	{
+		$this->httpRequest = $request;
+		return $this;
+	}
+
+
+
+	/**
+	 * @return \Nette\Application\Request
+	 */
+	private function getRequest()
+	{
+		if ($this->httpRequest !== NULL) {
+			return $this->httpRequest;
+		}
+
+		return $this->httpRequest = $this->getForm()->getPresenter()->getRequest();
 	}
 
 
@@ -260,25 +377,6 @@ class Replicator extends Container
 
 
 	/**
-	 * Loads data received from POST
-	 */
-	protected function loadHttpData()
-	{
-		if ($this->getHttpRequest()->isPost()) {
-			$values = (array)$this->getHttpData();
-			foreach ($values as $key => $value) {
-				if (is_array($value) && !$this->getComponent($key, FALSE)) {
-					$this->createComponent($key);
-				}
-			}
-
-			$this->setValues($values);
-		}
-	}
-
-
-
-	/**
 	 * Counts filled values, filtered by given names
 	 *
 	 * @param array $components
@@ -323,64 +421,6 @@ class Replicator extends Container
 
 		$filled = $this->countFilledWithout($components, array_unique($exceptChildren));
 		return $filled === count($this->getContainers());
-	}
-
-
-
-	/**
-	 * @return mixed|NULL
-	 */
-	private function getHttpData()
-	{
-		$httpRequest = $this->getHttpRequest();
-
-		if ($httpRequest->isPost()) {
-			$post = (array)$httpRequest->getPost();
-
-			$chain = array();
-			$parent = $this;
-
-			while (!$parent instanceof Nette\Forms\Form) {
-				$chain[] = $parent->getName();
-				$parent = $parent->getParent();
-			};
-
-			while ($chain) {
-				$post = &$post[array_pop($chain)];
-			}
-
-			return $post;
-		}
-
-		return NULL;
-	}
-
-
-
-	/**
-	 * @param \Nette\Http\IRequest $request
-	 *
-	 * @return \Kdyby\Forms\Containers\Replicator
-	 */
-	public function setHttpRequest(Nette\Http\IRequest $request)
-	{
-		$this->httpRequest = $request;
-		return $this;
-	}
-
-
-
-	/**
-	 * @return \Nette\Http\Request
-	 */
-	private function getHttpRequest()
-	{
-		if ($this->httpRequest !== NULL) {
-			return $this->httpRequest;
-		}
-
-		return $this->httpRequest = $this->getForm()->getPresenter()
-			->getContext()->httpRequest;
 	}
 
 
