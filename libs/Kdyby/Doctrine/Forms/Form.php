@@ -18,13 +18,13 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class Form extends Kdyby\Application\UI\Form
+class Form extends Kdyby\Application\UI\Form implements IObjectContainer
 {
 
 	/** @var bool */
 	public $autoFlush = TRUE;
 
-	/** @var array of function($values, Nette\Forms\Container $container); Occurs when the entity values are being mapped to form */
+	/** @var array of function(array $values, object $entity); Occurs when the entity values are being mapped to form */
 	public $onLoad = array();
 
 	/** @var array of function($values, Nette\Forms\Container $container); Occurs when the form values are being mapped to entity */
@@ -194,12 +194,13 @@ class Form extends Kdyby\Application\UI\Form
 
 	/**
 	 * @param string $name
+	 * @param object $entity
 	 *
 	 * @return \Kdyby\Doctrine\Forms\EntityContainer
 	 */
-	public function addOne($name)
+	public function addOne($name, $entity = NULL)
 	{
-		$entity = $this->getMapper()->getRelated($this->entity, $name);
+		$entity = $entity ?: $this->getMapper()->getRelated($this, $name);
 		return $this[$name] = new EntityContainer($entity);
 	}
 
@@ -214,8 +215,14 @@ class Form extends Kdyby\Application\UI\Form
 	 */
 	public function addMany($name, $factory, $createDefault = 0)
 	{
-//		return $this[$name] = new CollectionContainer($factory, $createDefault);
+		$collection = $this->getMapper()->getCollection($this->entity, $name);
+		$this[$name] = $container = new CollectionContainer($collection, $factory);
+		$container->createDefault = $createDefault;
+		return $container;
 	}
+
+
+
 
 }
 

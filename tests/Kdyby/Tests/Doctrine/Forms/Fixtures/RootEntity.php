@@ -30,16 +30,19 @@ class RootEntity extends SharedFieldsEntity
 
 	/**
 	 * @Orm:ManyToOne(targetEntity="RelatedEntity", cascade={"persist"})
+	 * @var \Kdyby\Tests\Doctrine\Forms\Fixtures\RelatedEntity
 	 */
 	public $daddy;
 
 	/**
 	 * @Orm:OneToMany(targetEntity="RelatedEntity", mappedBy="daddy", cascade={"persist"})
+	 * @var \Kdyby\Tests\Doctrine\Forms\Fixtures\RelatedEntity[]
 	 */
 	public $children;
 
 	/**
 	 * @Orm:ManyToMany(targetEntity="RelatedEntity", inversedBy="buddies", cascade={"persist"})
+	 * @var \Kdyby\Tests\Doctrine\Forms\Fixtures\RelatedEntity[]
 	 */
 	public $buddies;
 

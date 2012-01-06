@@ -30,11 +30,13 @@ class RelatedEntity extends SharedFieldsEntity
 
 	/**
 	 * @Orm:ManyToOne(targetEntity="RootEntity", inversedBy="children", cascade={"persist"})
+	 * @var \Kdyby\Tests\Doctrine\Forms\Fixtures\RootEntity
 	 */
 	public $daddy;
 
 	/**
 	 * @Orm:ManyToMany(targetEntity="RootEntity", mappedBy="buddies", cascade={"persist"})
+	 * @var \Kdyby\Tests\Doctrine\Forms\Fixtures\RootEntity[]
 	 */
 	public $buddies;
 

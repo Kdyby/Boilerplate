@@ -49,6 +49,9 @@ class EntityMapper extends Nette\Object
 	/** @var array */
 	private $mappers = array();
 
+	/** @var \Kdyby\Doctrine\Mapping\ClassMetadata */
+	private $meta = array();
+
 
 
 	/**
@@ -56,10 +59,9 @@ class EntityMapper extends Nette\Object
 	 */
 	public function __construct(Kdyby\Doctrine\Registry $doctrine)
 	{
-		$this->doctrine = $doctrine;
-
 		$this->entities = new SplObjectStorage();
 		$this->collections = new SplObjectStorage();
+		$this->doctrine = $doctrine;
 	}
 
 
@@ -71,8 +73,6 @@ class EntityMapper extends Nette\Object
 	/**
 	 * @param object $entity
 	 * @param \Nette\ComponentModel\IComponent $component
-	 *
-	 * @return BaseMapper
 	 */
 	public function assign($entity, IComponent $component)
 	{
@@ -82,12 +82,12 @@ class EntityMapper extends Nette\Object
 
 
 	/**
-	 * @param \Doctrine\Common\Collections\Collection $coll
+	 * @param \Doctrine\Common\Collections\Collection $collection
 	 * @param \Nette\ComponentModel\IComponent $component
 	 */
-	public function assignCollection(Collection $coll, IComponent $component)
+	public function assignCollection(Collection $collection, IComponent $component)
 	{
-		$this->collections->attach($coll, $component);
+		$this->collections->attach($collection, $component);
 	}
 
 
@@ -167,16 +167,18 @@ class EntityMapper extends Nette\Object
 	public function load()
 	{
 		foreach ($this->entities as $entity) {
-			$class = $this->doctrine->getClassMetadata(get_class($entity));
+			$class = $this->getMeta($entity);
+			$container = $this->getComponent($entity);
 
-			// fields
-			foreach ($this->getComponent($entity)->getControls() as $control) {
-				$field = $this->getControlField($control);
-
-				if ($class->hasField($field)) {
-					$control->setValue($class->getFieldValue($entity, $field));
+			$values = new Nette\ArrayHash;
+			foreach ($container->getControls() as $control) {
+				if ($class->hasField($field = $this->getControlField($control))) {
+					$values[$field] = $class->getFieldValue($entity, $field);
 				}
 			}
+
+			$container->onLoad($values, $entity);
+			$container->setValues($values);
 		}
 	}
 
@@ -190,20 +192,23 @@ class EntityMapper extends Nette\Object
 	 */
 	public function save()
 	{
-//		$entities = array();
-//		foreach ($this->getAssignment() as $entity) {
-//			$container = $this->getComponent($entity);
-//			$entities[] = $entity;
-//
-//			// fields
-//			foreach ($container->getControls() as $control) {
-//				if ($this->hasProperty($entity, $control->name)) {
-//					$control->value = $this->saveProperty($entity, $control->name);
-//				}
-//			}
-//		}
-//
-//		return $entities;
+		foreach ($this->entities as $entity) {
+			$class = $this->getMeta($entity);
+			$container = $this->getComponent($entity);
+
+			$values = $container->getValues();
+			$container->onSave($values, $container);
+
+			foreach ($values as $name => $value) {
+				if (!$container[$name] instanceof Nette\Forms\IControl) {
+					continue;
+				}
+
+				if ($class->hasField($field = $this->getControlField($container[$name]))) {
+					$class->setFieldValue($entity, $field, $value);
+				}
+			}
+		}
 	}
 
 
@@ -213,23 +218,23 @@ class EntityMapper extends Nette\Object
 
 
 	/**
-	 * @param object $entity
+	 * @param \Kdyby\Doctrine\Forms\EntityContainer $container
 	 * @param string $field
 	 *
 	 * @return object
 	 */
-	public function getRelated($entity, $field)
+	public function getRelated(EntityContainer $container, $field)
 	{
-		$class = $this->doctrine->getClassMetadata(get_class($entity));
-		if ($class->isCollectionValuedAssociation($field)) {
-			throw new Kdyby\InvalidStateException('Requested field ' . $class->getName() . '::$' . $field . ' is collection association.');
+		$entity = $container->getEntity();
+		if ($this->isTargetCollection($entity, $field)) {
+			throw new Kdyby\InvalidStateException('Requested field ' . get_class($entity) . '::$' . $field . ' is collection association.');
 		}
 
-		$related = $class->getFieldValue($entity, $field);
-		$relatedEntity = $class->getAssociationTargetClass($field);
+		$related = $this->getMeta($entity)->getFieldValue($entity, $field);
+		$relatedEntity = $this->getTargetClassName($entity, $field);
 		if (!$related instanceof $relatedEntity) {
-			$related = new $relatedEntity;
-			$class->setFieldValue($entity, $field, $related);
+			$related = new $relatedEntity();
+			$this->getMeta($entity)->setFieldValue($entity, $field, $related);
 		}
 
 		return $related;
@@ -245,18 +250,102 @@ class EntityMapper extends Nette\Object
 	 */
 	public function getCollection($entity, $field)
 	{
-		$class = $this->doctrine->getClassMetadata(get_class($entity));
-		if (!$class->isCollectionValuedAssociation($field)) {
-			throw new Kdyby\InvalidStateException('Requested field ' . $class->getName() . '::$' . $field . ' is single entity associates.');
+		if (!$this->isTargetCollection($entity, $field)) {
+			throw new Kdyby\InvalidStateException('Requested field ' . get_class($entity) . '::$' . $field . ' is single entity associates.');
 		}
 
-		$related = $class->getFieldValue($entity, $field);
+		$related = $this->getMeta($entity)->getFieldValue($entity, $field);
 		if (!$related instanceof Collection) {
 			$related = new Doctrine\Common\Collections\ArrayCollection();
-			$class->setFieldValue($entity, $field, $related);
+			$this->getMeta($entity)->setFieldValue($entity, $field, $related);
 		}
 
 		return $related;
+	}
+
+
+
+	/**
+	 * @param $entity
+	 * @return array
+	 */
+	public function getIdentifierValues($entity)
+	{
+		$class = $this->doctrine->getClassMetadata(get_class($entity));
+		return array_filter($class->getIdentifierValues($entity));
+	}
+
+
+
+	/**
+	 * @param \Kdyby\Doctrine\Forms\CollectionContainer $container
+	 * @param array $values
+	 */
+	public function getCollectionEntry(CollectionContainer $container, $values)
+	{
+		$parentEntity = $container->getParent()->getEntity();
+		if (!$ids = $this->getValuesIds($parentEntity, $values)) {
+			return NULL;
+		}
+
+		$entity = $this->doctrine->getDao(get_class($parentEntity))->find($ids);
+		return $container->getCollection()->contains($entity) ? $entity : NULL;
+	}
+
+
+
+	/**
+	 * @param object $entity
+	 * @param array $values
+	 * @return array
+	 */
+	private function getValuesIds($entity, $values)
+	{
+		$ids = array_flip($this->getMeta($entity)->getIdentifierFieldNames());
+		foreach ($ids as $field => $i) {
+			$ids[$field] = !empty($values[$field]) ? $values[$field] : NULL;
+		}
+		return array_filter($ids);
+	}
+
+
+
+	/**
+	 * @param object|string $parentEntity
+	 * @param string $field
+	 * @return bool
+	 */
+	public function isTargetCollection($parentEntity, $field)
+	{
+		return $this->getMeta($parentEntity)->isCollectionValuedAssociation($field);
+	}
+
+
+
+	/**
+	 * @param object|string $parentEntity
+	 * @param string $field
+	 * @return string
+	 */
+	public function getTargetClassName($parentEntity, $field)
+	{
+		return $this->getMeta($parentEntity)->getAssociationTargetClass($field);
+	}
+
+
+
+	/**
+	 * @param object|string $entity
+	 * @return \Kdyby\Doctrine\Mapping\ClassMetadata
+	 */
+	private function getMeta($entity)
+	{
+		$className = is_object($entity) ? get_class($entity) : $entity;
+		if (!isset($this->meta[$className])) {
+			$this->meta[$className] = $this->doctrine->getClassMetadata($className);
+		}
+
+		return $this->meta[$className];
 	}
 
 
@@ -315,11 +404,10 @@ class EntityMapper extends Nette\Object
 	public function setControlMapper(Nette\Forms\IControl $control, $items, $key)
 	{
 		$targetClass = $this->getControlEntityClass($control);
-		$class = $this->doctrine->getClassMetadata($targetClass);
 		$dao = $this->doctrine->getDao($targetClass);
 
 		if (is_string($items)) {
-			if ($class->hasField($items)) {
+			if ($this->getMeta($targetClass)->hasField($items)) {
 				$mapper = $this;
 				$items = function () use ($control, $dao, $mapper, $items, $key) {
 					$entity = $control->getParent()->getEntity();
@@ -370,12 +458,9 @@ class EntityMapper extends Nette\Object
 	protected function getControlEntityClass(Nette\Forms\IControl $control)
 	{
 		foreach ($this->entities as $entity) {
-			if ($this->entities->getInfo() !== $control->getParent()) {
-				continue;
+			if ($this->entities->getInfo() === $control->getParent()) {
+				return $this->getTargetClassName($entity, $this->getControlField($control));
 			}
-
-			$class = $this->doctrine->getClassMetadata(get_class($entity));
-			return $class->getAssociationTargetClass($this->getControlField($control));
 		}
 
 		return NULL;

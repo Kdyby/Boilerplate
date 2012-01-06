@@ -89,6 +89,17 @@ class EntityContainerTest extends Kdyby\Tests\OrmTestCase
 
 
 	/**
+	 * @expectedException Kdyby\InvalidStateException
+	 */
+	public function testContainerAttaching_InvalidParentException()
+	{
+		$container = new Nette\Forms\Container();
+		$container['name'] = new EntityContainer(new \stdClass());
+	}
+
+
+
+	/**
 	 * @return array
 	 */
 	public function dataItemControls()

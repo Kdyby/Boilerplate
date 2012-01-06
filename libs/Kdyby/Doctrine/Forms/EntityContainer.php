@@ -19,12 +19,13 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
- * @method \Kdyby\Doctrine\Forms\Form getForm() getForm()
+ * @method \Kdyby\Doctrine\Forms\Form getForm() getForm(bool $need = TRUE)
+ * @method \Kdyby\Doctrine\Forms\Form|\Kdyby\Doctrine\Forms\EntityContainer|\Kdyby\Doctrine\Forms\CollectionContainer getParent() getParent()
  */
-class EntityContainer extends Nette\Forms\Container
+class EntityContainer extends Nette\Forms\Container implements IObjectContainer
 {
 
-	/** @var array of function(array $values, Nette\Forms\Container $container); Occurs when the entity values are being mapped to form */
+	/** @var array of function(array $values, object $entity); Occurs when the entity values are being mapped to form */
 	public $onLoad = array();
 
 	/** @var array of function(array $values, Nette\Forms\Container $container); Occurs when the form values are being mapped to entity */
@@ -33,17 +34,41 @@ class EntityContainer extends Nette\Forms\Container
 	/** @var object */
 	private $entity;
 
+	/** @var \Kdyby\Doctrine\Forms\EntityMapper */
+	private $mapper;
+
 
 
 	/**
 	 * @param object $entity
+	 * @param \Kdyby\Doctrine\Forms\EntityMapper $mapper
 	 */
-	public function __construct($entity)
+	public function __construct($entity, EntityMapper $mapper = NULL)
 	{
-		parent::__construct(NULL, NULL);
+		parent::__construct();
 		$this->monitor('Kdyby\Doctrine\Forms\Form');
 
 		$this->entity = $entity;
+		$this->mapper = $mapper;
+	}
+
+
+
+	/**
+	 * @param  \Nette\ComponentModel\IContainer
+	 * @throws \Kdyby\InvalidStateException
+	 */
+	protected function validateParent(Nette\ComponentModel\IContainer $parent)
+	{
+		parent::validateParent($parent);
+
+		if (!$parent instanceof IObjectContainer && !$this->getForm(FALSE) instanceof IObjectContainer) {
+			throw new Kdyby\InvalidStateException(
+				'Valid parent for Kdyby\Doctrine\Forms\EntityContainer '.
+				'is only Kdyby\Doctrine\Forms\IObjectContainer, '.
+				'instance of "'. get_class($parent) . '" given'
+			);
+		}
 	}
 
 
@@ -59,6 +84,16 @@ class EntityContainer extends Nette\Forms\Container
 
 
 	/**
+	 * @return \Kdyby\Doctrine\Forms\EntityMapper
+	 */
+	private function getMapper()
+	{
+		return $this->mapper ? : $this->getForm()->getMapper();
+	}
+
+
+
+	/**
 	 * @param Nette\ComponentModel\Container $obj
 	 */
 	protected function attached($obj)
@@ -66,7 +101,11 @@ class EntityContainer extends Nette\Forms\Container
 		parent::attached($obj);
 
 		if ($obj instanceof Kdyby\Doctrine\Forms\Form) {
-			$obj->getMapper()->assign($this->entity, $this);
+			foreach ($this->getMapper()->getIdentifierValues($this->entity) as $key => $id) {
+				$this->addHidden($key)->setDefaultValue($id);
+			}
+
+			$this->getMapper()->assign($this->entity, $this);
 		}
 	}
 
@@ -141,12 +180,13 @@ class EntityContainer extends Nette\Forms\Container
 
 	/**
 	 * @param string $name
+	 * @param object $entity
 	 *
 	 * @return \Kdyby\Doctrine\Forms\EntityContainer
 	 */
-	public function addOne($name)
+	public function addOne($name, $entity = NULL)
 	{
-		$entity = $this->getForm()->getMapper()->getRelated($this->entity, $name);
+		$entity = $entity ? : $this->getMapper()->getRelated($this, $name);
 		return $this[$name] = new EntityContainer($entity);
 	}
 
@@ -161,7 +201,10 @@ class EntityContainer extends Nette\Forms\Container
 	 */
 	public function addMany($name, $factory, $createDefault = 0)
 	{
-//		return $this[$name] = new CollectionContainer($factory, $createDefault);
+		$collection = $this->getMapper()->getCollection($this->entity, $name);
+		$this[$name] = $container = new CollectionContainer($collection, $factory);
+		$container->createDefault = $createDefault;
+		return $container;
 	}
 
 }
