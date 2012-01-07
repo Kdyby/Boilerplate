@@ -210,9 +210,9 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 		}
 
 		if (is_array($entity)) {
-			$repository = $this;
-			array_map(function ($entity) use ($repository) {
-				return $repository->delete($entity, IDao::NO_FLUSH);
+			$dao = $this;
+			array_map(function ($entity) use ($dao) {
+				return $dao->delete($entity, IDao::NO_FLUSH);
 			}, $entity);
 
 			$this->flush($withoutFlush);
