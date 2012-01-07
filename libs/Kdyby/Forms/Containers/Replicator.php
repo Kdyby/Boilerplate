@@ -12,6 +12,7 @@ namespace Kdyby\Forms\Containers;
 
 use Kdyby;
 use Nette;
+use Nette\Forms\Controls\SubmitButton;
 use Nette\Forms\Container;
 
 
@@ -440,8 +441,17 @@ class Replicator extends Container
 	 */
 	public static function register($methodName = 'addDynamic')
 	{
-		Container::extensionMethod($methodName, function ($_this, $name, $factory, $createDefault = 0) {
+		Container::extensionMethod($methodName, function (Container $_this, $name, $factory, $createDefault = 0) {
 			return $_this[$name] = new Replicator($factory, $createDefault);
+		});
+
+		SubmitButton::extensionMethod('addRemoveOnClick', function (SubmitButton $_this) {
+			$replicator = $_this->lookup('Kdyby\Forms\Containers\Replicator');
+			$_this->setValidationScope(FALSE);
+			$_this->onClick[] = function (SubmitButton $button) use ($replicator) {
+				$replicator->remove($button->parent);
+			};
+			return $_this;
 		});
 	}
 
