@@ -174,3 +174,5 @@ Nette\Forms\Container::extensionMethod('addDate', function (Nette\Forms\Containe
 Nette\Forms\Container::extensionMethod('addDatetime', function (Nette\Forms\Container $container, $name, $label) {
 	return $container[$name] = new Kdyby\Forms\Controls\DateTime($label);
 });
+
+Kdyby\Forms\Containers\Replicator::register();
