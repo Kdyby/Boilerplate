@@ -33,6 +33,9 @@ class Form extends Kdyby\Application\UI\Form implements IObjectContainer
 	/** @var \Kdyby\Doctrine\Forms\EntityMapper */
 	private $mapper;
 
+	/** @var \Kdyby\Doctrine\Registry */
+	private $doctrine;
+
 	/** @var object */
 	private $entity;
 
@@ -45,6 +48,7 @@ class Form extends Kdyby\Application\UI\Form implements IObjectContainer
 	 */
 	public function __construct(Kdyby\Doctrine\Registry $doctrine, $entity = NULL, EntityMapper $mapper = NULL)
 	{
+		$this->doctrine = $doctrine;
 		$this->mapper = $mapper ?: new EntityMapper($doctrine);
 
 		$this->entity = $entity;
@@ -107,9 +111,13 @@ class Form extends Kdyby\Application\UI\Form implements IObjectContainer
 		if (!$this->isSubmitted()) {
 			return;
 
-		} elseif ($this->isSubmitted() instanceof ISubmitterControl) {
+		} elseif ($this->isSubmitted() instanceof Nette\Forms\ISubmitterControl) {
 			if (!$this->isSubmitted()->getValidationScope() || $this->isValid()) {
-				$this->dispatchEvent($this->isSubmitted()->onClick, $this->isSubmitted(), $this->getEntity());
+				$buttonContainer = $this->isSubmitted()->getParent();
+				$clickedEntity = $buttonContainer instanceof IObjectContainer ? $buttonContainer->getEntity() : $this->getEntity();
+				$dao = $this->doctrine->getDao(get_class($clickedEntity));
+
+				$this->dispatchEvent($this->isSubmitted()->onClick, $this->isSubmitted(), $clickedEntity, $dao);
 				$valid = TRUE;
 
 			} else {
@@ -118,10 +126,36 @@ class Form extends Kdyby\Application\UI\Form implements IObjectContainer
 		}
 
 		if (isset($valid) || $this->isValid()) {
-			$this->dispatchEvent($this->onSuccess, $this, $this->getEntity());
+			$dao = $this->doctrine->getDao(get_class($this->getEntity()));
+			$this->dispatchEvent($this->onSuccess, $this, $this->getEntity(), $dao);
 
 		} else {
 			$this->dispatchEvent($this->onError, $this);
+		}
+
+		$this->persistEntities();
+	}
+
+
+
+	/**
+	 */
+	protected function persistEntities()
+	{
+		$entities = $this->mapper ? $this->mapper->getEntities() : array();
+		foreach ($this->getComponents(TRUE, 'Kdyby\Doctrine\Forms\EntityContainer') as $container) {
+			if (!in_array($entity = $container->getEntity(), $entities, TRUE)) {
+				$entities[] = $entity;
+			}
+		}
+
+		$em = $this->doctrine->getEntityManager();
+		foreach ($entities as $entity) {
+			$em->persist($entity);
+		}
+
+		if ($this->autoFlush === TRUE) {
+			$em->flush();
 		}
 	}
 

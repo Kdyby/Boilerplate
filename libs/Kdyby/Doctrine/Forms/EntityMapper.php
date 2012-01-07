@@ -17,6 +17,8 @@ use Kdyby;
 use Nette;
 use Nette\ComponentModel\IComponent;
 use Nette\Forms\Controls\BaseControl;
+use Nette\Forms\Controls\SubmitButton;
+use Nette\Reflection\ClassType;
 use SplObjectStorage;
 
 
@@ -112,7 +114,7 @@ class EntityMapper extends Nette\Object
 
 	/**
 	 * @param object $object
-	 * @return \Nette\Forms\Container
+	 * @return \Kdyby\Doctrine\Forms\IObjectContainer|\Nette\Forms\Container
 	 */
 	public function getComponent($object)
 	{
@@ -205,10 +207,44 @@ class EntityMapper extends Nette\Object
 				}
 
 				if ($class->hasField($field = $this->getControlField($container[$name]))) {
+					if ($class->isIdentifier($field)) {
+						continue;
+					}
+
 					$class->setFieldValue($entity, $field, $value);
 				}
 			}
 		}
+
+		foreach ($this->collections as $collection) {
+			$container = $this->getComponent($collection);
+			$parentEntity = $container->getParent()->getEntity();
+			foreach ($collection as $related) {
+				$this->ensureBidirectionalRelation($parentEntity, $related, $container->getName());
+			}
+		}
+	}
+
+
+
+	/************************ remove from collection ************************/
+
+
+
+	/**
+	 * @param object $entity
+	 */
+	public function remove($entity)
+	{
+		foreach ($this->collections as $collection) {
+			if ($collection->contains($entity)) {
+				$collection->removeElement($entity);
+			}
+		}
+
+		$this->entities->detach($entity);
+		$dao = $this->doctrine->getDao(get_class($entity));
+		$dao->delete($entity, $dao::NO_FLUSH);
 	}
 
 
@@ -237,7 +273,31 @@ class EntityMapper extends Nette\Object
 			$this->getMeta($entity)->setFieldValue($entity, $field, $related);
 		}
 
+		$this->ensureBidirectionalRelation($entity, $related, $field);
 		return $related;
+	}
+
+
+
+	/**
+	 * Ensures, that related entity will be associated back with given entity,through field, when needed
+	 *
+	 * @param object $entity
+	 * @param object $related
+	 * @param string $field
+	 */
+	private function ensureBidirectionalRelation($entity, $related, $field)
+	{
+		$relatedMapping = $this->getMeta($entity)->getAssociationMapping($field);
+		if (isset($relatedMapping['mappedBy'])) {
+			if ($this->isTargetCollection($related, $mappedBy = $relatedMapping['mappedBy'])) {
+				$relatedCollection = $this->getCollection($related, $mappedBy);
+				$relatedCollection->add($entity);
+
+			} else {
+				$this->getMeta($related)->setFieldValue($related, $mappedBy, $entity);
+			}
+		}
 	}
 
 
@@ -246,7 +306,7 @@ class EntityMapper extends Nette\Object
 	 * @param object $entity
 	 * @param string $field
 	 *
-	 * @return object
+	 * @return \Doctrine\Common\Collections\Collection
 	 */
 	public function getCollection($entity, $field)
 	{
@@ -311,25 +371,25 @@ class EntityMapper extends Nette\Object
 
 
 	/**
-	 * @param object|string $parentEntity
+	 * @param object|string $entity
 	 * @param string $field
 	 * @return bool
 	 */
-	public function isTargetCollection($parentEntity, $field)
+	public function isTargetCollection($entity, $field)
 	{
-		return $this->getMeta($parentEntity)->isCollectionValuedAssociation($field);
+		return $this->getMeta($entity)->isCollectionValuedAssociation($field);
 	}
 
 
 
 	/**
-	 * @param object|string $parentEntity
+	 * @param object|string $entity
 	 * @param string $field
 	 * @return string
 	 */
-	public function getTargetClassName($parentEntity, $field)
+	public function getTargetClassName($entity, $field)
 	{
-		return $this->getMeta($parentEntity)->getAssociationTargetClass($field);
+		return $this->getMeta($entity)->getAssociationTargetClass($field);
 	}
 
 

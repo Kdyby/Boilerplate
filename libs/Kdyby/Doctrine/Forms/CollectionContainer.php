@@ -57,7 +57,9 @@ class CollectionContainer extends Kdyby\Forms\Containers\Replicator implements I
 
 
 	/**
-	 * @param callable $factory
+	 * function(object $parentEntity, CollectionContainer $container);
+	 *
+	 * @param callback $factory
 	 */
 	public function setEntityFactory($factory)
 	{
@@ -121,6 +123,7 @@ class CollectionContainer extends Kdyby\Forms\Containers\Replicator implements I
 	protected function attached($obj)
 	{
 		if ($obj instanceof Nette\Application\UI\Presenter) {
+			$this->getMapper()->assignCollection($this->collection, $this);
 			if (!$this->getForm()->isSubmitted()) {
 				foreach ($this->collection as $index => $entity) {
 					$this->createOne($index);
@@ -129,6 +132,14 @@ class CollectionContainer extends Kdyby\Forms\Containers\Replicator implements I
 		}
 
 		parent::attached($obj);
+
+		if ($obj instanceof Nette\Application\UI\Presenter && $this->getForm()->isSubmitted()) {
+			foreach ($this->collection->toArray() as $entity) {
+				if (!$this->getMapper()->getComponent($entity)) {
+					$this->getMapper()->remove($entity);
+				}
+			}
+		}
 	}
 
 
@@ -194,6 +205,19 @@ class CollectionContainer extends Kdyby\Forms\Containers\Replicator implements I
 		}
 
 		return $related;
+	}
+
+
+
+	/**
+	 * @param \Kdyby\Doctrine\Forms\EntityContainer $container
+	 * @param bool $cleanUpGroups
+	 */
+	public function remove(EntityContainer $container, $cleanUpGroups = FALSE)
+	{
+		$entity = $container->getEntity();
+		parent::remove($container, $cleanUpGroups);
+		$this->getMapper()->remove($entity);
 	}
 
 }

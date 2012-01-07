@@ -92,7 +92,7 @@ class EntityMapperTest extends Kdyby\Tests\OrmTestCase
 	 *
 	 * @param \Nette\Forms\IControl $itemsControl
 	 */
-	public function testItemsControlLoading_RelatedPairsQuery(Nette\Forms\IControl $itemsControl)
+	public function testItemsControlLoading_Related(Nette\Forms\IControl $itemsControl)
 	{
 		// tested control dependencies
 		$entity = new Fixtures\RootEntity("Chuck Norris");
@@ -354,13 +354,20 @@ class EntityMapperTest extends Kdyby\Tests\OrmTestCase
 	 */
 	private function prepareChildrenContainer($entity)
 	{
+		$id = $this->getDao($entity)->save($entity)->id;
+
 		$form = new Form($this->getDoctrine(), $entity, $this->mapper);
 		$form->addText('name');
 		$form->addMany('children', function(EntityContainer $container) {
 			$container->addText('name');
+
+		})->setEntityFactory(function ($daddy) {
+			return new Kdyby\Tests\Doctrine\Forms\Fixtures\RelatedEntity(NULL, $daddy);
 		});
-		return $form;
+
+		return array($form, $id);
 	}
+
 
 
 	/**
@@ -387,24 +394,26 @@ class EntityMapperTest extends Kdyby\Tests\OrmTestCase
 	 */
 	public function testSaving_RelatedCollection_UpdatingExisting(Fixtures\RootEntity $entity)
 	{
-		$this->getDao($entity)->save($entity);
-		$form = $this->prepareChildrenContainer($entity);
+		list($form, $id) = $this->prepareChildrenContainer($entity);
 
 		// attach & save
 		$this->submitForm($form, array('children' => array(
 			array('id' => 1, 'name' => $a = "Nádherná Vignerová"),
 			array('id' => 2, 'name' => $b = "se chystá opustit Ujfalušiho"),
 			array('id' => 3, 'name' => $c = "Víme proč")
-		), 'name' => "krysy na hotelovém pokoji"));
+		), 'name' => $n = "krysy na hotelovém pokoji"));
 
-		$this->mapper->save();
+		// check persisted values
+		$this->getDoctrine()->getEntityManager()->clear();
+		$entity = $this->getDao($entity)->find($id);
 
-		// check
-		$this->assertEquals("krysy na hotelovém pokoji", $entity->name);
+		$this->assertEquals($n, $entity->name);
 		$this->assertCount(3, $entity->children);
-		$this->assertEquals($a, $entity->children[0]->name);
-		$this->assertEquals($b, $entity->children[1]->name);
-		$this->assertEquals($c, $entity->children[2]->name);
+
+		$relatedDao = $this->getDao(__NAMESPACE__ . '\Fixtures\RelatedEntity');
+		$this->assertEquals($a, $relatedDao->find(1)->name);
+		$this->assertEquals($b, $relatedDao->find(2)->name);
+		$this->assertEquals($c, $relatedDao->find(3)->name);
 	}
 
 
@@ -416,9 +425,28 @@ class EntityMapperTest extends Kdyby\Tests\OrmTestCase
 	 */
 	public function testSaving_RelatedCollection_Appending(Fixtures\RootEntity $entity)
 	{
-		$this->getDao($entity)->save($entity);
+		list($form, $id) = $this->prepareChildrenContainer($entity);
 
-		$this->fail();
+		// attach & save
+		$this->submitForm($form, array('children' => array(
+			0 => array('id' => 1, 'name' => $a = "Stydlivka dokonce"),
+			1 => array('id' => 2, 'name' => $b = "prozradila detaily"),
+			2 => array('id' => 3, 'name' => $c = "soukromého života"),
+			3 => array('name' => $d = "ukázala manžela"),
+		), 'name' => $n = "Irglová Česku"));
+
+		// check persisted values
+		$this->getDoctrine()->getEntityManager()->clear();
+		$entity = $this->getDao($entity)->find($id);
+
+		$this->assertEquals($n, $entity->name);
+		$this->assertCount(4, $entity->children);
+
+		$relatedDao = $this->getDao(__NAMESPACE__ . '\Fixtures\RelatedEntity');
+		$this->assertEquals($a, $relatedDao->find(1)->name);
+		$this->assertEquals($b, $relatedDao->find(2)->name);
+		$this->assertEquals($c, $relatedDao->find(3)->name);
+		$this->assertEquals($d, $relatedDao->find(4)->name);
 	}
 
 
@@ -428,11 +456,48 @@ class EntityMapperTest extends Kdyby\Tests\OrmTestCase
 	 *
 	 * @param \Kdyby\Tests\Doctrine\Forms\Fixtures\RootEntity $entity
 	 */
-	public function testSaving_RelatedCollection_RemovingSome(Fixtures\RootEntity $entity)
+	public function testSaving_RelatedCollection_RemovingAndAddingNew(Fixtures\RootEntity $entity)
 	{
-		$this->getDao($entity)->save($entity);
+		list($form, $id) = $this->prepareChildrenContainer($entity);
 
-		$this->fail();
+		$clickCalls = array();
+		$form['children']->setFactory(function(EntityContainer $container) use (&$clickCalls)
+		{
+			$container->addText('name');
+			$container->addSubmit('delete', 'Delete')->onClick[] = function () use (&$clickCalls)
+			{
+				$clickCalls[] = func_get_args();
+			};
+			$container['delete']->addRemoveOnClick();
+		});
+
+		// attach & save
+		$this->submitForm($form, array('children' => array(
+			0 => array('id' => 1, 'name' => $a = "víme, kolik bere Svěrák"),
+			1 => array('id' => 2, 'name' => $b = "Janžurová, Donutil", 'delete' => 'Delete'),
+			2 => array('id' => 3, 'name' => $c = "Trojan nebo Tomicová"),
+			3 => array('name' => $d = "ukázala manžela"),
+		), 'name' => $n = "To jsou ale platy!"));
+
+		$this->getDoctrine()->getEntityManager()->clear();
+		$entity = $this->getDao($entity)->find($id);
+
+		// confirm click
+		$this->assertCount(1, $clickCalls);
+		$call = reset($clickCalls);
+		$this->assertInstanceOf('Nette\Forms\Controls\SubmitButton', $call[0]);
+		$this->assertInstanceOf(__NAMESPACE__ . '\Fixtures\RelatedEntity', $call[1]);
+		$this->assertInstanceOf('Kdyby\Doctrine\Dao', $call[2]);
+
+		// check persisted values
+		$this->assertEquals($n, $entity->name);
+		$this->assertCount(3, $entity->children);
+
+		$relatedDao = $this->getDao(__NAMESPACE__ . '\Fixtures\RelatedEntity');
+		$this->assertEquals($a, $relatedDao->find(1)->name);
+		$this->assertNull($relatedDao->find(2));
+		$this->assertEquals($c, $relatedDao->find(3)->name);
+		$this->assertEquals($d, $relatedDao->find(4)->name);
 	}
 
 
@@ -442,21 +507,75 @@ class EntityMapperTest extends Kdyby\Tests\OrmTestCase
 	 *
 	 * @param \Kdyby\Tests\Doctrine\Forms\Fixtures\RootEntity $entity
 	 */
-	public function testSaving_RelatedCollection_RemovingSomeAndAddingNew(Fixtures\RootEntity $entity)
+	public function testSaving_RelatedCollection_RemovingWithoutSignal(Fixtures\RootEntity $entity)
 	{
-		$this->getDao($entity)->save($entity);
+		list($form, $id) = $this->prepareChildrenContainer($entity);
 
-		$this->fail();
+		// attach & save
+		$this->submitForm($form, array('children' => array(
+			0 => array('id' => 1, 'name' => $a = "víme, kolik bere Svěrák"),
+			2 => array('id' => 3, 'name' => $c = "Trojan nebo Tomicová"),
+			3 => array('name' => $d = "ukázala manžela"),
+		), 'name' => $n = "To jsou ale platy!"));
+
+		$this->getDoctrine()->getEntityManager()->clear();
+		$entity = $this->getDao($entity)->find($id);
+
+		// check persisted values
+		$this->assertEquals($n, $entity->name);
+		$this->assertCount(3, $entity->children);
+
+		$relatedDao = $this->getDao(__NAMESPACE__ . '\Fixtures\RelatedEntity');
+		$this->assertEquals($a, $relatedDao->find(1)->name);
+		$this->assertNull($relatedDao->find(2));
+		$this->assertEquals($c, $relatedDao->find(3)->name);
+		$this->assertEquals($d, $relatedDao->find(4)->name);
 	}
 
 
 
 	public function testSaving_RelatedCollection_CreatingNew()
 	{
-		$entity = new Fixtures\RootEntity("Marilyn Monroe");
-		$this->getDao($entity)->save($entity);
+		$entity = new Fixtures\RootEntity("Sofia Vergara");
+		list($form, $id) = $this->prepareChildrenContainer($entity);
 
-		$this->fail();
+		// attach & save
+		$this->submitForm($form, array('children' => array(
+			0 => array('name' => $a = "Klidně Karel Gott"),
+			1 => array('name' => $b = "nebo hvězda filmů pro dospělé"),
+			2 => array('name' => $c = "Dolly Buster!"),
+		), 'name' => $n = "Nový český prezident ?"));
+
+		$this->getDoctrine()->getEntityManager()->clear();
+		$entity = $this->getDao($entity)->find($id);
+
+		// check persisted values
+		$this->assertEquals($n, $entity->name);
+		$this->assertCount(3, $entity->children);
+
+		$relatedDao = $this->getDao(__NAMESPACE__ . '\Fixtures\RelatedEntity');
+		$this->assertEquals($a, $relatedDao->find(1)->name);
+		$this->assertEquals($b, $relatedDao->find(2)->name);
+		$this->assertEquals($c, $relatedDao->find(3)->name);
+	}
+
+
+	/**
+	 * @param \Doctrine\Common\Collections\Collection $collection
+	 *
+	 * @return object[]
+	 */
+	private function findNewFromCollection(Doctrine\Common\Collections\Collection $collection)
+	{
+		$UoW = $this->getDoctrine()->getEntityManager()->getUnitOfWork();
+		$new = array();
+		foreach ($collection as $item) {
+			if ($UoW->getEntityState($item, $UoW::STATE_NEW) === $UoW::STATE_NEW) {
+				$new[] = $item;
+			}
+		}
+
+		return $new;
 	}
 
 }

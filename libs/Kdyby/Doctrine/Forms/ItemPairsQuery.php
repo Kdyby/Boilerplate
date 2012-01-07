@@ -59,8 +59,7 @@ class ItemPairsQuery extends Kdyby\Doctrine\QueryObjectBase
 	 */
 	protected function doCreateQuery(Kdyby\Persistence\IQueryable $repository)
 	{
-		$query = $repository->createQuery();
-		return $query->setDQL(
+		return $repository->createQuery(
 			"SELECT i.$this->key, i.$this->value FROM " . get_class($this->entity) . ' e '.
 			"LEFT JOIN e.$this->field i ".
 			"WHERE e = :id"
