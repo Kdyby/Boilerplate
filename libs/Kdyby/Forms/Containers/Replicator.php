@@ -72,6 +72,16 @@ class Replicator extends Container
 
 
 	/**
+	 * @param callback $factory
+	 */
+	public function setFactory($factory)
+	{
+		$this->factoryCallback = callback($factory);
+	}
+
+
+
+	/**
 	 * Magical component factory
 	 *
 	 * @param \Nette\ComponentModel\IContainer
