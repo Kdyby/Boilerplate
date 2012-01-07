@@ -64,9 +64,9 @@ class DbalExtension extends Kdyby\Config\CompilerExtension
 	 */
 	public function loadConfiguration()
 	{
-		$container = $this->getContainer();
+		$container = $this->getContainerBuilder();
 		$config = $this->getConfig();
-		
+
 		$connections = isset($config['connections']) ? $config['connections'] : array('default' => $config);
 
 		// default connection

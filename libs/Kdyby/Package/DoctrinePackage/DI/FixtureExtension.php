@@ -27,8 +27,8 @@ class FixtureExtension extends Kdyby\Config\CompilerExtension
 
 	public function loadConfiguration()
 	{
-		$container = $this->getContainer();
-		
+		$container = $this->getContainerBuilder();
+
 		Validators::assertField($container->parameters, 'doctrine_entityManagers');
 
 		foreach ($container->parameters['doctrine_entityManagers'] as $entityManagerName) {

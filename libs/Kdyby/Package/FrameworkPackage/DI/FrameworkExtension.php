@@ -28,8 +28,8 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 
 	public function loadConfiguration()
 	{
-		$container = $this->getContainer();
-		
+		$container = $this->getContainerBuilder();
+
 		// watch for package files to change
 		Validators::assertField($container->parameters, 'kdyby_packages', 'array');
 		foreach ($container->parameters['kdyby_packages'] as $packageClass) {
@@ -111,8 +111,8 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 
 	public function beforeCompile()
 	{
-		$container = $this->getContainer();
-		
+		$container = $this->getContainerBuilder();
+
 		$this->registerConsoleHelpers($container);
 		$this->registerMacroFactories($container);
 		$this->unifyComponents($container);
@@ -209,7 +209,7 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 	 */
 	public function afterCompile(Code\ClassType $class)
 	{
-		$this->compileRouter($this->getContainer(), $class->methods['initialize']);
+		$this->compileRouter($this->getContainerBuilder(), $class->methods['initialize']);
 	}
 
 

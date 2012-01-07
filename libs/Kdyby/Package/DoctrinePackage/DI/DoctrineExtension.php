@@ -28,8 +28,8 @@ class DoctrineExtension extends Kdyby\Config\CompilerExtension
 
 	public function loadConfiguration()
 	{
-		$container = $this->getContainer();
-		
+		$container = $this->getContainerBuilder();
+
 		$container->addDefinition('doctrine')
 			->setClass('Kdyby\Doctrine\Registry', array(
 				'@container',
@@ -52,7 +52,7 @@ class DoctrineExtension extends Kdyby\Config\CompilerExtension
 
 	public function beforeCompile()
 	{
-		$this->registerEventSubscribers($this->getContainer());
+		$this->registerEventSubscribers($this->getContainerBuilder());
 	}
 
 
@@ -99,11 +99,13 @@ class DoctrineExtension extends Kdyby\Config\CompilerExtension
 	 */
 	protected function getConnectionEventManager($connectionName)
 	{
-		$connections = $this->getContainer()->parameters['doctrine_connections'];
+		$container = $this->getContainerBuilder();
+
+		$connections = $container->parameters['doctrine_connections'];
 		Validators::assertField($connections, $connectionName);
 
-		$connection = $this->getContainer()->parameters['doctrine_connections'][$connectionName];
-		return $this->getContainer()->getDefinition($connection . '_eventManager');
+		$connection = $container->parameters['doctrine_connections'][$connectionName];
+		return $container->getDefinition($connection . '_eventManager');
 	}
 
 }

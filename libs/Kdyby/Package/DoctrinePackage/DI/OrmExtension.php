@@ -121,9 +121,9 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 
 	public function loadConfiguration()
 	{
-		$container = $this->getContainer();
+		$container = $this->getContainerBuilder();
 		$config = $this->getConfig();
-		
+
 		$this->entityManagers = isset($config['entityManagers']) ? $config['entityManagers'] : array('default' => $config);
 
 		// default entity manger
@@ -146,7 +146,7 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 		// load entity managers
 		foreach ($this->entityManagers as $name => $entityManager) {
 			$entityManager['name'] = $name;
-			$this->loadOrmEntityManager($container, $entityManager);
+			$this->loadOrmEntityManager($entityManager);
 		}
 
 		$this->addAlias('doctrine_orm_metadata_annotationReader', 'annotationReader_cached');
@@ -158,11 +158,11 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 	/**
 	 * Loads a configured ORM entity manager.
 	 *
-	 * @param \Nette\DI\ContainerBuilder $container A ContainerBuilder instance
 	 * @param array $config A configured ORM entity manager.
 	 */
-	protected function loadOrmEntityManager(ContainerBuilder $container, array $config)
+	protected function loadOrmEntityManager(array $config)
 	{
+		$container = $this->getContainerBuilder();
 		$entityManagerName = 'doctrine_orm_' . $config['name'] . 'EntityManager';
 
 		// options
@@ -213,10 +213,10 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 		$connectionName = 'doctrine_dbal_' . $options['connection'] . 'Connection';
 
 		// mappings
-		$this->loadOrmEntityManagerMappingInformation($container, $options);
+		$this->loadOrmEntityManagerMappingInformation($options);
 
 		// cache drivers
-		$this->loadOrmCacheDrivers($container, $options);
+		$this->loadOrmCacheDrivers($options);
 
 		// entity manager
 		$container->addDefinition($entityManagerName)
@@ -282,17 +282,18 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 	 * In the case of packages everything is really optional (which leads to autodetection for this package) but
 	 * in the mappings key everything except alias is a required argument.
 	 *
-	 * @param \Nette\DI\ContainerBuilder $container A ContainerBuilder instance
 	 * @param array $config A configured ORM entity manager.
 	 */
-	protected function loadOrmEntityManagerMappingInformation(ContainerBuilder $container, array $config)
+	protected function loadOrmEntityManagerMappingInformation(array $config)
 	{
+		$container = $this->getContainerBuilder();
+
 		// reset state of drivers and alias map. They are only used by this methods and children.
 		$this->drivers = array();
 		$this->aliasMap = array();
 
-		$this->loadMappingInformation($container, $config);
-		$this->registerMappingDrivers($container, $config);
+		$this->loadMappingInformation($config);
+		$this->registerMappingDrivers($config);
 
 		$container->getDefinition('doctrine_orm_' . $config['name'] . 'EntityManager_configuration')
 			->addSetup('setEntityNamespaces', array($this->aliasMap));
@@ -301,11 +302,11 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 
 
 	/**
-	 * @param \Nette\DI\ContainerBuilder $container	 A ContainerBuilder instance
 	 * @param array $config A configured object manager.
 	 */
-	protected function loadMappingInformation(ContainerBuilder $container, array $config)
+	protected function loadMappingInformation(array $config)
 	{
+		$container = $this->getContainerBuilder();
 		$mappings = $config['mappings'];
 
 		// automatically register package mappings
@@ -330,7 +331,7 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 			// a package configuration is detected by realizing that the specified dir is not absolute and existing
 			$options['package'] = !file_exists($options['dir']);
 
-			$this->loadPackageMappingInformation($container, $options, $config);
+			$this->loadPackageMappingInformation($options, $config);
 		}
 	}
 
@@ -339,11 +340,11 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 	/**
 	 * Register all the collected mapping information with the object manager by registering the appropriate mapping drivers.
 	 *
-	 * @param array			$config
-	 * @param \Nette\DI\ContainerBuilder $container	 A ContainerBuilder instance
+	 * @param array $config
 	 */
-	protected function registerMappingDrivers(ContainerBuilder $container, $config)
+	protected function registerMappingDrivers($config)
 	{
+		$container = $this->getContainerBuilder();
 		$entityManagerName = 'doctrine_orm_' . $config['name'] . 'EntityManager';
 
 		// configure metadata driver for each package based on the type of mapping files found
@@ -380,7 +381,7 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 			}
 		}
 
-		$this->registerKdybyEntities($container, $chainDriverDef, $config);
+		$this->registerKdybyEntities($chainDriverDef, $config);
 	}
 
 
@@ -388,14 +389,13 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 	/**
 	 * Loads a configured entity managers cache drivers.
 	 *
-	 * @param \Nette\DI\ContainerBuilder $container
 	 * @param array $config
 	 */
-	protected function loadOrmCacheDrivers(ContainerBuilder $container, array $config)
+	protected function loadOrmCacheDrivers(array $config)
 	{
-		$this->loadOrmEntityManagerCacheDriver($container, $config, 'metadataCache');
-		$this->loadOrmEntityManagerCacheDriver($container, $config, 'resultCache');
-		$this->loadOrmEntityManagerCacheDriver($container, $config, 'queryCache');
+		$this->loadOrmEntityManagerCacheDriver($config, 'metadataCache');
+		$this->loadOrmEntityManagerCacheDriver($config, 'resultCache');
+		$this->loadOrmEntityManagerCacheDriver($config, 'queryCache');
 	}
 
 
@@ -403,12 +403,12 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 	/**
 	 * Loads a configured entity managers metadata, query or result cache driver.
 	 *
-	 * @param \Nette\DI\ContainerBuilder $container A ContainerBuilder instance
 	 * @param array	$config A configured ORM entity manager.
 	 * @param string $cacheName
 	 */
-	protected function loadOrmEntityManagerCacheDriver(ContainerBuilder $container, array $config, $cacheName)
+	protected function loadOrmEntityManagerCacheDriver(array $config, $cacheName)
 	{
+		$container = $this->getContainerBuilder();
 		$entityManagerName = 'doctrine_orm_' . $config['name'] . 'EntityManager';
 		$cacheDriver = $config[$cacheName . "Driver"];
 
@@ -450,16 +450,16 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 
 
 	/**
-	 * @param \Nette\DI\ContainerBuilder $container
 	 * @param array $mappingConfig
 	 * @param array $config
 	 * @return mixed
 	 * @throws \Kdyby\InvalidArgumentException
 	 */
-	protected function loadPackageMappingInformation(ContainerBuilder $container, array $mappingConfig, array $config)
+	protected function loadPackageMappingInformation(array $mappingConfig, array $config)
 	{
+		$container = $this->getContainerBuilder();
 		if ($mappingConfig['package']) {
-			if (NULL === $package = $this->getPackageReflectionByName($container, $mappingConfig['name'])) {
+			if (NULL === $package = $this->getPackageReflectionByName($mappingConfig['name'])) {
 				throw new Kdyby\InvalidArgumentException('Package "' . $mappingConfig['name'] . '" does not exist or it is not enabled.');
 			}
 
@@ -586,13 +586,14 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 
 
 	/**
-	 * @param \Nette\DI\ContainerBuilder $container
 	 * @param \Nette\DI\ServiceDefinition $chainDriverDef
 	 * @param array $config
 	 * @return void
 	 */
-	private function registerKdybyEntities(ContainerBuilder $container, Nette\DI\ServiceDefinition $chainDriverDef, $config)
+	private function registerKdybyEntities(Nette\DI\ServiceDefinition $chainDriverDef, $config)
 	{
+		$container = $this->getContainerBuilder();
+
 		// gather paths
 		$paths = array();
 		$packages = $container->parameters['kdyby_packages'];
@@ -648,13 +649,13 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 
 
 	/**
-	 * @param \Nette\DI\ContainerBuilder $container
 	 * @param string $name
 	 *
 	 * @return \Nette\Reflection\ClassType
 	 */
-	protected function getPackageReflectionByName(ContainerBuilder $container, $name)
+	protected function getPackageReflectionByName($name)
 	{
+		$container = $this->getContainerBuilder();
 		if (!isset($container->parameters['kdyby_packages'][$name])) {
 			return NULL;
 		}

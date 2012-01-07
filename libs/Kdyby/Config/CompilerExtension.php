@@ -17,6 +17,8 @@ use Nette;
 
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
+ *
+ * @method \Nette\DI\ContainerBuilder getContainerBuilder() getContainerBuilder()
  */
 class CompilerExtension extends Nette\Config\CompilerExtension
 {
@@ -27,7 +29,7 @@ class CompilerExtension extends Nette\Config\CompilerExtension
 	 */
 	public function addAlias($alias, $service)
 	{
-		$this->getContainer()
+		$this->getContainerBuilder()
 			->addDefinition($alias)->setFactory('@' . $service);
 	}
 

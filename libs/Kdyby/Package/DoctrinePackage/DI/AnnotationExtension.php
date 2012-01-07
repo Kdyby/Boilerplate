@@ -32,9 +32,9 @@ class AnnotationExtension extends Kdyby\Config\CompilerExtension
 	 */
 	public function loadConfiguration()
 	{
-		$container = $this->getContainer();
+		$container = $this->getContainerBuilder();
 		$config = $this->getConfig();
-		
+
 		$reader = $container->addDefinition('annotationReader')
 			->setClass('Doctrine\Common\Annotations\AnnotationReader')
 			->addSetup('setIgnoreNotImportedAnnotations', array(FALSE))
