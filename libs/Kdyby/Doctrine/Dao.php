@@ -129,11 +129,11 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 	 *
 	 * @return array
 	 */
-	public function findPairs($criteria = NULL, $key = NULL, $value = NULL)
+	public function findPairs($criteria, $value, $key = NULL)
 	{
 		if (!is_array($criteria)) {
-			$value = $key;
-			$key = $criteria;
+			$key = $value;
+			$value = $criteria;
 			$criteria = array();
 		}
 
@@ -173,7 +173,7 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 	 *
 	 * @return array
 	 */
-	public function findAssoc($criteria = NULL, $key = NULL)
+	public function findAssoc($criteria, $key = NULL)
 	{
 		if (!is_array($criteria)) {
 			$key = $criteria;
