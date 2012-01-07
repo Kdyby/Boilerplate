@@ -92,7 +92,7 @@ class EntityMapperTest extends Kdyby\Tests\OrmTestCase
 	 *
 	 * @param \Nette\Forms\IControl $itemsControl
 	 */
-	public function testItemsControlLoading_Related(Nette\Forms\IControl $itemsControl)
+	public function testItemsControlLoading_FieldNamePairs(Nette\Forms\IControl $itemsControl)
 	{
 		// tested control dependencies
 		$entity = new Fixtures\RootEntity("Chuck Norris");
@@ -116,12 +116,43 @@ class EntityMapperTest extends Kdyby\Tests\OrmTestCase
 
 		// map to control
 		$relatedDao->expects($this->atLeastOnce())
-			->method('fetchPairs')
-			->with($this->isInstanceOf('Kdyby\Doctrine\Forms\ItemPairsQuery'))
+			->method('findPairs')
+			->with($this->equalTo('name'), $this->equalTo('id'))
 			->will($this->returnValue($items = array(1 => 'Lorem')));
 
 		$this->mapper->loadControlItems();
 		$this->assertEquals($items, $itemsControl->getItems());
+	}
+
+
+
+	/**
+	 * @dataProvider dataItemControls
+	 *
+	 * @param \Nette\Forms\IControl $itemsControl
+	 */
+	public function testItemsControlLoading_FieldNamePairs_FromRelated(Nette\Forms\IControl $itemsControl)
+	{
+		// tested control dependencies
+		$entity = new Fixtures\RootEntity("Sofia Vergara");
+		$entity->children[] = new Fixtures\RelatedEntity($a = "nasoukala své vnady", $entity);
+		$entity->children[] = new Fixtures\RelatedEntity($b = "do o dvě čísla menší podprsenky");
+		$entity->children[] = new Fixtures\RelatedEntity($c = "a takhle to dopadlo");
+		$this->getDao($entity)->save($entity);
+
+		// attach to container & mapper
+		$container = new EntityContainer($entity);
+		$container['children'] = $itemsControl;
+		$this->mapper->assign($entity, $container);
+		$this->mapper->setControlMapper($itemsControl, 'name', 'id');
+
+		// load
+		$this->mapper->loadControlItems();
+		$this->assertEquals(array(
+			1 => $a,
+			2 => $b,
+			3 => $c,
+		), $itemsControl->getItems());
 	}
 
 
@@ -145,7 +176,7 @@ class EntityMapperTest extends Kdyby\Tests\OrmTestCase
 
 
 
-	public function testLoading_Controls()
+	public function testLoading_Control()
 	{
 		$entity = new Fixtures\RootEntity("Chuck Tesla");
 		$container = new EntityContainer($entity);

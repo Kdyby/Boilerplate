@@ -157,7 +157,8 @@ class EntityMapper extends Nette\Object
 	{
 		foreach ($this->getComponent($entity)->getComponents(FALSE, $controlClass) as $control) {
 			if ($mapper = $this->getControlMapper($control)) {
-				$control->setItems($mapper());
+				$targetClass = $this->getControlEntityClass($control);
+				$control->setItems($mapper($this->doctrine->getDao($targetClass)));
 			}
 		}
 	}
@@ -463,29 +464,17 @@ class EntityMapper extends Nette\Object
 	 */
 	public function setControlMapper(Nette\Forms\IControl $control, $items, $key)
 	{
-		$targetClass = $this->getControlEntityClass($control);
-		$dao = $this->doctrine->getDao($targetClass);
-
 		if (is_string($items)) {
-			if ($this->getMeta($targetClass)->hasField($items)) {
-				$mapper = $this;
-				$items = function () use ($control, $dao, $mapper, $items, $key) {
-					$entity = $control->getParent()->getEntity();
-					$field = $mapper->getControlField($control);
-
-					return $dao->fetchPairs(new ItemPairsQuery($entity, $field, $items, $key));
-				};
-
-			} else {
+			$targetClass = $this->getControlEntityClass($control);
+			if (!$this->getMeta($targetClass)->hasField($items)) {
 				throw new Kdyby\InvalidArgumentException('Entity "' . $targetClass . '" has no property "' . $items . '" given.');
 			}
 
-		} elseif (is_callable($items)) {
-			$items = function () use ($items, $dao, $key) {
-				return $items($dao, $key);
+			$items = function ($dao) use ($items, $key) {
+				return $dao->findPairs($items, $key);
 			};
 
-		} else {
+		} elseif (!is_callable($items)) {
 			throw new Kdyby\InvalidArgumentException('EntityMapper was not able to resolve items mapper, ' . gettype($items) . ' given.');
 		}
 
