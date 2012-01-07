@@ -239,7 +239,7 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 				$this->getEntityManager()->flush();
 
 			} catch (\PDOException $e) {
-				throw new SqlException($e);
+				$this->handleException($e);
 			}
 		}
 	}
