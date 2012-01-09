@@ -12,6 +12,7 @@ namespace Kdyby\Templates;
 
 use Kdyby;
 use Nette;
+use Nette\Latte;
 
 
 
@@ -25,6 +26,9 @@ class TemplateConfigurator extends Nette\Object implements ITemplateConfigurator
 
 	/** @var \SystemContainer|\Nette\DI\Container */
 	private $container;
+
+	/** @var \Nette\Latte\Engine */
+	private $latte;
 
 
 
@@ -64,12 +68,24 @@ class TemplateConfigurator extends Nette\Object implements ITemplateConfigurator
 	 */
 	public function prepareFilters(Nette\Templating\Template $template)
 	{
-		$latte = new Nette\Latte\Engine();
+		$this->latte = new Latte\Engine();
 		foreach ($this->macroFactories as $factory) {
-			$factory($latte->parser);
+			$factory($this->latte->getParser());
 		}
 
-		$template->registerFilter($latte);
+		$template->registerFilter($this->latte);
+	}
+
+
+
+	/**
+	 * Returns Latter parser for the last prepareFilters call.
+	 *
+	 * @return \Nette\Latte\Parser
+	 */
+	public function getLatteParser()
+	{
+		return $this->latte->getParser();
 	}
 
 }
