@@ -23,6 +23,9 @@ use Nette;
  *
  * @Orm:Entity
  * @Orm:Table(name="rbac_divisions")
+ * @Orm:InheritanceType("SINGLE_TABLE")
+ * @Orm:DiscriminatorColumn(name="_type", type="string")
+ * @Orm:DiscriminatorMap({"base" = "Division"})
  */
 class Division extends Nette\Object
 {
