@@ -71,4 +71,33 @@ final class LatteHelpers extends Nette\Object
 		return $args;
 	}
 
+
+
+	/**
+	 * @param string $content
+	 *
+	 * @return array
+	 */
+	public static function splitPhp($content)
+	{
+		$parts = array();
+		$lastContext = NULL;
+		foreach (token_get_all($content) as $token) {
+			if (!is_array($token)) {
+				end($parts);
+				$parts[key($parts)] .= $token;
+				continue;
+			}
+
+			$context = $token[0] === T_INLINE_HTML ? 'html' : 'php';
+			if ($lastContext !== $context) {
+				$parts[] = NULL;
+				end($parts);
+			}
+			$parts[key($parts)] .= $token[1];
+			$lastContext = $context;
+		}
+		return $parts;
+	}
+
 }
