@@ -14,6 +14,7 @@ use Assetic;
 use Kdyby;
 use Kdyby\Assets\FormulaeManager;
 use Kdyby\Assets\AssetFactory;
+use Kdyby\Templates\LatteHelpers;
 use Nette;
 use Nette\Utils\PhpGenerator as Code;
 use Nette\Latte;
@@ -77,7 +78,12 @@ class AsseticMacroSet extends Latte\Macros\MacroSet
 	 */
 	public function javascriptMacro(Latte\MacroNode $node, Latte\PhpWriter $writer)
 	{
-		$args = $this->readArguments($node->tokenizer, $writer);
+		$args = LatteHelpers::readArguments($node->tokenizer, $writer);
+		if (isset($args['filter'])) {
+			$args['filters'] = $args['filter'];
+			unset($args['filter']);
+		}
+
 		$this->prolog[] = $this->createFactory($args, FormulaeManager::TYPE_JAVASCRIPT);
 
 		return "";
@@ -93,54 +99,15 @@ class AsseticMacroSet extends Latte\Macros\MacroSet
 	 */
 	public function stylesheetMacro(Latte\MacroNode $node, Latte\PhpWriter $writer)
 	{
-		$args = $this->readArguments($node->tokenizer, $writer);
+		$args = LatteHelpers::readArguments($node->tokenizer, $writer);
+		if (isset($args['filter'])) {
+			$args['filters'] = $args['filter'];
+			unset($args['filter']);
+		}
+
 		$this->prolog[] = $this->createFactory($args, FormulaeManager::TYPE_STYLESHEET);
 
 		return "";
-	}
-
-
-
-	/**
-	 * @param \Nette\Latte\MacroTokenizer $tokenizer
-	 * @param \Nette\Latte\PhpWriter $writer
-	 * @return array
-	 */
-	private static function readArguments(Latte\MacroTokenizer $tokenizer, Latte\PhpWriter $writer)
-	{
-		$args = array();
-		$tokenizer = $writer->preprocess($tokenizer);
-
-		$key = $value = NULL;
-		while ($token = $tokenizer->fetchToken()) {
-			if ($tokenizer->isCurrent($tokenizer::T_STRING) || $tokenizer->isCurrent($tokenizer::T_SYMBOL)) {
-				$value = trim($token['value'], '\'"');
-
-				if ($tokenizer->fetchUntil($tokenizer::T_CHAR)) {
-					$key = $value;
-					continue;
-				}
-
-				if ($key === NULL) {
-					$args[] = $value;
-					$value = NULL;
-
-				} else {
-					if ($key === 'filter') {
-						$key = 'filters';
-					}
-
-					if (isset($args[$key])) {
-						throw new Nette\Latte\ParseException("Ambiguous definition of '$key'.");
-					}
-
-					$args[$key] = $value;
-					$key = $value = NULL;
-				}
-			}
-		}
-
-		return $args;
 	}
 
 
