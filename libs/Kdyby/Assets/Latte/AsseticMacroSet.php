@@ -65,7 +65,9 @@ class AsseticMacroSet extends Latte\Macros\MacroSet
 	 */
 	public function finalize()
 	{
-		return array(implode("\n", $this->prolog));
+		$prolog = $this->prolog;
+		$this->prolog = array();
+		return array(implode("\n", $prolog));
 	}
 
 
@@ -149,13 +151,16 @@ class AsseticMacroSet extends Latte\Macros\MacroSet
 
 		// divide arguments
 		list($inputs, $filters, $options) = $this->partitionArguments($args);
+		if (empty($inputs)) {
+			throw new Nette\Latte\ParseException("No input file was provided.");
+		}
 
 		// array for AssetCollection
 		$assets = "array(\n";
 		foreach ($asset = $this->factory->createAsset($inputs, array(), $options) as $leaf) {
 			$assets .= "\t" . Code\Helpers::formatArgs('unserialize(?)', array(serialize($leaf))) . ",\n";
 		}
-		$assets = substr($assets, 0, -2) . "\n)";
+		$assets = (isset($leaf) ? substr($assets, 0, -2) : $assets) . "\n)";
 
 		if ($asset instanceof Assetic\Asset\AssetInterface) {
 			if (!isset($options['output'])) {
