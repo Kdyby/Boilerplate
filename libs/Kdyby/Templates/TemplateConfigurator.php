@@ -47,7 +47,7 @@ class TemplateConfigurator extends Nette\Object implements ITemplateConfigurator
 	 */
 	public function addFactory($factory)
 	{
-		$this->macroFactories[] = callback($this->container, 'create' . ucfirst($factory));
+		$this->macroFactories[] = $factory;
 	}
 
 
@@ -70,7 +70,11 @@ class TemplateConfigurator extends Nette\Object implements ITemplateConfigurator
 	{
 		$this->latte = new Latte\Engine();
 		foreach ($this->macroFactories as $factory) {
-			$factory($this->latte->getParser());
+			if (!$this->container->hasService($factory)) {
+				continue;
+			}
+
+			$this->container->$factory->invoke($this->latte->getParser());
 		}
 
 		$template->registerFilter($this->latte);
