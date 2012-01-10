@@ -12,6 +12,7 @@ namespace Kdyby\Tests\Tools;
 
 use Kdyby;
 use Nette;
+use Nette\Latte\Parser;
 
 
 
@@ -38,7 +39,7 @@ class LatteTemplateOutput extends Nette\Object
 	/**
 	 * @param \Nette\Latte\Parser $parser
 	 */
-	public function __construct(Nette\Latte\Parser $parser)
+	public function __construct(Parser $parser)
 	{
 		$this->parser = $parser;
 		$this->prolog = array();
@@ -56,6 +57,8 @@ class LatteTemplateOutput extends Nette\Object
 	public function parse($latte)
 	{
 		$template = new Nette\Templating\Template();
+		$this->parser->setContext(Parser::CONTEXT_TEXT);
+		$this->parser->setDelimiters('\\{(?![\\s\'"{}])', '\\}');
 		$template->registerFilter(array($this->parser, 'parse'));
 		$template->setSource($latte);
 		$output = $template->compile();

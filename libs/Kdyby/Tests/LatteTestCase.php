@@ -37,9 +37,6 @@ abstract class LatteTestCase extends TestCase
 	public function __construct($name = NULL, array $data = array(), $dataName = '')
 	{
 		$this->parser = new Latte\Parser();
-		$this->parser->context = array(Latte\Parser::CONTEXT_TEXT);
-		$this->parser->setDelimiters('\\{(?![\\s\'"{}])', '\\}');
-
 		parent::__construct($name, $data, $dataName);
 	}
 
