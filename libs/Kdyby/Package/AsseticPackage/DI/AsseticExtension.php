@@ -88,12 +88,15 @@ class AsseticExtension extends Kdyby\Config\CompilerExtension
 			))
 			->addSetup('setDebug', array($debug));
 
-		$container->addDefinition('assetic_assetMacros')
-			->setClass('Kdyby\Assets\Latte\AsseticMacroSet')
-			->setFactory('Kdyby\Assets\Latte\AsseticMacroSet::install', array('%parser%'))
-			->addSetup('setFactory', array('@assetic_assetFactory'))
-			->setParameters(array('parser'))
-			->addTag('latte_macro');
+		// macros
+		$this->addMacro('macro_stylesheet', 'Kdyby\Assets\Latte\StylesheetMacro::install')
+			->addSetup('setFactory', array('@assetic_assetFactory'));
+
+		$this->addMacro('macro_javascript', 'Kdyby\Assets\Latte\JavascriptMacro::install')
+			->addSetup('setFactory', array('@assetic_assetFactory'));
+
+		$this->addMacro('macro_javascript_tag', 'Kdyby\Assets\Latte\JavascriptTag::install')
+			->addSetup('setFactory', array('@assetic_assetFactory'));
 	}
 
 

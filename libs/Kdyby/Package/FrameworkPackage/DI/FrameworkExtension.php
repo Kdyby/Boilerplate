@@ -107,6 +107,9 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 		// template
 		$container->addDefinition('templateConfigurator')
 			->setClass('Kdyby\Templates\TemplateConfigurator');
+
+		// macros
+		$this->addMacro('macros_core', 'Kdyby\Templates\CoreMacros::install');
 	}
 
 

@@ -12,9 +12,7 @@ namespace Kdyby\Assets\Latte;
 
 use Assetic;
 use Kdyby;
-use Kdyby\Assets\FormulaeManager;
 use Kdyby\Assets\AssetFactory;
-use Kdyby\Templates\LatteHelpers;
 use Nette;
 use Nette\Utils\PhpGenerator as Code;
 use Nette\Latte;
@@ -24,14 +22,34 @@ use Nette\Latte;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class AsseticMacroSet extends Latte\Macros\MacroSet
+abstract class MacroBase extends Nette\Object implements Latte\IMacro
 {
 
 	/** @var \Kdyby\Assets\AssetFactory */
 	private $factory;
 
-	/** @var array */
-	private $prolog = array();
+	/** @var \Nette\Latte\Parser; */
+	private $parser;
+
+
+
+	/**
+	 * @param \Nette\Latte\Parser $parser
+	 */
+	public function __construct(Latte\Parser $parser)
+	{
+		$this->parser = $parser;
+	}
+
+
+
+	/**
+	 * @return \Nette\Latte\Parser
+	 */
+	public function getParser()
+	{
+		return $this->parser;
+	}
 
 
 
@@ -46,15 +64,24 @@ class AsseticMacroSet extends Latte\Macros\MacroSet
 
 
 	/**
-	 * @param \Nette\Latte\Parser $parser
-	 * @return \Kdyby\Package\AsseticPackage\Latte\AsseticMacroSet
+	 * @param string $context
+	 * @return bool
 	 */
-	public static function install(Latte\Parser $parser)
+	protected function isContext($context)
 	{
-		$me = new static($parser);
-		$me->addMacro('javascript', array($me, 'javascriptMacro'));
-		$me->addMacro('stylesheet', array($me, 'stylesheetMacro'));
-		return $me;
+		$current = $this->getParser()->getContext();
+		return $current[0] === $context;
+	}
+
+
+
+	/**
+	 * Initializes before template parsing.
+	 * @return void
+	 */
+	public function initialize()
+	{
+
 	}
 
 
@@ -65,51 +92,7 @@ class AsseticMacroSet extends Latte\Macros\MacroSet
 	 */
 	public function finalize()
 	{
-		$prolog = $this->prolog;
-		$this->prolog = array();
-		return array(implode("\n", $prolog));
-	}
 
-
-
-	/**
-	 * @param \Nette\Latte\MacroNode $node
-	 * @param \Nette\Latte\PhpWriter $writer
-	 *
-	 * @return bool
-	 */
-	public function javascriptMacro(Latte\MacroNode $node, Latte\PhpWriter $writer)
-	{
-		$args = LatteHelpers::readArguments($node->tokenizer, $writer);
-		if (isset($args['filter'])) {
-			$args['filters'] = $args['filter'];
-			unset($args['filter']);
-		}
-
-		$this->prolog[] = $this->createFactory($args, FormulaeManager::TYPE_JAVASCRIPT);
-
-		return "";
-	}
-
-
-
-	/**
-	 * @param \Nette\Latte\MacroNode $node
-	 * @param \Nette\Latte\PhpWriter $writer
-	 *
-	 * @return bool
-	 */
-	public function stylesheetMacro(Latte\MacroNode $node, Latte\PhpWriter $writer)
-	{
-		$args = LatteHelpers::readArguments($node->tokenizer, $writer);
-		if (isset($args['filter'])) {
-			$args['filters'] = $args['filter'];
-			unset($args['filter']);
-		}
-
-		$this->prolog[] = $this->createFactory($args, FormulaeManager::TYPE_STYLESHEET);
-
-		return "";
 	}
 
 
@@ -118,7 +101,7 @@ class AsseticMacroSet extends Latte\Macros\MacroSet
 	 * @param array $args
 	 * @return array
 	 */
-	private static function partitionArguments(array $args)
+	protected static function partitionArguments(array $args)
 	{
 		$assets = $options = array();
 		foreach ($args as $key => $arg) {
@@ -143,7 +126,7 @@ class AsseticMacroSet extends Latte\Macros\MacroSet
 	 *
 	 * @return string
 	 */
-	private function createFactory(array $args, $type)
+	protected function createFactory(array $args, $type)
 	{
 		if ($this->factory === NULL) {
 			throw new Kdyby\InvalidStateException('Please provide instance of Kdyby\Assets\AssetFactory using ' . get_called_class() . '::setFactory().');
