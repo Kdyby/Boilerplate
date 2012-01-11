@@ -40,10 +40,6 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 			$container->addDependency(ClassType::from($extension)->getFileName());
 		}
 
-		// http
-		$container->getDefinition('user')
-			->setClass('Kdyby\Http\User', array('@session', '@container', '@security_identityDao'));
-
 		// application
 		$container->addDefinition('application_storedRequestsManager')
 			->setClass('Kdyby\Application\RequestManager', array('@application', '@session'));
@@ -87,6 +83,12 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 			->setFactory('@templateCacheStorage');
 
 		// security
+		$container->getDefinition('userStorage')
+			->setClass('Kdyby\Security\UserStorage', array('@session', '@security_identityDao'));
+
+		$container->getDefinition('user')
+			->setClass('Kdyby\Security\User', array('@userStorage', '@container', '@security_identityDao'));
+
 		$container->addDefinition('authenticator')
 			->setFactory('@user');
 

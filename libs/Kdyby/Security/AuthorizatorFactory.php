@@ -25,7 +25,7 @@ use Nette\Security\Permission;
 class AuthorizatorFactory extends Nette\Object
 {
 
-	/** @var \Nette\Http\User */
+	/** @var \Kdyby\Security\User */
 	private $user;
 
 	/** @var \Nette\Http\Session */
@@ -46,11 +46,11 @@ class AuthorizatorFactory extends Nette\Object
 
 
 	/**
-	 * @param \Nette\Http\User $user
+	 * @param \Kdyby\Security\User $user
 	 * @param \Nette\Http\Session $session
 	 * @param \Kdyby\Doctrine\Registry $registry
 	 */
-	public function __construct(Http\User $user, Http\Session $session, Registry $registry)
+	public function __construct(User $user, Http\Session $session, Registry $registry)
 	{
 		$this->user = $user;
 		$this->session = $session;
@@ -78,7 +78,7 @@ class AuthorizatorFactory extends Nette\Object
 		}
 
 		if ($division === NULL) {
-			$divisionName = $this->user->getNamespace();
+			$divisionName = $this->user->getStorage()->getNamespace();
 			$division = $this->divisions->findByName($divisionName);
 		}
 

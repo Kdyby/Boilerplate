@@ -8,19 +8,18 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Http;
+namespace Kdyby\Security;
 
 use Kdyby;
 use Kdyby\Doctrine\Dao;
+use Kdyby\Security\Identity;
+use Kdyby\Security\SerializableIdentity;
 use Nette;
-use Nette\Http;
 use Nette\Application\ForbiddenRequestException;
 use Nette\Reflection;
-use Nette\Security\IAuthorizator;
-use Kdyby\Security\Identity;
 use Nette\Security\AuthenticationException;
-use Kdyby\Security\SerializableIdentity;
-
+use Nette\Security\IAuthorizator;
+use Nette\Security\IUserStorage;
 
 
 /**
@@ -30,7 +29,7 @@ use Kdyby\Security\SerializableIdentity;
  * @method \Kdyby\Security\RBAC\Role[] getRoles() getRoles()
  * @method \Kdyby\Security\Identity getIdentity() getIdentity()
  */
-class User extends Nette\Http\User implements Nette\Security\IAuthenticator
+class User extends Nette\Security\User implements Nette\Security\IAuthenticator
 {
 
 	/** @var \Kdyby\Doctrine\Dao */
@@ -39,13 +38,13 @@ class User extends Nette\Http\User implements Nette\Security\IAuthenticator
 
 
 	/**
-	 * @param \Nette\Http\Session $session
+	 * @param \Nette\Security\IUserStorage $storage
 	 * @param \Nette\DI\IContainer $context
 	 * @param \Kdyby\Doctrine\Dao $users
 	 */
-	public function __construct(Http\Session $session, Nette\DI\IContainer $context, Dao $users)
+	public function __construct(IUserStorage $storage, Nette\DI\IContainer $context, Dao $users)
 	{
-		parent::__construct($session, $context);
+		parent::__construct($storage, $context);
 		$this->users = $users;
 	}
 
@@ -85,22 +84,6 @@ class User extends Nette\Http\User implements Nette\Security\IAuthenticator
 	public function register($username, $password)
 	{
 		return $this->users->save(new Identity($username, $password));
-	}
-
-
-
-	/**
-	 * @param bool $need
-	 * @return \Nette\Http\SessionSection
-	 */
-	protected function getSessionSection($need)
-	{
-		$section = parent::getSessionSection($need);
-		if ($section->identity instanceof SerializableIdentity && !$section->identity->isLoaded()) {
-			$section->identity->load($this->users);
-		}
-
-		return $section;
 	}
 
 
