@@ -36,6 +36,26 @@ class CompilerExtension extends Nette\Config\CompilerExtension
 
 
 	/**
+	 * Supply the name, and installer in format Class::install
+	 * Installer method will receive Latter\Parser as first argument
+	 *
+	 * @param string $name
+	 * @param string $installer
+	 * @return \Nette\DI\ServiceDefinition
+	 */
+	public function addMacro($name, $installer)
+	{
+		return $this->getContainerBuilder()
+			->addDefinition($this->prefix($name))
+			->setClass(substr($installer, 0, strpos($installer, '::')))
+			->setFactory($installer, array('%parser%'))
+			->setParameters(array('parser'))
+			->addTag('latte_macro');
+	}
+
+
+
+	/**
 	 * Intersects the keys of defaults and given options and returns only not NULL values.
 	 *
 	 * @param array $given	   Configurations options
