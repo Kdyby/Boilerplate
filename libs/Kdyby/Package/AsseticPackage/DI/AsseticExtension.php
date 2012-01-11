@@ -79,7 +79,7 @@ class AsseticExtension extends Kdyby\Config\CompilerExtension
 			))
 			->addSetup('setAssetManager', array('@assetic_assetManager'))
 			->addSetup('setFilterManager', array('@assetic_filterManager'))
-			->addSetup('setDefaultOutput', array($options['output'] . '/*'))
+			->addSetup('setDefaultOutput', array($options['output']))
 			->addSetup('setDebug', array($debug));
 
 		$container->addDefinition('assetic_formulaeManager')
