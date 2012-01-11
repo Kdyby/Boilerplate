@@ -100,4 +100,29 @@ final class LatteHelpers extends Nette\Object
 		return $parts;
 	}
 
+
+
+	/**
+	 * @param string $content
+	 * @param \Nette\Latte\PhpWriter $writer
+	 *
+	 * @return string
+	 */
+	public static function wrapTags($content, $before = NULL, $after = NULL)
+	{
+		$code = NULL;
+		foreach (static::splitPhp($content) as $item) {
+			if (substr($item, 0, 5) === '<?php') {
+				$code .= $item;
+				continue;
+			}
+			$code .= Nette\Utils\Strings::replace($item, array(
+				'~<([^<\s/]+)\s+~' => $before . '<\\1 ',
+				'~\s+/>~' => " />" . $after,
+				'~</([^<\s/]+)>~' => '</\\1>' . $after,
+			));
+		}
+		return $code;
+	}
+
 }
