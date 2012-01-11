@@ -72,11 +72,19 @@ function bd($var, $title = NULL) {
  *
  * @return mixed
  */
-function dd($var, $maxDepth) {
-	$originalDepth = Debugger::$maxDepth;
-	Debugger::$maxDepth = $maxDepth;
-	Debugger::dump($var);
-	Debugger::$maxDepth = $originalDepth;
+function dd($var, $maxDepth = 0) {
+	if (is_string($var)) {
+		$originalLen = Debugger::$maxLen;
+		Debugger::$maxLen = $maxDepth;
+		Debugger::dump($var);
+		Debugger::$maxLen = $originalLen;
+
+	} else {
+		$originalDepth = Debugger::$maxDepth;
+		Debugger::$maxDepth = $maxDepth;
+		Debugger::dump($var);
+		Debugger::$maxDepth = $originalDepth;
+	}
 	return $var;
 }
 
