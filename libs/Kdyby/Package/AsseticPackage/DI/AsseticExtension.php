@@ -54,7 +54,7 @@ class AsseticExtension extends Kdyby\Config\CompilerExtension
 				->setParameters(array());
 
 			$container->addDefinition('assetic_route_asset')
-				->setClass('Nette\Application\Routers\Route', array('/<prefix ' . $options['prefix'] . '>/<name .*>', array(
+				->setClass('Nette\Application\Routers\Route', array('<prefix ' . $options['prefix'] . '>/<name .*>', array(
 					'presenter' => 'AsseticPackage:Assetic',
 				)))
 				->setAutowired(FALSE)
