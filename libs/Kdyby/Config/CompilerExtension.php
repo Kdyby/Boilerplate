@@ -48,8 +48,8 @@ class CompilerExtension extends Nette\Config\CompilerExtension
 		return $this->getContainerBuilder()
 			->addDefinition($this->prefix($name))
 			->setClass(substr($installer, 0, strpos($installer, '::')))
-			->setFactory($installer, array('%parser%'))
-			->setParameters(array('parser'))
+			->setFactory($installer, array('%compiler%'))
+			->setParameters(array('compiler'))
 			->addTag('latte_macro');
 	}
 

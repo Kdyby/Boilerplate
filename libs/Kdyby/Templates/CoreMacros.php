@@ -23,12 +23,12 @@ class CoreMacros extends Latte\Macros\MacroSet
 {
 
 	/**
-	 * @param \Nette\Latte\Parser $parser
+	 * @param \Nette\Latte\Compiler $compiler
 	 * @return \Kdyby\Templates\CoreMacros
 	 */
-	public static function install(Latte\Parser $parser)
+	public static function install(Latte\Compiler $compiler)
 	{
-		$me = new static($parser);
+		$me = new static($compiler);
 		$me->addMacro('kdyby', NULL, NULL); // dummy placeholder for finalize to take effect
 		return $me;
 	}
@@ -41,7 +41,12 @@ class CoreMacros extends Latte\Macros\MacroSet
 	 */
 	public function finalize()
 	{
-		return array('$_l->kdyby = (object)NULL; $_g->kdyby = (object)NULL');
+		$prolog = array(
+			'$_l->kdyby = (object)NULL;',
+			'$_g->kdyby = (object)array("assets" => array());',
+		);
+
+		return array(implode("\n", $prolog));
 	}
 
 }

@@ -74,7 +74,7 @@ class TemplateConfigurator extends Nette\Object implements ITemplateConfigurator
 				continue;
 			}
 
-			$this->container->$factory->invoke($this->latte->getParser());
+			$this->container->$factory->invoke($this->latte->getCompiler());
 		}
 
 		$template->registerFilter($this->latte);
@@ -85,11 +85,11 @@ class TemplateConfigurator extends Nette\Object implements ITemplateConfigurator
 	/**
 	 * Returns Latter parser for the last prepareFilters call.
 	 *
-	 * @return \Nette\Latte\Parser
+	 * @return \Nette\Latte\Engine
 	 */
-	public function getLatteParser()
+	public function getLatte()
 	{
-		return $this->latte->getParser();
+		return $this->latte;
 	}
 
 }
