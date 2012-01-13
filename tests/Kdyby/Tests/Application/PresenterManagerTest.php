@@ -35,6 +35,7 @@ class PresenterManagerTest extends Kdyby\Tests\TestCase
 		$container = new Nette\DI\Container();
 		$container->addService('templateFactory', (object)NULL);
 		$container->parameters['productionMode'] = TRUE;
+
 		$this->manager = new PresenterManager($pm,
 			$container,
 			$this->getContext()->expand('%appDir%')
@@ -50,8 +51,9 @@ class PresenterManagerTest extends Kdyby\Tests\TestCase
 	{
 		$defaultPackages = new Kdyby\Package\DefaultPackages();
 		return new Kdyby\Packages\PackagesContainer(array_merge($defaultPackages->getPackages(), array(
-			'Kdyby\\Tests\\Application\\Mocks\\BarPackage\\BarPackage',
-			'Kdyby\\Tests\\Application\\Mocks\\FooPackage\\FooPackage',
+			'Kdyby\Tests\Application\Mocks\BarPackage\BarPackage',
+			'Kdyby\Tests\Application\Mocks\BazPackage\MocksBazPackage',
+			'Kdyby\Tests\Application\Mocks\FooPackage\FooPackage',
 		)));
 	}
 
@@ -63,12 +65,12 @@ class PresenterManagerTest extends Kdyby\Tests\TestCase
 	public function dataPackagePresentersFormats()
 	{
 		return array(
-			array('Kdyby\FooPackage\Presenter\FooPresenter', 'FooPackage:Foo'),
-			array('Kdyby\FooPackage\Presenter\BarPresenter', 'FooPackage:Bar'),
-			array('Kdyby\BarPackage\Presenter\FooPresenter', 'BarPackage:Foo'),
-			array('Kdyby\BarPackage\Presenter\BarPresenter', 'BarPackage:Bar'),
-			array('Kdyby\BarPackage\Presenter\FooFooPresenter', 'BarPackage:FooFoo'),
-			array('Kdyby\BarPackage\Presenter\FooModule\FooBarPresenter', 'BarPackage:Foo:FooBar'),
+			array('Kdyby\Tests\Application\Mocks\FooPackage\Presenter\FooPresenter', 'FooPackage:Foo'),
+			array('Kdyby\Tests\Application\Mocks\FooPackage\Presenter\BarPresenter', 'FooPackage:Bar'),
+			array('Kdyby\Tests\Application\Mocks\BarPackage\Presenter\FooPresenter', 'BarPackage:Foo'),
+			array('Kdyby\Tests\Application\Mocks\BarPackage\Presenter\BarPresenter', 'BarPackage:Bar'),
+			array('Kdyby\Tests\Application\Mocks\BarPackage\Presenter\FooFooPresenter', 'BarPackage:FooFoo'),
+			array('Kdyby\Tests\Application\Mocks\BarPackage\Presenter\FooModule\FooBarPresenter', 'BarPackage:Foo:FooBar'),
 		);
 	}
 
@@ -96,7 +98,7 @@ class PresenterManagerTest extends Kdyby\Tests\TestCase
 			array('FooPackage:Foo', 'fooPackage_fooPresenter'),
 			array('BarPackage:FooFoo', 'barPackage_fooFooPresenter'),
 			array('BarPackage:Foo:FooBar', 'barPackage_foo_fooBarPresenter'),
-			array('FooBarPackage:Foo:FooBar', 'fooBarPackage_foo_fooBarPresenter'),
+			array('MocksBazPackage:Foo:FooBar', 'mocksBazPackage_foo_fooBarPresenter'),
 		);
 	}
 
@@ -127,6 +129,8 @@ class PresenterManagerTest extends Kdyby\Tests\TestCase
 			array('Kdyby\Tests\Application\Mocks\BarPackage\Presenter\FooPresenter', 'BarPackage:Foo'),
 			array('Kdyby\Tests\Application\Mocks\BarPackage\Presenter\BarPresenter', 'BarPackage:Bar'),
 			array('Kdyby\Tests\Application\Mocks\FooPackage\Presenter\BarModule\BarBarPresenter', 'FooPackage:Bar:BarBar'),
+			array('Kdyby\Tests\Application\Mocks\BazPackage\Presenter\FooPresenter', 'MocksBazPackage:Foo'),
+			array('Kdyby\Tests\Application\Mocks\BazPackage\Presenter\BarPresenter', 'MocksBazPackage:Bar'),
 		);
 	}
 
@@ -320,6 +324,24 @@ class FakePresenter
 
 namespace Kdyby\Tests\Application\Mocks\FooPackage\Presenter\BarModule;
 class BarBarPresenter extends \Kdyby\Application\UI\Presenter
+{
+
+}
+
+/** Bar package simulation */
+namespace Kdyby\Tests\Application\Mocks\BazPackage;
+class MocksBazPackage extends \Kdyby\Packages\Package
+{
+
+}
+
+namespace Kdyby\Tests\Application\Mocks\BazPackage\Presenter;
+class FooPresenter extends \Kdyby\Application\UI\Presenter
+{
+
+}
+
+class BarPresenter extends \Kdyby\Application\UI\Presenter
 {
 
 }

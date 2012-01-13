@@ -142,11 +142,11 @@ class PresenterManager extends Nette\Application\PresenterFactory implements Net
 
 	/**
 	 * @param string $presenterClass
-	 * @return \Kdyby\Package\Package
+	 * @return \Kdyby\Packages\Package
 	 */
 	public function getPresenterPackage($presenterClass)
 	{
-		foreach ($this->packages as $package) {
+		foreach ($this->packageManager->getPackages() as $package) {
 			if (Strings::startsWith($presenterClass, $package->getNamespace())) {
 				return $package;
 			}
@@ -160,7 +160,7 @@ class PresenterManager extends Nette\Application\PresenterFactory implements Net
 	/**
 	 * Formats service name from it's presenter name
 	 *
-	 * 'Bar:Foo:FooBar' => 'bar.foo.foo_bar_presenter'
+	 * 'Bar:Foo:FooBar' => 'bar_foo_fooBarPresenter'
 	 *
 	 * @param string $presenter
 	 * @return string
@@ -177,7 +177,7 @@ class PresenterManager extends Nette\Application\PresenterFactory implements Net
 	/**
 	 * Formats presenter name from it's service name
 	 *
-	 * 'bar.foo.foo_bar_presenter' => 'Bar:Foo:FooBar'
+	 * 'bar_foo_fooBarPresenter' => 'Bar:Foo:FooBar'
 	 *
 	 * @param string $name
 	 * @return string
@@ -202,11 +202,9 @@ class PresenterManager extends Nette\Application\PresenterFactory implements Net
 	 */
 	public function formatPresenterFromClass($class)
 	{
-		$m = Strings::match($class, '~^(?P<ns>.+\\\\)(?P<package>[^\\\\]+Package)\\\\Presenter\\\\(?P<presenter>.+Presenter)$~i');
-
-		if ($m) {
-			return $m['package'] . ':' . $this->unformatPresenterClass($m['presenter']);
-		}
+		$package = $this->getPresenterPackage($class);
+		$presenter = substr($class, strlen($package->getNamespace() . '\\Presenter\\'));
+		return $package->getName() . ':' . $this->unformatPresenterClass($presenter);
 	}
 
 
