@@ -108,12 +108,18 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 
 		$presenter = substr($name = $this->getName(), strrpos(':' . $name, ':'));
 		$layout = $this->layout ? $this->layout : 'layout';
-		$views = realpath(dirname($this->getReflection()->getFileName()) . '/../Resources/view');
 
-		return array(
-			"$views/$presenter/@$layout.latte",
-			"$views/$presenter.@$layout.latte",
-			"$views/@$layout.latte",
+		$mapper = function ($views) use ($presenter, $layout) {
+			return array(
+				"$views/$presenter/@$layout.latte",
+				"$views/$presenter.@$layout.latte",
+				"$views/@$layout.latte",
+			);
+		};
+
+		return array_merge(
+			$mapper(realpath(dirname($this->getReflection()->getFileName()) . '/../Resources/view')),
+			$mapper($this->context->expand('%appDir%/templates'))
 		);
 	}
 
@@ -129,11 +135,18 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 		}
 
 		$presenter = substr($name = $this->getName(), strrpos(':' . $name, ':'));
-		$views = realpath(dirname($this->getReflection()->getFileName()) . '/../Resources/view');
+		$view = $this->view;
 
-		return array(
-			"$views/$presenter/$this->view.latte",
-			"$views/$presenter.$this->view.latte",
+		$mapper = function ($views) use ($presenter, $view) {
+			return array(
+				"$views/$presenter/$view.latte",
+				"$views/$presenter.$view.latte",
+			);
+		};
+
+		return array_merge(
+			$mapper(realpath(dirname($this->getReflection()->getFileName()) . '/../Resources/view')),
+			$mapper($this->context->expand('%appDir%/templates'))
 		);
 	}
 
