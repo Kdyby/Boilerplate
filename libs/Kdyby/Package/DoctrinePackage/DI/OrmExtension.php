@@ -327,6 +327,9 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 			$options = self::getOptions((array)$mappingConfig, $this->mappingsDefaults, TRUE);
 			$options['name'] = $mappingName;
 			$options['dir'] = $container->expand($options['dir']);
+			if (empty($options['alias'])) {
+				$options['alias'] = substr($mappingName, 0, -7);
+			}
 
 			// a package configuration is detected by realizing that the specified dir is not absolute and existing
 			$options['package'] = !file_exists($options['dir']);
@@ -457,7 +460,6 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 	 */
 	protected function loadPackageMappingInformation(array $mappingConfig, array $config)
 	{
-		$container = $this->getContainerBuilder();
 		if ($mappingConfig['package']) {
 			if (NULL === $package = $this->getPackageReflectionByName($mappingConfig['name'])) {
 				throw new Kdyby\InvalidArgumentException('Package "' . $mappingConfig['name'] . '" does not exist or it is not enabled.');
@@ -470,7 +472,7 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 
 		$this->assertValidMappingConfiguration($mappingConfig, $config);
 		$this->setMappingDriverConfig($mappingConfig, $config);
-		$this->setMappingDriverAlias($mappingConfig);
+		$this->aliasMap[$mappingConfig['alias']] = $mappingConfig['prefix'];
 	}
 
 
@@ -520,6 +522,8 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 	 *
 	 * @param array $mappingConfig
 	 * @param array $config
+	 *
+	 * @throws \Kdyby\InvalidArgumentException
 	 */
 	protected function assertValidMappingConfiguration(array $mappingConfig, array $config)
 	{
@@ -561,26 +565,6 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 		}
 
 		$this->drivers[$mappingConfig['type']][$mappingConfig['prefix']] = realpath($mappingConfig['dir']);
-	}
-
-
-
-	/**
-	 * Register the alias for this mapping driver.
-	 *
-	 * Aliases can be used in the Query languages of all the Doctrine object managers to simplify writing tasks.
-	 *
-	 * @param array $config
-	 *
-	 * @return void
-	 */
-	protected function setMappingDriverAlias(array $config)
-	{
-		if (isset($config['alias'])) {
-			$this->aliasMap[$config['alias']] = $config['prefix'];
-		} else {
-			$this->aliasMap[$config['name']] = $config['prefix'];
-		}
 	}
 
 
