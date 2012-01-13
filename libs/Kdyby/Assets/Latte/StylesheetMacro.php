@@ -33,6 +33,7 @@ class StylesheetMacro extends MacroBase
 	{
 		$me = new static($compiler);
 		$compiler->addMacro('stylesheet', $me);
+		$compiler->addMacro('css', $me);
 		return $me;
 	}
 

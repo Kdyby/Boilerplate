@@ -33,6 +33,7 @@ class JavascriptMacro extends MacroBase
 	{
 		$me = new static($compiler);
 		$compiler->addMacro('javascript', $me);
+		$compiler->addMacro('js', $me);
 		return $me;
 	}
 
