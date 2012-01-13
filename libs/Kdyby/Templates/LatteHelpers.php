@@ -68,6 +68,10 @@ final class LatteHelpers extends Nette\Object
 			}
 		}
 
+		if ($value) {
+			$args[] = $value;
+		}
+
 		return $args;
 	}
 

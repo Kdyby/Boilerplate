@@ -29,12 +29,12 @@ class AnalyzerMacroSet extends Latte\Macros\MacroSet
 
 
 	/**
-	 * @param \Nette\Latte\Parser $parser
+	 * @param \Nette\Latte\Parser $compiler
 	 * @return \Kdyby\Templates\AnalyzerMacroSet
 	 */
-	public static function install(Latte\Parser $parser)
+	public static function install(Latte\Parser $compiler)
 	{
-		$me = new static($parser);
+		$me = new static($compiler);
 		$me->watch('block');
 		$me->watch('include');
 		$me->watch('foreach');

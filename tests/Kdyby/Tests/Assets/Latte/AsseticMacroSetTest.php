@@ -33,7 +33,10 @@ class AsseticMacroSetTest extends Kdyby\Tests\LatteTestCase
 			->disableOriginalConstructor()
 			->getMock();
 
-		$ms = $this->installMacro('Kdyby\Assets\Latte\AsseticMacroSet::install');
+		$ms = $this->installMacro('Kdyby\Assets\Latte\JavascriptMacro::install');
+		$ms->setFactory($this->factory);
+
+		$ms = $this->installMacro('Kdyby\Assets\Latte\StylesheetMacro::install');
 		$ms->setFactory($this->factory);
 	}
 
@@ -61,7 +64,7 @@ class AsseticMacroSetTest extends Kdyby\Tests\LatteTestCase
 		$this->parse('{stylesheet \'' . $input . '\', \'filters\' => \'less,yui\', \'root\' => \'root\'}');
 
 		// verify
-		$this->assertLatteMacroEquals(" ", "Macro has no output");
+		$this->assertLatteMacroEquals("", "Macro has no output");
 
 		$prolog = <<<php
 \$template->_fm->register(new Assetic\Asset\AssetCollection(array(
@@ -101,7 +104,7 @@ php;
 		$this->parse('{javascript \'' . $input . '\', \'filters\' => \'closure\', \'root\' => \'root\', \'output\' => \'static/main.js\'}');
 
 		// verify
-		$this->assertLatteMacroEquals(" ", "Macro has no output");
+		$this->assertLatteMacroEquals("", "Macro has no output");
 
 		$prolog = <<<php
 \$template->_fm->register(new Assetic\Asset\AssetCollection(array(

@@ -13,6 +13,7 @@ namespace Kdyby\Assets\Latte;
 use Assetic;
 use Kdyby;
 use Kdyby\Assets\AssetFactory;
+use Kdyby\Templates\LatteHelpers;
 use Nette;
 use Nette\Utils\PhpGenerator as Code;
 use Nette\Latte;
@@ -28,27 +29,30 @@ abstract class MacroBase extends Nette\Object implements Latte\IMacro
 	/** @var \Kdyby\Assets\AssetFactory */
 	private $factory;
 
-	/** @var \Nette\Latte\Parser; */
-	private $parser;
+	/** @var \Nette\Latte\Compiler; */
+	private $compiler;
+
+	/** @var string[] */
+	private $assets = array();
 
 
 
 	/**
-	 * @param \Nette\Latte\Parser $parser
+	 * @param \Nette\Latte\Compiler $compiler
 	 */
-	public function __construct(Latte\Parser $parser)
+	public function __construct(Latte\Compiler $compiler)
 	{
-		$this->parser = $parser;
+		$this->compiler = $compiler;
 	}
 
 
 
 	/**
-	 * @return \Nette\Latte\Parser
+	 * @return \Nette\Latte\Compiler
 	 */
-	public function getParser()
+	public function getCompiler()
 	{
-		return $this->parser;
+		return $this->compiler;
 	}
 
 
@@ -69,7 +73,7 @@ abstract class MacroBase extends Nette\Object implements Latte\IMacro
 	 */
 	protected function isContext($context)
 	{
-		$current = $this->getParser()->getContext();
+		$current = $this->getCompiler()->getContext();
 		return $current[0] === $context;
 	}
 
@@ -92,7 +96,30 @@ abstract class MacroBase extends Nette\Object implements Latte\IMacro
 	 */
 	public function finalize()
 	{
+		$prolog = array_reverse($this->assets);
+		$this->assets = array();
+		return array(implode("\n", $prolog));
+	}
 
+
+
+	/**
+	 * @param \Nette\Latte\MacroNode $node
+	 * @return array
+	 */
+	protected static function readArguments(Latte\MacroNode $node)
+	{
+		$args = LatteHelpers::readArguments(
+			new Nette\Latte\MacroTokenizer(rtrim($node->args, '/')),
+			Latte\PhpWriter::using($node)
+		);
+
+		if (isset($args['filter'])) {
+			$args['filters'] = $args['filter'];
+			unset($args['filter']);
+		}
+
+		return $args;
 	}
 
 
@@ -141,6 +168,9 @@ abstract class MacroBase extends Nette\Object implements Latte\IMacro
 		// array for AssetCollection
 		$assets = "array(\n";
 		foreach ($asset = $this->factory->createAsset($inputs, array(), $options) as $leaf) {
+			if (!$this->isLeafValid($leaf)) {
+				return FALSE;
+			}
 			$assets .= "\t" . Code\Helpers::formatArgs('unserialize(?)', array(serialize($leaf))) . ",\n";
 		}
 		$assets = (isset($leaf) ? substr($assets, 0, -2) : $assets) . "\n)";
@@ -155,9 +185,24 @@ abstract class MacroBase extends Nette\Object implements Latte\IMacro
 		}
 
 		// registration code
-		return Code\Helpers::formatArgs('$template->_fm->register(new Assetic\Asset\AssetCollection(' . $assets . '), ?, ?, ?);', array(
+		$this->assets[] = Code\Helpers::formatArgs('$template->_fm->register(new Assetic\Asset\AssetCollection(' . $assets . '), ?, ?, ?);', array(
 			$type, $filters, $options
 		));
+
+		return TRUE;
+	}
+
+
+
+	/**
+	 * @param \Assetic\Asset\AssetInterface $leaf
+	 *
+	 * @return bool
+	 */
+	private function isLeafValid(Assetic\Asset\AssetInterface $leaf)
+	{
+		return !$leaf instanceof Assetic\Asset\FileAsset
+			|| file_exists($leaf->getSourceRoot() . '/' . $leaf->getSourcePath());
 	}
 
 }

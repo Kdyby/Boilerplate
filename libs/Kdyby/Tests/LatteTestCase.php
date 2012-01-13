@@ -21,8 +21,8 @@ use Nette\Latte;
  */
 abstract class LatteTestCase extends TestCase
 {
-	/** @var \Nette\Latte\Parser */
-	private $parser;
+	/** @var \Nette\Latte\Engine */
+	private $engine;
 
 	/** @var \Kdyby\Tests\Tools\LatteTemplateOutput */
 	private $outputTemplate;
@@ -36,19 +36,21 @@ abstract class LatteTestCase extends TestCase
 	 */
 	public function __construct($name = NULL, array $data = array(), $dataName = '')
 	{
-		$this->parser = new Latte\Parser();
+		$this->engine = new Tools\LatteEngine;
 		parent::__construct($name, $data, $dataName);
 	}
 
 
 
 	/**
-	 * @return \Nette\Latte\Parser
+	 * @param string $installer
+	 *
+	 * @return \Nette\Latte\IMacro
 	 */
 	protected function installMacro($installer)
 	{
 		$installer = callback($installer);
-		return $installer($this->parser);
+		return $installer($this->engine->getCompiler());
 	}
 
 
@@ -62,7 +64,7 @@ abstract class LatteTestCase extends TestCase
 			throw new Kdyby\InvalidStateException("Please split the test method into more parts. Cannot parse repeatedly.");
 		}
 
-		$latteTemplate = new Tools\LatteTemplateOutput($this->parser);
+		$latteTemplate = new Tools\LatteTemplateOutput($this->engine);
 		$this->outputTemplate = $latteTemplate->parse($latte);
 	}
 

@@ -99,7 +99,7 @@ class FormulaeManager extends Nette\Object
 			) + $this->assetManager->getOptions($name);
 		}
 
-		return $assets;
+		return array_reverse($assets);
 	}
 
 

@@ -13,7 +13,6 @@ namespace Kdyby\Assets\Latte;
 use Assetic;
 use Kdyby;
 use Kdyby\Assets\FormulaeManager;
-use Kdyby\Templates\LatteHelpers;
 use Nette;
 use Nette\Latte;
 
@@ -25,34 +24,16 @@ use Nette\Latte;
 class StylesheetMacro extends MacroBase
 {
 
-	/** @var array */
-	private $prolog = array();
-
-
-
 	/**
-	 * @param \Nette\Latte\Parser $parser
+	 * @param \Nette\Latte\Compiler $compiler
 	 *
 	 * @return \Kdyby\Assets\Latte\JavascriptMacro
 	 */
-	public static function install(Latte\Parser $parser)
+	public static function install(Latte\Compiler $compiler)
 	{
-		$me = new static($parser);
-		$parser->addMacro('stylesheet', $me);
+		$me = new static($compiler);
+		$compiler->addMacro('stylesheet', $me);
 		return $me;
-	}
-
-
-
-	/**
-	 * Finishes template parsing.
-	 * @return array(prolog, epilog)
-	 */
-	public function finalize()
-	{
-		$prolog = $this->prolog;
-		$this->prolog = array();
-		return array(implode("\n", $prolog));
 	}
 
 
@@ -64,21 +45,9 @@ class StylesheetMacro extends MacroBase
 	 */
 	public function nodeOpened(Latte\MacroNode $node)
 	{
-		if ($this->isContext(Latte\Parser::CONTEXT_TAG)) {
-			return FALSE;
-		}
-
 		$node->isEmpty = TRUE;
-		$writer = Latte\PhpWriter::using($node, $this->getParser()->getContext());
-		$args = LatteHelpers::readArguments($node->tokenizer, $writer);
-		if (isset($args['filter'])) {
-			$args['filters'] = $args['filter'];
-			unset($args['filter']);
-		}
-
-		$this->prolog[] = $this->createFactory($args, FormulaeManager::TYPE_STYLESHEET);
-
-		return "";
+		$this->createFactory($this->readArguments($node), FormulaeManager::TYPE_STYLESHEET);
+		return NULL;
 	}
 
 
@@ -90,7 +59,7 @@ class StylesheetMacro extends MacroBase
 	 */
 	public function nodeClosed(Latte\MacroNode $node)
 	{
-		return "";
+		return NULL;
 	}
 
 }
