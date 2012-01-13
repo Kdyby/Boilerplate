@@ -23,6 +23,7 @@ use Nette\Diagnostics\Debugger;
  *
  * @property-read \SystemContainer|\Nette\DI\Container $container
  * @property-read \Kdyby\Http\User $user
+ * @property-read \Nette\Templating\Template $template
  *
  * @method \Kdyby\Http\User getUser() getUser()
  * @method \SystemContainer|\Nette\DI\Container getContext() getContext()
@@ -33,7 +34,7 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	/** @persistent */
 	public $backlink;
 
-	/** @var \Kdyby\Templates\ITemplateConfigurator */
+	/** @var \Kdyby\Templates\TemplateConfigurator */
 	protected $templateConfigurator;
 
 
