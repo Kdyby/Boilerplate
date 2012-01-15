@@ -20,10 +20,12 @@ use Nette\Diagnostics\Helpers;
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
  * @param mixed $variable
+ * @param int $maxDepth
+ *
  * @return mixed
  */
 function fd($variable, $maxDepth = 3) {
-	static $style = <<<CSS
+	$style = <<<CSS
 	pre.nette-dump { color: #444; background: white; }
 	pre.nette-dump .php-array, pre.nette-dump .php-object { color: #C22; }
 	pre.nette-dump .php-string { color: #080; }
