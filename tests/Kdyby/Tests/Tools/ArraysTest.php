@@ -93,4 +93,46 @@ class ArraysTest extends Kdyby\Tests\TestCase
 		$this->assertEquals(10, $result);
 	}
 
+
+
+	/**
+	 * @return array
+	 */
+	public function dataSlice()
+	{
+		$ten = array(
+			1 => 1,
+			2 => 2,
+			3 => 3,
+			4 => 4,
+			5 => 5,
+			6 => 6,
+			7 => 7,
+			8 => 8,
+			9 => 9,
+			10 => 10
+		);
+
+		return array(
+			array($ten, 1, NULL, $ten),
+			array($ten, 3, 5, array(3 => 3, 4 => 4, 5 => 5)),
+			array($ten, 3, 1, array(1 => 1, 2 => 2, 3 => 3)),
+		);
+	}
+
+
+
+	/**
+	 * @dataProvider dataSlice
+	 *
+	 * @param array $ten
+	 * @param string $start
+	 * @param string $end
+	 * @param array $expected
+	 */
+	public function testSlice($ten, $start, $end, $expected)
+	{
+		$this->assertEquals($expected, Arrays::sliceAssoc($ten, $start, $end));
+	}
+
 }

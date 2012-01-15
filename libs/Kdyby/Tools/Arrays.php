@@ -135,4 +135,30 @@ final class Arrays extends Nette\Object
 		return $callback(Nette\Utils\Arrays::getRef($arr, $key));
 	}
 
+
+
+	/**
+	 * @param array $arr
+	 * @param string $start
+	 * @param string $end
+	 * @return array
+	 */
+	public static function sliceAssoc(array $arr, $start, $end = NULL)
+	{
+		$sliced = array();
+		foreach ($arr as $key => $value) {
+			if ($key === $start || ($key === $end && $end !== NULL)) {
+				if ($sliced) {
+					$sliced[$key] = $value;
+					break;
+				}
+				$sliced[$key] = $value;
+
+			} elseif ($sliced) {
+				$sliced[$key] = $value;
+			}
+		}
+		return $sliced;
+	}
+
 }
