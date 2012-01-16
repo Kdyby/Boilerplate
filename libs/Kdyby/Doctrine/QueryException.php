@@ -26,7 +26,7 @@ class QueryException extends Kdyby\Persistence\Exception
 	 */
 	public function __construct(\Exception $previous, Query $query = NULL, $message = "")
 	{
-		parent::__construct($message ?: $previous->getMessage(), $previous->getCode(), $previous);
+		parent::__construct($message ?: $previous->getMessage(), NULL, $previous);
 		$this->query = $query;
 	}
 

@@ -17,7 +17,6 @@ use Nette;
 use Nette\Diagnostics\Bar;
 use Nette\Diagnostics\BlueScreen;
 use Nette\Diagnostics\Debugger;
-use Nette\Database\Connection;
 use Nette\Utils\Strings;
 
 
@@ -144,8 +143,7 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 		list($sql, $params, $time, $rows, $connection, $source) = $query;
 
 		$s .= '<tr><td>' . sprintf('%0.3f', $time * 1000);
-
-		$s .= '</td><td class="nette-Doctrine2Panel-sql">' . Connection::highlightSql($sql);
+		$s .= '</td><td class="nette-Doctrine2Panel-sql">' . Nette\Database\Helpers::dumpSql($sql);
 		if ($source) {
 			list($file, $line) = $source;
 			$s .= Nette\Diagnostics\Helpers::editorLink($file, $line);
@@ -169,58 +167,49 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 	public function renderException($e)
 	{
 		if ($e instanceof \PDOException && count($this->queries)) {
-			return $this->renderPdoException($e);
+			list($sql, $params, , , , $source) = end($this->queries);
+
+			return array(
+				'tab' => 'SQL',
+				'panel' => $this->dumpQuery($sql, $params),
+			);
 		}
 
 		if ($e instanceof QueryException && $e->getQuery() !== NULL) {
-			return $this->renderQueryException($e);
+			return array(
+				'tab' => 'DQL',
+				'panel' => $this->dumpQuery($e->getQuery()->getDQL(), $e->getQuery()->getParameters()),
+			);
 		}
 	}
 
 
 
 	/**
-	 * @param \PDOException $e
-	 * @return array
-	 */
-	protected function renderPdoException(\PDOException $e)
-	{
-		$s = '<table><tr><th>Time&nbsp;ms</th><th>SQL Statement</th><th>Params</th><th>Rows</th></tr>';
-		$s .= $this->processQuery(end($this->queries));
-		$s .= '</table>';
-		return array(
-			'tab' => 'SQL',
-			'panel' => $this->renderStyles() . '<div class="nette-inner nette-Doctrine2Panel">' . $s . '</div>',
-		);
-	}
-
-
-
-	/**
-	 * @param \Kdyby\Doctrine\QueryException $e
+	 * @param string $query
+	 * @param array $params
 	 *
 	 * @return array
 	 */
-	protected function renderQueryException(QueryException $e)
+	protected function dumpQuery($query, $params)
 	{
 		$h = 'htmlSpecialChars';
 
 		// query
 		$s = '<p><b>Query</b></p><table><tr><td class="nette-Doctrine2Panel-sql">';
-		$s .= Connection::highlightSql($e->getQuery()->getDQL());
+		$s .= Nette\Database\Helpers::dumpSql($query);
 		$s .= '</td></tr></table>';
 
 		// parameters
-		$s .= '<p><b>Parameters</b></p><table>';
-		foreach ($e->getQuery()->getParameters() as $name => $value) {
-			$s .= '<tr><td width="200">' . $h($name) . '</td><td>' . $h($value) . '</td></tr>';
+		if ($params) {
+			$s .= '<p><b>Parameters</b></p><table>';
+			foreach ($params as $name => $value) {
+				$s .= '<tr><td width="200">' . $h($name) . '</td><td>' . $h($value) . '</td></tr>';
+			}
 		}
-		$s .= '</table>';
 
-		return array(
-			'tab' => 'DQL',
-			'panel' => $this->renderStyles() . '<div class="nette-inner nette-Doctrine2Panel">' . $s . '</div>',
-		);
+		// styles and dump
+		return $this->renderStyles() . '<div class="nette-inner nette-Doctrine2Panel">' . $s . '</table></div>';
 	}
 
 

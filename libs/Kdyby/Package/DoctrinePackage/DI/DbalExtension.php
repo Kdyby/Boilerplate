@@ -110,31 +110,26 @@ class DbalExtension extends Kdyby\Config\CompilerExtension
 	{
 		$connectionName = 'doctrine_dbal_' . $config['name'] . 'Connection';
 
+		// options
+		$options = self::getOptions($config, $this->connectionDefaults);
+
 		// configuration
 		$configuration = $container->addDefinition($connectionName . '_configuration')
 			->setClass('Doctrine\DBAL\Configuration');
 
 		// logging
-		if (isset($config['logging'])) {
-			Validators::assertField($config, 'logging', 'bool');
+		$container->addDefinition($connectionName . '_logger')
+			->setClass('Kdyby\Doctrine\Diagnostics\Panel')
+			->setFactory('Kdyby\Doctrine\Diagnostics\Panel::register')
+			->setAutowired(FALSE);
 
-			$container->addDefinition($connectionName . '_logger')
-				->setClass('Kdyby\Doctrine\Diagnostics\Panel')
-				->setFactory('Kdyby\Doctrine\Diagnostics\Panel::register')
-				->setInternal(TRUE)
-				->setShared(FALSE);
-
-			if ($config['logging']) {
-				$configuration->addSetup('setSQLLogger', array('@' . $connectionName . '_logger'));
-			}
+		if ($options['logging']) {
+			$configuration->addSetup('setSQLLogger', array('@' . $connectionName . '_logger'));
 		}
 
 		// event manager
 		$container->addDefinition($connectionName . '_eventManager')
 			->setClass('Doctrine\Common\EventManager');
-
-		// options
-		$options = self::getOptions($config, $this->connectionDefaults);
 
 		// charset
 		$this->loadConnectionCharset($container, $options, $connectionName);
