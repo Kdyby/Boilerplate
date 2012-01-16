@@ -19,9 +19,9 @@ use Nette;
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
  * @method mixed get() get(array $arr, $key, $default = NULL)
- * @method mixed getRef() getRef(& $arr, $key)
- * @method array mergeTree() mergeTree($arr1, $arr2)
- * @method int searchKey() searchKey($arr, $key)
+ * @method mixed getRef() getRef(array & $arr, $key)
+ * @method array mergeTree() mergeTree(array $arr1, $arr2)
+ * @method int searchKey() searchKey(array $arr, $key)
  * @method void insertBefore() insertBefore(array &$arr, $key, array $inserted)
  * @method void insertAfter() insertAfter(array &$arr, $key, array $inserted)
  * @method void renameKey() renameKey(array &$arr, $oldKey, $newKey)
