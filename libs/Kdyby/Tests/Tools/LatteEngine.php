@@ -43,20 +43,13 @@ class LatteEngine extends Nette\Object
 	/**
 	 * Invokes filter.
 	 *
-	 * @param  string
+	 * @param string $s
 	 *
 	 * @return string
 	 */
 	public function __invoke($s)
 	{
-		$tokens = $this->parser
-			->setContext(Latte\Parser::CONTEXT_TEXT)
-			->setSyntax('latte')
-			->parse($s);
-
-		return $this->compiler
-			->setContext(Latte\Compiler::CONTEXT_HTML)
-			->compile($tokens);
+		return $this->compiler->compile($this->parser->parse($s));
 	}
 
 
