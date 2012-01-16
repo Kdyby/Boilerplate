@@ -49,7 +49,7 @@ class UserStorage extends Nette\Http\UserStorage
 	protected function getSessionSection($need)
 	{
 		$section = parent::getSessionSection($need);
-		if ($section->identity instanceof SerializableIdentity && !$section->identity->isLoaded()) {
+		if ($section && $section->identity instanceof SerializableIdentity && !$section->identity->isLoaded()) {
 			$section->identity->load($this->users);
 		}
 
