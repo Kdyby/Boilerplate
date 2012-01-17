@@ -41,8 +41,8 @@ class DbalExtension extends Kdyby\Config\CompilerExtension
 		'path' => NULL,
 		'memory' => NULL,
 		'unix_socket' => NULL,
-		'wrapperClass' => NULL,
-		'logging' => '%kdyby_debug%',
+		'wrapperClass' => 'Kdyby\Doctrine\Connection',
+		'logging' => TRUE,
 		'platformService' => NULL,
 	);
 
@@ -147,7 +147,7 @@ class DbalExtension extends Kdyby\Config\CompilerExtension
 		}
 
 		// connection
-		$container->addDefinition($connectionName)
+		$connection = $container->addDefinition($connectionName)
 			->setClass('Doctrine\DBAL\Connection')
 			->setFactory('@' . $connectionName . '_factory::createConnection', array(
 				$options,
@@ -155,6 +155,10 @@ class DbalExtension extends Kdyby\Config\CompilerExtension
 				'@' . $connectionName . '_eventManager',
 				$mappingTypes
 			));
+
+		if ($options['logging']) {
+			$connection->addSetup('$service->getConfiguration()->getSQLLogger()->setConnection(?)', array('@self'));
+		}
 	}
 
 

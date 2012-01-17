@@ -34,7 +34,7 @@ class PackagesContainer extends Nette\Object implements \IteratorAggregate, \Arr
 
 
 	/**
-	 * @param \Kdyby\Package\IPackageList|array $packages
+	 * @param \Kdyby\Packages\IPackageList|array $packages
 	 */
 	public function __construct($packages)
 	{

@@ -36,6 +36,27 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 	/** @var array */
 	public $queries = array();
 
+	/** @var array */
+	public $failed = array();
+
+	/** @var \Doctrine\DBAL\Connection */
+	private $connection;
+
+
+
+	/**
+	 * @param \Doctrine\DBAL\Connection $connection
+	 */
+	public function setConnection(Doctrine\DBAL\Connection $connection)
+	{
+		if ($this->connection !== NULL) {
+			throw new Kdyby\InvalidStateException("Doctrine Panel is already bound to connection.");
+		}
+
+		$this->connection = $connection;
+	}
+
+
 
 	/***************** Doctrine\DBAL\Logging\SQLLogger ********************/
 
@@ -61,19 +82,33 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 				break;
 			}
 		}
-		$this->queries[] = array($sql, $params, NULL, 0, NULL, $source);
+		$this->queries[] = array($sql, $params, NULL, NULL, $source);
 	}
 
 
 
 	/**
+	 * @return array
 	 */
-	public function stopQuery()
+	public function &stopQuery()
 	{
 		$keys = array_keys($this->queries);
 		$key = end($keys);
 		$this->queries[$key][2] = Debugger::timer('doctrine');
 		$this->totalTime += $this->queries[$key][2];
+		return $this->queries[$key];
+	}
+
+
+
+	/**
+	 * @param \Exception $exception
+	 */
+	public function queryFailed(\Exception $exception)
+	{
+		$queryInfo =& $this->stopQuery();
+		$queryInfo['exception'] = $exception;
+		$this->failed[spl_object_hash($exception)] = $queryInfo;
 	}
 
 
@@ -113,7 +148,7 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 			'<h1>Queries: ' . count($this->queries) . ($this->totalTime ? ', time: ' . sprintf('%0.3f', $this->totalTime * 1000) . ' ms' : '') . '</h1>
 			<div class="nette-inner nette-Doctrine2Panel">
 			<table>
-			<tr><th>Time&nbsp;ms</th><th>SQL Statement</th><th>Params</th><th>Rows</th></tr>' . $s . '
+			<tr><th>Time&nbsp;ms</th><th>SQL Statement</th><th>Params</th></tr>' . $s . '
 			</table>
 			</div>';
 	}
@@ -140,7 +175,7 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 	{
 		$s = '';
 		$h = 'htmlSpecialChars';
-		list($sql, $params, $time, $rows, $connection, $source) = $query;
+		list($sql, $params, $time, $connection, $source) = $query;
 
 		$s .= '<tr><td>' . sprintf('%0.3f', $time * 1000);
 		$s .= '</td><td class="nette-Doctrine2Panel-sql">' . Nette\Database\Helpers::dumpSql($sql);
@@ -151,7 +186,7 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 
 		$s .= '</td><td>';
 		$s .= Debugger::dump($params, TRUE);
-		$s .= '</td><td>' . $rows . '</td></tr>';
+		$s .= '</td></tr>';
 		return $s;
 	}
 
@@ -167,15 +202,26 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 	public function renderException($e)
 	{
 		if ($e instanceof \PDOException && count($this->queries)) {
-			list($sql, $params, , , , $source) = end($this->queries);
+			if ($this->connection !== NULL) {
+				if (!$e instanceof Kdyby\Doctrine\PDOException || $e->getConnection() !== $this->connection) {
+					return NULL;
+
+				} elseif (!isset($this->failed[spl_object_hash($e)])) {
+					return NULL;
+				}
+
+				list($sql, $params, , , , $source) = $this->failed[spl_object_hash($e)];
+
+			} else {
+				list($sql, $params, , , , $source) = end($this->queries);
+			}
 
 			return array(
 				'tab' => 'SQL',
 				'panel' => $this->dumpQuery($sql, $params),
 			);
-		}
 
-		if ($e instanceof QueryException && $e->getQuery() !== NULL) {
+		} elseif ($e instanceof QueryException && $e->getQuery() !== NULL) {
 			return array(
 				'tab' => 'DQL',
 				'panel' => $this->dumpQuery($e->getQuery()->getDQL(), $e->getQuery()->getParameters()),
@@ -249,7 +295,7 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 	 */
 	public function registerBluescreen(BlueScreen $blueScreen)
 	{
-		$blueScreen->addPanel(callback($this, 'renderException'), __CLASS__);
+		$blueScreen->addPanel(callback($this, 'renderException'));
 	}
 
 }
