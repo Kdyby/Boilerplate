@@ -18,6 +18,8 @@ use PDO;
 
 
 /**
+ * Caused exceptions delegates to Connection, that associates the exception with query in logger.
+ *
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class Statement extends Doctrine\DBAL\Statement

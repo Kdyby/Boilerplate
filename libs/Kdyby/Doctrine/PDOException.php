@@ -17,6 +17,11 @@ use Nette;
 
 
 /**
+ * "Informed" exception knows, what connection caused it,
+ * therefore it can be paired with right bluescreen panel handler.
+ *
+ * @todo: add more types (unique, nullNotAllowed, ...)
+ *
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class PDOException extends \PDOException
@@ -34,7 +39,7 @@ class PDOException extends \PDOException
 	public function __construct(\PDOException $previous, Doctrine\DBAL\Connection $connection)
 	{
 		parent::__construct($previous->getMessage(), NULL, $previous);
-		$this->code = $previous->getCode();
+		$this->code = $previous->getCode(); // passing through constructor causes error
 		$this->connection = $connection;
 	}
 
@@ -51,6 +56,8 @@ class PDOException extends \PDOException
 
 
 	/**
+	 * This is just a paranoia, hopes no one actually serializes exceptions.
+	 *
 	 * @return array
 	 */
 	public function __sleep()
