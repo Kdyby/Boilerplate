@@ -71,13 +71,9 @@ class Statement extends Doctrine\DBAL\Statement
 	 */
 	private function handleException(\PDOException $e, $endQuery = FALSE)
 	{
-		$exception = new PDOException($e, $this->connection);
-		if ($endQuery && $logger = $this->connection->getConfiguration()->getSQLLogger()) {
-			if ($logger instanceof Diagnostics\Panel) {
-				$logger->queryFailed($exception);
-			}
+		if ($this->connection instanceof Connection) {
+			$this->connection->handleException($e, $endQuery);
 		}
-		throw $exception;
 	}
 
 }

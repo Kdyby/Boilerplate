@@ -17,6 +17,12 @@ use Nette;
 
 
 /**
+ * When query fails, you can catch the PDOException, execute another query, and then render bluescreen.
+ * In this case, the SQL showed in the bluescreen would not correspond to the query that actually caused the exception,
+ * therefore i catch all the exceptions and tell the logger, what exceptions belongs to what query.
+ *
+ * @todo: more types of Exceptions (unique, nullNotAllowed, ...)
+ *
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class Connection extends Doctrine\DBAL\Connection
@@ -108,12 +114,14 @@ class Connection extends Doctrine\DBAL\Connection
 	/**
 	 * Wraps given exception with informed PDOException, that can provide informations about connection
 	 *
+	 * @internal Kdyby workaround for association queries with exceptions
+	 *
 	 * @param \PDOException $e
 	 * @param bool $endQuery
 	 *
 	 * @throws \Kdyby\Doctrine\PDOException
 	 */
-	private function handleException(\PDOException $e, $endQuery = FALSE)
+	public function handleException(\PDOException $e, $endQuery = FALSE)
 	{
 		$exception = new PDOException($e, $this);
 		if ($endQuery && $logger = $this->getConfiguration()->getSQLLogger()) {
