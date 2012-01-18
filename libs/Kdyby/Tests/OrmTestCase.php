@@ -57,6 +57,10 @@ abstract class OrmTestCase extends TestCase
 	 */
 	final protected function createOrmSandbox(array $entities = NULL)
 	{
+		if ($this->ormSandbox !== NULL) {
+			throw new Kdyby\InvalidStateException("ORM Sandbox is already created for this test instance.");
+		}
+
 		$params = array(
 			'wwwDir' => $this->getContext()->expand('%wwwDir%'),
 			'appDir' => $this->getContext()->expand('%appDir%'),
