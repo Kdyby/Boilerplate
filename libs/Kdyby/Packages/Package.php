@@ -213,7 +213,12 @@ abstract class Package extends Nette\Object
 		}
 
 		$ns = $this->getNamespace() . '\\Migration';
-		foreach ($files = Finder::findFiles('Version*.php')->in($dir) as $file) {
+		foreach ($files = Finder::findFiles('Version*.php', 'Version*.sql')->in($dir) as $file) {
+			if ($file->getExtension() === 'sql') {
+				$migrations[] = $file->getRealpath();
+				continue;
+			}
+
 			$class = $ns . '\\' . $file->getBasename('.php');
 
 			require_once $file->getRealpath();

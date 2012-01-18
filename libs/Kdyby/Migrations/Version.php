@@ -28,10 +28,10 @@ class Version extends Nette\Object
 	private $history;
 
 	/** @var int */
-	private $version;
+	protected $version;
 
 	/** @var int */
-	private $time = 0;
+	protected $time = 0;
 
 	/** @var string */
 	private $class;
@@ -48,11 +48,13 @@ class Version extends Nette\Object
 	 * @param \Kdyby\Migrations\History $history
 	 * @param string $class
 	 */
-	public function __construct(History $history, $class)
+	public function __construct(History $history, $class = NULL)
 	{
 		$this->history = $history;
-		$this->class = $class;
-		$this->version = (int)\DateTime::createFromFormat('YmdHis', (int)substr($class, -14))->format('YmdHis');
+		if ($class !== NULL){
+			$this->class = $class;
+			$this->version = (int)\DateTime::createFromFormat('YmdHis', (int)substr($class, -14))->format('YmdHis');
+		}
 	}
 
 
@@ -88,7 +90,7 @@ class Version extends Nette\Object
 
 
 	/**
-	 * @return bool
+	 * @return boolean
 	 */
 	public function isMigrated()
 	{
@@ -98,7 +100,7 @@ class Version extends Nette\Object
 
 
 	/**
-	 * @return bool
+	 * @return boolean
 	 */
 	public function isReversible()
 	{
@@ -111,7 +113,7 @@ class Version extends Nette\Object
 
 	/**
 	 * @param \Kdyby\Migrations\MigrationsManager $manager
-	 * @param bool $commit
+	 * @param boolean $commit
 	 *
 	 * @return array
 	 */
@@ -125,12 +127,16 @@ class Version extends Nette\Object
 
 	/**
 	 * @param \Kdyby\Migrations\MigrationsManager $manager
-	 * @param bool $commit
+	 * @param boolean $commit
 	 *
 	 * @return array
 	 */
 	public function down(MigrationsManager $manager, $commit = TRUE)
 	{
+		if (!$this->isReversible()) {
+			throw new MigrationException('Migration ' . $this->getVersion() . ' is irreversible, it doesn\'t implement down() method.');
+		}
+
 		$this->setOutputWriter($manager->getOutputWriter());
 		return $this->execute($manager->getConnection(), 'down', $commit);
 	}
@@ -139,7 +145,7 @@ class Version extends Nette\Object
 
 	/**
 	 * @param \Kdyby\Migrations\MigrationsManager $manager
-	 * @param bool $up
+	 * @param boolean $up
 	 *
 	 * @return array
 	 */
@@ -170,11 +176,11 @@ class Version extends Nette\Object
 	/**
 	 * @param \Doctrine\DBAL\Connection $connection
 	 * @param string $direction
-	 * @param bool $commit
+	 * @param boolean $commit
 	 *
 	 * @return array
 	 */
-	protected function execute(Connection $connection, $direction, $commit = TRUE)
+	private function execute(Connection $connection, $direction, $commit = TRUE)
 	{
 		$this->sql = array();
 
@@ -248,7 +254,7 @@ class Version extends Nette\Object
 	/**
 	 * @return \Kdyby\Migrations\AbstractMigration
 	 */
-	protected function createMigration()
+	private function createMigration()
 	{
 		$class = $this->class;
 		return new $class($this, $this->outputWriter);
@@ -267,7 +273,7 @@ class Version extends Nette\Object
 
 
 	/**
-	 * @param bool $commit
+	 * @param boolean $commit
 	 */
 	public function markMigrated($commit = TRUE)
 	{

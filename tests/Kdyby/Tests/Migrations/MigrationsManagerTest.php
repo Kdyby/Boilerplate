@@ -139,7 +139,7 @@ class MigrationsManagerTest extends Kdyby\Tests\OrmTestCase
 			->will($this->returnValue(new Fixtures\BlogPackage\BlogPackage()));
 
 		$history = $manager->getPackageHistory('BlogPackage');
-		$this->assertCount(3, $history->toArray());
+		$this->assertCount(4, $history->toArray());
 	}
 
 
@@ -150,7 +150,8 @@ class MigrationsManagerTest extends Kdyby\Tests\OrmTestCase
 		$manager->setOutputWriter($this->mockConsoleOutput());
 
 		// should migrate till now
-		$history = $manager->install('BlogPackage');
+		$history = $manager->getPackageHistory('BlogPackage');
+		$history->migrate($manager, 20120116160000);
 		$this->assertEquals(20120116160000, $history->getCurrent()->getVersion());
 
 		$this->assertEquals(array(
@@ -159,6 +160,52 @@ class MigrationsManagerTest extends Kdyby\Tests\OrmTestCase
 		), $this->getDoctrine()->getConnection()->fetchAll("SELECT * FROM articles"));
 
 		$history = $manager->uninstall('BlogPackage');
+		$this->assertNull($history->getCurrent());
+	}
+
+
+
+	public function testInstall_WithSqlDump()
+	{
+		$manager = new MigrationsManager($doctrine = $this->getDoctrine(), $packages = $this->preparePackageManager());
+		$manager->setOutputWriter($this->mockConsoleOutput());
+
+		// migrate
+		$history = $manager->install('BlogPackage');
+		$this->assertEquals(20120116170000, $history->getCurrent()->getVersion());
+
+		$this->assertEquals(array(
+			array('content' => 'trains are cool', 'title' => 'trains'),
+			array('content' => 'cars are way more cool!', 'title' => 'cars'),
+			array('content' => 'Čeká miminko? Modelce Kate Moss se v šatech rýsovalo bříško', 'title' => 'Kate Moss'),
+			array('content' => 'Beyoncé má na snímcích z nového alba vybělenou pokožku. Stydí se snad za barvu pleti?', 'title' => 'Beyonce'),
+			array('content' => 'Ta se hodně povedla! Novou Miss America je tahle kouzelná brunetka', 'title' => 'Laura Kaeppeler'),
+		), $this->getDoctrine()->getConnection()->fetchAll("SELECT * FROM articles"));
+	}
+
+
+
+	public function testDumpSql()
+	{
+		$manager = new MigrationsManager($doctrine = $this->getDoctrine(), $packages = $this->preparePackageManager());
+		$manager->setOutputWriter($this->mockConsoleOutput());
+
+		$history = $manager->getPackageHistory('BlogPackage');
+
+		// dump
+		$this->assertEquals(array(
+			20120116140000 => array(
+				array("CREATE TABLE articles (content CLOB NOT NULL, title VARCHAR(255) NOT NULL)", array(), array())
+			),
+			20120116150000 => array(
+				array("INSERT INTO articles VALUES ('trains are cool', 'trains')", array(), array()),
+				array("INSERT INTO articles VALUES ('car are fun', 'cars')", array(), array())
+			),
+			20120116160000 => array(
+				array("UPDATE articles SET content='cars are way more cool!' WHERE title='cars'", array(), array())
+			)
+		), $history->dumpSql($manager, 20120116160000));
+
 		$this->assertNull($history->getCurrent());
 	}
 
@@ -184,7 +231,7 @@ class MigrationsManagerTest extends Kdyby\Tests\OrmTestCase
 
 	/**
 	 * @expectedException Kdyby\Migrations\MigrationException
-	 * @expectedExceptionMessage Some of the migrations in the history are irreversible, they don't implement down() method.
+	 * @expectedExceptionMessage Migration 20120116150000 is irreversible, it doesn't implement down() method.
 	 */
 	public function testUninstall_IrreversibleMigrationException()
 	{

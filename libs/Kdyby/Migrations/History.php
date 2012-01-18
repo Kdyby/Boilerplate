@@ -98,31 +98,28 @@ class History extends Nette\Object implements \IteratorAggregate
 
 		try {
 			$version = $this->getCurrent();
+			$packageName = $this->package->getName();
 			if ($up = $this->current < ($target = $this->calculateClosestVersion($target))) {
 				if (!$version) {
-					$writer->writeln('    Migrating to <comment>' . $target . '</comment>');
+					$writer->writeln('    Migrating <comment>' . $packageName . '</comment> to <comment>' . $target . '</comment>');
 					$version = reset($this->versions);
 
 				} else {
-					$writer->writeln('    Migrating to <comment>' . $target . '</comment> from <comment>' . $version->getVersion() . '</comment>');
+					$writer->writeln('    Migrating <comment>' . $packageName . '</comment> to <comment>' . $target . '</comment> from <comment>' . $version->getVersion() . '</comment>');
 				}
 
 			} else {
-				$writer->writeln('    Reverting to <comment>' . $target . '</comment> from <comment>' . $version->getVersion() . '</comment>');
+				$writer->writeln('    Reverting <comment>' . $packageName . '</comment> to <comment>' . $target . '</comment> from <comment>' . $version->getVersion() . '</comment>');
 			}
 
 			$totalTime = $totalSqls = 0;
 			do {
-				if (!$up && !$version->isReversible()) {
-					throw new MigrationException('Some of the migrations in the history are irreversible, they don\'t implement down() method.');
-				}
-
-				$sqls[$version->getVersion()] = $up
+				$sqls[$version->getVersion()] = $lastSqls = $up
 					? $version->up($manager, $commit)
 					: $version->down($manager, $commit);
 
 				$totalTime += $version->getTime();
-				$totalSqls += count($sqls[$version->getVersion()]);
+				$totalSqls += is_array($lastSqls) ? count($lastSqls) : (int)$lastSqls;
 
 				if (!$up && $version === $this->getFirst()) {
 					$this->setCurrent(NULL);
@@ -199,7 +196,16 @@ class History extends Nette\Object implements \IteratorAggregate
 	 */
 	public function add($migration)
 	{
-		$version = new Version($this, $migration);
+		if (class_exists($migration)) {
+			$version = new Version($this, $migration);
+
+		} elseif (is_file($migration) && pathinfo($migration, PATHINFO_EXTENSION) === 'sql') {
+			$version = new SqlVersion($this, $migration);
+
+		} else {
+			throw new Kdyby\InvalidArgumentException("Given migration is neither migration class or sql dump.");
+		}
+
 		if (isset($this->versions[$version->getVersion()])) {
 			throw new Kdyby\InvalidStateException('Given version ' . $version->getVersion() . ' is already registered.');
 		}
