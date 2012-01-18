@@ -64,12 +64,29 @@ class SandboxConfigurator extends Kdyby\Config\Configurator
 
 
 	/**
+	 * Crawls all the entities associations, to avoid requiring of listing of all classes, required by test, by hand.
+	 * Associations are gonna be discovered automatically.
+	 *
 	 * @param array $entities
 	 */
 	public function setEntities(array $entities)
 	{
 		foreach ($this->getAnnotationDrivers() as $driver) {
 			$driver->setClassNames($entities);
+		}
+
+		$allClasses = array();
+		do {
+			$allClasses[] = $entity = array_shift($entities);
+			$meta = $this->getRegistry()->getClassMetadata($entity);
+			foreach ($meta->getAssociationNames() as $assoc) {
+				$entities = array_merge($entities, array($meta->getAssociationTargetClass($assoc)));
+			}
+
+		} while ($entities = array_diff(array_unique($entities), $allClasses));
+
+		foreach ($this->getAnnotationDrivers() as $driver) {
+			$driver->setClassNames($allClasses);
 		}
 	}
 

@@ -15,7 +15,6 @@ use Kdyby\Doctrine\Registry;
 use Nette;
 use Nette\Http;
 use Nette\Security\IIdentity;
-use Nette\Security\Permission;
 
 
 

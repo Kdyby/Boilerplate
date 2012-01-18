@@ -25,6 +25,17 @@ use Nette;
 class UserPermissionsQueryTest extends Kdyby\Tests\OrmTestCase
 {
 
+	public function setUp()
+	{
+		$this->createOrmSandbox(array(
+			'Kdyby\Security\RBAC\BasePermission',
+			'Kdyby\Security\RBAC\RolePermission',
+			'Kdyby\Security\RBAC\UserPermission',
+		));
+	}
+
+
+
 	/**
 	 * @param array $permissions
 	 * @param array $actions

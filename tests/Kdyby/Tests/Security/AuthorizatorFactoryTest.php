@@ -41,6 +41,13 @@ class AuthorizatorFactoryTest extends Kdyby\Tests\OrmTestCase
 
 	public function setUp()
 	{
+		$this->createOrmSandbox(array(
+			'Kdyby\Security\Identity',
+			'Kdyby\Security\RBAC\BasePermission',
+			'Kdyby\Security\RBAC\RolePermission',
+			'Kdyby\Security\RBAC\UserPermission',
+		));
+
 		// mock session
 		$this->session = $this->getMockBuilder('Nette\Http\Session')
 			->disableOriginalConstructor()->getMock();
