@@ -179,7 +179,7 @@ abstract class Package extends Nette\Object
 
 
 	/**
-	 * Installs the package
+	 * Install gets called after migration is complete
 	 */
 	public function install()
 	{
@@ -188,7 +188,7 @@ abstract class Package extends Nette\Object
 
 
 	/**
-	 * Uninstalls the package
+	 * Uninstall gets called before migration
 	 */
 	public function uninstall()
 	{
@@ -207,21 +207,20 @@ abstract class Package extends Nette\Object
 	 */
 	public function getMigrations()
 	{
+		$migrations = array();
 		if (!$dir = realpath($this->getPath() . '/Migration')) {
-			return;
+			return $migrations;
 		}
 
-		$migrations = array();
 		$ns = $this->getNamespace() . '\\Migration';
-		foreach (Finder::findFiles('Version*.php')->in($dir) as $file) {
+		foreach ($files = Finder::findFiles('Version*.php')->in($dir) as $file) {
 			$class = $ns . '\\' . $file->getBasename('.php');
 
+			require_once $file->getRealpath();
 			$refl = ClassType::from($class);
-			if ($refl->isSubclassOf('Doctrine\\DBAL\\Migrations\\AbstractMigration') && !$refl->isAbstract()) {
-				continue;
+			if ($refl->isSubclassOf('Kdyby\Migrations\AbstractMigration') && !$refl->isAbstract()) {
+				$migrations[] = $class;
 			}
-
-			$migrations[] = $class;
 		}
 
 		return $migrations;
