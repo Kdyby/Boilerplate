@@ -73,16 +73,32 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 
 		$source = NULL;
 		foreach (debug_backtrace(FALSE) as $row) {
-			if (isset($row['file'])
-			 && is_file($row['file'])
-			 && strpos($row['file'], NETTE_DIR . DIRECTORY_SEPARATOR) === FALSE
-			 && strpos($row['file'], "Doctrine") === FALSE
-			 && strpos($row['file'], "Repository") === FALSE) {
+			if (isset($row['file']) && $this->filterTracePaths(realpath($row['file']))) {
 				$source = array($row['file'], (int) $row['line']);
 				break;
 			}
 		}
+
 		$this->queries[] = array($sql, $params, NULL, NULL, $source);
+	}
+
+
+
+	/**
+	 * @todo: smarter filters!
+	 * @param string $file
+	 *
+	 * @return boolean
+	 */
+	protected function filterTracePaths($file)
+	{
+		return is_file($file)
+			&& strpos($file, NETTE_DIR) === FALSE
+			&& strpos($file, '/Doctrine/ORM/EntityRepository') === FALSE
+			&& strpos($file, '/Doctrine/DBAL/') === FALSE
+			&& strpos($file, "/Kdyby/Doctrine/") === FALSE
+			&& strpos($file, "/Kdyby/Tests/") === FALSE
+			&& stripos($file, "/phpunit") === FALSE;
 	}
 
 
@@ -90,12 +106,12 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 	/**
 	 * @return array
 	 */
-	public function &stopQuery()
+	public function stopQuery()
 	{
 		$keys = array_keys($this->queries);
 		$key = end($keys);
-		$this->queries[$key][2] = Debugger::timer('doctrine');
-		$this->totalTime += $this->queries[$key][2];
+		$this->queries[$key][2] = $time = Debugger::timer('doctrine');
+		$this->totalTime += $time;
 		return $this->queries[$key];
 	}
 
@@ -106,9 +122,7 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 	 */
 	public function queryFailed(\Exception $exception)
 	{
-		$queryInfo =& $this->stopQuery();
-		$queryInfo['exception'] = $exception;
-		$this->failed[spl_object_hash($exception)] = $queryInfo;
+		$this->failed[spl_object_hash($exception)] = $this->stopQuery();
 	}
 
 
@@ -210,15 +224,15 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 					return NULL;
 				}
 
-				list($sql, $params, , , , $source) = $this->failed[spl_object_hash($e)];
+				list($sql, $params, , , $source) = $this->failed[spl_object_hash($e)];
 
 			} else {
-				list($sql, $params, , , , $source) = end($this->queries);
+				list($sql, $params, , , $source) = end($this->queries);
 			}
 
 			return array(
 				'tab' => 'SQL',
-				'panel' => $this->dumpQuery($sql, $params),
+				'panel' => $this->dumpQuery($sql, $params, $source),
 			);
 
 		} elseif ($e instanceof QueryException && $e->getQuery() !== NULL) {
@@ -234,10 +248,11 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 	/**
 	 * @param string $query
 	 * @param array $params
+	 * @param string $source
 	 *
 	 * @return array
 	 */
-	protected function dumpQuery($query, $params)
+	protected function dumpQuery($query, $params, $source = NULL)
 	{
 		$h = 'htmlSpecialChars';
 
@@ -252,10 +267,17 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 			foreach ($params as $name => $value) {
 				$s .= '<tr><td width="200">' . $h($name) . '</td><td>' . $h($value) . '</td></tr>';
 			}
+			$s .= '</table>';
+		}
+
+		$e = NULL;
+		if ($source && is_array($source)) {
+			list($file, $line) = $source;
+			$e = '<p><b>Source:</b> ' . Nette\Diagnostics\Helpers::editorLink($file, $line) . '</p>';
 		}
 
 		// styles and dump
-		return $this->renderStyles() . '<div class="nette-inner nette-Doctrine2Panel">' . $s . '</table></div>';
+		return $this->renderStyles() . '<div class="nette-inner nette-Doctrine2Panel">' . $s . $e . '</div>';
 	}
 
 
