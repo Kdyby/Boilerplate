@@ -210,11 +210,15 @@ class CollectionContainer extends Kdyby\Forms\Containers\Replicator implements I
 
 
 	/**
-	 * @param \Kdyby\Doctrine\Forms\EntityContainer $container
+	 * @param \Nette\Forms\Container $container
 	 * @param bool $cleanUpGroups
 	 */
-	public function remove(EntityContainer $container, $cleanUpGroups = FALSE)
+	public function remove(Nette\Forms\Container $container, $cleanUpGroups = FALSE)
 	{
+		if (!$container instanceof EntityContainer) {
+			throw new Kdyby\InvalidArgumentException('Given container is not instance of Kdyby\Doctrine\Forms\EntityContainer, instance of ' . get_class($container) . ' given.');
+		}
+
 		$entity = $container->getEntity();
 		parent::remove($container, $cleanUpGroups);
 		$this->getMapper()->remove($entity);

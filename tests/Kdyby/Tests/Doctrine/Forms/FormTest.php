@@ -124,24 +124,8 @@ class FormTest extends Kdyby\Tests\OrmTestCase
 			->method('setControlMapper')
 			->with($this->isInstanceOf($type), $this->equalTo('name'));
 
-		$form->$method('children', 'Name', 'name');
-	}
-
-
-
-	/**
-	 * @dataProvider dataItemControls
-	 *
-	 * @param string $method
-	 */
-	public function testSelectBoxReceivesItemsArray($method)
-	{
-		$entity = new Fixtures\RootEntity("Hvězda Ordinace Sandra Nováková zrušila svatbu. Víme o tom vše");
-		$form = new Form($this->getDoctrine(), $entity, $mapper = $this->mockMapper('setControlMapper'));
-		$mapper->expects($this->never())->method('setControlMapper');
-
-		$children = $form->$method('children', 'Name', $items = array(1 => 'title'));
-		$this->assertEquals($items, $children->getItems());
+		$form->$method('children', 'Name')
+			->setMapper('name');
 	}
 
 }

@@ -129,26 +129,8 @@ class EntityContainerTest extends Kdyby\Tests\OrmTestCase
 			->method('setControlMapper')
 			->with($this->isInstanceOf($type), $this->equalTo('name'));
 
-		$container->$method('children', 'Name', 'name');
-	}
-
-
-
-	/**
-	 * @dataProvider dataItemControls
-	 *
-	 * @param string $method
-	 */
-	public function testSelectBoxReceivesItemsArray($method)
-	{
-		$entity = new Fixtures\RootEntity("To je překvápko! Kuchař Zdeněk Pohlreich se znovu tajně oženil");
-		$container = new EntityContainer($entity);
-
-		$this->attachContainer($container, $mapper = $this->mockMapper('setControlMapper'));
-		$mapper->expects($this->never())->method('setControlMapper');
-
-		$children = $container->$method('children', 'Name', $items = array(1 => 'title'));
-		$this->assertEquals($items, $children->getItems());
+		$container->$method('children', 'Name')
+			->setMapper('name');
 	}
 
 

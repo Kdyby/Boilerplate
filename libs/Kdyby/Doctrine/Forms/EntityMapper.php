@@ -16,6 +16,7 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 use Kdyby;
 use Nette;
 use Nette\ComponentModel\IComponent;
+use Nette\Forms\IControl;
 use Nette\Forms\Controls\BaseControl;
 use Nette\Forms\Controls\SubmitButton;
 use Nette\Reflection\ClassType;
@@ -203,7 +204,7 @@ class EntityMapper extends Nette\Object
 			$container->onSave($values, $container);
 
 			foreach ($values as $name => $value) {
-				if (!$container[$name] instanceof Nette\Forms\IControl) {
+				if (!$container[$name] instanceof IControl) {
 					continue;
 				}
 
@@ -212,7 +213,21 @@ class EntityMapper extends Nette\Object
 						continue;
 					}
 
-					$class->setFieldValue($entity, $field, $value);
+					if ($this->isItemsControl($container[$name])) {
+						$value = $this->resolveItemsControlValue($container[$name], $value, $entity, $field);
+					}
+
+					if ($this->isTargetCollection($entity, $field)) {
+						$collection = $this->getCollection($entity, $field);
+						$collection->clear();
+
+						foreach ($value as $item) {
+							$collection->add($item);
+						}
+
+					} else {
+						$class->setFieldValue($entity, $field, $value);
+					}
 				}
 			}
 		}
@@ -225,6 +240,53 @@ class EntityMapper extends Nette\Object
 			}
 		}
 	}
+
+
+
+	/**
+	 * @param \Nette\Forms\IControl $control
+	 * @param mixed $value
+	 * @param object $entity
+	 * @param string $field
+	 *
+	 * @return array|\Doctrine\ORM\The|object
+	 */
+	protected function resolveItemsControlValue(IControl $control, $value, $entity, $field)
+	{
+		$dao = $this->doctrine->getDao($className = $this->getTargetClassName($entity, $field));
+		$id = current($this->getMeta($className)->getIdentifierFieldNames());
+
+		if ($control instanceof Kdyby\Forms\Controls\CheckboxList) {
+			return $dao->findBy(array($id => array_keys(array_filter($value))));
+
+		} elseif (is_array($value)) {
+			return $dao->findBy(array($id => $value));
+
+		} elseif (is_scalar($value)) {
+			return $dao->find($value);
+		}
+
+		return NULL;
+	}
+
+
+
+	/**
+	 * @param \Nette\Forms\IControl $control
+	 *
+	 * @return bool
+	 */
+	private function isItemsControl(IControl $control)
+	{
+		foreach (static::$itemControls as $controlClassName) {
+			if ($control instanceof $controlClassName) {
+				return TRUE;
+			}
+		}
+
+		return FALSE;
+	}
+
 
 
 
