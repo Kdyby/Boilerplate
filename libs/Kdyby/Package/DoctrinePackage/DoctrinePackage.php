@@ -17,7 +17,6 @@ use Nette\Config\Compiler;
 use Symfony\Component\Console\Application as ConsoleApp;
 use Doctrine\DBAL\Tools\Console\Command as DbalCommand;
 use Doctrine\ORM\Tools\Console\Command as OrmCommand;
-use Doctrine\DBAL\Migrations\Tools\Console\Command as MigrationCommand;
 
 
 
@@ -38,7 +37,6 @@ class DoctrinePackage extends Kdyby\Packages\Package
 		$compiler->addExtension('annotation', new DI\AnnotationExtension());
 		$compiler->addExtension('dbal', new DI\DbalExtension());
 		$compiler->addExtension('orm', new DI\OrmExtension());
-		$compiler->addExtension('migration', new DI\MigrationExtension());
 		$compiler->addExtension('fixture', new DI\FixtureExtension());
 		$compiler->addExtension('doctrine', new DI\DoctrineExtension());
 	}
@@ -75,13 +73,6 @@ class DoctrinePackage extends Kdyby\Packages\Package
 			new OrmCommand\RunDqlCommand(),
 			new OrmCommand\ValidateSchemaCommand(),
 			new OrmCommand\InfoCommand(),
-
-//			// Migrations Commands
-//			new MigrationCommand\ExecuteCommand(),
-//			new MigrationCommand\GenerateCommand(),
-//			new MigrationCommand\MigrateCommand(),
-//			new MigrationCommand\StatusCommand(),
-//			new MigrationCommand\VersionCommand()
 		));
 	}
 

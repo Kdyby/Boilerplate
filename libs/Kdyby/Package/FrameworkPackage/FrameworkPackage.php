@@ -12,6 +12,7 @@ namespace Kdyby\Package\FrameworkPackage;
 
 use Kdyby;
 use Kdyby\Console\Command as FwCommand;
+use Kdyby\Migrations\Console as MigrationCommand;
 use Nette;
 use Symfony;
 
@@ -42,6 +43,7 @@ class FrameworkPackage extends Kdyby\Packages\Package
 	public function compile(Nette\Config\Configurator $config, Nette\Config\Compiler $compiler)
 	{
 		$compiler->addExtension('kdyby', new DI\FrameworkExtension());
+		$compiler->addExtension('migrations', new DI\MigrationsExtension());
 	}
 
 
@@ -55,7 +57,14 @@ class FrameworkPackage extends Kdyby\Packages\Package
 
 		$app->addCommands(array(
 			// cache
-			new FwCommand\CacheCommand()
+			new FwCommand\CacheCommand(),
+
+			// Migrations Commands
+			new MigrationCommand\GenerateCommand(),
+			new MigrationCommand\MigrateCommand(),
+//			new MigrationCommand\ExecuteCommand(),
+//			new MigrationCommand\StatusCommand(),
+//			new MigrationCommand\VersionCommand()
 		));
 	}
 
