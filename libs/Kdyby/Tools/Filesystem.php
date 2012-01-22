@@ -113,6 +113,7 @@ final class Filesystem extends Nette\Object
 			$parentDir = dirname($parentDir);
 		}
 
+		@umask(0000);
 		if (!is_dir($dir) && FALSE === ($result = @mkdir($dir, $chmod, $recursive)) && $need) {
 			throw new Kdyby\IOException('Unable to create directory ' . $dir);
 		}

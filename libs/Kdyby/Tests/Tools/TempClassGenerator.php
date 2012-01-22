@@ -46,7 +46,7 @@ class TempClassGenerator extends Nette\Object
 	 */
 	public function clean()
 	{
-		foreach (Finder::findFiles('Entity_*.php')->in($this->tempDir) as $file) {
+		foreach (Finder::findFiles('*.php')->in($this->tempDir) as $file) {
 			@unlink($file->getRealpath());
 		}
 	}
