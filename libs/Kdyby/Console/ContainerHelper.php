@@ -48,7 +48,7 @@ class ContainerHelper extends Symfony\Component\Console\Helper\Helper
 
 
 	/**
-	 * @see \Symfony\Component\Console\Helper\Helper::getName()
+	 * @see \Symfony\Component\Console\Helper\Helper::getSelector()
 	 */
 	public function getName()
 	{
