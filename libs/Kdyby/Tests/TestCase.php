@@ -55,6 +55,18 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 	}
 
 
+
+	/**
+	 * Skip test if domain kdyby.org is unreachable
+	 */
+	protected function skipIfNoInternet()
+	{
+		if ('pong' !== @file_get_contents('http://www.kdyby.org/ping')) {
+			$this->markTestSkipped('No internet connection');
+		}
+	}
+
+
 	/********************* Asserts *********************/
 
 
