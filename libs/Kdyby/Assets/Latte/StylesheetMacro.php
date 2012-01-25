@@ -48,7 +48,6 @@ class StylesheetMacro extends MacroBase
 	{
 		$node->isEmpty = TRUE;
 		$this->createFactory($this->readArguments($node), FormulaeManager::TYPE_STYLESHEET);
-		return NULL;
 	}
 
 
@@ -60,7 +59,6 @@ class StylesheetMacro extends MacroBase
 	 */
 	public function nodeClosed(Latte\MacroNode $node)
 	{
-		return NULL;
 	}
 
 }

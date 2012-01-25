@@ -47,14 +47,13 @@ class JavascriptMacro extends MacroBase
 	public function nodeOpened(Latte\MacroNode $node)
 	{
 		if ($node->data->inline = empty($node->args)) {
-			return '<?php ob_start(); ?>';
+			$node->openingCode = '<?php ob_start(); ?>';
+			return;
 		}
 
 		if ($this->createFactory($this->readArguments($node), FormulaeManager::TYPE_JAVASCRIPT)) {
 			$node->isEmpty = TRUE;
 		}
-
-		return NULL;
 	}
 
 
@@ -67,8 +66,9 @@ class JavascriptMacro extends MacroBase
 	public function nodeClosed(Latte\MacroNode $node)
 	{
 		if ($node->data->inline) {
-			return '<?php $_g->kdyby->assets["js"][] = ob_get_clean();' .
+			$node->closingCode = '<?php $_g->kdyby->assets["js"][] = ob_get_clean();' .
 				'if (empty($_g->kdyby->captureAssets)) echo array_pop($_g->kdyby->assets["js"]); ?>';
+			return;
 		}
 
 		$args = Nette\Utils\Html::el(substr($node->content, 1, strpos($node->content, '>') - 1))->attrs;
@@ -78,8 +78,7 @@ class JavascriptMacro extends MacroBase
 		}
 
 		$this->createFactory(array($node->args) + $args, FormulaeManager::TYPE_JAVASCRIPT);
-
-		return NULL;
+		$node->content = NULL;
 	}
 
 }
