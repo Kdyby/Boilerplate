@@ -20,7 +20,7 @@ use Nette\Utils\Strings;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class CurlSender extends RequestOptions implements ICurlSender
+class CurlSender extends RequestOptions
 {
 	/** @var array */
 	public static $userAgents = array(

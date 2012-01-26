@@ -1,8 +1,9 @@
 parameters:
-    doctrine_connections: []
-    doctrine_entityManagers: []
-    doctrine_defaultConnection: default
-    doctrine_defaultEntityManager: default
+    doctrine:
+        connections: []
+        entityManagers: []
+        defaultConnection: default
+        defaultEntityManager: default
 
 
 dbal:
@@ -11,14 +12,14 @@ dbal:
 
 
 services:
-    doctrine:
+    doctrine.registry:
         class: Kdyby\Tests\ORM\SandboxRegistry
         arguments:
             - @container
-            - "%doctrine_connections%"
-            - "%doctrine_entityManagers%"
-            - "%doctrine_defaultConnection%"
-            - "%doctrine_defaultEntityManager%"
+            - "%doctrine.connections%"
+            - "%doctrine.entityManagers%"
+            - "%doctrine.defaultConnection%"
+            - "%doctrine.defaultEntityManager%"
 
     cacheStorage:
         class: Nette\Caching\Storages\MemoryStorage

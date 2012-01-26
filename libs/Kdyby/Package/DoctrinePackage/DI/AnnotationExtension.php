@@ -35,7 +35,7 @@ class AnnotationExtension extends Kdyby\Config\CompilerExtension
 		$container = $this->getContainerBuilder();
 		$config = $this->getConfig();
 
-		$reader = $container->addDefinition('annotationReader')
+		$reader = $container->addDefinition($this->prefix('reader'))
 			->setClass('Doctrine\Common\Annotations\AnnotationReader')
 			->addSetup('setIgnoreNotImportedAnnotations', array(FALSE))
 			->addSetup('setAnnotationNamespaceAlias', array('Doctrine\ORM\Mapping\\', 'Orm'))
@@ -47,18 +47,20 @@ class AnnotationExtension extends Kdyby\Config\CompilerExtension
 			}
 		}
 
-		$container->addDefinition('annotationReader_indexed')
-			->setClass('Doctrine\Common\Annotations\IndexedReader', array('@annotationReader'))
+		$container->addDefinition($this->prefix('readerIndexed'))
+			->setClass('Doctrine\Common\Annotations\IndexedReader', array($this->prefix('@reader')))
 			->setInternal(TRUE)
 			->setShared(FALSE);
 
-		$container->addDefinition('annotationReader_cached')
-			->setClass('Kdyby\Doctrine\Annotations\CachedReader', array('@annotationReader_indexed', '@annotationReader_cached_cache'))
+		$container->addDefinition($this->prefix('readerCached'))
+			->setClass('Kdyby\Doctrine\Annotations\CachedReader', array(
+				$this->prefix('@readerIndexed'), $this->prefix('@readerCached.cache')
+			))
 			->setInternal(TRUE)
 			->setShared(FALSE);
 
-		$container->addDefinition('annotationReader_cached_cache')
-			->setClass('Kdyby\Doctrine\Cache', array('@cacheStorage'))
+		$container->addDefinition($this->prefix('readerCached.cache'))
+			->setClass('Kdyby\Doctrine\Cache', array('@kdyby.cacheStorage'))
 			->setInternal(TRUE)
 			->setShared(FALSE);
 	}

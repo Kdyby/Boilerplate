@@ -30,22 +30,22 @@ class DoctrineExtension extends Kdyby\Config\CompilerExtension
 	{
 		$container = $this->getContainerBuilder();
 
-		$container->addDefinition('doctrine')
+		$container->addDefinition($this->prefix('registry'))
 			->setClass('Kdyby\Doctrine\Registry', array(
 				'@container',
-				'%doctrine_connections%',
-				'%doctrine_entityManagers%',
-				'%doctrine_defaultConnection%',
-				'%doctrine_defaultEntityManager%'
+				'%doctrine.connections%',
+				'%doctrine.entityManagers%',
+				'%doctrine.defaultConnection%',
+				'%doctrine.defaultEntityManager%'
 			));
 
-		$container->addDefinition('doctrine_orm_events_discriminatorMapDiscovery')
-			->setClass('Kdyby\Doctrine\Mapping\DiscriminatorMapDiscoveryListener', array('@doctrine_orm_metadata_annotationReader'))
-			->addTag('doctrine_eventSubscriber');
+		$container->addDefinition($this->prefix('orm.events.discriminatorMapDiscovery'))
+			->setClass('Kdyby\Doctrine\Mapping\DiscriminatorMapDiscoveryListener', array('@doctrine.orm.metadata.annotationReader'))
+			->addTag('doctrine.eventSubscriber');
 
-		$container->addDefinition('doctrine_orm_events_entityDefaults')
+		$container->addDefinition($this->prefix('orm.events.entityDefaults'))
 			->setClass('Kdyby\Doctrine\Mapping\EntityDefaultsListener')
-			->addTag('doctrine_eventSubscriber');
+			->addTag('doctrine.eventSubscriber');
 	}
 
 
@@ -62,7 +62,7 @@ class DoctrineExtension extends Kdyby\Config\CompilerExtension
 	 */
 	protected function registerEventSubscribers(ContainerBuilder $container)
 	{
-		foreach ($container->findByTag('doctrine_eventSubscriber') as $listener => $meta) {
+		foreach ($container->findByTag('doctrine.eventSubscriber') as $listener => $meta) {
 			if (isset($meta['connection'])) {
 				$this->registerEventSubscriber($meta['connection'], $listener);
 
@@ -72,7 +72,7 @@ class DoctrineExtension extends Kdyby\Config\CompilerExtension
 				}
 
 			} else {
-				foreach (array_keys($container->parameters['doctrine_connections']) as $connection) {
+				foreach (array_keys($container->parameters['doctrine']['connections']) as $connection) {
 					$this->registerEventSubscriber($connection, $listener);
 				}
 			}
@@ -100,12 +100,8 @@ class DoctrineExtension extends Kdyby\Config\CompilerExtension
 	protected function getConnectionEventManager($connectionName)
 	{
 		$container = $this->getContainerBuilder();
-
-		$connections = $container->parameters['doctrine_connections'];
-		Validators::assertField($connections, $connectionName);
-
-		$connection = $container->parameters['doctrine_connections'][$connectionName];
-		return $container->getDefinition($connection . '_eventManager');
+		$connection = $container->parameters['doctrine']['connections'][$connectionName];
+		return $container->getDefinition($connection . '.eventManager');
 	}
 
 }

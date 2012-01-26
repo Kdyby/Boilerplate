@@ -50,7 +50,7 @@ class CompilerExtension extends Nette\Config\CompilerExtension
 			->setClass(substr($installer, 0, strpos($installer, '::')))
 			->setFactory($installer, array('%compiler%'))
 			->setParameters(array('compiler'))
-			->addTag('latte_macro');
+			->addTag('latte.macro');
 	}
 
 

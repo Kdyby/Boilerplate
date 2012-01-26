@@ -26,7 +26,7 @@ class AsseticExtension extends Kdyby\Config\CompilerExtension
 	public $asseticDefaults = array(
 		'publicDir' => '%wwwDir%',
 		'prefix' => 'static',
-		'debug' => '%kdyby_debug%'
+		'debug' => '%kdyby.debug%'
 	);
 
 
@@ -39,21 +39,21 @@ class AsseticExtension extends Kdyby\Config\CompilerExtension
 		$options = self::getOptions($config, $this->asseticDefaults);
 		$options['output'] = $options['prefix'] . '/*';
 		$container->parameters += array(
-			'assetic_debug' => $debug = (bool)$container->expand($options['debug']),
-			'assetic_outputMask' => $options['output']
+			'assetic.debug' => $debug = (bool)$container->expand($options['debug']),
+			'assetic.outputMask' => $options['output']
 		);
 
 		if ($debug) {
-			$container->addDefinition('assetic_assetStorage')
+			$container->addDefinition($this->prefix('assetStorage'))
 				->setClass('Kdyby\Assets\Storage\CacheStorage', array(
-				'@cacheStorage', '%tempDir%/cache', '@httpRequest'
+				'@kdyby.cacheStorage', '%tempDir%/cache', '@httpRequest'
 			));
 
-			$container->addDefinition('asseticPackage_asseticPresenter')
-				->setClass('Kdyby\Package\AsseticPackage\Presenter\AsseticPresenter', array('@assetic_assetStorage'))
+			$container->addDefinition('asseticPackage.asseticPresenter')
+				->setClass('Kdyby\Package\AsseticPackage\Presenter\AsseticPresenter', array('@assetic.assetStorage'))
 				->setParameters(array());
 
-			$container->addDefinition('assetic_route_asset')
+			$container->addDefinition($this->prefix('route.asset'))
 				->setClass('Nette\Application\Routers\Route', array('<prefix ' . $options['prefix'] . '>/<name .*>', array(
 					'presenter' => 'AsseticPackage:Assetic',
 				)))
@@ -61,39 +61,39 @@ class AsseticExtension extends Kdyby\Config\CompilerExtension
 				->addTag('route', array('priority' => 100));
 
 		} else {
-			$container->addDefinition('assetic_assetStorage')
+			$container->addDefinition($this->prefix('assetStorage'))
 				->setClass('Kdyby\Assets\Storage\PublicStorage', array(
 				$options['publicDir'] . '/' . $options['prefix'], '@httpRequest'
 			));
 		}
 
-		$container->addDefinition('assetic_filterManager')
+		$container->addDefinition($this->prefix('filterManager'))
 			->setClass('Kdyby\Assets\FilterManager', array('@container'));
 
-		$container->addDefinition('assetic_assetManager')
+		$container->addDefinition($this->prefix('assetManager'))
 			->setClass('Kdyby\Assets\AssetManager');
 
-		$container->addDefinition('assetic_assetFactory')
+		$container->addDefinition($this->prefix('assetFactory'))
 			->setClass('Kdyby\Assets\AssetFactory', array(
-				'@application_packageManager', '@container', $options['publicDir']
+				'@kdyby.packageManager', '@container', $options['publicDir']
 			))
-			->addSetup('setAssetManager', array('@assetic_assetManager'))
-			->addSetup('setFilterManager', array('@assetic_filterManager'))
+			->addSetup('setAssetManager', array($this->prefix('@assetManager')))
+			->addSetup('setFilterManager', array($this->prefix('@filterManager')))
 			->addSetup('setDefaultOutput', array($options['output']))
 			->addSetup('setDebug', array($debug));
 
-		$container->addDefinition('assetic_formulaeManager')
+		$container->addDefinition($this->prefix('formulaeManager'))
 			->setClass('Kdyby\Assets\FormulaeManager', array(
-				'@assetic_assetStorage', '@assetic_assetManager', '@assetic_filterManager'
+				$this->prefix('@assetStorage'), $this->prefix('@assetManager'), $this->prefix('@filterManager')
 			))
 			->addSetup('setDebug', array($debug));
 
 		// macros
-		$this->addMacro('macro_stylesheet', 'Kdyby\Assets\Latte\StylesheetMacro::install')
-			->addSetup('setFactory', array('@assetic_assetFactory'));
+		$this->addMacro('macro.stylesheet', 'Kdyby\Assets\Latte\StylesheetMacro::install')
+			->addSetup('setFactory', array($this->prefix('@assetFactory')));
 
-		$this->addMacro('macro_javascript', 'Kdyby\Assets\Latte\JavascriptMacro::install')
-			->addSetup('setFactory', array('@assetic_assetFactory'));
+		$this->addMacro('macro.javascript', 'Kdyby\Assets\Latte\JavascriptMacro::install')
+			->addSetup('setFactory', array($this->prefix('@assetFactory')));
 	}
 
 

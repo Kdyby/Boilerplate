@@ -30,7 +30,7 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 	 * @var array
 	 */
 	public $proxyDefaults = array(
-		'autoGenerateProxyClasses' => '%kdyby_debug%',
+		'autoGenerateProxyClasses' => '%kdyby.debug%',
 		'proxyDir' => '%tempDir%/proxies',
 		'proxyNamespace' => 'Kdyby\Domain\Proxy'
 	);
@@ -131,16 +131,16 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 			$keys = array_keys($this->entityManagers);
 			$config['defaultEntityManager'] = reset($keys);
 		}
-		$container->parameters['doctrine_defaultEntityManager'] = $config['defaultEntityManager'];
+		$container->parameters['doctrine']['defaultEntityManager'] = $config['defaultEntityManager'];
 
 		// entity managers list
 		foreach (array_keys($this->entityManagers) as $name) {
-			$container->parameters['doctrine_entityManagers'][$name] = 'doctrine_orm_' . $name . 'EntityManager';
+			$container->parameters['doctrine']['entityManagers'][$name] = 'doctrine.orm.' . $name . 'EntityManager';
 		}
 
 		// proxy options
 		foreach (self::getOptions($config, $this->proxyDefaults) as $key => $value) {
-			$container->parameters['doctrine_orm_' . $key] = $value;
+			$container->parameters['doctrine']['orm'][$key] = $value;
 		}
 
 		// load entity managers
@@ -149,8 +149,8 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 			$this->loadOrmEntityManager($entityManager);
 		}
 
-		$this->addAlias('doctrine_orm_metadata_annotationReader', 'annotationReader_cached');
-		$this->addAlias('doctrine_orm_entityManager', 'doctrine_orm_' . $config['defaultEntityManager'] . 'EntityManager');
+		$this->addAlias('doctrine.orm.metadata.annotationReader', 'annotation.readerCached');
+		$this->addAlias('doctrine.orm.entityManager', 'doctrine.orm.' . $config['defaultEntityManager'] . 'EntityManager');
 	}
 
 
@@ -163,7 +163,7 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 	protected function loadOrmEntityManager(array $config)
 	{
 		$container = $this->getContainerBuilder();
-		$entityManagerName = 'doctrine_orm_' . $config['name'] . 'EntityManager';
+		$entityManagerName = 'doctrine.orm.' . $config['name'] . 'EntityManager';
 
 		// options
 		$options = self::getOptions($config, $this->entityManagerDefaults);
@@ -180,7 +180,7 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 		}
 
 		// configuration
-		$configuration = $container->addDefinition($entityManagerName . '_configuration')
+		$configuration = $container->addDefinition($entityManagerName . '.configuration')
 			->setClass('Doctrine\ORM\Configuration');
 
 		foreach ($this->getConfigurationOptions($options) as $method => $arg) {
@@ -208,9 +208,9 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 
 		// connection
 		if (!isset($options['connection'])) {
-			$options['connection'] = $container->parameters['doctrine_defaultConnection'];
+			$options['connection'] = $container->parameters['doctrine']['defaultConnection'];
 		}
-		$connectionName = 'doctrine_dbal_' . $options['connection'] . 'Connection';
+		$connectionName = 'doctrine.dbal.' . $options['connection'] . 'Connection';
 
 		// mappings
 		$this->loadOrmEntityManagerMappingInformation($options);
@@ -223,11 +223,11 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 			->setClass('Doctrine\ORM\EntityManager')
 			->setFactory('Doctrine\ORM\EntityManager::create', array(
 				'@' . $connectionName,
-				'@' . $entityManagerName . '_configuration'
+				'@' . $entityManagerName . '.configuration'
 			));
 
 		// event manager
-		$this->addAlias($entityManagerName . '_eventManager', $connectionName . '_eventManager');
+		$this->addAlias($entityManagerName . '.eventManager', $connectionName . '.eventManager');
 	}
 
 
@@ -238,16 +238,16 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 	 */
 	protected function getConfigurationOptions($config)
 	{
-		$entityManagerName = 'doctrine_orm_' . $config['name'] . 'EntityManager';
+		$entityManagerName = 'doctrine.orm.' . $config['name'] . 'EntityManager';
 		return array(
-			'metadataCacheImpl' => '@' . $entityManagerName . '_metadataCache',
-			'queryCacheImpl' => '@' . $entityManagerName . '_queryCache',
-			'resultCacheImpl' => '@' . $entityManagerName . '_resultCache',
-			'metadataDriverImpl' => '@' . $entityManagerName . '_metadataDriver',
+			'metadataCacheImpl' => '@' . $entityManagerName . '.metadataCache',
+			'queryCacheImpl' => '@' . $entityManagerName . '.queryCache',
+			'resultCacheImpl' => '@' . $entityManagerName . '.resultCache',
+			'metadataDriverImpl' => '@' . $entityManagerName . '.metadataDriver',
 			'classMetadataFactoryName' => $config['metadataFactoryClass'],
-			'proxyDir' => '%doctrine_orm_proxyDir%',
-			'proxyNamespace' => '%doctrine_orm_proxyNamespace%',
-			'autoGenerateProxyClasses' => '%doctrine_orm_autoGenerateProxyClasses%',
+			'proxyDir' => '%doctrine.orm.proxyDir%',
+			'proxyNamespace' => '%doctrine.orm.proxyNamespace%',
+			'autoGenerateProxyClasses' => '%doctrine.orm.autoGenerateProxyClasses%',
 		);
 	}
 
@@ -295,7 +295,7 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 		$this->loadMappingInformation($config);
 		$this->registerMappingDrivers($config);
 
-		$container->getDefinition('doctrine_orm_' . $config['name'] . 'EntityManager_configuration')
+		$container->getDefinition('doctrine.orm.' . $config['name'] . 'EntityManager.configuration')
 			->addSetup('setEntityNamespaces', array($this->aliasMap));
 	}
 
@@ -311,7 +311,7 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 
 		// automatically register package mappings
 		if ($config['autoMapping']) {
-			foreach (array_keys($container->parameters['kdyby_packages']) as $package) {
+			foreach (array_keys($container->parameters['kdyby']['packages']) as $package) {
 				if (!isset($mappings[$package])) {
 					$mappings[$package] = NULL;
 				}
@@ -348,18 +348,18 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 	protected function registerMappingDrivers($config)
 	{
 		$container = $this->getContainerBuilder();
-		$entityManagerName = 'doctrine_orm_' . $config['name'] . 'EntityManager';
+		$entityManagerName = 'doctrine.orm.' . $config['name'] . 'EntityManager';
 
 		// configure metadata driver for each package based on the type of mapping files found
-		if (!$container->hasDefinition($entityManagerName . '_metadataDriver')) {
-			$container->addDefinition($entityManagerName . '_metadataDriver')
+		if (!$container->hasDefinition($entityManagerName . '.metadataDriver')) {
+			$container->addDefinition($entityManagerName . '.metadataDriver')
 				->setClass('Doctrine\ORM\Mapping\Driver\DriverChain');
 		}
 
-		$chainDriverDef = $container->getDefinition($entityManagerName . '_metadataDriver');
+		$chainDriverDef = $container->getDefinition($entityManagerName . '.metadataDriver');
 
 		foreach ($this->drivers as $driverType => $driverPaths) {
-			$mappingService = $entityManagerName . '_' . $driverType . '_metadataDriver';
+			$mappingService = $entityManagerName . '.' . $driverType . '.metadataDriver';
 			if (!$container->hasDefinition($mappingService)) {
 				$container->addDefinition($mappingService);
 			}
@@ -368,7 +368,7 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 			$mappingDriverDef->addSetup('addPaths', array(array_values($driverPaths)));
 
 			if ($driverType == 'annotation') {
-				$mappingDriverDef->setClass($this->metadataDriverClasses[$driverType], array('@doctrine_orm_metadata_annotationReader', NULL));
+				$mappingDriverDef->setClass($this->metadataDriverClasses[$driverType], array('@doctrine.orm.metadata.annotationReader', NULL));
 
 			} else {
 				$mappingDriverDef->setClass($this->metadataDriverClasses[$driverType], array(NULL));
@@ -412,7 +412,7 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 	protected function loadOrmEntityManagerCacheDriver(array $config, $cacheName)
 	{
 		$container = $this->getContainerBuilder();
-		$entityManagerName = 'doctrine_orm_' . $config['name'] . 'EntityManager';
+		$entityManagerName = 'doctrine.orm.' . $config['name'] . 'EntityManager';
 		$cacheDriver = $config[$cacheName . "Driver"];
 
 		if (is_string($cacheDriver)) {
@@ -420,28 +420,28 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 		}
 
 		// generate an unique namespace for the given application
-		$namespace = 'orm_' . $config['name'] . '_' . $cacheName . '_' . md5($container->parameters['appDir'] . $container->parameters['environment']);
+		$namespace = 'orm.' . $config['name'] . '.' . $cacheName . '.' . md5($container->parameters['appDir'] . $container->parameters['environment']);
 
 		// create cache
 		if ($cacheDriver['type'] === 'memcache') {
 			$options = self::getOptions($cacheDriver, $this->memcacheDefaults);
 
-			$container->addDefinition($entityManagerName . '_memcacheInstance')
+			$container->addDefinition($entityManagerName . '.memcacheInstance')
 				->setClass($options['instanceClass'])
 				->addSetup('connect', array($options['host'], $options['port']));
 
-			$container->addDefinition($entityManagerName . '_' . $cacheName)
+			$container->addDefinition($entityManagerName . '.' . $cacheName)
 				->setClass($this->cacheDriverClasses[$cacheDriver['type']])
-				->addSetup('setMemcache', array('@' . $entityManagerName . '_memcacheInstance'))
+				->addSetup('setMemcache', array('@' . $entityManagerName . '.memcacheInstance'))
 				->addSetup('setNamespace', array($namespace));
 
 		} elseif (in_array($cacheDriver['type'], array('apc', 'array', 'xcache'))) {
-			$container->addDefinition($entityManagerName . '_' . $cacheName)
+			$container->addDefinition($entityManagerName . '.' . $cacheName)
 				->setClass($this->cacheDriverClasses[$cacheDriver['type']])
 				->addSetup('setNamespace', array($namespace));
 
 		} elseif ($cacheDriver['type'] === 'file') {
-			$container->addDefinition($entityManagerName . '_' . $cacheName)
+			$container->addDefinition($entityManagerName . '.' . $cacheName)
 				->setClass($this->cacheDriverClasses['file'], array('@cacheStorage'))
 				->addSetup('setNamespace', array($namespace));
 
@@ -543,7 +543,7 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 					'"' . implode('", "', $drivers) . '" or "' . $lastDriver . '"' .
 					' through the DoctrinePackage. Use your own package to configure other metadata drivers. ' .
 					'You can register them by adding a a new driver to the ' .
-					'"doctrine_orm_' . $config['name'] . 'EntityManager_metadataDriver" service definition.'
+					'"doctrine.orm.' . $config['name'] . 'EntityManager.metadataDriver" service definition.'
 			);
 		}
 	}
@@ -580,7 +580,7 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 
 		// gather paths
 		$paths = array();
-		$packages = $container->parameters['kdyby_packages'];
+		$packages = $container->parameters['kdyby']['packages'];
 		if (in_array('Kdyby\Package\CmsPackage\CmsPackage', $packages)) {
 			$paths[] = dirname(ClassType::from('Kdyby\CMS')->getFileName());
 		}
@@ -592,9 +592,9 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 		}
 
 		// create definition
-		$mappingService = 'doctrine_orm_' . $config['name'] . 'EntityManager_kdybyAnnotation_metadataDriver';
+		$mappingService = 'doctrine.orm.' . $config['name'] . 'EntityManager.kdybyAnnotation.metadataDriver';
 		$container->addDefinition($mappingService)
-			->setClass($this->metadataDriverClasses['annotation'], array('@doctrine_orm_metadata_annotationReader'))
+			->setClass($this->metadataDriverClasses['annotation'], array('@doctrine.orm.metadata.annotationReader'))
 			->addSetup('addPaths', array($paths));
 
 		// add to chain
@@ -640,11 +640,11 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 	protected function getPackageReflectionByName($name)
 	{
 		$container = $this->getContainerBuilder();
-		if (!isset($container->parameters['kdyby_packages'][$name])) {
+		if (!isset($container->parameters['kdyby']['packages'][$name])) {
 			return NULL;
 		}
 
-		return ClassType::from($container->parameters['kdyby_packages'][$name]);
+		return ClassType::from($container->parameters['kdyby']['packages'][$name]);
 	}
 
 }

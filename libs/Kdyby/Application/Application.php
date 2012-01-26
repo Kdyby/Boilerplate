@@ -25,9 +25,6 @@ class Application extends Nette\Application\Application
 	/** @var \Kdyby\Config\Configurator */
 	private $configurator;
 
-	/** @var \Kdyby\Application\RequestManager */
-	private $requestsManager;
-
 	/** @var \Kdyby\Packages\PackageManager */
 	private $packageManager;
 
@@ -62,10 +59,9 @@ class Application extends Nette\Application\Application
 		$container->addService('application', $this);
 
 		// dependencies
-		$this->packageManager = $container->application_packageManager;
-		$this->requestsManager = $container->application_storedRequestsManager;
+		$this->packageManager = $container->kdyby->packageManager;
 		parent::__construct(
-			$container->presenterFactory,
+			$container->nette->presenterFactory,
 			$container->router,
 			$container->httpRequest,
 			$container->httpResponse,
@@ -106,38 +102,6 @@ class Application extends Nette\Application\Application
 	public function getConfigurator()
 	{
 		return $this->configurator;
-	}
-
-
-
-	/********************* Request serialization *********************/
-
-
-
-	/**
-	 * Stores current request to session.
-	 *
-	 * @param string $expiration
-	 *
-	 * @return string
-	 */
-	public function storeRequest($expiration = '+ 10 minutes')
-	{
-		return $this->requestsManager->storeCurrentRequest($expiration);
-	}
-
-
-
-	/**
-	 * Restores current request to session.
-	 *
-	 * @param string $key
-	 *
-	 * @return void
-	 */
-	public function restoreRequest($key)
-	{
-		$this->requestsManager->restoreRequest($key);
 	}
 
 

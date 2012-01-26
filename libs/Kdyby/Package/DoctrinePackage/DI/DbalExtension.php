@@ -74,7 +74,7 @@ class DbalExtension extends Kdyby\Config\CompilerExtension
 			$keys = array_keys($connections);
 			$config['defaultConnection'] = reset($keys);
 		}
-		$container->parameters['doctrine_defaultConnection'] = $config['defaultConnection'];
+		$container->parameters['doctrine']['defaultConnection'] = $config['defaultConnection'];
 
 		// Validators::assertFields($config['types'], 'class')
 		$types = $this->defaultTypes;
@@ -82,11 +82,11 @@ class DbalExtension extends Kdyby\Config\CompilerExtension
 			Validators::assertField($config, 'types', 'array');
 			$types = $config['types'] + $types;
 		}
-		$container->parameters['doctrine_dbal_connectionFactory_types'] = $types;
+		$container->parameters['doctrine']['dbal']['connectionFactory']['types'] = $types;
 
 		// connections list
 		foreach (array_keys($connections) as $name) {
-			$container->parameters['doctrine_connections'][$name] = 'doctrine_dbal_' . $name . 'Connection';
+			$container->parameters['doctrine']['connections'][$name] = 'doctrine.dbal.' . $name . 'Connection';
 		}
 
 		// load connections
@@ -95,8 +95,8 @@ class DbalExtension extends Kdyby\Config\CompilerExtension
 			$this->loadConnection($container, $connection);
 		}
 
-		$this->addAlias('doctrine_dbal_connection', 'doctrine_dbal_' . $config['defaultConnection'] . 'Connection');
-		$this->addAlias('doctrine_dbal_eventManager', 'doctrine_dbal_' . $config['defaultConnection'] . 'Connection_eventManager');
+		$this->addAlias('doctrine.dbal.connection', 'doctrine.dbal.' . $config['defaultConnection'] . 'Connection');
+		$this->addAlias('doctrine.dbal.eventManager', 'doctrine.dbal.' . $config['defaultConnection'] . 'Connection.eventManager');
 	}
 
 
@@ -108,51 +108,51 @@ class DbalExtension extends Kdyby\Config\CompilerExtension
 	 */
 	protected function loadConnection(ContainerBuilder $container, array $config)
 	{
-		$connectionName = 'doctrine_dbal_' . $config['name'] . 'Connection';
+		$connectionName = 'doctrine.dbal.' . $config['name'] . 'Connection';
 
 		// options
 		$options = self::getOptions($config, $this->connectionDefaults);
 
 		// configuration
-		$configuration = $container->addDefinition($connectionName . '_configuration')
+		$configuration = $container->addDefinition($connectionName . '.configuration')
 			->setClass('Doctrine\DBAL\Configuration');
 
 		// logging
-		$container->addDefinition($connectionName . '_logger')
+		$container->addDefinition($connectionName . '.logger')
 			->setClass('Kdyby\Doctrine\Diagnostics\Panel')
 			->setFactory('Kdyby\Doctrine\Diagnostics\Panel::register')
 			->setAutowired(FALSE);
 
 		if ($options['logging']) {
-			$configuration->addSetup('setSQLLogger', array('@' . $connectionName . '_logger'));
+			$configuration->addSetup('setSQLLogger', array('@' . $connectionName . '.logger'));
 		}
 
 		// event manager
-		$container->addDefinition($connectionName . '_eventManager')
+		$container->addDefinition($connectionName . '.eventManager')
 			->setClass('Doctrine\Common\EventManager');
 
 		// charset
 		$this->loadConnectionCharset($container, $options, $connectionName);
 
 		// connection factory
-		$container->addDefinition($connectionName . '_factory')
-			->setClass('Kdyby\Package\DoctrinePackage\ConnectionFactory', array('%doctrine_dbal_connectionFactory_types%'))
+		$container->addDefinition($connectionName . '.factory')
+			->setClass('Kdyby\Package\DoctrinePackage\ConnectionFactory', array('%doctrine.dbal.connectionFactory.types%'))
 			->setInternal(TRUE)
 			->setShared(FALSE);
 
 		$mappingTypes = array();
-		if (isset($config['mapping_types'])) {
-			Validators::assertField($config, 'mapping_types', 'array');
-			$mappingTypes = $config['mapping_types'];
+		if (isset($config['mappingTypes'])) {
+			Validators::assertField($config, 'mappingTypes', 'array');
+			$mappingTypes = $config['mappingTypes'];
 		}
 
 		// connection
 		$connection = $container->addDefinition($connectionName)
 			->setClass('Doctrine\DBAL\Connection')
-			->setFactory('@' . $connectionName . '_factory::createConnection', array(
+			->setFactory('@' . $connectionName . '.factory::createConnection', array(
 				$options,
-				'@' . $connectionName . '_configuration',
-				'@' . $connectionName . '_eventManager',
+				'@' . $connectionName . '.configuration',
+				'@' . $connectionName . '.eventManager',
 				$mappingTypes
 			));
 
@@ -171,7 +171,7 @@ class DbalExtension extends Kdyby\Config\CompilerExtension
 	protected function loadConnectionCharset(ContainerBuilder $container, array $config, $connectionName)
 	{
 		if ($this->connectionUsesMysqlDriver($config)) {
-			$container->addDefinition($connectionName . '_events_mysqlSessionInit')
+			$container->addDefinition($connectionName . '.events.mysqlSessionInit')
 				->setClass('Doctrine\DBAL\Event\Listeners\MysqlSessionInit', array($config['charset']));
 		}
 	}

@@ -12,8 +12,6 @@ namespace Kdyby\Config;
 
 use Doctrine;
 use Kdyby;
-use Kdyby\Caching\CacheServices;
-use Kdyby\Packages\PackageManager;
 use Nette;
 use Nette\Application\Routers\Route;
 use Nette\Application\UI\Presenter;
@@ -106,7 +104,7 @@ class Configurator extends Nette\Object
 	{
 		$this->parameters['productionMode'] = is_bool($isProduction) ? $isProduction
 			: Nette\Config\Configurator::detectProductionMode();
-		$this->parameters['kdyby_debug'] = !$this->parameters['productionMode'];
+		$this->parameters['kdyby']['debug'] = !$this->parameters['productionMode'];
 	}
 
 
@@ -124,7 +122,7 @@ class Configurator extends Nette\Object
 
 		// packages
 		foreach ($this->packages as $name => $package) {
-			$this->parameters['kdyby_packages'][$name] = get_class($package);
+			$this->parameters['kdyby']['packages'][$name] = get_class($package);
 		}
 
 		// configure

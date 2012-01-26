@@ -58,7 +58,7 @@ class Request extends RequestOptions
 	/** @var array */
 	public $files = array();
 
-	/** @var \Kdyby\Curl\ICurlSender */
+	/** @var \Kdyby\Curl\CurlSender */
 	private $sender;
 
 
@@ -119,11 +119,11 @@ class Request extends RequestOptions
 
 
 	/**
-	 * @param \Kdyby\Curl\ICurlSender $sender
+	 * @param \Kdyby\Curl\CurlSender $sender
 	 *
 	 * @return \Kdyby\Curl\Request
 	 */
-	public function setSender(ICurlSender $sender)
+	public function setSender(CurlSender $sender)
 	{
 		$this->sender = $sender;
 		return $this;

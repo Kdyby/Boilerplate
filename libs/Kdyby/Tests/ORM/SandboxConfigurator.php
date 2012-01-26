@@ -43,7 +43,7 @@ class SandboxConfigurator extends Kdyby\Config\Configurator
 	 */
 	final public function getRegistry()
 	{
-		$registry = $this->getContainer()->doctrine;
+		$registry = $this->getContainer()->doctrine->registry;
 		if (!$registry instanceof SandboxRegistry) {
 			throw new Kdyby\UnexpectedValueException("Service 'doctrine' must be instance of 'Kdyby\\Tests\\ORM\\SandboxRegistry', instance of '" . get_class($registry) . "' given.");
 		}

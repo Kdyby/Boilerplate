@@ -31,8 +31,7 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 		$container = $this->getContainerBuilder();
 
 		// watch for package files to change
-		Validators::assertField($container->parameters, 'kdyby_packages', 'array');
-		foreach ($container->parameters['kdyby_packages'] as $packageClass) {
+		foreach ($container->parameters['kdyby']['packages'] as $packageClass) {
 			$container->addDependency(ClassType::from($packageClass)->getFileName());
 		}
 
@@ -41,79 +40,80 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 		}
 
 		// application
-		$container->addDefinition('application_storedRequestsManager')
-			->setClass('Kdyby\Application\RequestManager', array('@application', '@session'));
+		$container->getDefinition('nette.presenterFactory')
+			->setClass('Kdyby\Application\PresenterManager', array('@kdyby.packageManager', '@container', '%appDir%'));
 
-		$container->getDefinition('presenterFactory')
-			->setClass('Kdyby\Application\PresenterManager', array('@application_packageManager', '@container', '%appDir%'));
-
-		$container->addDefinition('application_packageManager')
+		$container->addDefinition($this->prefix('packageManager'))
 			->setClass('Kdyby\Packages\PackageManager');
 
 		// console
-		$container->addDefinition('console_helpers')
+		$container->addDefinition($this->prefix('console.helpers'))
 			->setClass('Symfony\Component\Console\Helper\HelperSet');
 
-		$container->addDefinition('console_helper_serviceContainer')
+		$container->addDefinition($this->prefix('console.helper.serviceContainer'))
 			->setClass('Kdyby\Console\ContainerHelper', array('@container'))
-			->addTag('console_helper', array('alias' => 'di'));
+			->addTag('console.helper', array('alias' => 'di'));
 
-		$container->addDefinition('console_helper_ormEntityManager')
-			->setClass('Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper', array('@doctrine_orm_entityManager'))
-			->addTag('console_helper', array('alias' => 'em'));
+		$container->addDefinition($this->prefix('console.helper.ormEntityManager'))
+			->setClass('Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper', array('@doctrine.orm.entityManager'))
+			->addTag('console.helper', array('alias' => 'em'));
 
-		$container->addDefinition('console_helper_dbalConnection')
-			->setClass('Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper', array('@doctrine_dbal_connection'))
-			->addTag('console_helper', array('alias' => 'db'));
+		$container->addDefinition($this->prefix('console.helper.dbalConnection'))
+			->setClass('Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper', array('@doctrine.dbal.connection'))
+			->addTag('console.helper', array('alias' => 'db'));
 
-		$container->addDefinition('console_helper_cacheStorage')
-			->setClass('Kdyby\Console\StorageHelper', array('@cacheStorage'))
-			->addTag('console_helper', array('alias' => 'cacheStorage'));
+		$container->addDefinition($this->prefix('console.helper.cacheStorage'))
+			->setClass('Kdyby\Console\StorageHelper', array($this->prefix('@cacheStorage')))
+			->addTag('console.helper', array('alias' => 'cacheStorage'));
 
-		$container->addDefinition('console_helper_phpFileStorage')
-			->setClass('Kdyby\Console\StorageHelper', array('@phpFileStorage'))
-			->addTag('console_helper', array('alias' => 'phpFileStorage'));
+		$container->addDefinition($this->prefix('console.helper.phpFileStorage'))
+			->setClass('Kdyby\Console\StorageHelper', array($this->prefix('@phpFileStorage')))
+			->addTag('console.helper', array('alias' => 'phpFileStorage'));
 
-		$container->addDefinition('console_helper_dialogHelper')
+		$container->addDefinition($this->prefix('console.helper.dialogHelper'))
 			->setClass('Symfony\Component\Console\Helper\DialogHelper')
-			->addTag('console_helper', array('alias' => 'dialog'));
+			->addTag('console.helper', array('alias' => 'dialog'));
 
 		// cache
-		$container->addDefinition('phpFileStorage')
-			->setFactory('@templateCacheStorage');
+		$this->addAlias($this->prefix('phpFileStorage'), 'nette.templateCacheStorage');
+		$this->addAlias($this->prefix('cacheStorage'), 'cacheStorage');
 
 		// security
-		$container->getDefinition('userStorage')
-			->setClass('Kdyby\Security\UserStorage', array('@session', '@security_identityDao'));
+		$container->getDefinition('nette.userStorage')
+			->setClass('Kdyby\Security\UserStorage', array('@session', $this->prefix('@security.identityDao')));
 
 		$container->getDefinition('user')
-			->setClass('Kdyby\Security\User', array('@userStorage', '@container', '@security_identityDao'));
+			->setClass('Kdyby\Security\User', array('@nette.userStorage', '@container', $this->prefix('@security.identityDao')));
 
-		$container->addDefinition('authenticator')
+		$container->addDefinition('nette.authenticator')
 			->setFactory('@user');
 
-		$container->addDefinition('security_identityDao')
-			->setFactory('@doctrine::getDao', array('Kdyby\Security\Identity'))
+		$container->addDefinition($this->prefix('security.identityDao'))
+			->setFactory('@doctrine.registry::getDao', array('Kdyby\Security\Identity'))
 			->setInternal(TRUE);
 
-		$container->addDefinition('authorizator')
+		$container->addDefinition('nette.authorizator')
 			->setClass('Nette\Security\IAuthorizator')
-			->setFactory('@security_authorizatorFactory::create');
+			->setFactory($this->prefix('@security.authorizatorFactory::create'));
 
-		$container->addDefinition('security_authorizatorFactory')
-			->setClass('Kdyby\Security\AuthorizatorFactory', array('@user', '@session', '@doctrine'))
+		$container->addDefinition($this->prefix('security.authorizatorFactory'))
+			->setClass('Kdyby\Security\AuthorizatorFactory', array('@user', '@session', '@doctrine.registry'))
 			->setInternal(TRUE);
 
 		// template
-		$container->addDefinition('templateConfigurator')
+		$container->addDefinition($this->prefix('templateConfigurator'))
 			->setClass('Kdyby\Templates\TemplateConfigurator');
 
 		// macros
-		$this->addMacro('macros_core', 'Kdyby\Templates\CoreMacros::install');
+		$this->addMacro('macros.core', 'Kdyby\Templates\CoreMacros::install');
 
 		// curl
-		$container->addDefinition('kdyby_curl')
+		$container->addDefinition($this->prefix('curl'))
 			->setClass('Kdyby\Curl\CurlSender');
+
+//		$container->addDefinition($this->prefix('curl.panel'))
+//			->setFactory('Kdyby\Browser\Diagnostics\Panel::register')
+//			->addTag('run', TRUE);
 	}
 
 
@@ -134,9 +134,9 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 	 */
 	protected function registerConsoleHelpers(ContainerBuilder $container)
 	{
-		$helpers = $container->getDefinition('console_helpers');
+		$helpers = $container->getDefinition($this->prefix('console.helpers'));
 
-		foreach ($container->findByTag('console_helper') as $helper => $meta) {
+		foreach ($container->findByTag('console.helper') as $helper => $meta) {
 			$alias = isset($meta['alias']) ? $meta['alias'] : NULL;
 			$helpers->addSetup('set', array('@' . $helper, $alias));
 		}
@@ -149,9 +149,9 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 	 */
 	protected function registerMacroFactories(ContainerBuilder $container)
 	{
-		$config = $container->getDefinition('templateConfigurator');
+		$config = $container->getDefinition($this->prefix('templateConfigurator'));
 
-		foreach ($container->findByTag('latte_macro') as $factory => $meta) {
+		foreach ($container->findByTag('latte.macro') as $factory => $meta) {
 			$config->addSetup('addFactory', array($factory));
 		}
 	}
@@ -176,7 +176,7 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 			}
 
 			if ($this->componentHasTemplate($meta) && !$this->hasTemplateConfigurator($component)) {
-				$component->addSetup('setTemplateConfigurator', array('@templateConfigurator'));
+				$component->addSetup('setTemplateConfigurator', array($this->prefix('@templateConfigurator')));
 			}
 		}
 	}
@@ -220,8 +220,6 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 	{
 		$initialize = $class->methods['initialize'];
 		$this->compileRouter($this->getContainerBuilder(), $initialize);
-
-		$initialize->addBody('Kdyby\Browser\Diagnostics\Panel');
 	}
 
 

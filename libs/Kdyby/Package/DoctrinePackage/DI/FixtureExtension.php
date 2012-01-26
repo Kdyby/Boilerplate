@@ -29,19 +29,17 @@ class FixtureExtension extends Kdyby\Config\CompilerExtension
 	{
 		$container = $this->getContainerBuilder();
 
-		Validators::assertField($container->parameters, 'doctrine_entityManagers');
+		foreach ($container->parameters['doctrine']['entityManagers'] as $entityManagerName) {
+			$prefix = $entityManagerName . '.dataFixtures';
 
-		foreach ($container->parameters['doctrine_entityManagers'] as $entityManagerName) {
-			$prefix = $entityManagerName . '_dataFixtures';
-
-			$container->addDefinition($prefix . '_loader')
+			$container->addDefinition($prefix . '.loader')
 				->setClass('Doctrine\Common\DataFixtures\Loader');
 
-			$container->addDefinition($prefix . '_purger')
+			$container->addDefinition($prefix . '.purger')
 				->setClass('Doctrine\Common\DataFixtures\Purger\ORMPurger', array('@' . $entityManagerName));
 
-			$container->addDefinition($prefix . '_executor')
-				->setClass('Doctrine\Common\DataFixtures\Executor\ORMExecutor', array('@' . $entityManagerName, '@' . $prefix . '_purger'));
+			$container->addDefinition($prefix . '.executor')
+				->setClass('Doctrine\Common\DataFixtures\Executor\ORMExecutor', array('@' . $entityManagerName, '@' . $prefix . '.purger'));
 		}
 	}
 
