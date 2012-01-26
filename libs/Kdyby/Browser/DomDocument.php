@@ -67,6 +67,32 @@ class DomDocument extends \DOMDocument
 
 
 	/**
+	 * @param \Kdyby\Browser\ISnippetProcessor $snippetProcessor
+	 *
+	 * @return mixed
+	 */
+	public function processSnippet(ISnippetProcessor $snippetProcessor)
+	{
+		$node = $this->findOne($snippetProcessor->getSelector());
+		return $node ? $snippetProcessor->process($node) : NULL;
+	}
+
+
+
+	/**
+	 * @param \Kdyby\Browser\ISnippetProcessor $snippetProcessor
+	 *
+	 * @return mixed
+	 */
+	public function processSnippets(ISnippetProcessor $snippetProcessor)
+	{
+		$nodes = $this->find($snippetProcessor->getSelector());
+		return $nodes ? array_map(array($snippetProcessor, 'process'), $nodes) : NULL;
+	}
+
+
+
+	/**
 	 * @param string $html
 	 * @param string $version
 	 * @param string $encoding
