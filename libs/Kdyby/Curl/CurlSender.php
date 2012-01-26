@@ -267,6 +267,7 @@ class CurlSender extends RequestOptions implements ICurlSender
 
 		$headers = Response::stripHeaders($curl);
 		if (strpos($headers['Content-Type'], 'html') !== FALSE || strpos($headers['Content-Type'], 'html') !== FALSE) {
+			$curl->response = HtmlResponse::convertEncoding($curl);
 			return new HtmlResponse($headers, $curl->response);
 		}
 

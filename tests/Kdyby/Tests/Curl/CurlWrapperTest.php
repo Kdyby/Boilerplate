@@ -75,6 +75,25 @@ class CurlWrapperTest extends Kdyby\Tests\TestCase
 
 
 
+	public function testGet_Cookies()
+	{
+		$curl = new Curl\CurlWrapper(static::TEST_PATH . '/cookies.php');
+		$curl->setOption('header', TRUE);
+		$this->assertTrue($curl->execute());
+
+		$headers = Curl\Response::stripHeaders($curl);
+		$this->assertEquals(Curl\HttpCookies::from(array(
+			'kdyby' => 'is awesome',
+			'nette' => 'is awesome',
+			'array' => array(
+				'one' => 'Lister',
+				'two' => 'Rimmer'
+			),
+		), FALSE), $headers['Set-Cookie']);
+	}
+
+
+
 	/**
 	 * @param mixed $variable
 	 * @return string

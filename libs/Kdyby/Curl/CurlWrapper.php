@@ -26,6 +26,10 @@ use Nette\Utils\Strings;
  */
 class CurlWrapper extends Nette\Object
 {
+	/**#@+ regexp's for parsing */
+	const HEADER_REGEXP = '~(?P<header>.*?)\:\s(?P<value>.*)~';
+	const VERSION_AND_STATUS = '~^HTTP/(?P<version>\d\.\d)\s(?P<code>\d\d\d)\s(?P<status>.*)~';
+	/**#@- */
 
 	/** @var string */
 	public $error;
@@ -39,7 +43,7 @@ class CurlWrapper extends Nette\Object
 	/** @var string */
 	public $file;
 
-	/** @var string|bool */
+	/** @var string|boolean */
 	public $response;
 
 	/** @var string|array */
@@ -405,7 +409,7 @@ class CurlWrapper extends Nette\Object
 
 		// gather info
 		$this->info = curl_getinfo($curl);
-		$this->requestHeaders = Response::parseHeaders($this->info['request_header']);
+		$this->requestHeaders = static::parseHeaders($this->info['request_header']);
 		unset($this->info['request_header']);
 
 		// cleanup
@@ -417,6 +421,51 @@ class CurlWrapper extends Nette\Object
 		}
 
 		return $this->errorNumber === 0;
+	}
+
+
+
+	/**
+	 * Parses headers from given list
+	 * @param array $input
+	 *
+	 * @return array
+	 */
+	public static function parseHeaders($input)
+	{
+		if (!is_array($input)) {
+			$input = Strings::split($input, "~[\n\r]+~", PREG_SPLIT_NO_EMPTY);
+		}
+
+		# Extract the version and status from the first header
+		$headers = array();
+		if ($m = Strings::match(reset($input), self::VERSION_AND_STATUS)) {
+			$headers['Http-Version'] = $m['version'];
+			$headers['Status-Code'] = $m['code'];
+			$headers['Status'] = $m['code'] . ' ' . $m['status'];
+			array_shift($input);
+		}
+
+		# Convert headers into an associative array
+		foreach ($input as $header) {
+			if ($m = Strings::match($header, self::HEADER_REGEXP)) {
+				if (empty($headers[$m['header']])) {
+					$headers[$m['header']] = $m['value'];
+
+				} elseif (!is_array($headers[$m['header']])) {
+					$headers[$m['header']] = array($headers[$m['header']], $m['value']);
+
+				} else {
+					$headers[$m['header']][] = $m['value'];
+				}
+			}
+		}
+
+		if (isset($headers['Set-Cookie'])) {
+			$headers['Set-Cookie'] = new HttpCookies($headers['Set-Cookie']);
+		}
+
+		return $headers;
 	}
 
 }

@@ -110,6 +110,10 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 
 		// macros
 		$this->addMacro('macros_core', 'Kdyby\Templates\CoreMacros::install');
+
+		// curl
+		$container->addDefinition('kdyby_curl')
+			->setClass('Kdyby\Curl\CurlSender');
 	}
 
 
@@ -214,7 +218,10 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 	 */
 	public function afterCompile(Code\ClassType $class)
 	{
-		$this->compileRouter($this->getContainerBuilder(), $class->methods['initialize']);
+		$initialize = $class->methods['initialize'];
+		$this->compileRouter($this->getContainerBuilder(), $initialize);
+
+		$initialize->addBody('Kdyby\Browser\Diagnostics\Panel');
 	}
 
 

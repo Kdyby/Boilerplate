@@ -22,7 +22,6 @@ use Nette\Http\UrlScript as Url;
  *
  * @method \Kdyby\Curl\Request setUrl(string $url)
  * @method \Kdyby\Curl\Request setMethod(string $url)
- * @method \Kdyby\Curl\Request addCookie(string $url)
  */
 class Request extends RequestOptions
 {
@@ -96,6 +95,25 @@ class Request extends RequestOptions
 	public function isMethod($method)
 	{
 		return $this->method === $method;
+	}
+
+
+
+	/**
+	 * @param string $name
+	 * @param mixed $value
+	 * @param string $expire
+	 * @param string $path
+	 * @param string $domain
+	 * @param boolean $secure
+	 * @param boolean $httpOnly
+	 *
+	 * @return \Kdyby\Curl\Request
+	 */
+	public function setCookie($name, $value, $expire = '+1 day', $path = '', $domain = '', $secure = FALSE, $httpOnly = FALSE)
+	{
+		$this->cookies[$name] = array($value, $expire, $path, $domain, $secure, $httpOnly);
+		return $this;
 	}
 
 

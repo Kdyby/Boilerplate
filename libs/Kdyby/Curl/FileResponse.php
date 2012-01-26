@@ -110,7 +110,7 @@ class FileResponse extends Response
 
 	/**
 	 * Is uploaded file GIF, PNG or JPEG?
-	 * @return bool
+	 * @return boolean
 	 */
 	public function isImage()
 	{
@@ -168,7 +168,7 @@ class FileResponse extends Response
 		}
 
 		$curl->responseHeaders = fread($headersHandle, filesize($headersFile));
-		if (!$headers = static::parseHeaders($curl->responseHeaders)) {
+		if (!$headers = CurlWrapper::parseHeaders($curl->responseHeaders)) {
 			throw new CurlException("Failed parsing of response headers");
 		}
 		if (!@fclose($headersHandle) || !@unlink($headersFile)) {

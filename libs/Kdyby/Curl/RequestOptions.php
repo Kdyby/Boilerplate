@@ -110,20 +110,6 @@ abstract class RequestOptions extends Nette\Object
 
 
 	/**
-	 * @param string $cookieFile
-	 *
-	 * @return \Kdyby\Curl\RequestOptions
-	 */
-	public function setCookiesFile($cookieFile)
-	{
-		$this->options['cookieFile'] = $cookieFile;
-		$this->options['cookieJar'] = $cookieFile;
-		return $this;
-	}
-
-
-
-	/**
 	 * Sets if all certificates are trusted by default
 	 *
 	 * @param boolean $yes
