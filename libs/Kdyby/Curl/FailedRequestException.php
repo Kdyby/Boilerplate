@@ -33,7 +33,7 @@ class FailedRequestException extends CurlException
 	{
 		parent::__construct($curl->error);
 		$this->code = $curl->errorNumber;
-		$this->info = $curl->errorInfo;
+		$this->info = $curl->info;
 	}
 
 

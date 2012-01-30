@@ -23,7 +23,7 @@ abstract class RequestOptions extends Nette\Object
 
 	/** @var array */
 	public $options = array(
-		'timeout' => 10,
+		'timeout' => 60,
 		'followLocation' => TRUE,
 		'maxRedirs' => 10,
 		'returnTransfer' => TRUE,
@@ -51,7 +51,7 @@ abstract class RequestOptions extends Nette\Object
 	 */
 	public function setReferer($referer)
 	{
-		$this->options['referer'] = $referer;
+		$this->options['referer'] = (string)$referer;
 		return $this;
 	}
 

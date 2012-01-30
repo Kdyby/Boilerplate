@@ -28,7 +28,7 @@ class CurlWrapper extends Nette\Object
 {
 	/**#@+ regexp's for parsing */
 	const HEADER_REGEXP = '~(?P<header>.*?)\:\s(?P<value>.*)~';
-	const VERSION_AND_STATUS = '~^HTTP/(?P<version>\d\.\d)\s(?P<code>\d\d\d)\s(?P<status>.*)~';
+	const VERSION_AND_STATUS = '~^HTTP/(?P<version>\d\.\d)\s(?P<code>\d+)\s(?P<status>.*)~';
 	/**#@- */
 
 	/** @var string */
@@ -99,10 +99,7 @@ class CurlWrapper extends Nette\Object
 	 */
 	public function setUrl($url)
 	{
-		if ($url !== NULL && !$url instanceof Url) {
-			$url = new Url($url);
-		}
-		$this->url = $url;
+		$this->url = new Url($url);
 		return $this;
 	}
 
@@ -409,8 +406,10 @@ class CurlWrapper extends Nette\Object
 
 		// gather info
 		$this->info = curl_getinfo($curl);
-		$this->requestHeaders = static::parseHeaders($this->info['request_header']);
-		unset($this->info['request_header']);
+		if (isset($this->info['request_header'])){
+			$this->requestHeaders = static::parseHeaders($this->info['request_header']);
+			unset($this->info['request_header']);
+		}
 
 		// cleanup
 		@curl_close($curl);
@@ -439,7 +438,7 @@ class CurlWrapper extends Nette\Object
 
 		# Extract the version and status from the first header
 		$headers = array();
-		if ($m = Strings::match(reset($input), self::VERSION_AND_STATUS)) {
+		while ($m = Strings::match(reset($input), static::VERSION_AND_STATUS)) {
 			$headers['Http-Version'] = $m['version'];
 			$headers['Status-Code'] = $m['code'];
 			$headers['Status'] = $m['code'] . ' ' . $m['status'];
@@ -448,7 +447,7 @@ class CurlWrapper extends Nette\Object
 
 		# Convert headers into an associative array
 		foreach ($input as $header) {
-			if ($m = Strings::match($header, self::HEADER_REGEXP)) {
+			if ($m = Strings::match($header, static::HEADER_REGEXP)) {
 				if (empty($headers[$m['header']])) {
 					$headers[$m['header']] = $m['value'];
 

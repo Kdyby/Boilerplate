@@ -24,6 +24,7 @@ class CurlSender extends RequestOptions
 {
 	/** @var array */
 	public static $userAgents = array(
+		'Chrome' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/13.0.782.109 Safari/535.1',
 		'FireFox3' => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; pl; rv:1.9) Gecko/2008052906 Firefox/3.0',
 		'GoogleBot' => 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
 		'IE7' => 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0)',
@@ -204,10 +205,17 @@ class CurlSender extends RequestOptions
 			throw new CurlException("Redirect loop", $this->queriedRequest);
 		}
 
+		// cookies
+		$request->options += $this->options;
+		$request->headers += $this->headers;
+		if ($request->cookies){
+			$request->headers['Cookie'] = $request->getCookies();
+		}
+
+		// wrap
 		$cUrl = new CurlWrapper($request->url, $request->method);
-		$cUrl->setOptions($request->options + $this->options);
-		$cUrl->setHeaders($request->headers + $this->headers);
-		$cUrl->setHeader('Cookie', $request->getCookies());
+		$cUrl->setOptions($request->options);
+		$cUrl->setHeaders($request->headers);
 		$cUrl->setPost($request->post, $request->files);
 
 		if (!$this->canFollowRedirect()) {
@@ -241,12 +249,13 @@ class CurlSender extends RequestOptions
 
 		$response = $this->buildResponse($cUrl);
 		if (($statusCode = $response->headers['Status-Code']) >= 400 && $statusCode < 600) {
-			throw new BadStatusException("Status $statusCode: $cUrl->error", $request, $response);
+			throw new BadStatusException($response->headers['Status'], $request, $response);
 		}
 
 		if ($this->isForcingFollowRedirect($cUrl, $response)) {
 			$request = $this->queriedRequest->followRedirect($response);
-			$response = $this->sendRequest($request, ++$cycles);
+			$response = $this->sendRequest($request, ++$cycles)
+				->setPrevious($response); // override
 		}
 
 		return $response;
@@ -263,16 +272,74 @@ class CurlSender extends RequestOptions
 	{
 		if ($this->queriedRequest->method === Request::DOWNLOAD) {
 			$headers = FileResponse::stripHeaders($curl);
-			return new FileResponse($headers, $curl->file);
+			if ($previous = $this->buildRedirectResponse($curl)) {
+				$headers = CurlWrapper::parseHeaders($curl->responseHeaders);
+			}
+
+			$response = new FileResponse($curl->getUrl(), $headers, $curl->file);
+			$response->setPrevious($previous);
+			return $response;
 		}
 
 		$headers = Response::stripHeaders($curl);
-		if (strpos($headers['Content-Type'], 'html') !== FALSE || strpos($headers['Content-Type'], 'html') !== FALSE) {
-			$curl->response = HtmlResponse::convertEncoding($curl);
-			return new HtmlResponse($headers, $curl->response);
+		if ($previous = $this->buildRedirectResponse($curl)) {
+			$headers = CurlWrapper::parseHeaders($curl->responseHeaders);
 		}
 
-		return new Response($headers, $curl->response);
+		if (strpos($headers['Content-Type'], 'html') !== FALSE || strpos($headers['Content-Type'], 'html') !== FALSE) {
+			$curl->response = HtmlResponse::convertEncoding($curl);
+			$response = new HtmlResponse($curl->getUrl(), $headers, $curl->response);
+			$response->setPrevious($previous);
+			return $response;
+		}
+
+		$response = new Response($curl->getUrl(), $headers, $curl->response);
+		$response->setPrevious($previous);
+		return $response;
+	}
+
+
+
+	/**
+	 * @param \Kdyby\Curl\CurlWrapper $curl
+	 *
+	 * @return \Kdyby\Curl\Response|NULL
+	 */
+	protected function buildRedirectResponse(CurlWrapper $curl)
+	{
+		if ($curl->info['redirect_count'] === 0) {
+			return NULL;
+		}
+
+		$previous = $last = NULL;
+		$url = $curl->getUrl();
+
+		$parts = Strings::split($curl->responseHeaders, '~(HTTP/\d\.\d\s\d+\s.*)~m', PREG_SPLIT_NO_EMPTY);
+		while ($rawHeaders = array_shift($parts)) {
+			if ($http = Strings::match($rawHeaders, CurlWrapper::VERSION_AND_STATUS)) {
+				if ($http['code'] < 200) {
+					continue;
+				}
+
+				$rawHeaders .= array_shift($parts);
+			}
+
+			if (!$parts) {
+				$curl->responseHeaders = $rawHeaders;
+				return $previous;
+			}
+
+			if ($headers = CurlWrapper::parseHeaders($rawHeaders)) {
+				$previous = new Response(new Url($url), $headers);
+				if ($last !== NULL) {
+					$previous->setPrevious($last);
+				}
+			}
+
+			$last = $previous;
+		}
+
+		return $previous;
 	}
 
 

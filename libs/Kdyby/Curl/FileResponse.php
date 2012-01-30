@@ -12,6 +12,7 @@ namespace Kdyby\Curl;
 
 use Kdyby;
 use Nette;
+use Nette\Http\UrlScript as Url;
 use Nette\Utils\Strings;
 
 
@@ -31,12 +32,13 @@ class FileResponse extends Response
 
 
 	/**
+	 * @param \Nette\Http\UrlScript $url
 	 * @param array $headers
 	 * @param string $file
 	 */
-	public function __construct(array $headers, $file)
+	public function __construct(Url $url, array $headers, $file)
 	{
-		parent::__construct($headers);
+		parent::__construct($url, $headers);
 		$this->file = $file;
 	}
 

@@ -285,4 +285,14 @@ class Request extends RequestOptions
 		return $url;
 	}
 
+
+
+	/**
+	 * @return array
+	 */
+	public function __sleep()
+	{
+		return array('url', 'method', 'headers', 'options', 'cookies', 'post', 'files');
+	}
+
 }

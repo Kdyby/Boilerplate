@@ -18,7 +18,7 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class CurlException extends \Exception
+class CurlException extends Kdyby\InvalidStateException
 {
 
 	/** @var \Kdyby\Curl\Request */

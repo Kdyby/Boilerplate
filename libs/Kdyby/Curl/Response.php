@@ -12,6 +12,7 @@ namespace Kdyby\Curl;
 
 use Kdyby;
 use Nette;
+use Nette\Http\UrlScript as Url;
 use Nette\Utils\Strings;
 
 
@@ -24,15 +25,11 @@ use Nette\Utils\Strings;
  */
 class Response extends Nette\Object
 {
-
-	/**#@+ regexp's for parsing */
-	const HEADER_REGEXP = '~(?P<header>.*?)\:\s(?P<value>.*)~';
-	const VERSION_AND_STATUS = '~^HTTP/(?P<version>\d\.\d)\s(?P<code>\d\d\d)\s(?P<status>.*)~';
-	const CONTENT_TYPE = '~^(?P<type>[^;]+);[\t ]*charset=(?P<charset>.+)$~i';
-	/**#@- */
-
 	/** @var array */
 	protected $headers = array();
+
+	/** @var \Nette\Http\UrlScript */
+	private $url;
 
 	/** @var array */
 	private $cookies = array();
@@ -40,14 +37,19 @@ class Response extends Nette\Object
 	/** @var string */
 	private $response;
 
+	/** @var \Kdyby\Curl\Response */
+	private $previous;
+
 
 
 	/**
+	 * @param \Nette\Http\UrlScript $url
 	 * @param array $headers
 	 * @param string $response
 	 */
-	public function __construct(array $headers, $response = NULL)
+	public function __construct(Url $url, array $headers, $response = NULL)
 	{
+		$this->url = $url;
 		$this->headers = $headers;
 
 		if (isset($headers['Set-Cookie'])) {
@@ -61,11 +63,44 @@ class Response extends Nette\Object
 
 
 	/**
+	 * @param \Kdyby\Curl\Response $previous
+	 *
+	 * @return \Kdyby\Curl\Response
+	 */
+	public function setPrevious(Response $previous = NULL)
+	{
+		$this->previous = $previous;
+		return $this;
+	}
+
+
+
+	/**
+	 * @return \Kdyby\Curl\Response
+	 */
+	public function getPrevious()
+	{
+		return $this->previous;
+	}
+
+
+
+	/**
 	 * @return string
 	 */
 	public function getResponse()
 	{
 		return $this->response;
+	}
+
+
+
+	/**
+	 * @return \Nette\Http\UrlScript
+	 */
+	public function getUrl()
+	{
+		return clone $this->url;
 	}
 
 

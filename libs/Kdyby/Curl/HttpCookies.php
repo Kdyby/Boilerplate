@@ -79,7 +79,7 @@ class HttpCookies extends Nette\ArrayHash
 				continue;
 			}
 
-			if ((\DateTime::createFromFormat(static::COOKIE_DATETIME, $cookie['expires'])) < date_create()) {
+			if (isset($cookie['expires']) && \DateTime::createFromFormat(static::COOKIE_DATETIME, $cookie['expires']) < date_create()) {
 				continue; // cookie already expired
 			}
 
@@ -122,7 +122,7 @@ class HttpCookies extends Nette\ArrayHash
 			$cookie[$found['name']] = !empty($found['value']) ? $found['value'] : TRUE;
 		}
 
-		return $cookie + array('expires' => NULL);
+		return $cookie;
 	}
 
 }
