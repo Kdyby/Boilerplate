@@ -76,12 +76,12 @@ class DoctrinePackage extends Kdyby\Packages\Package
 			new OrmCommand\ValidateSchemaCommand(),
 			new OrmCommand\InfoCommand(),
 
-			// Migrations Commands
-			new MigrationCommand\ExecuteCommand(),
-			new MigrationCommand\GenerateCommand(),
-			new MigrationCommand\MigrateCommand(),
-			new MigrationCommand\StatusCommand(),
-			new MigrationCommand\VersionCommand()
+//			// Migrations Commands
+//			new MigrationCommand\ExecuteCommand(),
+//			new MigrationCommand\GenerateCommand(),
+//			new MigrationCommand\MigrateCommand(),
+//			new MigrationCommand\StatusCommand(),
+//			new MigrationCommand\VersionCommand()
 		));
 	}
 
