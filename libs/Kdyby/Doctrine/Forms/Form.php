@@ -103,7 +103,7 @@ class Form extends Kdyby\Application\UI\Form implements IObjectContainer
 
 
 	/**
-	 * Fires submit/click events.
+	 * Fires send/click events.
 	 * @return void
 	 */
 	public function fireEvents()

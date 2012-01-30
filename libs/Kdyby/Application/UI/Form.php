@@ -110,7 +110,7 @@ class Form extends Nette\Application\UI\Form
 
 
 	/**
-	 * Fires submit/click events.
+	 * Fires send/click events.
 	 * @return void
 	 */
 	public function fireEvents()

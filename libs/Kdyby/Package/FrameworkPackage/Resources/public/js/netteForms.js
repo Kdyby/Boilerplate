@@ -231,7 +231,7 @@ Nette.toggle = function(id, visible) {
 
 
 Nette.initForm = function(form) {
-	Nette.addEvent(form, 'submit', function() {
+	Nette.addEvent(form, 'send', function() {
 		return Nette.validateForm(form);
 	});
 

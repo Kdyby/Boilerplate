@@ -11,7 +11,6 @@
 namespace Kdyby\Doctrine;
 
 use Doctrine;
-use Doctrine\DBAL\Connection;
 use Doctrine\ORM\Configuration;
 use Doctrine\ORM\ORMException;
 use Kdyby;
