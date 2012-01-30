@@ -48,14 +48,4 @@ class Configurator extends Kdyby\Config\Configurator
 		return static::$configurator->getContainer();
 	}
 
-
-
-	/**
-	 * @return string
-	 */
-	public function getConfigFile()
-	{
-		return $this->parameters['appDir'] . '/config.neon';
-	}
-
 }

@@ -151,7 +151,18 @@ class Configurator extends Nette\Object
 	 */
 	public function getConfigFile()
 	{
-		return $this->parameters['appDir'] . '/config/config_' . $this->parameters['environment'] . '.neon';
+		$appDir = $this->parameters['appDir'];
+		$environment = $this->parameters['environment'];
+
+		if (is_file($config = "$appDir/config.neon")) {
+			return $config;
+
+		} elseif (is_file($config = "$appDir/config/config_$environment.neon")) {
+			return $config;
+
+		} elseif (is_file($config = "$appDir/config/config.neon")) {
+			return $config;
+		}
 	}
 
 

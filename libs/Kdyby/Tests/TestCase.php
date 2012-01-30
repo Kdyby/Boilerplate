@@ -149,7 +149,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 		return $presenter->run(new Nette\Application\Request(
 			'presenter',
 			strtoupper($form->getMethod()),
-			array('do' => 'form-submit', 'action' => 'default') + $get,
+			array('do' => 'form-send', 'action' => 'default') + $get,
 			$post,
 			$files
 		));
