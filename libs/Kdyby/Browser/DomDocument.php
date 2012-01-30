@@ -37,57 +37,70 @@ class DomDocument extends \DOMDocument
 
 
 	/**
-	 * @param string $query
+	 * @param string $selector
 	 * @param \DOMNode|string $context
 	 *
-	 * @return \DOMNode[]
+	 * @return \DOMNode[]|\DOMElement[]
 	 */
-	public function find($query, $context = NULL)
+	public function find($selector, $context = NULL)
 	{
-		$xpath = new \DOMXPath($this);
-		if (!$context instanceof \DOMNode) {
+		if (strpos($selector, ',') !== FALSE) {
+			$result = array();
+			foreach (Strings::split($selector, '~\s*,\s*~') as $part) {
+				$result = array_merge($result, (array)$this->find($part, $context));
+			}
+
+			return $result;
+		}
+
+		if ($context !== NULL && !$context instanceof \DOMNode) {
 			$context = $this->find($context);
 		}
-		return static::nodeListToArray($xpath->query(CssSelector::toXPath($query), $context));
+		$xpath = new \DOMXPath($this);
+		return static::nodeListToArray($xpath->query(CssSelector::toXPath($selector), $context));
 	}
 
 
 
 	/**
-	 * @param string $query
+	 * @param string $selector
 	 * @param \DOMNode|string $context
 	 *
-	 * @return \DOMNode
+	 * @return \DOMNode|\DOMElement
 	 */
-	public function findOne($query, $context = NULL)
+	public function findOne($selector, $context = NULL)
 	{
-		return current($this->find($query, $context));
+		return ($result = $this->find($selector, $context)) ? current($result) : NULL;
 	}
 
 
 
 	/**
-	 * @param \Kdyby\Browser\ISnippetProcessor $snippetProcessor
+	 * @param \Kdyby\Browser\IDocumentProcessor $processor
 	 *
 	 * @return mixed
 	 */
-	public function processSnippet(ISnippetProcessor $snippetProcessor)
+	public function process(IDocumentProcessor $processor)
 	{
-		$node = $this->findOne($snippetProcessor->getSelector());
-		return $node ? $snippetProcessor->process($node) : NULL;
+		return $processor->process($this);
 	}
 
 
 
 	/**
-	 * @param \Kdyby\Browser\ISnippetProcessor $snippetProcessor
+	 * @param string $selector
+	 * @param \Kdyby\Browser\ISnippetProcessor $processor
 	 *
 	 * @return mixed
 	 */
-	public function processSnippets(ISnippetProcessor $snippetProcessor)
+	public function processSnippets($selector, ISnippetProcessor $processor)
 	{
-		$nodes = $this->find($snippetProcessor->getSelector());
-		return $nodes ? array_map(array($snippetProcessor, 'process'), $nodes) : NULL;
+		$result = array();
+		foreach ($this->find($selector) as $node) {
+			$result[] = $processor->process($node);
+		}
+
+		return $result;
 	}
 
 
@@ -101,6 +114,10 @@ class DomDocument extends \DOMDocument
 	 */
 	public static function fromMalformedHtml($html, $version = '1.0', $encoding = 'UTF-8')
 	{
+		if ($html[0] === '/' && file_exists($html)) {
+			$html = file_get_contents($html);
+		}
+
 		$dom = new static($version, $encoding);
 		$dom->loadMalformed($html);
 		return $dom;
@@ -157,6 +174,7 @@ class DomDocument extends \DOMDocument
 
 		// multiplied attributes FUUUU
 		$html = Strings::replace($html, '~</?(([^\s>](?<!\!)[^\s>]*)[^>]*?)?(?:\s+?/)?>~im', function ($m) {
+			if (count($m) < 3) return $m[0];
 			return str_replace($m[1], $m[2] . Html::el($m[1])->attributes(), $m[0]);
 		});
 

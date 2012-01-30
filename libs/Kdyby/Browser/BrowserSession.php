@@ -11,7 +11,9 @@
 namespace Kdyby\Browser;
 
 use Kdyby;
+use Kdyby\Curl;
 use Nette;
+use Nette\Http\UrlScript as Url;
 
 
 
@@ -21,11 +23,14 @@ use Nette;
 class BrowserSession extends Nette\Object
 {
 
-	/** @var string */
+	/** @var \Nette\Http\UrlScript */
 	private $page;
 
-	/** @var \Kdyby\Browser\WebPage[] */
-	private $history = array();
+	/** @var \SplObjectStorage|\Kdyby\Browser\WebPage[] */
+	private $history;
+
+	/** @var \Kdyby\Browser\WebPage */
+	private $lastPage;
 
 	/** @var \Kdyby\Browser\WebBrowser */
 	private $browser;
@@ -40,7 +45,18 @@ class BrowserSession extends Nette\Object
 	 */
 	public function __construct(WebBrowser $browser = NULL)
 	{
-		$this->browser = $browser ?: new WebBrowser();
+		$this->browser = $browser;
+		$this->cleanHistory();
+	}
+
+
+
+	/**
+	 * @param \Kdyby\Browser\WebBrowser $browser
+	 */
+	public function setBrowser(WebBrowser $browser)
+	{
+		$this->browser = $browser;
 	}
 
 
@@ -50,14 +66,26 @@ class BrowserSession extends Nette\Object
 	 */
 	public function getBrowser()
 	{
-		return $this->browser;
+		return $this->browser ?: new WebBrowser();
 	}
 
 
 
-	public function open($link)
+	/**
+	 */
+	public function cleanHistory()
 	{
+		$this->history = new \SplObjectStorage();
+	}
 
+
+
+	/**
+	 * @return \Kdyby\Browser\WebPage[]
+	 */
+	public function getHistory()
+	{
+		return $this->history;
 	}
 
 
@@ -78,6 +106,83 @@ class BrowserSession extends Nette\Object
 	public function getCookies()
 	{
 		return $this->cookies;
+	}
+
+
+
+	/**
+	 * @param string|\Nette\Http\UrlScript $page
+	 */
+	public function setPage($page)
+	{
+		$this->page = new Url($page);
+	}
+
+
+
+	/**
+	 * @return \Nette\Http\UrlScript
+	 */
+	public function getPage()
+	{
+		return $this->page;
+	}
+
+
+
+	/**
+	 * @param $link
+	 * @return \Kdyby\Browser\WebPage
+	 */
+	public function open($link)
+	{
+		return $this->send(new Curl\Request($link));
+	}
+
+
+
+	/**
+	 * @param \Kdyby\Curl\Request $request
+	 *
+	 * @throws \Kdyby\Curl\CurlException
+	 * @return \Kdyby\Browser\WebPage
+	 */
+	public function send(Curl\Request $request)
+	{
+		$request->cookies = $this->getCookies();
+		if ($this->getPage() !== NULL) {
+			$request->url = Curl\Request::fixUrl($request->url, $this->getPage());
+		}
+
+		// apply history
+		if ($this->lastPage !== NULL) {
+			$request->setReferer($this->lastPage->getAddress());
+		}
+
+		// send
+		$response = $this->getBrowser()->send($request);
+
+		// create page
+		$this->lastPage = $page = new WebPage($response->getDocument(), $response->getUrl());
+		$page->setSession($this);
+
+		// store
+		$this->history[$page] = array('request' => clone $request, 'response' => clone $response);
+		$this->cookies = $response->getCookies();
+		$this->page = new Url($request->url->getHostUrl());
+
+		// return
+		return $page;
+	}
+
+
+
+	/**
+	 * @return array
+	 */
+	public function __sleep()
+	{
+		return array('cookies', 'page'); // todo: history?
 	}
 
 }

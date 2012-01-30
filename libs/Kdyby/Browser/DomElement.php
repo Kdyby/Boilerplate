@@ -22,7 +22,7 @@ use Symfony\Component\CssSelector\CssSelector;
 class DomElement extends Nette\Object
 {
 
-	/** @var \DOMNode|\DomDocument */
+	/** @var \DOMElement|\Kdyby\Browser\DomDocument */
 	protected $element;
 
 
@@ -38,7 +38,7 @@ class DomElement extends Nette\Object
 
 
 	/**
-	 * @return \DOMNode
+	 * @return \DOMElement|\Kdyby\Browser\DomDocument
 	 */
 	public function getElement()
 	{
@@ -48,26 +48,29 @@ class DomElement extends Nette\Object
 
 
 	/**
-	 * @param string $query
+	 * @param string $selector
+	 * @param \DOMNode $context
 	 *
-	 * @return \DOMNode[]|NULL
+	 * @return \DOMNode[]|\DOMElement[]|NULL
 	 */
-	public function find($query)
+	public function find($selector, $context = NULL)
 	{
-		$xpath = new \DOMXPath($this->element->ownerDocument ?: $this->element);
-		return DomDocument::nodeListToArray($xpath->query(CssSelector::toXPath($query), $this->element));
+		$document = $this->element->ownerDocument ?: $this->element;
+		return $document->find($selector, $context ?: $this->element);
 	}
 
 
 
 	/**
-	 * @param string $query
+	 * @param string $selector
+	 * @param \DOMNode $context
 	 *
-	 * @return \DOMNode
+	 * @return \DOMNode|\DOMElement
 	 */
-	public function findOne($query)
+	public function findOne($selector, $context = NULL)
 	{
-		return current($this->find($query));
+		$document = $this->element->ownerDocument ? : $this->element;
+		return $document->findOne($selector, $context ?: $this->element);
 	}
 
 
@@ -88,27 +91,19 @@ class DomElement extends Nette\Object
 
 
 	/**
-	 * @param \Kdyby\Browser\ISnippetProcessor $snippetProcessor
+	 * @param string $selector
+	 * @param \Kdyby\Browser\ISnippetProcessor $processor
 	 *
 	 * @return mixed
 	 */
-	public function processSnippet(ISnippetProcessor $snippetProcessor)
+	public function processSnippets($selector, ISnippetProcessor $processor)
 	{
-		$node = $this->findOne($snippetProcessor->getSelector());
-		return $node ? $snippetProcessor->process($node) : NULL;
-	}
+		$result = array();
+		foreach ($this->find($selector) as $node) {
+			$result[] = $processor->process($node);
+		}
 
-
-
-	/**
-	 * @param \Kdyby\Browser\ISnippetProcessor $snippetProcessor
-	 *
-	 * @return mixed
-	 */
-	public function processSnippets(ISnippetProcessor $snippetProcessor)
-	{
-		$nodes = $this->find($snippetProcessor->getSelector());
-		return $nodes ? array_map(array($snippetProcessor, 'process'), $nodes) : NULL;
+		return $result;
 	}
 
 }

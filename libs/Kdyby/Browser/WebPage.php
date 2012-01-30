@@ -11,7 +11,9 @@
 namespace Kdyby\Browser;
 
 use Kdyby;
+use Kdyby\Curl;
 use Nette;
+use Nette\Http\UrlScript as Url;
 
 
 
@@ -21,6 +23,9 @@ use Nette;
 class WebPage extends DomElement
 {
 
+	/** @var \Nette\Http\UrlScript */
+	private $address;
+
 	/** @var \Kdyby\Browser\BrowserSession */
 	private $session;
 
@@ -28,14 +33,26 @@ class WebPage extends DomElement
 
 	/**
 	 * @param string|\DOMDocument $document
+	 * @param \Nette\Http\UrlScript $address
 	 */
-	public function __construct($document)
+	public function __construct($document, Url $address)
 	{
 		if (!$document instanceof \DOMDocument){
 			$document = DomDocument::fromMalformedHtml($document);
 		}
 
 		parent::__construct($document);
+		$this->address = $address;
+	}
+
+
+
+	/**
+	 * @return \Nette\Http\UrlScript
+	 */
+	public function getAddress()
+	{
+		return $this->address;
 	}
 
 
@@ -56,6 +73,29 @@ class WebPage extends DomElement
 	public function getSession()
 	{
 		return $this->session ?: new BrowserSession();
+	}
+
+
+
+	/**
+	 * @param \Kdyby\Browser\IDocumentProcessor $processor
+	 *
+	 * @return mixed
+	 */
+	public function process(IDocumentProcessor $processor)
+	{
+		return $processor->process($this->getElement());
+	}
+
+
+
+	/**
+	 * @param string $selector
+	 * @return \Kdyby\Browser\Form
+	 */
+	public function findForm($selector)
+	{
+		return ($form = $this->findOne($selector)) ? new Form($form, $this) : NULL;
 	}
 
 
@@ -83,6 +123,32 @@ class WebPage extends DomElement
 		}
 
 		return $this->getSession()->open($link);
+	}
+
+
+
+	/**
+	 * @param \Kdyby\Browser\Form $form
+	 * @param string $button
+	 *
+	 * @return \Kdyby\Browser\WebPage
+	 */
+	public function submit(Form $form, $button = NULL)
+	{
+		if ($button !== NULL && !$button instanceof \DOMElement) {
+			$button = $form->findButton($button);
+		}
+
+		$request = new Curl\Request($form->getAction());
+		$request->method = $form->getMethod();
+		if ($request->method !== Curl\Request::GET) {
+			$request->post = $form->getSubmitValues($button);
+
+		} else {
+			$request->getUrl()->appendQuery($form->getSubmitValues($button));
+		}
+
+		return $this->getSession()->send($request);
 	}
 
 }

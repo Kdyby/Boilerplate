@@ -18,13 +18,13 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-interface ISnippetProcessor
+interface IDocumentProcessor
 {
 
 	/**
-	 * @param \DomNode $node
+	 * @param \Kdyby\Browser\DomDocument $node
 	 * @return mixed
 	 */
-	function process(\DomNode $node);
+	function process(DomDocument $document);
 
 }

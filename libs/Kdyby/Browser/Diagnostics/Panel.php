@@ -124,11 +124,13 @@ class Panel extends Nette\Object
 
 
 	/**
+	 * @return \Kdyby\Browser\Diagnostics\Panel
 	 */
 	public static function register()
 	{
 		Nette\Diagnostics\Debugger::$blueScreen
-			->addPanel(array(new static(), 'renderException'));
+			->addPanel(array($panel = new static(), 'renderException'));
+		return $panel;
 	}
 
 }

@@ -111,9 +111,13 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 		$container->addDefinition($this->prefix('curl'))
 			->setClass('Kdyby\Curl\CurlSender');
 
-//		$container->addDefinition($this->prefix('curl.panel'))
-//			->setFactory('Kdyby\Browser\Diagnostics\Panel::register')
-//			->addTag('run', TRUE);
+		$container->addDefinition($this->prefix('browser.panel'))
+			->setFactory('Kdyby\Browser\Diagnostics\Panel::register')
+			->addTag('run', TRUE);
+
+		$container->addDefinition($this->prefix('curl.panel'))
+			->setFactory('Kdyby\Curl\Diagnostics\Panel::register')
+			->addTag('run', TRUE);
 	}
 
 
