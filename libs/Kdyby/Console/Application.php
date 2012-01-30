@@ -87,7 +87,7 @@ class Application extends Kdyby\Application\Application
 		$cli->setAutoExit(FALSE);
 
 		// set helpers
-		$cli->setHelperSet($container->console_helpers);
+		$cli->setHelperSet($container->kdyby->{'console.helpers'});
 
 		// register packages
 		$this->getConfigurator()
