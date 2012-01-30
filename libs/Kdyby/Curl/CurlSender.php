@@ -207,6 +207,7 @@ class CurlSender extends RequestOptions
 		$cUrl = new CurlWrapper($request->url, $request->method);
 		$cUrl->setOptions($request->options + $this->options);
 		$cUrl->setHeaders($request->headers + $this->headers);
+		$cUrl->setHeader('Cookie', $request->getCookies());
 		$cUrl->setPost($request->post, $request->files);
 
 		if (!$this->canFollowRedirect()) {

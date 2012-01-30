@@ -49,6 +49,12 @@ class Response extends Nette\Object
 	public function __construct(array $headers, $response = NULL)
 	{
 		$this->headers = $headers;
+
+		if (isset($headers['Set-Cookie'])) {
+			// Set-Cookie is parsed in CurlWrapper to object
+			$this->cookies = (array)$headers['Set-Cookie'];
+		}
+
 		$this->response = $response;
 	}
 

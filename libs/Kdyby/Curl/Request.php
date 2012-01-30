@@ -49,7 +49,7 @@ class Request extends RequestOptions
 	/** @var array */
 	public $headers = array();
 
-	/** @var array */
+	/** @var array name => value */
 	public $cookies = array();
 
 	/** @var array */
@@ -89,31 +89,22 @@ class Request extends RequestOptions
 
 
 	/**
+	 * @return \Kdyby\Curl\HttpCookies
+	 */
+	public function getCookies()
+	{
+		return new HttpCookies($this->cookies);
+	}
+
+
+
+	/**
 	 * @param string $method
 	 * @return boolean
 	 */
 	public function isMethod($method)
 	{
 		return $this->method === $method;
-	}
-
-
-
-	/**
-	 * @param string $name
-	 * @param mixed $value
-	 * @param string $expire
-	 * @param string $path
-	 * @param string $domain
-	 * @param boolean $secure
-	 * @param boolean $httpOnly
-	 *
-	 * @return \Kdyby\Curl\Request
-	 */
-	public function setCookie($name, $value, $expire = '+1 day', $path = '', $domain = '', $secure = FALSE, $httpOnly = FALSE)
-	{
-		$this->cookies[$name] = array($value, $expire, $path, $domain, $secure, $httpOnly);
-		return $this;
 	}
 
 

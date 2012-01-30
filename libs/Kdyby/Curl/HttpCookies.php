@@ -31,7 +31,14 @@ class HttpCookies extends Nette\ArrayHash
 	 */
 	public function __construct($setCookies = NULL)
 	{
-		$this->parse(is_array($setCookies) ? $setCookies : (array)$setCookies);
+		if (Nette\Utils\Validators::isList($setCookies)) {
+			$this->parse(is_array($setCookies) ? $setCookies : (array)$setCookies);
+
+		} else {
+			foreach ((array)$setCookies as $name => $value) {
+				$this->$name = $value;
+			}
+		}
 	}
 
 
@@ -67,23 +74,22 @@ class HttpCookies extends Nette\ArrayHash
 	 */
 	private function parse(array $cookies)
 	{
-		foreach ($cookies as $cookie) {
-			if (!$cookie = static::readCookie($cookie)) {
+		foreach ($cookies as $raw) {
+			if (!$cookie = static::readCookie($raw)) {
 				continue;
 			}
 
 			if ((\DateTime::createFromFormat(static::COOKIE_DATETIME, $cookie['expires'])) < date_create()) {
-				continue;
+				continue; // cookie already expired
 			}
 
-			$value = urldecode($cookie['value']);
-			if (strpos($name = urldecode($cookie['name']), '[') === FALSE) {
-				$this->$name = $value;
+			if (strpos($name = $cookie['name'], '[') === FALSE) {
+				$this->$name = $cookie['value'];
 
 			} else {
 				$keys = explode('[', str_replace(']', '', $name));
 				$cookieValue =& Arrays::getRef($arr =& $this->{array_shift($keys)}, $keys);
-				$cookieValue = urldecode($cookie['value']);
+				$cookieValue = $cookie['value'];
 				unset($cookieValue);
 			}
 		}
@@ -92,21 +98,24 @@ class HttpCookies extends Nette\ArrayHash
 
 
 	/**
+	 * Expands cookie header "Set-Cookie"
+	 *   user_time=1327581075; expires=Sat, 25-Feb-2012 12:31:15 GMT; path=/
+	 * to array
+	 *
 	 * @param string $cookie
 	 *
 	 * @return array|NULL
 	 */
 	public static function readCookie($cookie)
 	{
-		// Set-Cookie: user_time=1327581075; expires=Sat, 25-Feb-2012 12:31:15 GMT; path=/
 		if (!$m = Strings::matchAll($cookie, '~(?P<name>[^;=\s]+)(?:=(?P<value>[^;]+))?~i')) {
 			return NULL;
 		}
 
 		$first = array_shift($m);
 		$cookie = array(
-			'name' => $first['name'],
-			'value' => $first['value']
+			'name' => urldecode($first['name']),
+			'value' => urldecode($first['value'])
 		);
 
 		foreach ($m as $found) {
