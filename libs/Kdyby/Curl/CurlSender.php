@@ -213,7 +213,7 @@ class CurlSender extends RequestOptions
 		}
 
 		// wrap
-		$cUrl = new CurlWrapper($request->url, $request->method);
+		$cUrl = new CurlWrapper($request->getUrl(), $request->method);
 		$cUrl->setOptions($request->options);
 		$cUrl->setHeaders($request->headers);
 		$cUrl->setPost($request->post, $request->files);

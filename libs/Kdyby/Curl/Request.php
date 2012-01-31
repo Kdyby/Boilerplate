@@ -69,7 +69,7 @@ class Request extends RequestOptions
 	 */
 	public function __construct($url, array $post = NULL)
 	{
-		$this->url = new Url($url);
+		$this->setUrl($url);
 		$this->post = (array)$post;
 	}
 
@@ -276,10 +276,6 @@ class Request extends RequestOptions
 			}
 
 			$url->host = $lastUrl->host;
-		}
-
-		if (empty($url->path)) { // path
-			$url->path = $lastUrl->path;
 		}
 
 		return $url;
