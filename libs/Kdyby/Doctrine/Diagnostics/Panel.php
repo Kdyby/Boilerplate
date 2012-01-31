@@ -11,6 +11,7 @@
 namespace Kdyby\Doctrine\Diagnostics;
 
 use Doctrine;
+use Doctrine\Common\Annotations\AnnotationException;
 use Kdyby;
 use Kdyby\Doctrine\QueryException;
 use Nette;
@@ -215,7 +216,15 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 	 */
 	public function renderException($e)
 	{
-		if ($e instanceof \PDOException && count($this->queries)) {
+		if ($e instanceof AnnotationException) {
+			if ($dump = $this->dumpPdpDoc($e)) {
+				return array(
+					'tab' => 'Annotation',
+					'panel' => $dump,
+				);
+			}
+
+		} elseif ($e instanceof \PDOException && count($this->queries)) {
 			if ($this->connection !== NULL) {
 				if (!$e instanceof Kdyby\Doctrine\PDOException || $e->getConnection() !== $this->connection) {
 					return NULL;
@@ -273,12 +282,92 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 		$e = NULL;
 		if ($source && is_array($source)) {
 			list($file, $line) = $source;
-			$e = '<p><b>Source:</b> ' . Nette\Diagnostics\Helpers::editorLink($file, $line) . '</p>';
+			$e = '<p><b>File:</b> ' . Nette\Diagnostics\Helpers::editorLink($file, $line) . '</p>';
 		}
 
 		// styles and dump
-		return $this->renderStyles() . '<div class="nette-inner nette-Doctrine2Panel">' . $s . $e . '</div>';
+		return $this->renderStyles() . '<div class="nette-inner nette-Doctrine2Panel">' . $e . $s . '</div>';
 	}
+
+
+	/**
+	 * @param \Doctrine\Common\Annotations\AnnotationException $e
+	 *
+	 * @return string
+	 */
+	protected function dumpPdpDoc(AnnotationException $e)
+	{
+		foreach ($e->getTrace() as $step) {
+			if (@$step['class'] . @$step['type'] . @$step['function'] !== 'Doctrine\Common\Annotations\DocParser->parse') {
+				continue;
+			}
+
+			$context = Strings::match($step['args'][1], '~^(?P<type>[^\s]+)\s*(?P<class>[^:]+)(?:::\$?(?P<property>[^\\(]+))?$~i');
+			break;
+		}
+
+		if (!isset($context)) {
+			return FALSE;
+		}
+
+		$refl = Nette\Reflection\ClassType::from($context['class']);
+		$file = $refl->getFileName();
+		$line = NULL;
+
+		if ($context['type'] === 'property') {
+			$refl = new Kdyby\Reflection\Property($refl->getName(), $context['property']);
+			$line = $refl->getLine();
+
+		} elseif ($context['type'] === 'method') {
+			$refl = $refl->getProperty($context['method']);
+		}
+
+		$errorLine = $this->calculateErrorLine($refl, $e, $line);
+		$dump = Nette\Diagnostics\BlueScreen::highlightFile($file, $errorLine);
+		return '<p><b>File:</b> ' . Nette\Diagnostics\Helpers::editorLink($file, $errorLine) . '</p>' .
+			'<pre>' . $dump . '</pre>';
+	}
+
+
+
+	/**
+	 * @param \Reflector $refl
+	 * @param \Exception $e
+	 * @param int $startLine
+	 *
+	 * @return int|string
+	 */
+	protected function calculateErrorLine(\Reflector $refl, \Exception $e, $startLine = NULL)
+	{
+		if ($startLine === NULL) {
+			$startLine = $refl->getStartLine();
+		}
+
+		$pos = Strings::match($e->getMessage(), '~position\s*(\d+)~');
+		$targetLine = $this->calculateAffectedLine($refl, $pos[1]);
+		$phpDocLines = count(Strings::split($refl->getDocComment(), '~[\n\r]+~'));
+
+		return $startLine - ($phpDocLines - ($targetLine - 1));
+	}
+
+
+
+	/**
+	 * @param \Reflector $refl
+	 * @param int $symbolPos
+	 *
+	 * @return int
+	 */
+	protected function calculateAffectedLine(\Reflector $refl, $symbolPos)
+	{
+		$doc = $refl->getDocComment();
+		$cleanedDoc = trim(substr($doc, $atPos = strpos($doc, '@') - 1), '* /');
+		$beforeCleanLines = count(Strings::split(substr($doc, 0, $atPos), '~[\n\r]+~'));
+		$parsedDoc = substr($cleanedDoc, 0, $symbolPos + 1);
+		$parsedLines = count(Strings::split($parsedDoc, '~[\n\r]+~'));
+		return $parsedLines + max($beforeCleanLines - 1, 0);
+	}
+
 
 
 	/****************** Registration *********************/
