@@ -217,7 +217,7 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 	public function renderException($e)
 	{
 		if ($e instanceof AnnotationException) {
-			if ($dump = $this->dumpPdpDoc($e)) {
+			if ($dump = $this->highlightAnnotationLine($e)) {
 				return array(
 					'tab' => 'Annotation',
 					'panel' => $dump,
@@ -295,7 +295,7 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 	 *
 	 * @return string
 	 */
-	protected function dumpPdpDoc(AnnotationException $e)
+	protected function highlightAnnotationLine(AnnotationException $e)
 	{
 		foreach ($e->getTrace() as $step) {
 			if (@$step['class'] . @$step['type'] . @$step['function'] !== 'Doctrine\Common\Annotations\DocParser->parse') {
