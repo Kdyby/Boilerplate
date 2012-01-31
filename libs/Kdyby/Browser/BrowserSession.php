@@ -57,6 +57,7 @@ class BrowserSession extends Nette\Object
 	public function setBrowser(WebBrowser $browser)
 	{
 		$this->browser = $browser;
+		$this->cleanHistory();
 	}
 
 
@@ -66,7 +67,12 @@ class BrowserSession extends Nette\Object
 	 */
 	public function getBrowser()
 	{
-		return $this->browser ?: new WebBrowser();
+		if ($this->browser === NULL) {
+			$class = get_called_class();
+			throw new Kdyby\InvalidStateException("No WebBrowser was provided. Please provide it using $class::setBrowser(\$browser).");
+		}
+
+		return $this->browser;
 	}
 
 
@@ -81,11 +87,21 @@ class BrowserSession extends Nette\Object
 
 
 	/**
-	 * @return \Kdyby\Browser\WebPage[]
+	 * @return \SplObjectStorage|\Kdyby\Browser\WebPage[]
 	 */
 	public function getHistory()
 	{
 		return $this->history;
+	}
+
+
+
+	/**
+	 * @return \Kdyby\Browser\WebPage
+	 */
+	public function getLastPage()
+	{
+		return $this->lastPage;
 	}
 
 
@@ -151,7 +167,7 @@ class BrowserSession extends Nette\Object
 	{
 		$request->cookies = $this->getCookies();
 		if ($this->getPage() !== NULL) {
-			$request->url = Curl\Request::fixUrl($request->url, $this->getPage());
+			$request->url = Curl\Request::fixUrl($this->getPage(), $request->getUrl());
 		}
 
 		// apply history

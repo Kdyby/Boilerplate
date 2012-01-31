@@ -135,7 +135,7 @@ class WebPage extends DomElement
 	 */
 	public function submit(Form $form, $button = NULL)
 	{
-		if ($button !== NULL && !$button instanceof \DOMElement) {
+		if (!$button instanceof \DOMElement) {
 			$button = $form->findButton($button);
 		}
 

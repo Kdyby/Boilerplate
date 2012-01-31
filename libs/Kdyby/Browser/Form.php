@@ -125,8 +125,15 @@ class Form extends DomElement
 	 * @param string $text
 	 * @return \DOMElement|NULL
 	 */
-	public function findButton($text)
+	public function findButton($text = NULL)
 	{
+		if ($text === NULL) {
+			if ($names = $this->getSubmitNames()) {
+				return $this->submits[reset($names)];
+			}
+			return NULL;
+		}
+
 		foreach ($this->getSubmits() as $submit) {
 			if ($this->getSubmitControlValue($submit) === $text) {
 				return $submit;
@@ -159,11 +166,12 @@ class Form extends DomElement
 	 * TODO: think about appending to lists, not overwriting
 	 * @param array $values
 	 *
-	 * @return array
+	 * @return \Kdyby\Browser\Form
 	 */
 	public function setValues(array $values)
 	{
-		return $this->values = static::mergeTree($values, $this->getValues());
+		$this->values = static::mergeTree($values, $this->getValues());
+		return $this;
 	}
 
 
@@ -207,7 +215,7 @@ class Form extends DomElement
 	protected function loadControls()
 	{
 		$this->submits = $this->values = $this->controls = array();
-		foreach ($this->find('input, select, textarea') as $control) {
+		foreach ($this->find('input, select, textarea, button') as $control) {
 			$keys = $this->getControlNameKeys($control);
 
 			$controlRef =& static::getRef($this->controls, $keys);
@@ -266,8 +274,9 @@ class Form extends DomElement
 	 */
 	private function isSubmitControl(\DOMElement $control)
 	{
-		return strtolower($control->nodeName) === 'button' || (strtolower($control->nodeName) === 'input'
-			&& in_array(strtolower($control->getAttribute('type')), array('send', 'input')));
+		$type = strtolower($control->getAttribute('type'));
+		return ($node = strtolower($control->nodeName)) === 'button'
+			|| ($node === 'input' && in_array($type, array('submit', 'image')));
 	}
 
 

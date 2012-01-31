@@ -101,4 +101,14 @@ class WebBrowser extends Nette\Object
 		return $this->curl->send($request);
 	}
 
+
+
+	/**
+	 * @return array
+	 */
+	public function __sleep()
+	{
+		return array();
+	}
+
 }
