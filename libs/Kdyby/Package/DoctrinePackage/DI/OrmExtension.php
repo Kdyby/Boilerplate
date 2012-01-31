@@ -319,12 +319,11 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 		}
 
 		foreach ($mappings as $mappingName => $mappingConfig) {
-			if ($mappingConfig !== NULL && $mappingConfig['mapping'] !== FALSE) {
+			$options = self::getOptions((array)$mappingConfig, $this->mappingsDefaults, TRUE);
+			if ($mappingConfig !== NULL && $options['mapping'] === FALSE) {
 				continue;
 			}
 
-			// options
-			$options = self::getOptions((array)$mappingConfig, $this->mappingsDefaults, TRUE);
 			$options['name'] = $mappingName;
 			$options['dir'] = $container->expand($options['dir']);
 			if (empty($options['alias'])) {
@@ -506,7 +505,7 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 			}
 
 		} else {
-			$config['dir'] = $packageDir . '/' . $config['dir'];
+			$config['dir'] = realpath($packageDir . '/' . $config['dir']);
 		}
 
 		// prefix
