@@ -106,7 +106,7 @@ function wc($level = 1, $return = FALSE, $fullTrace = FALSE) {
 	$o = function ($t) { return (isset($t->class) ? htmlspecialchars($t->class) . "->" : NULL) . htmlspecialchars($t->function) . '()'; };
 	$f = function ($t) {
 		$file = defined('APP_DIR') ? 'app' . str_replace(realpath(APP_DIR), '', realpath($t->file)) : $t->file;
-		return '<a href="' . Helpers::editorLink($t->file, $t->line) . '">' . htmlspecialchars($file) . ':' . (int)$t->line . '</a>';
+		return Helpers::editorLink($t->file, $t->line);
 	};
 
 	$trace = debug_backtrace();
