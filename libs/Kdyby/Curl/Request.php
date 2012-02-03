@@ -219,6 +219,7 @@ class Request extends RequestOptions
 		$request = clone $this;
 		$request->setMethod(Request::GET);
 		$request->post = $request->files = array();
+		$request->cookies = $response->getCookies() + $request->cookies;
 		$request->setUrl(static::fixUrl($request->getUrl(), $response->headers['Location']));
 		return $request;
 	}

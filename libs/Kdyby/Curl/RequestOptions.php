@@ -23,8 +23,8 @@ abstract class RequestOptions extends Nette\Object
 
 	/** @var array */
 	public $options = array(
-		'timeout' => 10,
-		'followLocation' => TRUE,
+		'timeout' => 15,
+		'followLocation' => FALSE, // curl is not passing cookies around
 		'maxRedirs' => 10,
 		'returnTransfer' => TRUE,
 	);

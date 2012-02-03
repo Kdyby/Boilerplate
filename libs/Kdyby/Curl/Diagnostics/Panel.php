@@ -29,7 +29,7 @@ class Panel extends Nette\Object
 	 */
 	public function renderException($e)
 	{
-		if ($e instanceof CurlException) {
+		if ($e instanceof CurlException && !$e instanceof Kdyby\Curl\FailedRequestException) {
 			return array(
 				'tab' => 'Curl',
 				'panel' => '<h3>Request</h3>' . Nette\Diagnostics\Helpers::clickableDump($e->getRequest(), TRUE) .

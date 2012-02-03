@@ -326,7 +326,7 @@ class CurlSender extends RequestOptions
 
 			if (!$parts) {
 				$curl->responseHeaders = $rawHeaders;
-				return $previous;
+				return $last;
 			}
 
 			if ($headers = CurlWrapper::parseHeaders($rawHeaders)) {
@@ -339,7 +339,7 @@ class CurlSender extends RequestOptions
 			$last = $previous;
 		}
 
-		return $previous;
+		return $last;
 	}
 
 
@@ -352,9 +352,8 @@ class CurlSender extends RequestOptions
 	 */
 	protected function isForcingFollowRedirect(CurlWrapper $curl, Response $response)
 	{
-		return isset($response->headers['Location'])
-			&& $this->confirmRedirect($response)
-			&& ($curl->options['followLocation'] || !$this->canFollowRedirect());
+		return isset($response->headers['Location']) && $this->confirmRedirect($response)
+			/*&& (!$curl->options['followLocation'] || !$this->canFollowRedirect())*/;
 	}
 
 
