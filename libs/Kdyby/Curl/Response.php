@@ -26,38 +26,32 @@ use Nette\Utils\Strings;
 class Response extends Nette\Object
 {
 	/** @var array */
-	protected $headers = array();
-
-	/** @var \Nette\Http\UrlScript */
-	private $url;
+	private $headers;
 
 	/** @var array */
 	private $cookies = array();
 
-	/** @var string */
-	private $response;
-
 	/** @var \Kdyby\Curl\Response */
 	private $previous;
+
+	/** @var \Kdyby\Curl\CurlWrapper */
+	protected $curl;
 
 
 
 	/**
-	 * @param \Nette\Http\UrlScript $url
+	 * @param \Kdyby\Curl\CurlWrapper $curl
 	 * @param array $headers
-	 * @param string $response
 	 */
-	public function __construct(Url $url, array $headers, $response = NULL)
+	public function __construct(CurlWrapper $curl, array $headers)
 	{
-		$this->url = $url;
+		$this->curl = $curl;
 		$this->headers = $headers;
 
 		if (isset($headers['Set-Cookie'])) {
 			// Set-Cookie is parsed in CurlWrapper to object
 			$this->cookies = (array)$headers['Set-Cookie'];
 		}
-
-		$this->response = $response;
 	}
 
 
@@ -76,7 +70,7 @@ class Response extends Nette\Object
 
 
 	/**
-	 * @return \Kdyby\Curl\Response
+	 * @return \Kdyby\Curl\Response|NULL
 	 */
 	public function getPrevious()
 	{
@@ -90,7 +84,7 @@ class Response extends Nette\Object
 	 */
 	public function getResponse()
 	{
-		return $this->response;
+		return $this->curl->response;
 	}
 
 
@@ -100,7 +94,7 @@ class Response extends Nette\Object
 	 */
 	public function getUrl()
 	{
-		return clone $this->url;
+		return $this->curl->getUrl();
 	}
 
 
@@ -121,6 +115,16 @@ class Response extends Nette\Object
 	public function getCookies()
 	{
 		return $this->cookies;
+	}
+
+
+
+	/**
+	 * @return array
+	 */
+	public function getInfo()
+	{
+		return $this->curl->info;
 	}
 
 

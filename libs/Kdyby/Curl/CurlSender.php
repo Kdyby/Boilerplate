@@ -276,7 +276,7 @@ class CurlSender extends RequestOptions
 				$headers = CurlWrapper::parseHeaders($curl->responseHeaders);
 			}
 
-			$response = new FileResponse($curl->getUrl(), $headers, $curl->file);
+			$response = new FileResponse($curl, $headers);
 			$response->setPrevious($previous);
 			return $response;
 		}
@@ -288,12 +288,12 @@ class CurlSender extends RequestOptions
 
 		if (strpos($headers['Content-Type'], 'html') !== FALSE || strpos($headers['Content-Type'], 'html') !== FALSE) {
 			$curl->response = HtmlResponse::convertEncoding($curl);
-			$response = new HtmlResponse($curl->getUrl(), $headers, $curl->response);
+			$response = new HtmlResponse($curl, $headers);
 			$response->setPrevious($previous);
 			return $response;
 		}
 
-		$response = new Response($curl->getUrl(), $headers, $curl->response);
+		$response = new Response($curl, $headers);
 		$response->setPrevious($previous);
 		return $response;
 	}

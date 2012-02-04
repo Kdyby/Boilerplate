@@ -32,14 +32,13 @@ class FileResponse extends Response
 
 
 	/**
-	 * @param \Nette\Http\UrlScript $url
+	 * @param \Kdyby\Curl\CurlWrapper $curl
 	 * @param array $headers
-	 * @param string $file
 	 */
-	public function __construct(Url $url, array $headers, $file)
+	public function __construct(CurlWrapper $curl, array $headers)
 	{
-		parent::__construct($url, $headers);
-		$this->file = $file;
+		parent::__construct($curl, $headers);
+		$this->file = $curl->file;
 	}
 
 
