@@ -194,6 +194,36 @@ class BrowserSession extends Nette\Object
 
 
 	/**
+	 * @param \Kdyby\Curl\Request $request
+	 * @return string
+	 */
+	public function ajax(Curl\Request $request)
+	{
+		$request->cookies = $this->getCookies();
+		$request->headers['X-Requested-With'] = 'XMLHttpRequest';
+		if ($this->getPage() !== NULL) {
+			$request->url = Curl\Request::fixUrl($this->getPage(), $request->getUrl());
+		}
+
+		// apply history
+		if ($this->lastPage !== NULL) {
+			$request->setReferer($this->lastPage->getAddress());
+		}
+
+		// send
+		$response = $this->getBrowser()->send($request);
+		$content = $response->getResponse();
+
+		// store
+		$this->history[$content] = array('request' => clone $request, 'response' => clone $response);
+
+		// return
+		return $content;
+	}
+
+
+
+	/**
 	 * @return array
 	 */
 	public function __sleep()
