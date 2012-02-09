@@ -54,6 +54,27 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 
 
 	/**
+	 * @return \Kdyby\Doctrine\Registry
+	 */
+	public function getDoctrine()
+	{
+		return $this->getContext()->doctrine->registry;
+	}
+
+
+
+	/**
+	 * @param string $entity
+	 * @return \Doctrine\ORM\EntityRepository
+	 */
+	public function getRepository($entity)
+	{
+		return $this->getDoctrine()->getRepository($entity);
+	}
+
+
+
+	/**
 	 * @param \Kdyby\Templates\ITemplateConfigurator $configurator
 	 */
 	public function setTemplateConfigurator(ITemplateConfigurator $configurator = NULL)
