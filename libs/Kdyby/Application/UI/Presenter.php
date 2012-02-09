@@ -24,6 +24,7 @@ use Nette\Diagnostics\Debugger;
  * @property-read \SystemContainer|\Nette\DI\Container $container
  * @property-read \Kdyby\Http\User $user
  * @property-read \Nette\Templating\Template $template
+ * @property-read \Kdyby\Doctrine\Registry $doctrine
  *
  * @method \Kdyby\Http\User getUser() getUser()
  * @method \SystemContainer|\Nette\DI\Container getContext() getContext()
@@ -65,7 +66,7 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 
 	/**
 	 * @param string $entity
-	 * @return \Doctrine\ORM\EntityRepository
+	 * @return \Kdyby\Doctrine\Dao
 	 */
 	public function getRepository($entity)
 	{
