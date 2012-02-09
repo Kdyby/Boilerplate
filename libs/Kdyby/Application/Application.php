@@ -56,7 +56,7 @@ class Application extends Nette\Application\Application
 
 		// inject application instance
 		$container = $this->configurator->getContainer();
-		$container->addService('application', $this);
+		$container->configureService('application', $this);
 
 		// dependencies
 		$this->packageManager = $container->kdyby->packageManager;

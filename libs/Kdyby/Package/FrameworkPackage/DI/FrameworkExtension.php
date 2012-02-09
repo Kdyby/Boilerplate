@@ -129,6 +129,18 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 		$this->registerConsoleHelpers($container);
 		$this->registerMacroFactories($container);
 		$this->unifyComponents($container);
+
+		$routes = array();
+		foreach ($container->findByTag('route') as $route => $meta) {
+			$priority = isset($meta['priority']) ? $meta['priority'] : (int)$meta;
+			$routes[$priority][] = $route;
+		}
+
+		krsort($routes);
+		$router = $container->getDefinition('router');
+		foreach (Kdyby\Tools\Arrays::flatMap($routes) as $route) {
+			$router->addSetup('$service[] = $this->getService(?)', array($route));
+		}
 	}
 
 
@@ -222,29 +234,44 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 	 */
 	public function afterCompile(Code\ClassType $class)
 	{
-		$initialize = $class->methods['initialize'];
-		$this->compileRouter($this->getContainerBuilder(), $initialize);
+		$this->compileConfigurator($class);
 	}
 
 
 
 	/**
-	 * @param \Nette\DI\ContainerBuilder $container
-	 * @param \Nette\Utils\PhpGenerator\Method $initialize
+	 * @param \Nette\Utils\PhpGenerator\ClassType $class
 	 */
-	protected function compileRouter(ContainerBuilder $container, Code\Method $initialize)
+	protected function compileConfigurator(Code\ClassType $class)
 	{
-		$routes = array();
+		$container = $this->getContainerBuilder();
+		/** @var \Nette\DI\ServiceDefinition $def */
+		foreach ($container->getDefinitions() as $name => $def) {
+			if ($def->class == 'Nette\DI\NestedAccessor' || $def->class === 'Nette\Callback' || $name === 'container' || !$def->shared) {
+				continue;
+			}
 
-		foreach ($container->findByTag('route') as $route => $meta) {
-			$priority = isset($meta['priority']) ? $meta['priority'] : (int)$meta;
-			$routes[$priority][] = $route;
+			$createBody = $class->methods[Nette\DI\Container::getMethodName($name)]->body;
+			if ($lines = Nette\Utils\Strings::split($createBody, '~;[\n\r]*~mi')) {
+				array_shift($lines); // naive: first line is creation
+
+				$configure = $class->addMethod('configure' . ucfirst(strtr($name, '.', '_')));
+				$configure->visibility = 'private';
+				$configure->addParameter('service')->typeHint = $def->class;
+				$configure->setBody(implode(";\n", $lines));
+			}
 		}
 
-		krsort($routes);
-		foreach (Kdyby\Tools\Arrays::flatMap($routes) as $route) {
-			$initialize->addBody('$this->router[] = $this->?;', array($route));
-		}
+		$configure = $class->addMethod('configureService');
+		$configure->addParameter('name');
+		$configure->addParameter('service');
+		$configure->setBody(
+			'$this->{"configure" . ucfirst(strtr($name, ".", "_"))}($service);' . "\n" .
+			'if ($this->hasService($name)) {' . "\n" .
+			'	$this->removeService($name);' . "\n" .
+			'}' . "\n" .
+			'$this->addService($name, $service);'
+		);
 	}
 
 }
