@@ -35,6 +35,9 @@ class CurlSender extends RequestOptions
 	/** @var array An associative array of headers to send along with requests */
 	public $headers = array();
 
+	/** @var boolean|integer */
+	public $repeatOnFail = FALSE;
+
 	/** @var array */
 	private $proxies = array();
 
@@ -232,16 +235,19 @@ class CurlSender extends RequestOptions
 			$cUrl->setOption('header', TRUE);
 		}
 
-		$proxies = $this->proxies;
+		$repeat = $this->repeatOnFail;
 		do {
-			if ($cUrl->setProxy(array_shift($proxies))->execute()) {
-				break;
+			$proxies = $this->proxies;
+			do {
+				if ($cUrl->setProxy(array_shift($proxies))->execute()) {
+					break;
 
-			} elseif (!$cUrl->isProxyFail()) {
-				break;
-			}
+				} elseif (!$cUrl->isProxyFail()) {
+					break;
+				}
 
-		} while (!$cUrl->isOk() && $proxies);
+			} while (!$cUrl->isOk() && $proxies);
+		} while (!$cUrl->response && $repeat-- > 0);
 
 		if (!$cUrl->response) {
 			throw new FailedRequestException($cUrl);
