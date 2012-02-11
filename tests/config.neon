@@ -1,4 +1,9 @@
 
+kdyby:
+    debugger:
+        browser: "google-chrome %s"
+
+
 services:
     cacheStorage:
         class: Nette\Caching\Storages\MemoryStorage

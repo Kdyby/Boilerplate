@@ -26,7 +26,6 @@ if (!is_writable($params['logDir'])) {
 Debugger::enable(Debugger::DEVELOPMENT);
 Debugger::$logDirectory = $params['logDir'];
 Debugger::$maxLen = 4096;
-// ConsoleDebugger::enable('google-chrome %s');
 
 
 // create configurator
