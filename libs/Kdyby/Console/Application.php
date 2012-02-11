@@ -51,17 +51,15 @@ class Application extends Kdyby\Application\Application
 		} catch (\Exception $e) {
 			// fault barrier
 			$this->onError($this, $e);
+			$this->onShutdown($this, $e);
 
-			if (!$this->catchExceptions) {
-				$this->onShutdown($this, $e);
+			// log
+			Debugger::log($e, 'console');
+			Kdyby\Diagnostics\ConsoleDebugger::_exceptionHandler($e);
 
-				// log
-				Debugger::log($e, 'console');
-
-				// render exception
-				$cli->renderException($e, $this->consoleOutput);
-				return $exitCode;
-			}
+			// render exception
+			$cli->renderException($e, $this->consoleOutput);
+			return $exitCode;
 		}
 
 		$this->onShutdown($this, isset($e) ? $e : NULL);

@@ -235,6 +235,14 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 	public function afterCompile(Code\ClassType $class)
 	{
 		$this->compileConfigurator($class);
+		$init = $class->methods['initialize'];
+
+		$config = $this->getConfig();
+		if (!empty($config['debugger']['browser'])) {
+			$init->addBody('Kdyby\Diagnostics\ConsoleDebugger::enable(?);', array(
+				$config['debugger']['browser']
+			));
+		}
 	}
 
 
