@@ -43,6 +43,7 @@ class Application extends Kdyby\Application\Application
 		// package errors should not be handled by console life-cycle
 		$cli = $this->createApplication();
 
+		$exitCode = 1;
 		try {
 			// run the console
 			$exitCode = $cli->run($this->consoleInput, $this->consoleOutput);
@@ -59,7 +60,7 @@ class Application extends Kdyby\Application\Application
 
 				// render exception
 				$cli->renderException($e, $this->consoleOutput);
-				return 1;
+				return $exitCode;
 			}
 		}
 
