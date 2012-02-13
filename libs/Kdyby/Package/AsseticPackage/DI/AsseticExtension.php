@@ -50,8 +50,9 @@ class AsseticExtension extends Kdyby\Config\CompilerExtension
 			));
 
 			$container->addDefinition('asseticPackage.asseticPresenter')
-				->setClass('Kdyby\Package\AsseticPackage\Presenter\AsseticPresenter', array('@assetic.assetStorage'))
-				->setParameters(array());
+				->setClass('Kdyby\Package\AsseticPackage\Presenter\AsseticPresenter', array($this->prefix('@assetStorage')))
+				->setAutowired(FALSE)
+				->setShared(FALSE);
 
 			$container->addDefinition($this->prefix('route.asset'))
 				->setClass('Nette\Application\Routers\Route', array('<prefix ' . $options['prefix'] . '>/<name .*>', array(
