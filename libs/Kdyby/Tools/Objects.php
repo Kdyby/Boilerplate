@@ -47,7 +47,6 @@ final class Objects extends Nette\Object
 		foreach (explode('.', $path) as $n => $part) {
 			$e = get_class($value) . '::' . $part;
 			$value = self::getProperty($value, $part, $need);
-			bd($value, $e);
 			if ($value === NULL) {
 				break;
 			}
@@ -59,29 +58,29 @@ final class Objects extends Nette\Object
 
 	/**
 	 * @param object $object
-	 * @param string $paramName
+	 * @param string $propertyName
 	 * @param bool $need
 	 * @return mixed|NULL
 	 */
-	public static function getProperty($object, $paramName, $need = TRUE)
+	public static function getProperty($object, $propertyName, $need = TRUE)
 	{
 		if (is_object($object)) {
-			if (property_exists($object, $paramName)) {
-				return $object->$paramName;
+			if (isset($object->$propertyName)) {
+				return $object->$propertyName;
 
-			} elseif (method_exists($object, $method = 'get' . ucfirst($paramName))) {
+			} elseif (method_exists($object, $method = 'get' . ucfirst($propertyName))) {
 				return $object->$method();
 
-			} elseif (method_exists($object, $method = 'is' . ucfirst($paramName))) {
+			} elseif (method_exists($object, $method = 'is' . ucfirst($propertyName))) {
 				return $object->$method();
 			}
 
 		} elseif (is_array($object) || $object instanceof \ArrayAccess || $object instanceof \ArrayObject) {
-			return $object[$paramName];
+			return $object[$propertyName];
 		}
 
 		if ($need) {
-			throw new Kdyby\InvalidStateException("Given" . (is_object($object) ? " entity " . get_class($object) : " array") . " has no parameter named '" . $paramName . "'.");
+			throw new Kdyby\InvalidStateException("Given" . (is_object($object) ? " entity " . get_class($object) : " array") . " has no parameter named '" . $propertyName . "'.");
 		}
 	}
 
