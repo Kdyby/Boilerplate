@@ -54,12 +54,28 @@ class InstalledPackages extends Nette\Object implements \IteratorAggregate, IPac
 
 
 	/**
+	 * @return string
+	 */
+	public function getFilename()
+	{
+		if (is_file($default = $this->appDir . '/config/packages.neon')) {
+			return $default;
+
+		} elseif (is_file($file = $this->appDir . '/packages.neon')) {
+			return $file;
+		}
+
+		return $default;
+	}
+
+
+
+	/**
 	 * @return array
 	 */
 	public function getPackages()
 	{
-		$file = $this->appDir . '/config/packages.neon';
-		if (!file_exists($file)) {
+		if (!file_exists($file = $this->getFilename())) {
 			$this->supplyDefaultPackages($file);
 		}
 
@@ -85,20 +101,17 @@ class InstalledPackages extends Nette\Object implements \IteratorAggregate, IPac
 	private function supplyDefaultPackages($file)
 	{
 		$default = array();
-		if (class_exists('Kdyby\Package\DefaultPackages')) {
-			$packages = new Kdyby\Package\DefaultPackages();
-			$default = $packages->getPackages();
-		}
-		if (class_exists('Kdyby\Package\CmsPackages')) {
-			$packages = new Kdyby\Package\CmsPackages();
-			$default = array_merge($default, $packages->getPackages());
+		if (class_exists('Kdyby\CMS')) {
+			$default = Kdyby\CMS::createPackagesList()->getPackages();
+
+		} else {
+			$default = Kdyby\Framework::getDefaultPackages();
 		}
 
 		if (!@file_put_contents($file, Neon::encode($default, Neon::BLOCK))) {
 			throw Kdyby\FileNotWritableException::fromFile($file);
 		}
 		@chmod($file, 0777);
-
 		return $default;
 	}
 

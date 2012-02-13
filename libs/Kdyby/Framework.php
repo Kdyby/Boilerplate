@@ -33,4 +33,28 @@ final class Framework
 		throw new StaticClassException;
 	}
 
+
+
+	/**
+	 * @return array
+	 */
+	public static function getDefaultPackages()
+	{
+		return array(
+			'Kdyby\Package\FrameworkPackage\FrameworkPackage',
+			'Kdyby\Package\DoctrinePackage\DoctrinePackage',
+			'Kdyby\Package\AsseticPackage\AsseticPackage'
+		);
+	}
+
+
+
+	/**
+	 * @return \Kdyby\Packages\PackagesList
+	 */
+	public static function createPackagesList()
+	{
+		return new Packages\PackagesList(static::getDefaultPackages());
+	}
+
 }

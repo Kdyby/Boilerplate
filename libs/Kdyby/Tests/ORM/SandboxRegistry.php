@@ -49,8 +49,8 @@ class SandboxRegistry extends Kdyby\Doctrine\Registry
 
 			foreach ($this->getEntityManagerNames() as $emName) {
 				$this->fixtureLoaders[] = new DataFixturesLoader(
-					$this->container->getService($emName . '_dataFixtures_loader'),
-					$this->container->getService($emName . '_dataFixtures_executor')
+					$this->container->getService($emName . '.dataFixtures.loader'),
+					$this->container->getService($emName . '.dataFixtures.executor')
 				);
 			}
 		}

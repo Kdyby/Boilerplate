@@ -50,19 +50,24 @@ class Configurator extends Nette\Object
 
 	/**
 	 * @param array $parameters
-	 * @param \Kdyby\Packages\IPackageList $packageFinder
+	 * @param \Kdyby\Packages\IPackageList $packages
 	 */
-	public function __construct($parameters = NULL, Kdyby\Packages\IPackageList $packageFinder = NULL)
+	public function __construct($parameters = NULL, Kdyby\Packages\IPackageList $packages = NULL)
 	{
 		// path defaults
-		$this->parameters = static::defaultPaths($parameters);
+		$this->parameters = array('email' => NULL) + static::defaultPaths($parameters);
+
+		// check if temp dir is writable
+		if (!is_writable($this->parameters['tempDir'])) {
+			throw new Kdyby\DirectoryNotWritableException("Temp directory '" . $this->parameters['tempDir'] . "' is not writable.");
+		}
 
 		// debugger defaults
-		static::setupDebugger($this->parameters);
+		$this->setupDebugger(array('productionMode' => TRUE, 'consoleMode' => PHP_SAPI === 'cli'));
 
 		// finder
-		$packageFinder = $packageFinder ?: new Kdyby\Packages\InstalledPackages($this->parameters['appDir']);
-		$this->packages = new Kdyby\Packages\PackagesContainer($packageFinder);
+		$packages = $packages ?: new Kdyby\Packages\InstalledPackages($this->parameters['appDir']);
+		$this->packages = new Kdyby\Packages\PackagesContainer($packages);
 
 		// environment
 		$this->setProductionMode();
@@ -98,12 +103,13 @@ class Configurator extends Nette\Object
 	/**
 	 * When given NULL, the production mode gets detected automatically
 	 *
-	 * @param bool|NULL $isProduction
+	 * @param bool|NULL $value
 	 */
-	public function setProductionMode($isProduction = NULL)
+	public function setProductionMode($value = NULL)
 	{
-		$this->parameters['productionMode'] = is_bool($isProduction) ? $isProduction
-			: Nette\Config\Configurator::detectProductionMode();
+		$this->parameters['productionMode'] = is_bool($value) ? $value
+			: Nette\Config\Configurator::detectProductionMode($value);
+
 		$this->parameters['kdyby']['debug'] = !$this->parameters['productionMode'];
 	}
 
@@ -118,7 +124,7 @@ class Configurator extends Nette\Object
 		}
 
 		// Last call for debugger
-		static::setupDebuggerMode($this->parameters);
+		$this->setupDebugger();
 
 		// packages
 		foreach ($this->packages as $name => $package) {
@@ -131,6 +137,7 @@ class Configurator extends Nette\Object
 		// robot loader autoRebuild
 		foreach (Nette\Loaders\AutoLoader::getLoaders() as $loader) {
 			if ($loader instanceof Nette\Loaders\RobotLoader) {
+				/** @var \Nette\Loaders\RobotLoader $loader */
 				$loader->autoRebuild = !$this->parameters['productionMode'];
 				$loader->setCacheStorage(new FileStorage($this->parameters['tempDir'] . '/cache'));
 			}
@@ -250,29 +257,20 @@ class Configurator extends Nette\Object
 	 *
 	 * @param array $params
 	 */
-	protected static function setupDebugger(array $params)
+	protected function setupDebugger($params = array())
 	{
-		if (!is_dir($params['logDir'])) {
-			@mkdir($params['logDir'], 0777);
+		$params = $params + $this->parameters;
+		if (!is_dir($logDir = $params['logDir'])) {
+			@mkdir($logDir, 0777);
 		}
 
-		if (!is_writable($params['logDir'])) {
-			throw new Kdyby\DirectoryNotWritableException("Logging directory '" . $params['logDir'] . "' is not writable.");
+		// check if log dir is writable
+		if (!is_writable($logDir)) {
+			throw new Kdyby\DirectoryNotWritableException("Logging directory '" . $logDir . "' is not writable.");
 		}
 
-		Debugger::$logDirectory = $params['logDir'];
 		Debugger::$strictMode = TRUE;
-		Debugger::enable(Debugger::PRODUCTION);
-	}
-
-
-
-	/**
-	 * @param array $params
-	 */
-	protected static function setupDebuggerMode(array $params)
-	{
-		Debugger::$productionMode = $params['productionMode'];
+		Debugger::enable($params['productionMode'], $logDir, $params['email']);
 		Debugger::$consoleMode = $params['consoleMode'];
 	}
 

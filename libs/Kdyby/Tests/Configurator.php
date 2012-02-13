@@ -28,24 +28,68 @@ class Configurator extends Kdyby\Config\Configurator
 
 	/**
 	 * @param array $params
-	 * @param \Kdyby\Packages\IPackageList $packageFinder
+	 * @param \Kdyby\Packages\IPackageList $packages
 	 */
-	public function __construct($params = NULL, Kdyby\Packages\IPackageList $packageFinder = NULL)
+	public function __construct($params, Kdyby\Packages\IPackageList $packages)
 	{
-		parent::__construct($params, $packageFinder);
+		parent::__construct($params, $packages);
 		$this->setEnvironment('test');
 		$this->setProductionMode(TRUE);
 		static::$configurator = $this;
+
+		// delete exception reports from last run
+		foreach ($this->findDiagnosticsFiles() as $file) {
+			/** @var \SplFileInfo $file */
+			@unlink($file->getRealpath());
+		}
 	}
 
 
 
 	/**
-	 * @return \Kdyby\DI\SystemContainer
+	 * @return \Nette\Utils\Finder|array
+	 */
+	protected function findDiagnosticsFiles()
+	{
+		return Nette\Utils\Finder::findFiles('exception*.html', '*.log', 'dump*.html')
+			->in($this->parameters['logDir']);
+	}
+
+
+
+	/**
+	 * @return \SystemContainer|\Nette\DI\Container
 	 */
 	public static function getTestsContainer()
 	{
 		return static::$configurator->getContainer();
+	}
+
+
+
+	/**
+	 * @param string $testsDir
+	 * @param \Kdyby\Packages\IPackageList $packages
+	 *
+	 * @return \Kdyby\Tests\Configurator
+	 */
+	public static function testsInit($testsDir, Kdyby\Packages\IPackageList $packages = NULL)
+	{
+		if (!is_dir($testsDir)) {
+			throw new Kdyby\IOException("Given path is not directory.");
+		}
+
+		// arguments
+		$params = array(
+			'wwwDir' => $testsDir,
+			'appDir' => $testsDir,
+			'logDir' => $testsDir . '/log',
+			'tempDir' => $testsDir . '/temp',
+		);
+		$packages = $packages ?: Kdyby\Framework::createPackagesList();
+
+		// create container
+		return new static($params, $packages);
 	}
 
 }

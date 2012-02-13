@@ -18,12 +18,29 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-interface IPackageList
+class PackagesList extends Nette\Object implements IPackageList
 {
+
+	/** @var array */
+	private $packages;
+
+
+
+	/**
+	 * @param array $packages
+	 */
+	public function __construct(array $packages)
+	{
+		$this->packages = $packages;
+	}
+
+
 
 	/**
 	 * @return string[]
 	 */
-	function getPackages();
-
+	public function getPackages()
+	{
+		return $this->packages;
+	}
 }

@@ -153,19 +153,11 @@ class SandboxConfigurator extends Kdyby\Config\Configurator
 
 
 	/**
+	 * Setups the Debugger defaults
+	 *
 	 * @param array $params
 	 */
-	protected static function setupDebugger(array $params)
-	{
-		// pass
-	}
-
-
-
-	/**
-	 * @param array $params
-	 */
-	protected static function setupDebuggerMode(array $params)
+	protected function setupDebugger($params = array())
 	{
 		// pass
 	}
