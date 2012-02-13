@@ -21,7 +21,10 @@ use Nette\Utils\Strings;
  * @author Filip Procházka <hosiplan@kdyby.org>
  *
  * @property-read array $headers
+ * @property-read \Kdyby\Curl\Response|NULL $previous
  * @property-read string $response
+ * @property-read array $cookies
+ * @property-read array $info
  */
 class Response extends Nette\Object
 {
