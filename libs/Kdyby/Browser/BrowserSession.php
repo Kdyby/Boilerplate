@@ -97,6 +97,31 @@ class BrowserSession extends Nette\Object
 
 
 	/**
+	 * @return int
+	 */
+	public function getRequestsCount()
+	{
+		return count($this->history);
+	}
+
+
+
+	/**
+	 * @return int
+	 */
+	public function getRequestsTotalTime()
+	{
+		$time = 0;
+		foreach ($this->history as $page) {
+			$http = $this->history->getInfo();
+			$time += $http['response']->info['total_time'];
+		}
+		return $time;
+	}
+
+
+
+	/**
 	 * @return \Kdyby\Browser\WebPage
 	 */
 	public function getLastPage()
@@ -215,7 +240,10 @@ class BrowserSession extends Nette\Object
 		$content = $response->getResponse();
 
 		// store
-		$this->history[$content] = array('request' => clone $request, 'response' => clone $response);
+		$this->history[(object)array('content' => $content)] = array(
+			'request' => clone $request,
+			'response' => clone $response
+		);
 
 		// return
 		return $content;
