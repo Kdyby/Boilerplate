@@ -20,6 +20,8 @@ use Nette\Forms\Container;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  * @author Jan Tvrdík
+ *
+ * @method \Nette\Application\UI\Form getForm()
  */
 class Replicator extends Container
 {
@@ -273,8 +275,7 @@ class Replicator extends Container
 			return $this->httpPost;
 		}
 
-		$request = $this->getRequest();
-		if ($request->isPost()) {
+		if (($request = $this->getRequest()) && $request->isPost()) {
 			$post = (array)$request->getPost();
 
 			$chain = array();
