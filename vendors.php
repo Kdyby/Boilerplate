@@ -34,6 +34,10 @@ foreach ($deps as $dep) {
 	list($name, $url, $rev) = $dep;
 
 	$installDir = $vendorDir . '/' . $name;
+	if (is_link($installDir)) {
+		continue;
+	}
+
 	if (!is_dir($installDir)) {
 		echo "$ install $name\n";
 		system(sprintf('git clone %s %s', escapeshellarg($url), escapeshellarg($installDir)));
