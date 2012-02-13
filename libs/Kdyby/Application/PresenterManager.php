@@ -116,7 +116,7 @@ class PresenterManager extends Nette\Application\PresenterFactory implements Net
 	public function createPresenter($name)
 	{
 		$serviceName = $this->formatServiceNameFromPresenter($name);
-		if (method_exists($this->container, $method = 'create' . ucfirst($serviceName))) {
+		if (method_exists($this->container, $method = Nette\DI\Container::getMethodName($serviceName, FALSE))) {
 			$presenter = $this->container->{$method}();
 
 		} elseif ($this->container->hasService($serviceName)) {
@@ -168,7 +168,7 @@ class PresenterManager extends Nette\Application\PresenterFactory implements Net
 	public function formatServiceNameFromPresenter($presenter)
 	{
 		return Strings::replace($presenter, '/(^|:)+(.)/', function ($match) {
-			return (':' === $match[1] ? '_' : '') . strtolower($match[2]);
+			return (':' === $match[1] ? '.' : '') . strtolower($match[2]);
 		}) . 'Presenter';
 	}
 
@@ -184,8 +184,8 @@ class PresenterManager extends Nette\Application\PresenterFactory implements Net
 	 */
 	public function formatPresenterFromServiceName($name)
 	{
-		return Strings::replace(substr($name, 0, -9), '/(^|_)+(.)/', function ($match) {
-			return ('_' === $match[1] ? ':' : '') . strtoupper($match[2]);
+		return Strings::replace(substr($name, 0, -9), '/(^|\\.)+(.)/', function ($match) {
+			return ('.' === $match[1] ? ':' : '') . strtoupper($match[2]);
 		});
 	}
 
