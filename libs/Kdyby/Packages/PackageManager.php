@@ -117,8 +117,9 @@ class PackageManager extends Nette\Object
 
 		$package = $this->getPackage($packageName);
 		return array(
+			$package->getPath() . '/' . $path,
 			$package->getPath() . '/Resources/' . $path,
-			$package->getPath() . '/' . $path
+			$package->getPath() . '/Resources/public/' . $path,
 		);
 	}
 
