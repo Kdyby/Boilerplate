@@ -151,7 +151,14 @@ class Form extends Nette\Application\UI\Form
 
 		foreach ((array)$listeners as $handler) {
 			if ($handler instanceof Nette\Application\UI\Link) {
-				$this->getPresenter()->redirectUrl($handler);
+				/** @var \Nette\Application\UI\Link $handler */
+				$refl = $handler->getReflection();
+				/** @var \Nette\Reflection\ClassType $refl */
+				$compRefl = $refl->getProperty('component');
+				$compRefl->accessible = TRUE;
+				/** @var \Nette\Application\UI\PresenterComponent $component */
+				$component = $compRefl->getValue($handler);
+				$component->redirect($handler->getDestination(), $handler->getParameters());
 
 			} else {
 				callback($handler)->invokeArgs($args);
