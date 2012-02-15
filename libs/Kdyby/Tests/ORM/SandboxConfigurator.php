@@ -31,7 +31,7 @@ class SandboxConfigurator extends Kdyby\Config\Configurator
 	 */
 	public function __construct($params = NULL)
 	{
-		parent::__construct($params, new Kdyby\Package\DefaultPackages());
+		parent::__construct($params, Kdyby\Framework::createPackagesList());
 		$this->setEnvironment('console');
 		$this->setProductionMode(TRUE);
 	}
