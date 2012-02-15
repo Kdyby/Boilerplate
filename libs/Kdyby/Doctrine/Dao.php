@@ -248,11 +248,11 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 
 	/**
 	 * @param string $alias
-	 * @return \Doctrine\ORM\QueryBuilder|\Doctrine\CouchDB\View\AbstractQuery $qb
+	 * @return \Kdyby\Doctrine\QueryBuilder $qb
 	 */
 	public function createQueryBuilder($alias = NULL)
 	{
-		$qb = $this->getEntityManager()->createQueryBuilder();
+		$qb = new QueryBuilder($this->getEntityManager());
 
 		if ($alias !== NULL) {
 			$qb->select($alias)->from($this->getEntityName(), $alias);

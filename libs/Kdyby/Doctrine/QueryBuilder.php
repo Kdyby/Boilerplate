@@ -21,11 +21,11 @@ class QueryBuilder extends Doctrine\ORM\QueryBuilder
 	 * in the construction of the query.
 	 *
 	 * <code>
-	 *     $qb = $em->createQueryBuilder()
-	 *         ->select('u')
-	 *         ->from('User', 'u');
+	 *	 $qb = $em->createQueryBuilder()
+	 *		 ->select('u')
+	 *		 ->from('User', 'u');
 	 *
-	 *     echo $qb->getRootEntity(); // User
+	 *	 echo $qb->getRootEntity(); // User
 	 * </code>
 	 *
 	 * @return string $rootEntity
@@ -38,8 +38,29 @@ class QueryBuilder extends Doctrine\ORM\QueryBuilder
 
 
 	/**
+	 * Gets the root entity of the query. This is the first entity alias involved
+	 * in the construction of the query.
+	 *
+	 * <code>
+	 *	 $qb = $em->createQueryBuilder()
+	 *		 ->select('u')
+	 *		 ->from('User', 'u');
+	 *
+	 *	 $qb->getRootAlias(); // array('u')
+	 * </code>
+	 *
+	 * @return string $rootEntity
+	 */
+	public function getRootAlias()
+	{
+		return current($this->getRootAliases());
+	}
+
+
+
+	/**
 	 * Get Gridito model
-	 * @return Grinder\Models\DoctrineQueryBuilderModel
+	 * @return \Kdyby\Components\Grinder\Models\DoctrineQueryBuilderModel
 	 */
 	public function getGrinderModel()
 	{
