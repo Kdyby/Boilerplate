@@ -47,7 +47,7 @@ abstract class Control extends Nette\Application\UI\Control
 	/**
 	 * @param string|null $class
 	 *
-	 * @return \Kdyby\Templating\Template
+	 * @return \Nette\Templating\FileTemplate
 	 */
 	protected function createTemplate($class = NULL)
 	{
