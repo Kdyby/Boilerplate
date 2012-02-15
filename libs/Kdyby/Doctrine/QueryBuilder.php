@@ -7,6 +7,7 @@ use Kdyby;
 use Kdyby\Components\Grinder;
 use Nette;
 use Nette\ObjectMixin;
+use Nette\Utils\Strings;
 
 
 
@@ -54,6 +55,30 @@ class QueryBuilder extends Doctrine\ORM\QueryBuilder
 	public function getRootAlias()
 	{
 		return current($this->getRootAliases());
+	}
+
+
+
+	/**
+	 * @return array
+	 */
+	public function getEntityAliases()
+	{
+		static $joined = array();
+		if ($joined) {
+			return $joined;
+		}
+
+		$joined[] = $rootAlias = $this->getRootAlias();
+		$joins = $this->getDQLPart('join');
+		foreach ($joins[$rootAlias] as $join) {
+			/** @var \Doctrine\ORM\Query\Expr\Join $join */
+			if ($m = Strings::match((string)$join, '~^(?:LEFT|INNER)\s+JOIN\s+([^\s]+)(?:\s+([^\s]+)\s*(?:ON|WITH)?\s*.*)?$~i')) {
+				$joined[$m[1]] = $m[2];
+			}
+		}
+
+		return $joined;
 	}
 
 
