@@ -49,11 +49,11 @@ class PresenterManagerTest extends Kdyby\Tests\TestCase
 	 */
 	private function getPackages()
 	{
-		$defaultPackages = new Kdyby\Package\DefaultPackages();
-		return new Kdyby\Packages\PackagesContainer(array_merge($defaultPackages->getPackages(), array(
-			'Kdyby\Tests\Application\Mocks\BarPackage\BarPackage',
-			'Kdyby\Tests\Application\Mocks\BazPackage\MocksBazPackage',
-			'Kdyby\Tests\Application\Mocks\FooPackage\FooPackage',
+		return new Kdyby\Packages\PackagesContainer(array_merge(
+			Kdyby\Framework::getDefaultPackages(), array(
+				'Kdyby\Tests\Application\Mocks\BarPackage\BarPackage',
+				'Kdyby\Tests\Application\Mocks\BazPackage\MocksBazPackage',
+				'Kdyby\Tests\Application\Mocks\FooPackage\FooPackage',
 		)));
 	}
 
@@ -95,10 +95,10 @@ class PresenterManagerTest extends Kdyby\Tests\TestCase
 	public function dataServiceNamesAndPresenters()
 	{
 		return array(
-			array('FooPackage:Foo', 'fooPackage_fooPresenter'),
-			array('BarPackage:FooFoo', 'barPackage_fooFooPresenter'),
-			array('BarPackage:Foo:FooBar', 'barPackage_foo_fooBarPresenter'),
-			array('MocksBazPackage:Foo:FooBar', 'mocksBazPackage_foo_fooBarPresenter'),
+			array('FooPackage:Foo', 'fooPackage.fooPresenter'),
+			array('BarPackage:FooFoo', 'barPackage.fooFooPresenter'),
+			array('BarPackage:Foo:FooBar', 'barPackage.foo.fooBarPresenter'),
+			array('MocksBazPackage:Foo:FooBar', 'mocksBazPackage.foo.fooBarPresenter'),
 		);
 	}
 
