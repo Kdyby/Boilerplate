@@ -51,8 +51,13 @@ class JavascriptMacro extends MacroBase
 			return;
 		}
 
-		if ($this->createFactory($this->readArguments($node), FormulaeManager::TYPE_JAVASCRIPT)) {
-			$node->isEmpty = TRUE;
+		try {
+			if ($this->createFactory($this->readArguments($node), FormulaeManager::TYPE_JAVASCRIPT)) {
+				$node->isEmpty = TRUE;
+			}
+
+		} catch (\Exception $e) {
+			throw new Nette\Latte\CompileException($e->getMessage());
 		}
 	}
 
@@ -77,8 +82,13 @@ class JavascriptMacro extends MacroBase
 			unset($args['filter']);
 		}
 
-		$this->createFactory(array($node->args) + $args, FormulaeManager::TYPE_JAVASCRIPT);
-		$node->content = NULL;
+		try {
+			$this->createFactory(array($node->args) + $args, FormulaeManager::TYPE_JAVASCRIPT);
+			$node->content = NULL;
+
+		} catch (\Exception $e) {
+			throw new Nette\Latte\CompileException($e->getMessage());
+		}
 	}
 
 }

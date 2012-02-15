@@ -168,20 +168,13 @@ abstract class MacroBase extends Nette\Object implements Latte\IMacro
 		// array for AssetCollection
 		$assets = "array(\n";
 		foreach ($asset = $this->factory->createAsset($inputs, array(), $options) as $leaf) {
-			if (!$this->isLeafValid($leaf)) {
-				return FALSE;
-			}
+			$this->validateAssetLeaf($leaf);
 			$assets .= "\t" . Code\Helpers::formatArgs('unserialize(?)', array(serialize($leaf))) . ",\n";
 		}
 		$assets = (isset($leaf) ? substr($assets, 0, -2) : $assets) . "\n)";
 
-		if ($asset instanceof Assetic\Asset\AssetInterface) {
-			if (!isset($options['output'])) {
-				$options['output'] = $asset->getTargetPath();
-			}
-
-		} else {
-			throw new Kdyby\InvalidStateException('Assetic wasn\'t able to create asset from your input "' . implode('", "', $inputs) . '".');
+		if ($asset instanceof Assetic\Asset\AssetInterface && !isset($options['output'])) {
+			$options['output'] = $asset->getTargetPath();
 		}
 
 		// registration code
@@ -199,10 +192,15 @@ abstract class MacroBase extends Nette\Object implements Latte\IMacro
 	 *
 	 * @return bool
 	 */
-	private function isLeafValid(Assetic\Asset\AssetInterface $leaf)
+	private function validateAssetLeaf(Assetic\Asset\AssetInterface $leaf)
 	{
-		return !$leaf instanceof Assetic\Asset\FileAsset
-			|| file_exists($leaf->getSourceRoot() . '/' . $leaf->getSourcePath());
+		if (!$leaf instanceof Assetic\Asset\FileAsset) {
+			return;
+		}
+
+		if (!file_exists($file = $leaf->getSourceRoot() . '/' . $leaf->getSourcePath())) {
+			throw new Kdyby\FileNotFoundException('Assetic wasn\'t able to process your input, file "' . $file . '" doesn\'t exists.');
+		}
 	}
 
 }
