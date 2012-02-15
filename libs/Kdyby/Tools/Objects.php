@@ -65,13 +65,13 @@ final class Objects extends Nette\Object
 	public static function getProperty($object, $propertyName, $need = TRUE)
 	{
 		if (is_object($object)) {
-			if (isset($object->$propertyName)) {
-				return $object->$propertyName;
-
-			} elseif (method_exists($object, $method = 'get' . ucfirst($propertyName))) {
+			if (method_exists($object, $method = 'get' . ucfirst($propertyName))) {
 				return $object->$method();
 
-			} elseif (method_exists($object, $method = 'is' . ucfirst($propertyName))) {
+			} elseif (isset($object->$propertyName)) {
+				return $object->$propertyName;
+
+			}else if (method_exists($object, $method = 'is' . ucfirst($propertyName))) {
 				return $object->$method();
 			}
 
