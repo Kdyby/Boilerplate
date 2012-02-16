@@ -84,23 +84,6 @@ class QueryBuilder extends Doctrine\ORM\QueryBuilder
 
 
 	/**
-	 * Get Gridito model
-	 * @return \Kdyby\Components\Grinder\Models\DoctrineQueryBuilderModel
-	 */
-	public function getGrinderModel()
-	{
-		$em = $this->getEntityManager();
-		$identifier = $em->getClassMetadata($this->getRootEntity())->getSingleIdentifierFieldName();
-
-		$grinderModel = new Grinder\Models\DoctrineQueryBuilderModel($this);
-		$grinderModel->setPrimaryKey($identifier);
-
-		return $grinderModel;
-	}
-
-
-
-	/**
 	 * @param string $alias
 	 * @param array $values
 	 * @return QueryBuilder
