@@ -204,6 +204,47 @@ class ArraysTest extends Kdyby\Tests\TestCase
 
 
 
+	public function testGroupBy_Append()
+	{
+		$array = array(
+			array(
+				'one' => 1,
+				'two' => 1,
+				'three' => 1,
+			),
+			array(
+				'one' => 1,
+				'two' => 1,
+				'three' => 1,
+			),
+			array(
+				'one' => 1,
+				'two' => 2,
+				'three' => 1,
+			),
+		);
+
+		$grouped = array(
+			1 => array(
+				1 => array(
+					1 => array(
+						$array[0],
+						$array[1],
+					),
+				),
+				2 => array(
+					1 => array(
+						$array[2],
+					),
+				)
+			)
+		);
+
+		$this->assertEquals($grouped, Arrays::groupBy($array, 'one,two,three', TRUE));
+	}
+
+
+
 	/**
 	 * @dataProvider dataGroupBy
 	 *

@@ -59,10 +59,11 @@ final class Arrays extends Nette\Object
 	/**
 	 * @param array $array
 	 * @param array|string|callback $columns
+	 * @param bool $append
 	 *
 	 * @return array
 	 */
-	public static function groupBy(array $array, $columns)
+	public static function groupBy(array $array, $columns, $append = FALSE)
 	{
 		if (!is_callable($columns)) {
 			$columns = is_array($columns)
@@ -82,7 +83,15 @@ final class Arrays extends Nette\Object
 			}
 
 			$ref =& Nette\Utils\Arrays::getRef($grouped, $keys);
-			$ref = $item;
+			if ($append) {
+				if (!is_array($ref)) {
+					$ref = array();
+				}
+				$ref[] = $item;
+
+			} else {
+				$ref = $item;
+			}
 			unset($ref);
 		}
 
