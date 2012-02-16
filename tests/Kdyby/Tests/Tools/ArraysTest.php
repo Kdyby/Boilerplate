@@ -135,4 +135,111 @@ class ArraysTest extends Kdyby\Tests\TestCase
 		$this->assertEquals($expected, Arrays::sliceAssoc($ten, $start, $end));
 	}
 
+
+
+	/**
+	 * @return array
+	 */
+	public function dataGroupBy()
+	{
+		$array = array(
+			$a = Nette\ArrayHash::from(array(
+				'one' => 'Herec',
+				'two' => 'Angelina',
+				'three' => 'se pochlubil novomanželkou',
+			)),
+			$b = Nette\ArrayHash::from(array(
+				'one' => 'Agáta',
+				'two' => 'Šprti',
+				'three' => 'jí',
+			)),
+			$c = array(
+				'one' => 'Herec',
+				'two' => 'Angelina',
+				'three' => 'Víme',
+			),
+			$d = array(
+				'one' => 'Nejnevkusnější',
+				'two' => 'Nádherná',
+				'three' => 'měla',
+			),
+		);
+
+		$grouped = array(
+			'Herec' => array(
+				'Angelina' => array(
+					'se pochlubil novomanželkou' => $a,
+					'Víme' => $c,
+				),
+			),
+			'Agáta' => array(
+				'Šprti' => array(
+					'jí' => $b,
+				),
+			),
+			'Nejnevkusnější' => array(
+				'Nádherná' => array(
+					'měla' => $d,
+				),
+			),
+		);
+
+		return array(
+			array($array, $grouped)
+		);
+	}
+
+
+
+	/**
+	 * @dataProvider dataGroupBy
+	 *
+	 * @param $array
+	 * @param $grouped
+	 */
+	public function testGroupBy_Keys($array, $grouped)
+	{
+		$this->assertEquals($grouped, Arrays::groupBy($array, 'one,two,three'));
+	}
+
+
+
+	/**
+	 * @dataProvider dataGroupBy
+	 *
+	 * @param $array
+	 * @param $grouped
+	 */
+	public function testGroupBy_Array($array, $grouped)
+	{
+		$this->assertEquals($grouped, Arrays::groupBy($array, array('one', 'two', 'three')));
+	}
+
+
+
+	/**
+	 * @dataProvider dataGroupBy
+	 *
+	 * @param $array
+	 */
+	public function testGroupBy_Callback($array)
+	{
+		$grouped = array(
+			'Herec' => array(
+				'Angelina-se pochlubil novomanželkou' => $array[0],
+				'Angelina-Víme' => $array[2],
+			),
+			'Agáta' => array(
+				'Šprti-jí' => $array[1],
+			),
+			'Nejnevkusnější' => array(
+				'Nádherná-měla' => $array[3],
+			),
+		);
+
+		$this->assertEquals($grouped, Arrays::groupBy($array, function ($item) {
+			return array($item['one'], $item['two'] . '-' . $item['three']);
+		}));
+	}
+
 }
