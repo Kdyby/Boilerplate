@@ -17,6 +17,13 @@ use Nette;
 
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
+ *
+ * @property-write int $timeout
+ * @property-write string $referer
+ * @property-write string $userAgent
+ * @property-write bool $followRedirects
+ * @property-write int $maximumRedirects
+ * @property-write bool $returnTransfer
  */
 abstract class RequestOptions extends Nette\Object
 {

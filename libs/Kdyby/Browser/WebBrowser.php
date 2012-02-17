@@ -43,7 +43,7 @@ class WebBrowser extends Nette\Object
 	public function __construct(Curl\CurlSender $curl = NULL)
 	{
 		$this->curl = $curl ?: new Curl\CurlSender();
-		$this->curl->headers = $this->defaultHeaders;
+		$this->curl->headers += $this->defaultHeaders;
 		$this->curl->setUserAgent('Chrome');
 	}
 

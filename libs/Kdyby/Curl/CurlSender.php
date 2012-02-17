@@ -50,6 +50,9 @@ class CurlSender extends RequestOptions
 	/** @var \Kdyby\Curl\Request */
 	private $queriedRequest;
 
+	/** @var \Kdyby\Curl\IRequestLogger */
+	private $logger;
+
 
 
 	/**
@@ -177,6 +180,16 @@ class CurlSender extends RequestOptions
 
 
 	/**
+	 * @param \Kdyby\Curl\IRequestLogger $logger
+	 */
+	public function setLogger(IRequestLogger $logger)
+	{
+		$this->logger = $logger;
+	}
+
+
+
+	/**
 	 * @param \Kdyby\Curl\Request $request
 	 *
 	 * @return \Kdyby\Curl\Response
@@ -208,9 +221,11 @@ class CurlSender extends RequestOptions
 			throw new CurlException("Redirect loop", $this->queriedRequest);
 		}
 
-		// cookies
+		// combine setup
 		$request->options += $this->options;
 		$request->headers += $this->headers;
+
+		// cookies
 		if ($request->cookies){
 			$request->headers['Cookie'] = $request->getCookies();
 		}
@@ -221,10 +236,12 @@ class CurlSender extends RequestOptions
 		$cUrl->setHeaders($request->headers);
 		$cUrl->setPost($request->post, $request->files);
 
+		// fallback when safe_mode
 		if (!$this->canFollowRedirect()) {
 			$cUrl->setOption('followLocation', NULL);
 		}
 
+		// method & prepare download
 		if ($request->isMethod(Request::DOWNLOAD)) {
 			if (!is_dir($this->downloadDir)) {
 				throw new Kdyby\InvalidStateException("Please provide a writable directory for download.");
@@ -235,6 +252,12 @@ class CurlSender extends RequestOptions
 			$cUrl->setOption('header', TRUE);
 		}
 
+		// logging
+		if ($this->logger) {
+			$requestId = $this->logger->request($request);
+		}
+
+		// sending process
 		$repeat = $this->repeatOnFail;
 		do {
 			$proxies = $this->proxies;
@@ -249,21 +272,30 @@ class CurlSender extends RequestOptions
 			} while (!$cUrl->isOk() && $proxies);
 		} while (!$cUrl->response && $repeat-- > 0);
 
+		// request failed
 		if (!$cUrl->response) {
 			throw new FailedRequestException($cUrl);
 		}
 
+		// build & check response
 		$response = $this->buildResponse($cUrl);
 		if (($statusCode = $response->headers['Status-Code']) >= 400 && $statusCode < 600) {
 			throw new BadStatusException($response->headers['Status'], $request, $response);
 		}
 
+		// force redirect on Location header
 		if ($this->isForcingFollowRedirect($cUrl, $response)) {
 			$request = $this->queriedRequest->followRedirect($response);
 			$response = $this->sendRequest($request, ++$cycles)
 				->setPrevious($response); // override
 		}
 
+		// log response
+		if ($this->logger && isset($requestId)) {
+			$this->logger->response($response, $requestId);
+		}
+
+		// return
 		return $response;
 	}
 
