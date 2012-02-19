@@ -34,7 +34,7 @@ class Configurator extends Kdyby\Config\Configurator
 	{
 		parent::__construct($params, $packages);
 		$this->setEnvironment('test');
-		$this->setProductionMode(TRUE);
+		$this->setProductionMode(FALSE);
 		static::$configurator = $this;
 
 		// delete exception reports from last run
