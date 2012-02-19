@@ -26,11 +26,8 @@ class BrowserSession extends Nette\Object
 	/** @var \Nette\Http\UrlScript */
 	private $page;
 
-	/** @var \SplObjectStorage|\Kdyby\Browser\WebPage[] */
+	/** @var \Kdyby\Browser\History\EagerHistory */
 	private $history;
-
-	/** @var \Kdyby\Browser\WebPage */
-	private $lastPage;
 
 	/** @var \Kdyby\Browser\WebBrowser */
 	private $browser;
@@ -42,11 +39,12 @@ class BrowserSession extends Nette\Object
 
 	/**
 	 * @param \Kdyby\Browser\WebBrowser $browser
+	 * @param \Kdyby\Browser\History\EagerHistory $history
 	 */
-	public function __construct(WebBrowser $browser = NULL)
+	public function __construct(WebBrowser $browser = NULL, History\EagerHistory $history = NULL)
 	{
 		$this->browser = $browser;
-		$this->cleanHistory();
+		$this->history = $history ?: new History\EagerHistory;
 	}
 
 
@@ -57,7 +55,7 @@ class BrowserSession extends Nette\Object
 	public function setBrowser(WebBrowser $browser)
 	{
 		$this->browser = $browser;
-		$this->cleanHistory();
+		$this->history->clean();
 	}
 
 
@@ -81,7 +79,7 @@ class BrowserSession extends Nette\Object
 	 */
 	public function cleanHistory()
 	{
-		$this->history = new \SplObjectStorage();
+		$this->history->clean();
 	}
 
 
@@ -91,7 +89,7 @@ class BrowserSession extends Nette\Object
 	 */
 	public function getHistory()
 	{
-		return $this->history;
+		return $this->history->getPages();
 	}
 
 
@@ -101,7 +99,7 @@ class BrowserSession extends Nette\Object
 	 */
 	public function getRequestsCount()
 	{
-		return count($this->history);
+		return $this->history->count();
 	}
 
 
@@ -111,12 +109,7 @@ class BrowserSession extends Nette\Object
 	 */
 	public function getRequestsTotalTime()
 	{
-		$time = 0;
-		foreach ($this->history as $page) {
-			$http = $this->history->getInfo();
-			$time += $http['response']->info['total_time'];
-		}
-		return $time;
+		return $this->history->getRequestsTotalTime();
 	}
 
 
@@ -126,7 +119,7 @@ class BrowserSession extends Nette\Object
 	 */
 	public function getLastPage()
 	{
-		return $this->lastPage;
+		return $this->history->getLast();
 	}
 
 
@@ -196,19 +189,19 @@ class BrowserSession extends Nette\Object
 		}
 
 		// apply history
-		if ($this->lastPage !== NULL) {
-			$request->setReferer($this->lastPage->getAddress());
+		if ($last = $this->history->getLast()) {
+			$request->setReferer($last->getAddress());
 		}
 
 		// send
 		$response = $this->getBrowser()->send($request);
 
-		// create page
-		$this->lastPage = $page = new WebPage($response->getDocument(), $response->getUrl());
+		// create page from response document
+		$page = new WebPage($response->getDocument(), $response->getUrl());
 		$page->setSession($this);
 
 		// store
-		$this->history[$page] = array('request' => clone $request, 'response' => clone $response);
+		$this->history->push($page, $request, $response);
 		$this->cookies = $response->getCookies();
 		$this->page = new Url($request->url->getHostUrl());
 
@@ -231,8 +224,8 @@ class BrowserSession extends Nette\Object
 		}
 
 		// apply history
-		if ($this->lastPage !== NULL) {
-			$request->setReferer($this->lastPage->getAddress());
+		if ($last = $this->history->getLast()) {
+			$request->setReferer($last->getAddress());
 		}
 
 		// send
@@ -240,10 +233,7 @@ class BrowserSession extends Nette\Object
 		$content = $response->getResponse();
 
 		// store
-		$this->history[(object)array('content' => $content)] = array(
-			'request' => clone $request,
-			'response' => clone $response
-		);
+		$this->history->push((object)array('content' => $content), $request, $response);
 
 		// return
 		return $content;
