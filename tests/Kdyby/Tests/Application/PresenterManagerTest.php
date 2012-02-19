@@ -170,7 +170,7 @@ class PresenterManagerTest extends Kdyby\Tests\TestCase
 			'Kdyby\Tests\Application\Mocks\FooPackage\Presenter\BarModule\BarBarPresenter' => 'FooPackage:Bar:BarBar',
 		);
 
-		$container = new Nette\DI\Container();
+		$container = new Nette\DI\Container(array('productionMode' => TRUE));
 		$container->addService('templateFactory', (object)NULL);
 		foreach ($presenters as $presenterClass => $presenter) {
 			$serviceName = $this->manager->formatServiceNameFromPresenter($presenter);

@@ -28,17 +28,19 @@ class FormTest extends Kdyby\Tests\TestCase
 
 	public function setup()
 	{
-		$presenter = $this->getMock('Nette\Application\UI\Presenter', array(), array(new Nette\DI\Container));
+		$presenter = $this->getMock('Nette\Application\UI\Presenter', array(), array($this->getContext()));
 
 		$this->form = new MockForm();
 		$this->form->setParent($presenter, 'form');
 	}
 
 
+
 	public function testCreation()
 	{
 		$this->assertInstanceOf('Nette\Forms\Controls\TextInput', $this->form->getComponent('name', FALSE));
 	}
+
 
 
 	public function testAttachingEvents()

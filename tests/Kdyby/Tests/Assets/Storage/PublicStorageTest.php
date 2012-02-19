@@ -58,7 +58,10 @@ class PublicStorageTest extends Kdyby\Tests\TestCase
 	 */
 	public function dataAssets()
 	{
-		$asset = $this->getMock('Assetic\Asset\FileAsset', array('getTargetPath', 'dump'));
+		$asset = $this->getMockBuilder('Assetic\Asset\FileAsset')
+			->disableOriginalConstructor()
+			->getMock();
+
 		$asset->expects($this->once())
 			->method('getTargetPath')
 			->will($this->returnValue('public/css/lipsum.css'));

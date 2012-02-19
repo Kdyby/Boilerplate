@@ -6,6 +6,11 @@ parameters:
         defaultEntityManager: default
 
 
+nette:
+    security:
+        frames:
+
+
 dbal:
     driver: pdo_sqlite
     memory: TRUE
