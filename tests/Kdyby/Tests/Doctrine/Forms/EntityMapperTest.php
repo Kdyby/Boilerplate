@@ -193,15 +193,12 @@ class EntityMapperTest extends Kdyby\Tests\OrmTestCase
 
 	/**
 	 * @dataProvider dataSavingItemControlsScalar
-	 * @group save
 	 *
 	 * @param \Nette\Forms\IControl $itemsControl
 	 * @param int $value
 	 */
 	public function testItemsControlSaving_FieldNamePairs_FromRelated_Entity(IControl $itemsControl, $value)
 	{
-		$this->markTestSkipped("not implemented");
-
 		// tested control dependencies
 		$entity = new Fixtures\RootEntity("Nikol, ty dlouho sama nebudeš!");
 		$entity->children[] = new Fixtures\RelatedEntity($a = "Moravcová rozepnula živůtek");
@@ -209,10 +206,11 @@ class EntityMapperTest extends Kdyby\Tests\OrmTestCase
 		$entity->children[] = new Fixtures\RelatedEntity($c = "své neposedné dvojky");
 		// intentionally in children to easily persist
 		$rootDao = $this->getDao($entity);
-		$rootDao->save($entity);
+		$id = $rootDao->save($entity)->id;
+		$this->getEntityManager()->flush();
 
 		// attach to container & mapper
-		$container = new EntityContainer($entity);
+		$container = new EntityContainer($entity = $rootDao->find($id));
 		$container['daddy'] = $itemsControl;
 		$this->mapper->assign($entity, $container);
 		$this->mapper->setControlMapper($itemsControl, 'name', 'id');
@@ -221,6 +219,8 @@ class EntityMapperTest extends Kdyby\Tests\OrmTestCase
 		$this->mapper->loadControlItems();
 		$container['daddy']->setValue($value);
 		$this->mapper->save();
+
+		// test
 		$this->assertInstanceOf(__NAMESPACE__ . '\Fixtures\RelatedEntity', $entity->daddy);
 		$this->assertEquals($b, $entity->daddy->name);
 	}
@@ -230,47 +230,107 @@ class EntityMapperTest extends Kdyby\Tests\OrmTestCase
 	/**
 	 * @return array
 	 */
-	public function dataSavingItemControls()
+	public function dataSavingItemControls_MultiSelect()
 	{
 		return array(
 			array(new Controls\MultiSelectBox, array(2)),
-			array(new Kdyby\Forms\Controls\CheckboxList, array(1 => FALSE, 2 => TRUE, 3 => FALSE)),
+			array(new Controls\MultiSelectBox, array(2, 3)),
 		);
 	}
 
 
 
 	/**
-	 * @dataProvider dataSavingItemControls
+	 * @dataProvider dataSavingItemControls_MultiSelect
 	 *
 	 * @param \Nette\Forms\IControl $itemsControl
 	 * @param array $value
 	 */
-	public function testItemsControlSaving_FieldNamePairs_FromRelated_Collection(IControl $itemsControl, $value)
+	public function testItemsControlSaving_FieldNamePairs_FromRelated_Collection_MultiSelect(IControl $itemsControl, $value)
 	{
-		$this->markTestSkipped("not implemented");
-
 		// tested control dependencies
 		$entity = new Fixtures\RootEntity("Nikol, ty dlouho sama nebudeš!");
-		$entity->children[] = new Fixtures\RelatedEntity($a = "Moravcová rozepnula živůtek");
-		$entity->children[] = new Fixtures\RelatedEntity($b = "a větrala");
-		$entity->children[] = new Fixtures\RelatedEntity($c = "své neposedné dvojky");
-		// intentionally in children to easily persist
+		$related[] = new Fixtures\RelatedEntity($a = "Moravcová rozepnula živůtek");
+		$related[] = new Fixtures\RelatedEntity($b = "a větrala");
+		$related[] = new Fixtures\RelatedEntity($c = "své neposedné dvojky");
+
+		$this->getDao(reset($related))->add($related);
 		$rootDao = $this->getDao($entity);
-		$rootDao->save($entity);
+		$id = $rootDao->save($entity)->id;
+		$this->getEntityManager()->flush();
 
 		// attach to container & mapper
-		$container = new EntityContainer($entity);
+		$container = new EntityContainer($entity = $rootDao->find($id));
 		$container['children'] = $itemsControl;
 		$this->mapper->assign($entity, $container);
 		$this->mapper->setControlMapper($itemsControl, 'name', 'id');
 
 		// load
 		$this->mapper->loadControlItems();
-		$container['children']->setValue(array($value));
+		$container['children']->setValue($value);
 		$this->mapper->save();
-		$this->assertInstanceOf(__NAMESPACE__ . '\Fixtures\RelatedEntity', $entity->daddy);
-		$this->assertEquals($b, $entity->daddy->name);
+
+		// test
+		$children = $entity->children->toArray();
+		$this->assertCount(count($value), $children);
+		$this->assertContainsOnly(__NAMESPACE__ . '\Fixtures\RelatedEntity', $children);
+		$this->assertEquals($value, array_map(function (Fixtures\RelatedEntity $related) {
+			return $related->id;
+		}, $children));
+	}
+
+
+
+	/**
+	 * @return array
+	 */
+	public function dataSavingItemControls_CheckboxList()
+	{
+		return array(
+			array(new Kdyby\Forms\Controls\CheckboxList, array(1 => FALSE, 2 => TRUE, 3 => FALSE)),
+			array(new Kdyby\Forms\Controls\CheckboxList, array(1 => FALSE, 2 => TRUE, 3 => TRUE)),
+		);
+	}
+
+
+
+	/**
+	 * @dataProvider dataSavingItemControls_CheckboxList
+	 *
+	 * @param \Nette\Forms\IControl $itemsControl
+	 * @param array $value
+	 */
+	public function testItemsControlSaving_FieldNamePairs_FromRelated_Collection_CheckboxList(IControl $itemsControl, $value)
+	{
+		// tested control dependencies
+		$entity = new Fixtures\RootEntity("Nikol, ty dlouho sama nebudeš!");
+		$related[] = new Fixtures\RelatedEntity($a = "Moravcová rozepnula živůtek");
+		$related[] = new Fixtures\RelatedEntity($b = "a větrala");
+		$related[] = new Fixtures\RelatedEntity($c = "své neposedné dvojky");
+
+		$this->getDao(reset($related))->add($related);
+		$rootDao = $this->getDao($entity);
+		$id = $rootDao->save($entity)->id;
+		$this->getEntityManager()->flush();
+
+		// attach to container & mapper
+		$container = new EntityContainer($entity = $rootDao->find($id));
+		$container['children'] = $itemsControl;
+		$this->mapper->assign($entity, $container);
+		$this->mapper->setControlMapper($itemsControl, 'name', 'id');
+
+		// load
+		$this->mapper->loadControlItems();
+		$container['children']->setValue($value);
+		$this->mapper->save();
+
+		// test
+		$children = $entity->children->toArray();
+		$this->assertCount(count(array_filter($value)), $children);
+		$this->assertContainsOnly(__NAMESPACE__ . '\Fixtures\RelatedEntity', $children);
+		$this->assertEquals(array_keys(array_filter($value)), array_map(function (Fixtures\RelatedEntity $related) {
+			return $related->id;
+		}, $children));
 	}
 
 

@@ -198,10 +198,10 @@ class EntityMapper extends Nette\Object
 	{
 		foreach ($this->entities as $entity) {
 			$class = $this->getMeta($entity);
-			$container = $this->getComponent($entity);
 
-			$values = $container->getValues();
-			$container->onSave($values, $container);
+			/** @var \Kdyby\Doctrine\Forms\EntityContainer|\Kdyby\Doctrine\Forms\CollectionContainer $container */
+			$container = $this->getComponent($entity);
+			$container->onSave($values = $container->getValues(), $container);
 
 			foreach ($values as $name => $value) {
 				if (!$container[$name] instanceof IControl) {
@@ -213,6 +213,11 @@ class EntityMapper extends Nette\Object
 						continue;
 					}
 
+					if (!$this->isTargetCollection($entity, $field)) {
+						$class->setFieldValue($entity, $field, $value);
+					}
+
+				} elseif ($class->hasAssociation($field)) {
 					if ($this->isItemsControl($container[$name])) {
 						$value = $this->resolveItemsControlValue($container[$name], $value, $entity, $field);
 					}
@@ -249,7 +254,7 @@ class EntityMapper extends Nette\Object
 	 * @param object $entity
 	 * @param string $field
 	 *
-	 * @return array|\Doctrine\ORM\The|object
+	 * @return array|object
 	 */
 	protected function resolveItemsControlValue(IControl $control, $value, $entity, $field)
 	{
@@ -529,10 +534,10 @@ class EntityMapper extends Nette\Object
 		if (is_string($items)) {
 			$targetClass = $this->getControlEntityClass($control);
 			if (!$this->getMeta($targetClass)->hasField($items)) {
-				throw new Kdyby\InvalidArgumentException('Entity "' . $targetClass . '" has no property "' . $items . '" given.');
+				throw new Kdyby\InvalidArgumentException('Entity "' . $targetClass . '" has no property "' . $items . '".');
 			}
 
-			$items = function ($dao) use ($items, $key) {
+			$items = function (Kdyby\Doctrine\Dao $dao) use ($items, $key) {
 				return $dao->findPairs($items, $key);
 			};
 
@@ -589,6 +594,7 @@ class EntityMapper extends Nette\Object
 			$refl->setExtensionMethod($name, function (BaseControl $_this, $mapper, $key = 'id') {
 				$form = $_this->getForm();
 				if ($form instanceof Form) {
+					/** @var \Kdyby\Doctrine\Forms\Form $form */
 					$form->getMapper()->setControlMapper($_this, $mapper, $key);
 				}
 				return $_this;
