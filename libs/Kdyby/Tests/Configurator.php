@@ -76,7 +76,7 @@ class Configurator extends Kdyby\Config\Configurator
 	public static function testsInit($testsDir, Kdyby\Packages\IPackageList $packages = NULL)
 	{
 		if (!is_dir($testsDir)) {
-			throw new Kdyby\IOException("Given path is not directory.");
+			throw new Kdyby\IOException("Given path is not a directory.");
 		}
 
 		// arguments

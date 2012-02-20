@@ -12,6 +12,7 @@ namespace Kdyby\Config;
 
 use Doctrine;
 use Kdyby;
+use Kdyby\Packages\IPackageList;
 use Nette;
 use Nette\Application\Routers\Route;
 use Nette\Application\UI\Presenter;
@@ -52,7 +53,7 @@ class Configurator extends Nette\Object
 	 * @param array $parameters
 	 * @param \Kdyby\Packages\IPackageList $packages
 	 */
-	public function __construct($parameters = NULL, Kdyby\Packages\IPackageList $packages = NULL)
+	public function __construct($parameters = NULL, IPackageList $packages = NULL)
 	{
 		// path defaults
 		$this->parameters = array('email' => NULL) + static::defaultPaths($parameters);
@@ -272,6 +273,31 @@ class Configurator extends Nette\Object
 		Debugger::$strictMode = TRUE;
 		Debugger::enable($params['productionMode'], $logDir, $params['email']);
 		Debugger::$consoleMode = $params['consoleMode'];
+	}
+
+
+
+	/**
+	 * @param string $appDir
+	 * @param string $environment
+	 *
+	 * @return \Kdyby\Config\Configurator
+	 */
+	public static function scriptInit($appDir, $environment = 'console')
+	{
+		if (!is_dir($appDir)) {
+			throw new Kdyby\IOException("Given path is not a directory.");
+		}
+
+		// arguments
+		$conf = new static(array(
+			'appDir' => $appDir,
+			'wwwDir' => $appDir . '/../www',
+		));
+
+		$conf->setEnvironment($environment);
+		$conf->setProductionMode(TRUE);
+		return $conf;
 	}
 
 }
