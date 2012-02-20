@@ -113,7 +113,7 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 		$key = end($keys);
 		$this->queries[$key][2] = $time = Debugger::timer('doctrine');
 		$this->totalTime += $time;
-		return $this->queries[$key];
+		return $this->queries[$key] + array_fill_keys(range(0, 4), NULL);
 	}
 
 
@@ -236,7 +236,7 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 				list($sql, $params, , , $source) = $this->failed[spl_object_hash($e)];
 
 			} else {
-				list($sql, $params, , , $source) = end($this->queries);
+				list($sql, $params, , , $source) = end($this->queries) + range(1, 5);
 			}
 
 			return array(
