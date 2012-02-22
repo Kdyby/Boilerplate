@@ -92,11 +92,14 @@ class Configurator extends Nette\Object
 
 	/**
 	 * @param string $name
+	 *
+	 * @return \Kdyby\Config\Configurator
 	 */
 	public function setEnvironment($name)
 	{
 		$this->parameters['environment'] = $name;
 		$this->parameters['consoleMode'] = $name === 'console' ?: PHP_SAPI === 'cli';
+		return $this;
 	}
 
 
@@ -105,6 +108,8 @@ class Configurator extends Nette\Object
 	 * When given NULL, the production mode gets detected automatically
 	 *
 	 * @param bool|NULL $value
+	 *
+	 * @return \Kdyby\Config\Configurator
 	 */
 	public function setProductionMode($value = NULL)
 	{
@@ -112,6 +117,7 @@ class Configurator extends Nette\Object
 			: Nette\Config\Configurator::detectProductionMode($value);
 
 		$this->parameters['kdyby']['debug'] = !$this->parameters['productionMode'];
+		return $this;
 	}
 
 
