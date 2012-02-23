@@ -79,7 +79,7 @@ class MqLogger extends Nette\Diagnostics\Logger
 			return;
 		}
 
-		Debugger::$logger->log($message, 'debug');
+		Debugger::$logger->log(array($message, 'method' => wc(1, TRUE)), 'debug');
 	}
 
 }
