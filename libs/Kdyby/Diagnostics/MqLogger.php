@@ -12,6 +12,7 @@ namespace Kdyby\Diagnostics;
 
 use Kdyby;
 use Nette;
+use Nette\Diagnostics\Debugger;
 
 
 
@@ -21,16 +22,16 @@ use Nette;
 class MqLogger extends Nette\Diagnostics\Logger
 {
 	/** @var \ZMQSocket */
-	private $requester;
+	private $publisher;
 
 
 
 	/**
-	 * @param \ZMQSocket $requester
+	 * @param \ZMQSocket $publisher
 	 */
-	public function __construct(\ZMQSocket $requester)
+	public function __construct(\ZMQSocket $publisher)
 	{
-		$this->requester = $requester;
+		$this->publisher = $publisher;
 	}
 
 
@@ -42,27 +43,43 @@ class MqLogger extends Nette\Diagnostics\Logger
 	 */
 	public function log($message, $priority = self::INFO)
 	{
-		if (is_array($message)) {
-			$message = implode(' ', $message);
-		}
+		$this->publisher->send($priority . ' ' . serialize($message));
 
-		$this->requester->send(serialize((object)array(
-			'message' => $message,
-			'priority' => $priority
-		)));
-		$this->requester->recv();
+		if ($priority !== 'debug') {
+			return parent::log($message);
+		}
+		return NULL;
 	}
 
 
 
 	/**
-	 * @param \ZMQSocket $requester
+	 * @param \ZMQSocket $publisher
 	 *
 	 * @return \Kdyby\Diagnostics\MqLogger
 	 */
-	public static function register(\ZMQSocket $requester)
+	public static function register(\ZMQSocket $publisher)
 	{
-		return Nette\Diagnostics\Debugger::$logger = new static($requester);
+		Debugger::$logger = $logger = new static($publisher);
+		$logger->directory =& Debugger::$logDirectory;
+		$logger->email =& Debugger::$email;
+		$logger->mailer =& Debugger::$mailer;
+		return $logger;
+	}
+
+
+
+	/**
+	 * @param mixed $message
+	 */
+	public static function debug($message)
+	{
+		$class = get_called_class();
+		if (!Debugger::$logger instanceof $class) {
+			return;
+		}
+
+		Debugger::$logger->log($message, 'debug');
 	}
 
 }

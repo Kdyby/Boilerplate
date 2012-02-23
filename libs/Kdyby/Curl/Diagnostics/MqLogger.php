@@ -22,16 +22,16 @@ class MqLogger extends Nette\Object implements Kdyby\Curl\IRequestLogger
 {
 
 	/** @var \ZMQSocket */
-	private $requester;
+	private $publisher;
 
 
 
 	/**
-	 * @param \ZMQSocket $requester
+	 * @param \ZMQSocket $publisher
 	 */
-	public function __construct(\ZMQSocket $requester)
+	public function __construct(\ZMQSocket $publisher)
 	{
-		$this->requester = $requester;
+		$this->publisher = $publisher;
 	}
 
 
@@ -63,15 +63,7 @@ class MqLogger extends Nette\Object implements Kdyby\Curl\IRequestLogger
 	 */
 	private function send($message)
 	{
-		if (is_array($message)) {
-			$message = implode(' ', $message);
-		}
-
-		$this->requester->send(serialize((object)array(
-			'message' => $message,
-			'priority' => 'info'
-		)));
-		$this->requester->recv();
+		$this->publisher->send('debug ' . serialize($message));
 	}
 
 }
