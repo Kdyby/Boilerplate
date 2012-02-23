@@ -160,12 +160,9 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 		}
 
 		return $this->renderStyles() .
-			'<h1>Queries: ' . count($this->queries) . ($this->totalTime ? ', time: ' . sprintf('%0.3f', $this->totalTime * 1000) . ' ms' : '') . '</h1>
-			<div class="nette-inner nette-Doctrine2Panel">
-			<table>
-			<tr><th>Time&nbsp;ms</th><th>SQL Statement</th></tr>' . $s . '
-			</table>
-			</div>';
+			'<h1>Queries: ' . count($this->queries) . ($this->totalTime ? ', time: ' . sprintf('%0.3f', $this->totalTime * 1000) . ' ms' : '') . '</h1>' .
+			'<div class="nette-inner nette-Doctrine2Panel">' .
+			'<table><tr><th>ms</th><th>SQL Statement</th></tr>' . $s . '</table></div>';
 	}
 
 
@@ -188,18 +185,16 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 	 */
 	protected function processQuery(array $query)
 	{
-		$s = '';
-		$h = 'htmlSpecialChars';
-		list($sql, $params, $time, $connection, $source) = $query;
-		$parametrized = static::formatQuery($sql, (array)$params);
+		list($sql, $params, $time, , $source) = $query;
 
-		$s .= '<tr><td>' . sprintf('%0.3f', $time * 1000);
-		$s .= '</td><td class="nette-Doctrine2Panel-sql">' . Nette\Database\Helpers::dumpSql($parametrized);
+		$parametrized = static::formatQuery($sql, (array)$params);
+		$s = Nette\Database\Helpers::dumpSql($parametrized);
 		if ($source) {
-			list($file, $line) = $source;
-			$s .= Nette\Diagnostics\Helpers::editorLink($file, $line);
+			$s .= Nette\Diagnostics\Helpers::editorLink($source[0], $source[1]);
 		}
-		return $s . '</td></tr>';
+
+		return '<tr><td>' . sprintf('%0.3f', $time * 1000) . '</td>' .
+			'<td class = "nette-Doctrine2Panel-sql">' . $s . '</td></tr>';
 	}
 
 
