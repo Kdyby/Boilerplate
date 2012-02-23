@@ -205,4 +205,22 @@ final class Arrays extends Nette\Object
 		return $sliced;
 	}
 
+
+
+	/**
+	 * @param array $one
+	 * @param array $two
+	 *
+	 * @return array
+	 */
+	public static function zipper(array $one, array $two)
+	{
+		$output = array();
+		while ($one && $two) {
+			$output[] = array_shift($one);
+			$output[] = array_shift($two);
+		}
+		return array_merge($output, $one ?: array(), $two ?: array());
+	}
+
 }
