@@ -104,10 +104,7 @@ function wc($level = 1, $return = FALSE, $fullTrace = FALSE) {
 	if (Debugger::$productionMode) { return; }
 
 	$o = function ($t) { return (isset($t->class) ? htmlspecialchars($t->class) . "->" : NULL) . htmlspecialchars($t->function) . '()'; };
-	$f = function ($t) {
-		$file = defined('APP_DIR') ? 'app' . str_replace(realpath(APP_DIR), '', realpath($t->file)) : $t->file;
-		return Helpers::editorLink($t->file, $t->line);
-	};
+	$f = function ($t) { return Helpers::editorLink($t->file, $t->line); };
 
 	$trace = debug_backtrace();
 	$target = (object)$trace[$level];
