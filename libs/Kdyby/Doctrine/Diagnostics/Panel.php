@@ -163,7 +163,7 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 			'<h1>Queries: ' . count($this->queries) . ($this->totalTime ? ', time: ' . sprintf('%0.3f', $this->totalTime * 1000) . ' ms' : '') . '</h1>
 			<div class="nette-inner nette-Doctrine2Panel">
 			<table>
-			<tr><th>Time&nbsp;ms</th><th>SQL Statement</th><th>Params</th></tr>' . $s . '
+			<tr><th>Time&nbsp;ms</th><th>SQL Statement</th></tr>' . $s . '
 			</table>
 			</div>';
 	}
@@ -191,18 +191,15 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 		$s = '';
 		$h = 'htmlSpecialChars';
 		list($sql, $params, $time, $connection, $source) = $query;
+		$parametrized = static::formatQuery($sql, (array)$params);
 
 		$s .= '<tr><td>' . sprintf('%0.3f', $time * 1000);
-		$s .= '</td><td class="nette-Doctrine2Panel-sql">' . Nette\Database\Helpers::dumpSql($sql);
+		$s .= '</td><td class="nette-Doctrine2Panel-sql">' . Nette\Database\Helpers::dumpSql($parametrized);
 		if ($source) {
 			list($file, $line) = $source;
 			$s .= Nette\Diagnostics\Helpers::editorLink($file, $line);
 		}
-
-		$s .= '</td><td>';
-		$s .= Debugger::dump($params, TRUE);
-		$s .= '</td></tr>';
-		return $s;
+		return $s . '</td></tr>';
 	}
 
 
@@ -265,19 +262,12 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 	{
 		$h = 'htmlSpecialChars';
 
+		$parametrized = static::formatQuery($query, (array)$params);
+
 		// query
 		$s = '<p><b>Query</b></p><table><tr><td class="nette-Doctrine2Panel-sql">';
-		$s .= Nette\Database\Helpers::dumpSql($query);
+		$s .= Nette\Database\Helpers::dumpSql($parametrized);
 		$s .= '</td></tr></table>';
-
-		// parameters
-		if ($params) {
-			$s .= '<p><b>Parameters</b></p><table>';
-			foreach ($params as $name => $value) {
-				$s .= '<tr><td width="200">' . $h($name) . '</td><td>' . $h($value) . '</td></tr>';
-			}
-			$s .= '</table>';
-		}
 
 		$e = NULL;
 		if ($source && is_array($source)) {
@@ -287,6 +277,71 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 
 		// styles and dump
 		return $this->renderStyles() . '<div class="nette-inner nette-Doctrine2Panel">' . $e . $s . '</div>';
+	}
+
+
+
+	/**
+	 * @param string $query
+	 * @param array $params
+	 */
+	public static function formatQuery($query, array $params)
+	{
+		$params = array_map(array(get_called_class(), 'formatParameter'), $params);
+		if (Nette\Utils\Validators::isList($params)) {
+			$parts = explode('?', $query);
+			if (count($params) > $parts) {
+				throw new Kdyby\InvalidStateException("Too mny parameters passed to query.");
+			}
+
+			return implode('', Kdyby\Tools\Arrays::zipper($parts, $params));
+		}
+
+		$replace = array();
+		foreach ($params as $key => $val) {
+			if (is_numeric($key)) {
+				$replace['?' . $key] = $val;
+
+			} else {
+				$replace[':' . $key] = $val;
+			}
+		}
+		return strtr($query, $replace);
+	}
+
+
+
+	/**
+	 * @param $param
+	 * @return mixed
+	 */
+	private static function formatParameter($param)
+	{
+		if (is_numeric($param)) {
+			return $param;
+
+		} elseif (is_string($param)) {
+			return "'" . addslashes($param) . "'";
+
+		} elseif (is_null($param)) {
+			return "NULL";
+
+		} elseif (is_bool($param)) {
+			return $param ? 'TRUE' : 'FALSE';
+
+		} elseif (is_array($param)) {
+			return array_map(array(get_called_class(), 'formatParameter'), $param);
+
+		} elseif ($param instanceof \Datetime) {
+			/** @var \Datetime $param */
+			return "'" . $param->format('Y-m-d H:i:s') . "'";
+
+		} elseif (is_object($param)) {
+			return get_class($param) . (method_exists($param, 'getId') ? '(' . $param->getId() . ')' : '');
+
+		} else {
+			return @"'$param'";
+		}
 	}
 
 
