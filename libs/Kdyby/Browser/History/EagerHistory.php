@@ -108,4 +108,14 @@ class EagerHistory extends Nette\Object implements \Countable
 		return $this->lastPage;
 	}
 
+
+
+	/**
+	 * @return array
+	 */
+	public function __sleep()
+	{
+		return array('history');
+	}
+
 }
