@@ -330,7 +330,7 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 			return $param ? 'TRUE' : 'FALSE';
 
 		} elseif (is_array($param)) {
-			return array_map(array(get_called_class(), 'formatParameter'), $param);
+			return implode(', ', array_map(array(get_called_class(), 'formatParameter'), $param));
 
 		} elseif ($param instanceof \Datetime) {
 			/** @var \Datetime $param */
