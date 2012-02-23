@@ -242,21 +242,14 @@ class BrowserSession extends Nette\Object
 
 
 	/**
-	 */
-	public function __wakeup()
-	{
-		$class = $this->history;
-		$this->history = $class ? new $class : new History\EagerHistory;
-	}
-
-
-
-	/**
 	 * @return array
 	 */
 	public function __sleep()
 	{
-		$this->history = get_class($this->history);
+		if ($this->history) {
+			$this->history->clean();
+		}
+
 		return array('cookies', 'page', 'history');
 	}
 
