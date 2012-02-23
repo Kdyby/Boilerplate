@@ -237,15 +237,4 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 		}
 	}
 
-
-
-	/**
-	 * If Debugger is enabled, print template variables to debug bar
-	 */
-	protected function afterRender()
-	{
-		parent::afterRender();
-		Kdyby\Diagnostics\TemplateParametersPanel::register($this);
-	}
-
 }
