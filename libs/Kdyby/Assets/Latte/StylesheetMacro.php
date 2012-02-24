@@ -46,13 +46,7 @@ class StylesheetMacro extends MacroBase
 	 */
 	public function nodeOpened(Latte\MacroNode $node)
 	{
-		$node->isEmpty = TRUE;
-		try {
-			$this->createFactory($this->readArguments($node), FormulaeManager::TYPE_STYLESHEET);
-
-		} catch (\Exception $e) {
-			throw new Nette\Latte\CompileException($e->getMessage());
-		}
+		$this->macroOpen($node, FormulaeManager::TYPE_STYLESHEET);
 	}
 
 
@@ -64,6 +58,7 @@ class StylesheetMacro extends MacroBase
 	 */
 	public function nodeClosed(Latte\MacroNode $node)
 	{
+		$this->macroClosed($node, FormulaeManager::TYPE_STYLESHEET);
 	}
 
 }

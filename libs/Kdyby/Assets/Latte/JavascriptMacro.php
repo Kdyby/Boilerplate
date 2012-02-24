@@ -46,19 +46,7 @@ class JavascriptMacro extends MacroBase
 	 */
 	public function nodeOpened(Latte\MacroNode $node)
 	{
-		if ($node->data->inline = empty($node->args)) {
-			$node->openingCode = '<?php ob_start(); ?>';
-			return;
-		}
-
-		try {
-			if ($this->createFactory($this->readArguments($node), FormulaeManager::TYPE_JAVASCRIPT)) {
-				$node->isEmpty = TRUE;
-			}
-
-		} catch (\Exception $e) {
-			throw new Nette\Latte\CompileException($e->getMessage());
-		}
+		$this->macroOpen($node, FormulaeManager::TYPE_JAVASCRIPT);
 	}
 
 
@@ -70,25 +58,7 @@ class JavascriptMacro extends MacroBase
 	 */
 	public function nodeClosed(Latte\MacroNode $node)
 	{
-		if ($node->data->inline) {
-			$node->closingCode = '<?php $_g->kdyby->assets["js"][] = ob_get_clean();' .
-				'if (empty($_g->kdyby->captureAssets)) echo array_pop($_g->kdyby->assets["js"]); ?>';
-			return;
-		}
-
-		$args = Nette\Utils\Html::el(substr($node->content, 1, strpos($node->content, '>') - 1))->attrs;
-		if (isset($args['filter'])) {
-			$args['filters'] = $args['filter'];
-			unset($args['filter']);
-		}
-
-		try {
-			$this->createFactory(array($node->args) + $args, FormulaeManager::TYPE_JAVASCRIPT);
-			$node->content = NULL;
-
-		} catch (\Exception $e) {
-			throw new Nette\Latte\CompileException($e->getMessage());
-		}
+		$this->macroClosed($node, FormulaeManager::TYPE_JAVASCRIPT);
 	}
 
 }

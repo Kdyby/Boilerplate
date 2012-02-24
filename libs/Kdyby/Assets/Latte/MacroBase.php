@@ -17,10 +17,13 @@ use Kdyby\Templates\LatteHelpers;
 use Nette;
 use Nette\Utils\PhpGenerator as Code;
 use Nette\Latte;
+use Nette\Utils\Strings;
 
 
 
 /**
+ * @todo: merge in JS & CSS macros
+ *
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 abstract class MacroBase extends Nette\Object implements Latte\IMacro
@@ -91,6 +94,74 @@ abstract class MacroBase extends Nette\Object implements Latte\IMacro
 
 
 	/**
+	 * @param \Nette\Latte\MacroNode $node
+	 * @param string $type
+	 *
+	 * @return string
+	 */
+	protected function macroOpen(Latte\MacroNode $node, $type)
+	{
+		try {
+			if ($node->data->inline = empty($node->args)) {
+				$node->openingCode = '<?php ob_start(); ?>';
+				return;
+
+			} elseif ($node->htmlNode) {
+				$args = $node->htmlNode->attrs + Strings::split($node->args, '~\s*,\s*~');
+				if ($this->createFactory($args, $type)) {
+					$node->data->emptyTag = TRUE;
+					return;
+				}
+			}
+
+			if ($this->createFactory($this->readArguments($node), $type)) {
+				$node->isEmpty = TRUE;
+			}
+
+		} catch (Kdyby\FileNotFoundException $e) {
+			throw new Nette\Latte\CompileException($e->getMessage());
+		}
+	}
+
+
+
+	/**
+	 * @param \Nette\Latte\MacroNode $node
+	 * @param string $type
+	 *
+	 * @return string
+	 */
+	protected function macroClosed(Latte\MacroNode $node, $type)
+	{
+		if (isset($node->data->emptyTag)) {
+			$node->content = NULL;
+			return;
+		}
+
+		if ($node->data->inline) {
+			$node->closingCode = '<?php $_g->kdyby->assets["' . $type . '"][] = ob_get_clean();' .
+				'if (empty($_g->kdyby->captureAssets)) echo array_pop($_g->kdyby->assets["' . $type . '"]); ?>';
+			return;
+		}
+
+		$args = Nette\Utils\Html::el(substr($node->content, 1, strpos($node->content, '>') - 1))->attrs;
+		if (isset($args['filter'])) {
+			$args['filters'] = $args['filter'];
+			unset($args['filter']);
+		}
+
+		try {
+			$this->createFactory(array($node->args) + $args, $type);
+			$node->content = NULL;
+
+		} catch (\Exception $e) {
+			throw new Nette\Latte\CompileException($e->getMessage());
+		}
+	}
+
+
+
+	/**
 	 * Finishes template parsing.
 	 * @return array(prolog, epilog)
 	 */
@@ -128,7 +199,7 @@ abstract class MacroBase extends Nette\Object implements Latte\IMacro
 	 * @param array $args
 	 * @return array
 	 */
-	protected static function partitionArguments(array $args)
+	private static function partitionArguments(array $args)
 	{
 		$assets = $options = array();
 		foreach ($args as $key => $arg) {
@@ -162,7 +233,7 @@ abstract class MacroBase extends Nette\Object implements Latte\IMacro
 		// divide arguments
 		list($inputs, $filters, $options) = $this->partitionArguments($args);
 		if (empty($inputs)) {
-			throw new Nette\Latte\ParseException("No input file was provided.");
+			throw new Nette\Latte\CompileException("No input file was provided.");
 		}
 
 		// array for AssetCollection
