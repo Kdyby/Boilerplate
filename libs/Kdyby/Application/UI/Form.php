@@ -141,8 +141,6 @@ class Form extends Nette\Application\UI\Form
 	/**
 	 * @param array|\Traversable $listeners
 	 * @param mixed $arg
-	 * @param mixed $arg2
-	 * @param mixed $arg3
 	 */
 	protected function dispatchEvent($listeners, $arg = NULL)
 	{

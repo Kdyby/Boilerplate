@@ -108,20 +108,23 @@ class Form extends Kdyby\Application\UI\Form implements IObjectContainer
 	 */
 	public function fireEvents()
 	{
-		if (!$this->isSubmitted()) {
+		/** @var \Nette\Forms\Controls\SubmitButton $button */
+		if (!$button = $this->isSubmitted()) {
 			return;
 
-		} elseif ($this->isSubmitted() instanceof Nette\Forms\ISubmitterControl) {
-			if (!$this->isSubmitted()->getValidationScope() || $this->isValid()) {
-				$buttonContainer = $this->isSubmitted()->getParent();
-				$clickedEntity = $buttonContainer instanceof IObjectContainer ? $buttonContainer->getEntity() : $this->getEntity();
-				$dao = $this->doctrine->getDao(get_class($clickedEntity));
+		} elseif ($button instanceof Nette\Forms\ISubmitterControl) {
+			if (!$button->getValidationScope() || $this->isValid()) {
+				/** @var \Kdyby\Doctrine\Forms\EntityContainer $buttonContainer */
+				$buttonContainer = $button->getParent();
+				$clickedEntity = $buttonContainer instanceof IObjectContainer
+					? $buttonContainer->getEntity() : $this->getEntity();
 
-				$this->dispatchEvent($this->isSubmitted()->onClick, $this->isSubmitted(), $clickedEntity, $dao);
+				$dao = $this->doctrine->getDao(get_class($clickedEntity));
+				$this->dispatchEvent($button->onClick, $button, $clickedEntity, $dao);
 				$valid = TRUE;
 
 			} else {
-				$this->dispatchEvent($this->isSubmitted()->onInvalidClick, $this->isSubmitted());
+				$this->dispatchEvent($button->onInvalidClick, $button);
 			}
 		}
 
@@ -144,6 +147,7 @@ class Form extends Kdyby\Application\UI\Form implements IObjectContainer
 	{
 		$entities = $this->mapper ? $this->mapper->getEntities() : array();
 		foreach ($this->getComponents(TRUE, 'Kdyby\Doctrine\Forms\EntityContainer') as $container) {
+			/** @var \Kdyby\Doctrine\Forms\EntityContainer $container */
 			if (!in_array($entity = $container->getEntity(), $entities, TRUE)) {
 				$entities[] = $entity;
 			}

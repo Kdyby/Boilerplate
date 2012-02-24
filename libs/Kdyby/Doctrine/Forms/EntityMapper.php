@@ -14,6 +14,7 @@ use Doctrine;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Kdyby;
+use Kdyby\Tools\Objects;
 use Nette;
 use Nette\ComponentModel\IComponent;
 use Nette\Forms\IControl;
@@ -157,10 +158,21 @@ class EntityMapper extends Nette\Object
 	private function loadContainerControlItems($entity, $controlClass)
 	{
 		foreach ($this->getComponent($entity)->getComponents(FALSE, $controlClass) as $control) {
+			/** @var \Nette\Forms\Controls\BaseControl $control */
 			if ($mapper = $this->getControlMapper($control)) {
+				if (method_exists($control, 'getPrompt') && $control->getPrompt()) {
+					/** @var \Nette\Forms\Controls\SelectBox $control */
+					$prompt = $control->items[''];
+				}
+
 				$targetClass = $this->getControlEntityClass($control);
 				$control->setItems($mapper($this->doctrine->getDao($targetClass)));
+
+				if (isset($prompt)) {
+					$control->setPrompt($prompt);
+				}
 			}
+			unset($prompt);
 		}
 	}
 
@@ -177,7 +189,7 @@ class EntityMapper extends Nette\Object
 			$values = new Nette\ArrayHash;
 			foreach ($container->getControls() as $control) {
 				if ($class->hasField($field = $this->getControlField($control))) {
-					$values[$field] = $class->getFieldValue($entity, $field);
+					$values[$field] = Objects::getProperty($entity, $field);
 				}
 			}
 
@@ -213,8 +225,8 @@ class EntityMapper extends Nette\Object
 						continue;
 					}
 
-					if (!$this->isTargetCollection($entity, $field)) {
-						$class->setFieldValue($entity, $field, $value);
+					if (!$this->isTargetCollection($entity, $field)) { // todo: wtf?
+						Objects::setProperty($entity, $field, $value);
 					}
 
 				} elseif ($class->hasAssociation($field)) {

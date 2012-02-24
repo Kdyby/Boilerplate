@@ -34,18 +34,18 @@ final class Objects extends Nette\Object
 
 
 	/**
-	 * Expands %placeholders% in string.
-	 * @param string $path
+	 * Expands 'path.to.property' in string.
+	 *
+	 * @param string|array $path
 	 * @param object|array $entity
 	 * @param boolean $need
-	 * @throws Kdyby\InvalidArgumentException
+	 *
 	 * @return mixed
 	 */
 	public static function expand($path, $entity, $need = TRUE)
 	{
 		$value = $entity;
-		foreach (explode('.', $path) as $n => $part) {
-			$e = get_class($value) . '::' . $part;
+		foreach (is_array($path) ? $path : explode('.', $path) as $part) {
 			$value = self::getProperty($value, $part, $need);
 			if ($value === NULL) {
 				break;
@@ -60,27 +60,28 @@ final class Objects extends Nette\Object
 	 * @param object $object
 	 * @param string $propertyName
 	 * @param bool $need
+	 *
 	 * @return mixed|NULL
 	 */
 	public static function getProperty($object, $propertyName, $need = TRUE)
 	{
-		if (is_object($object)) {
+		if (is_array($object) || $object instanceof \ArrayAccess || $object instanceof \ArrayObject) {
+			return $object[$propertyName];
+
+		} elseif (is_object($object)) {
 			if (method_exists($object, $method = 'get' . ucfirst($propertyName))) {
 				return $object->$method();
 
-			} elseif (isset($object->$propertyName)) {
+			} elseif (property_exists($object, $propertyName)) {
 				return $object->$propertyName;
 
-			}else if (method_exists($object, $method = 'is' . ucfirst($propertyName))) {
+			} elseif (method_exists($object, $method = 'is' . ucfirst($propertyName))) {
 				return $object->$method();
 			}
-
-		} elseif (is_array($object) || $object instanceof \ArrayAccess || $object instanceof \ArrayObject) {
-			return $object[$propertyName];
 		}
 
 		if ($need) {
-			throw new Kdyby\InvalidStateException("Given" . (is_object($object) ? " entity " . get_class($object) : " array") . " has no parameter named '" . $propertyName . "'.");
+			throw new Kdyby\MemberAccessException("Given" . (is_object($object) ? " entity " . get_class($object) : " array") . " has no public parameter or accesor named '" . $propertyName . "', or doesn't exists.");
 		}
 	}
 
@@ -90,7 +91,8 @@ final class Objects extends Nette\Object
 	 * @param object $object
 	 * @param array $options
 	 * @param boolean $exceptionOnInvalid
-	 * @throws Kdyby\InvalidArgumentException
+	 *
+	 * @throws \Kdyby\InvalidArgumentException
 	 */
 	public static function setProperties($object, array $options, $exceptionOnInvalid = TRUE)
 	{
@@ -114,7 +116,7 @@ final class Objects extends Nette\Object
 	 */
 	public static function setProperty($object, $propertyName, $value, $exceptionOnInvalid = TRUE)
 	{
-		if (isset($object->$propertyName)) {
+		if (property_exists($object, $propertyName)) {
 			$object->$propertyName = $value;
 
 		} elseif (method_exists($object, $method = "set" . ucfirst($propertyName))) {
@@ -124,7 +126,7 @@ final class Objects extends Nette\Object
 			$object->$method($value);
 
 		} elseif ($exceptionOnInvalid) {
-			throw new Kdyby\InvalidArgumentException("Option with name $propertyName does not exist.");
+			throw new Kdyby\MemberAccessException("Property with name '$propertyName' is not publicly writable, or doesn't exists.");
 		}
 	}
 
