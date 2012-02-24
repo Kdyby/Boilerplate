@@ -261,10 +261,7 @@ class EntityMapper extends Nette\Object
 		$dao = $this->doctrine->getDao($className = $this->getTargetClassName($entity, $field));
 		$id = current($this->getMeta($className)->getIdentifierFieldNames());
 
-		if ($control instanceof Kdyby\Forms\Controls\CheckboxList) {
-			return $dao->findBy(array($id => array_keys(array_filter($value))));
-
-		} elseif (is_array($value)) {
+		if (is_array($value)) {
 			return $dao->findBy(array($id => $value));
 
 		} elseif (is_scalar($value)) {
