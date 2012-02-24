@@ -34,10 +34,10 @@ use Kdyby;
  */
 class CheckboxList extends Nette\Forms\Controls\BaseControl
 {
-	/** @var Nette\Utils\Html  separator element template */
+	/** @var \Nette\Utils\Html  separator element template */
 	protected $separator;
 
-	/** @var Nette\Utils\Html  container element template */
+	/** @var \Nette\Utils\Html  container element template */
 	protected $container;
 
 	/** @var array */
@@ -71,7 +71,7 @@ class CheckboxList extends Nette\Forms\Controls\BaseControl
 	 */
 	public function getValue()
 	{
-		return is_array($this->value) ? $this->value : NULL;
+		return is_array($this->value) ? array_keys(array_filter($this->value)) : NULL;
 	}
 
 
@@ -105,7 +105,7 @@ class CheckboxList extends Nette\Forms\Controls\BaseControl
 	/**
 	 * Returns separator HTML element template.
 	 *
-	 * @return Nette\Utils\Html
+	 * @return \Nette\Utils\Html
 	 */
 	public function getSeparatorPrototype()
 	{
@@ -117,7 +117,7 @@ class CheckboxList extends Nette\Forms\Controls\BaseControl
 	/**
 	 * Returns container HTML element template.
 	 *
-	 * @return Nette\Utils\Html
+	 * @return \Nette\Utils\Html
 	 */
 	public function getContainerPrototype()
 	{
@@ -130,7 +130,7 @@ class CheckboxList extends Nette\Forms\Controls\BaseControl
 	 * Generates control's HTML element.
 	 *
 	 * @param mixed $key  Specify a key if you want to render just a single checkbox
-	 * @return Nette\Utils\Html
+	 * @return \Nette\Utils\Html
 	 */
 	public function getControl($key = NULL)
 	{
@@ -178,7 +178,9 @@ class CheckboxList extends Nette\Forms\Controls\BaseControl
 	/**
 	 * Generates label's HTML element.
 	 *
-	 * @return Html
+	 * @param string $caption
+	 *
+	 * @return \Nette\Utils\Html
 	 */
 	public function getLabel($caption = NULL)
 	{
@@ -187,10 +189,12 @@ class CheckboxList extends Nette\Forms\Controls\BaseControl
 		return $label;
 	}
 
+
+
 	/**
 	 * Filled validator: has been any checkbox checked?
 	 *
-	 * @param Nette\Forms\IControl $control
+	 * @param \Nette\Forms\IControl $control
 	 * @return bool
 	 */
 	public static function validateChecked(Nette\Forms\IControl $control)
