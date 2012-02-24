@@ -70,7 +70,7 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	 */
 	public function getRepository($entity)
 	{
-		return $this->getDoctrine()->getRepository($entity);
+		return $this->getDoctrine()->getDao($entity);
 	}
 
 
