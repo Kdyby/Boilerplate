@@ -121,7 +121,7 @@ class User extends Nette\Security\User implements Nette\Security\IAuthenticator
 
 
 	/**
-	 * @param \Reflector $element
+	 * @param \Reflector|\Nette\Reflection\ClassType|\Nette\Reflection\Method $element
 	 * @param string $message
 	 *
 	 * @throws \Nette\Application\ForbiddenRequestException
