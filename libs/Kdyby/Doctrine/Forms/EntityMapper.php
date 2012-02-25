@@ -522,6 +522,7 @@ class EntityMapper extends Nette\Object
 		BaseControl::extensionMethod($name, function (BaseControl $_this, $alias) {
 			$form = $_this->getForm();
 			if ($form instanceof Form) {
+				/** @var \Kdyby\Doctrine\Forms\Form $form */
 				$form->getMapper()->setControlAlias($_this, $alias);
 			}
 			return $_this;
