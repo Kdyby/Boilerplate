@@ -60,6 +60,10 @@ abstract class LatteTestCase extends TestCase
 	 */
 	protected function parse($latte)
 	{
+		if (file_exists($latte)) {
+			$latte = file_get_contents($latte);
+		}
+
 		if ($this->outputTemplate !== NULL) {
 			throw new Kdyby\InvalidStateException("Please split the test method into more parts. Cannot parse repeatedly.");
 		}
@@ -76,6 +80,10 @@ abstract class LatteTestCase extends TestCase
 	 */
 	public function assertLatteMacroEquals($expected, $message = NULL)
 	{
+		if (file_exists($expected)) {
+			$expected = file_get_contents($expected);
+		}
+
 		if ($this->outputTemplate === NULL) {
 			throw new Kdyby\InvalidStateException('Call ' . get_called_class() . '::parse($latte) first.');
 		}
@@ -91,6 +99,10 @@ abstract class LatteTestCase extends TestCase
 	 */
 	public function assertLatteEpilogEquals($expected, $message = NULL)
 	{
+		if (file_exists($expected)) {
+			$expected = file_get_contents($expected);
+		}
+
 		if ($this->outputTemplate === NULL) {
 			throw new Kdyby\InvalidStateException('Call ' . get_called_class() . '::parse($latte) first.');
 		}
@@ -106,6 +118,10 @@ abstract class LatteTestCase extends TestCase
 	 */
 	public function assertLattePrologEquals($expected, $message = NULL)
 	{
+		if (file_exists($expected)) {
+			$expected = file_get_contents($expected);
+		}
+
 		if ($this->outputTemplate === NULL) {
 			throw new Kdyby\InvalidStateException('Call ' . get_called_class() . '::parse($latte) first.');
 		}

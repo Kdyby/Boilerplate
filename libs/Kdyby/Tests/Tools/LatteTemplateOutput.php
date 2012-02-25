@@ -84,9 +84,14 @@ class LatteTemplateOutput extends Nette\Object
 			}
 		}
 
-		$this->prolog = implode("\n", $this->prolog);
-		$this->macro = implode("\n", $this->macro);
-		$this->epilog = implode("\n", $this->epilog);
+		if (!$this->prolog && !$this->macro && !$this->epilog) {
+			$this->macro = $output;
+
+		} else {
+			$this->prolog = implode("\n", $this->prolog);
+			$this->macro = implode("\n", $this->macro);
+			$this->epilog = implode("\n", $this->epilog);
+		}
 
 		return $this;
 	}
