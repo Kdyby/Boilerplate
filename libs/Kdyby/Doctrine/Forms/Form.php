@@ -108,6 +108,8 @@ class Form extends Kdyby\Application\UI\Form implements IObjectContainer
 	 */
 	public function fireEvents()
 	{
+		$redirect = FALSE;
+
 		/** @var \Nette\Forms\Controls\SubmitButton $button */
 		if (!$button = $this->isSubmitted()) {
 			return;
@@ -120,23 +122,51 @@ class Form extends Kdyby\Application\UI\Form implements IObjectContainer
 					? $buttonContainer->getEntity() : $this->getEntity();
 
 				$dao = $this->doctrine->getDao(get_class($clickedEntity));
-				$this->dispatchEvent($button->onClick, $button, $clickedEntity, $dao);
+				$redirect = $this->dispatchEvent($button->onClick, $button, $clickedEntity, $dao);
 				$valid = TRUE;
 
 			} else {
-				$this->dispatchEvent($button->onInvalidClick, $button);
+				$redirect = $this->dispatchEvent($button->onInvalidClick, $button);
 			}
+		}
+
+		if ($redirect) {
+			$this->persistEntities();
+			$this->getPresenter()->terminate();
 		}
 
 		if (isset($valid) || $this->isValid()) {
 			$dao = $this->doctrine->getDao(get_class($this->getEntity()));
-			$this->dispatchEvent($this->onSuccess, $this, $this->getEntity(), $dao);
+			$redirect = $this->dispatchEvent($this->onSuccess, $this, $this->getEntity(), $dao);
 
 		} else {
-			$this->dispatchEvent($this->onError, $this);
+			$redirect = $this->dispatchEvent($this->onError, $this);
 		}
 
 		$this->persistEntities();
+		if ($redirect) {
+			$this->getPresenter()->terminate();
+		}
+	}
+
+
+
+	/**
+	 * @param array|\Traversable $listeners
+	 * @param mixed $arg
+	 *
+	 * @return boolean whether or not to send terminate
+	 */
+	protected function dispatchEvent($listeners, $arg = NULL)
+	{
+		try {
+			$args = func_get_args();
+			call_user_func_array(array($this, 'parent::dispatchEvent'), $args);
+			return FALSE;
+
+		} catch (Nette\Application\AbortException $e) {
+			return TRUE;
+		}
 	}
 
 

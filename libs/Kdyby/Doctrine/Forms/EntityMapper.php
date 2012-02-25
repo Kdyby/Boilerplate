@@ -331,12 +331,12 @@ class EntityMapper extends Nette\Object
 
 
 	/**
-	 * @param \Kdyby\Doctrine\Forms\EntityContainer $container
+	 * @param \Kdyby\Doctrine\Forms\IObjectContainer $container
 	 * @param string $field
 	 *
 	 * @return object
 	 */
-	public function getRelated(EntityContainer $container, $field)
+	public function getRelated(IObjectContainer $container, $field)
 	{
 		$entity = $container->getEntity();
 		if ($this->isTargetCollection($entity, $field)) {

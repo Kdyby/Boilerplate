@@ -21,6 +21,8 @@ use Nette\ComponentModel\IContainer;
 
 
 /**
+ * @todo: allow to limit loaded relations by id's
+ *
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
  * @method \Kdyby\Doctrine\Forms\Form getForm() getForm(bool $need = TRUE)
