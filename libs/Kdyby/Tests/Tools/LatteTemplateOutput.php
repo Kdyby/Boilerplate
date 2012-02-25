@@ -34,14 +34,18 @@ class LatteTemplateOutput extends Nette\Object
 	/** @var \Nette\Latte\Engine */
 	private $latte;
 
+	/** @var string */
+	private $tempDir;
+
 
 
 	/**
 	 * @param \Nette\Latte\Engine $engine
 	 */
-	public function __construct($engine)
+	public function __construct($engine, $tempDir)
 	{
 		$this->latte = $engine;
+		$this->tempDir = $tempDir;
 		$this->prolog = array();
 		$this->macro = array();
 		$this->epilog = array();
@@ -59,7 +63,17 @@ class LatteTemplateOutput extends Nette\Object
 		$template = new Nette\Templating\Template();
 		$template->registerFilter($this->latte);
 		$template->setSource($source);
-		$output = $template->compile();
+
+		try {
+			$output = $template->compile();
+
+		} catch (Nette\Latte\CompileException $e) {
+			$tmpFile = $this->tempDir . '/' . md5($source) . '.latte';
+			file_put_contents($tmpFile, $source);
+			$e->setSourceFile($tmpFile);
+			$this->epilog = $this->macro = $this->prolog = NULL;
+			throw $e;
+		}
 
 		$lines = array_filter(explode("\n", $output), function ($line) {
 			return $line !== '//';

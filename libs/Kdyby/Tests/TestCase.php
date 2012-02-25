@@ -23,7 +23,7 @@ use Nette\ObjectMixin;
 abstract class TestCase extends \PHPUnit_Framework_TestCase
 {
 
-	/** @var Kdyby\DI\IContainer */
+	/** @var \SystemContainer|\Nette\DI\Container */
 	private $context;
 
 	/** @var Tools\TempClassGenerator */
@@ -129,6 +129,22 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 	{
 		$constraint = new Constraint\IsCallableConstraint();
 		self::assertThat($callback, $constraint, $message);
+	}
+
+
+	/********************* DataProvider *********************/
+
+
+	/**
+	 * @param string $inputMask
+	 * @param string $outputMask
+	 *
+	 * @return array[]
+	 */
+	protected function findInputOutput($inputMask, $outputMask)
+	{
+		$finder = new Tools\FilesPairsFinder($this);
+		return $finder->find($inputMask, $outputMask);
 	}
 
 
@@ -246,15 +262,20 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 
 
 	/**
-	 * @return Nette\Reflection\ClassType
+	 * @return \Nette\Reflection\ClassType
 	 */
-	public /**/static/**/ function getReflection()
+	public static function getReflection()
 	{
-		return new Nette\Reflection\ClassType(/*5.2*$this*//**/get_called_class()/**/);
+		return new Nette\Reflection\ClassType(get_called_class());
 	}
 
 
 
+	/**
+	 * @param string $name
+	 *
+	 * @return mixed
+	 */
 	public function &__get($name)
 	{
 		return ObjectMixin::get($this, $name);
@@ -262,13 +283,22 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 
 
 
+	/**
+	 * @param string $name
+	 * @param mixed $value
+	 */
 	public function __set($name, $value)
 	{
-		return ObjectMixin::set($this, $name, $value);
+		ObjectMixin::set($this, $name, $value);
 	}
 
 
 
+	/**
+	 * @param string $name
+	 *
+	 * @return bool
+	 */
 	public function __isset($name)
 	{
 		return ObjectMixin::has($this, $name);
@@ -276,6 +306,9 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 
 
 
+	/**
+	 * @param string $name
+	 */
 	public function __unset($name)
 	{
 		ObjectMixin::remove($this, $name);

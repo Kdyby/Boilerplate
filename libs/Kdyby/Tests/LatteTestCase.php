@@ -68,7 +68,7 @@ abstract class LatteTestCase extends TestCase
 			throw new Kdyby\InvalidStateException("Please split the test method into more parts. Cannot parse repeatedly.");
 		}
 
-		$latteTemplate = new Tools\LatteTemplateOutput($this->engine);
+		$latteTemplate = new Tools\LatteTemplateOutput($this->engine, $this->getContext()->expand('%tempDir%'));
 		$this->outputTemplate = $latteTemplate->parse($latte);
 	}
 

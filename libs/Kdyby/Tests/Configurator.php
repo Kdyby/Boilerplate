@@ -51,7 +51,7 @@ class Configurator extends Kdyby\Config\Configurator
 	 */
 	protected function findDiagnosticsFiles()
 	{
-		return Nette\Utils\Finder::findFiles('exception*.html', '*.log', 'dump*.html')
+		return Nette\Utils\Finder::findFiles('exception*.html', '*.log', 'dump*.html', '*.latte')
 			->in($this->parameters['logDir']);
 	}
 

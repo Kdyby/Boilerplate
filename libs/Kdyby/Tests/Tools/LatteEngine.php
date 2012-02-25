@@ -13,6 +13,7 @@ namespace Kdyby\Tests\Tools;
 use Kdyby;
 use Nette;
 use Nette\Latte;
+use Nette\Latte\Macros;
 
 
 
@@ -36,6 +37,10 @@ class LatteEngine extends Nette\Object
 	{
 		$this->parser = new Latte\Parser;
 		$this->compiler = new Latte\Compiler;
+
+		$coreMacros = new Macros\CoreMacros(clone $this->compiler);
+		$macros = new Macros\MacroSet($this->compiler);
+		$macros->addMacro('=', array($coreMacros, 'macroExpr'));
 	}
 
 
