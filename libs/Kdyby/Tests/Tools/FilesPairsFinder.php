@@ -105,12 +105,22 @@ class FilesPairsFinder extends Nette\Object
 		}, $outputs);
 
 		if ($missingOutputs = array_diff($inputs, $outputs)) {
-			$list = implode(', ', $missingOutputs);
-			throw new Kdyby\FileNotFoundException("There are no output files for $list.");
+			$list = implode("', '", $missingOutputs);
+			if (count($missingOutputs) > 1){
+				throw new Kdyby\FileNotFoundException("There are no output files for '$list'.");
+
+			} else {
+				throw new Kdyby\FileNotFoundException("There is no output file for '$list'.");
+			}
 
 		} elseif ($missingInputs = array_diff($outputs, $inputs)) {
-			$list = implode(', ', $missingInputs);
-			throw new Kdyby\FileNotFoundException("There are no input files for $list.");
+			$list = implode("', '", $missingInputs);
+			if (count($missingInputs) > 1) {
+				throw new Kdyby\FileNotFoundException("There are no input files for '$list'.");
+
+			} else {
+				throw new Kdyby\FileNotFoundException("There is no input file for '$list'.");
+			}
 		}
 	}
 
