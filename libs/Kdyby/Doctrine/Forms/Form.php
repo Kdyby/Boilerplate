@@ -10,6 +10,7 @@
 
 namespace Kdyby\Doctrine\Forms;
 
+use Doctrine;
 use Kdyby;
 use Nette;
 

@@ -14,6 +14,7 @@ use Doctrine;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Kdyby;
+use Kdyby\Doctrine\Dao;
 use Kdyby\Tools\Objects;
 use Nette;
 use Nette\ComponentModel\IComponent;
@@ -116,7 +117,8 @@ class EntityMapper extends Nette\Object
 
 	/**
 	 * @param object $object
-	 * @return \Kdyby\Doctrine\Forms\IObjectContainer|\Nette\Forms\Container
+	 *
+	 * @return \Kdyby\Doctrine\Forms\EntityContainer|\Kdyby\Doctrine\Forms\CollectionContainer
 	 */
 	public function getComponent($object)
 	{
@@ -231,7 +233,7 @@ class EntityMapper extends Nette\Object
 
 				} elseif ($class->hasAssociation($field)) {
 					if ($this->isItemsControl($container[$name])) {
-						$value = $this->resolveItemsControlValue($container[$name], $value, $entity, $field);
+						$value = $this->resolveItemsControlValue($value, $entity, $field);
 					}
 
 					if ($this->isTargetCollection($entity, $field)) {
@@ -251,7 +253,12 @@ class EntityMapper extends Nette\Object
 
 		foreach ($this->collections as $collection) {
 			$container = $this->getComponent($collection);
-			$parentEntity = $container->getParent()->getEntity();
+			/** @var \Kdyby\Doctrine\Forms\EntityContainer $parentContainer */
+			$parentContainer = $container->getParent();
+			if (!$parentContainer instanceof IObjectContainer || !$parentEntity = $parentContainer->getEntity()) {
+				continue;
+			}
+
 			foreach ($collection as $related) {
 				$this->ensureBidirectionalRelation($parentEntity, $related, $container->getName());
 			}
@@ -261,14 +268,13 @@ class EntityMapper extends Nette\Object
 
 
 	/**
-	 * @param \Nette\Forms\IControl $control
 	 * @param mixed $value
 	 * @param object $entity
 	 * @param string $field
 	 *
 	 * @return array|object
 	 */
-	protected function resolveItemsControlValue(IControl $control, $value, $entity, $field)
+	protected function resolveItemsControlValue($value, $entity, $field)
 	{
 		$dao = $this->doctrine->getDao($className = $this->getTargetClassName($entity, $field));
 		$id = current($this->getMeta($className)->getIdentifierFieldNames());
@@ -331,7 +337,7 @@ class EntityMapper extends Nette\Object
 
 
 	/**
-	 * @param \Kdyby\Doctrine\Forms\IObjectContainer $container
+	 * @param \Kdyby\Doctrine\Forms\EntityContainer|\Kdyby\Doctrine\Forms\IObjectContainer $container
 	 * @param string $field
 	 *
 	 * @return object
@@ -503,7 +509,7 @@ class EntityMapper extends Nette\Object
 
 
 	/**
-	 * @param \Nette\Forms\IControl $control
+	 * @param \Nette\Forms\IControl|\Nette\Forms\Controls\BaseControl $control
 	 * @return string
 	 */
 	public function getControlField(Nette\Forms\IControl $control)
@@ -547,7 +553,7 @@ class EntityMapper extends Nette\Object
 				throw new Kdyby\InvalidArgumentException('Entity "' . $targetClass . '" has no property "' . $items . '".');
 			}
 
-			$items = function (Kdyby\Doctrine\Dao $dao) use ($items, $key) {
+			$items = function (Dao $dao) use ($items, $key) {
 				return $dao->findPairs($items, $key);
 			};
 
@@ -577,7 +583,7 @@ class EntityMapper extends Nette\Object
 
 
 	/**
-	 * @param \Nette\Forms\IControl $control
+	 * @param \Nette\Forms\IControl|\Nette\Forms\Controls\BaseControl $control
 	 *
 	 * @return object
 	 */

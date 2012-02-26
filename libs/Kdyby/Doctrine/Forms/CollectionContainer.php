@@ -25,11 +25,14 @@ use Nette\ComponentModel\IContainer;
  *
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
- * @method \Kdyby\Doctrine\Forms\Form getForm() getForm(bool $need = TRUE)
- * @method \Kdyby\Doctrine\Forms\Form|\Kdyby\Doctrine\Forms\EntityContainer getParent() getParent()
+ * @method \Kdyby\Doctrine\Forms\Form getForm(bool $need = TRUE)
+ * @method \Kdyby\Doctrine\Forms\Form|\Kdyby\Doctrine\Forms\EntityContainer getParent()
  */
 class CollectionContainer extends Kdyby\Forms\Containers\Replicator implements IObjectContainer
 {
+
+	/** @var string */
+	public $containerClass = 'Kdyby\Doctrine\Forms\EntityContainer';
 
 	/** @var \Kdyby\Doctrine\Forms\EntityMapper */
 	private $mapper;
@@ -159,7 +162,8 @@ class CollectionContainer extends Kdyby\Forms\Containers\Replicator implements I
 
 		if ($values = $this->getContainerValues($index)) {
 			if ($entity = $this->getMapper()->getCollectionEntry($this, $values)) {
-				return new EntityContainer($entity);
+				$class = $this->containerClass;
+				return new $class($entity);
 			}
 		}
 
@@ -178,7 +182,8 @@ class CollectionContainer extends Kdyby\Forms\Containers\Replicator implements I
 			$this->collection->set($index, $this->createNewEntity());
 		}
 
-		return new EntityContainer($this->collection->get($index));
+		$class = $this->containerClass;
+		return new $class($this->collection->get($index));
 	}
 
 
@@ -212,7 +217,7 @@ class CollectionContainer extends Kdyby\Forms\Containers\Replicator implements I
 
 
 	/**
-	 * @param \Nette\Forms\Container $container
+	 * @param \Nette\Forms\Container|\Kdyby\Doctrine\Forms\EntityContainer $container
 	 * @param bool $cleanUpGroups
 	 */
 	public function remove(Nette\Forms\Container $container, $cleanUpGroups = FALSE)

@@ -21,8 +21,8 @@ use Nette;
  *
  * @method \Kdyby\Doctrine\Forms\Form getForm(bool $need = TRUE)
  * @method \Kdyby\Doctrine\Forms\Form|\Kdyby\Doctrine\Forms\EntityContainer|\Kdyby\Doctrine\Forms\CollectionContainer getParent()
- * @method NULL onSave(array $values, \Nette\Forms\Container $container)
- * @method NULL onLoad(array $values, object $entity)
+ * @method void onSave(array $values, \Nette\Forms\Container $container)
+ * @method void onLoad(array $values, object $entity)
  */
 class EntityContainer extends Nette\Forms\Container implements IObjectContainer
 {
