@@ -75,7 +75,7 @@ class AssetManager extends Assetic\AssetManager
 
 	/**
 	 * @param string $output
-	 * @return \Assetic\AssetInterface
+	 * @return \Assetic\Asset\AssetInterface
 	 */
 	public function getOutputAsset($output)
 	{

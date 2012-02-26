@@ -14,6 +14,8 @@ use Assetic;
 use Assetic\Asset\AssetInterface;
 use Kdyby;
 use Nette;
+use Nette\ComponentModel\IComponent;
+use Nette\Utils\Arrays;
 
 
 
@@ -35,7 +37,13 @@ class FormulaeManager extends Nette\Object
 	private $filterManager;
 
 	/** @var array */
-	private $types = array(
+	private $presenterTypes = array(
+		self::TYPE_STYLESHEET => array(),
+		self::TYPE_JAVASCRIPT => array()
+	);
+
+	/** @var array */
+	private $componentTypes = array(
 		self::TYPE_STYLESHEET => array(),
 		self::TYPE_JAVASCRIPT => array()
 	);
@@ -74,14 +82,25 @@ class FormulaeManager extends Nette\Object
 	 * @param string $type
 	 * @param array $filters
 	 * @param array $options
+	 * @param \Nette\ComponentModel\IComponent|null $presenterComponent
+	 *
+	 * @return string
 	 */
-	public function register(AssetInterface $asset, $type, $filters = array(), $options = array())
+	public function register(AssetInterface $asset, $type, $filters = array(), $options = array(), IComponent $presenterComponent = NULL)
 	{
 		if (isset($options['output'])) {
 			$asset->setTargetPath($options['output']);
 		}
 
-		$this->types[$type][] = $this->assetManager->add($asset, $filters, $options);
+		$name = $this->assetManager->add($asset, $filters, $options);
+		if ($presenterComponent instanceof Nette\Application\IPresenter) {
+			$this->presenterTypes[$type][] = $name;
+
+		} else {
+			$this->componentTypes[$type][] = $name;
+		}
+
+		return $name;
 	}
 
 
@@ -93,13 +112,29 @@ class FormulaeManager extends Nette\Object
 	public function getAssets($type)
 	{
 		$assets = array();
-		foreach ($this->types[$type] as $name) {
-			$assets[] = array(
-				'src' => $this->storage->getAssetUrl($this->assetManager->get($name))
-			) + $this->assetManager->getOptions($name);
+		foreach ($this->componentTypes[$type] as $name) {
+			$assets[] = $this->getAssetInfo($name);
+		}
+		foreach ($this->presenterTypes[$type] as $name) {
+			$assets[] = $this->getAssetInfo($name);
 		}
 
 		return array_reverse($assets);
+	}
+
+
+
+	/**
+	 * @param string $name
+	 * @return array
+	 */
+	public function getAssetInfo($name)
+	{
+		$all = $this->assetManager->get($name)->all();
+		return array(
+			'source' => reset($all)->getSourcePath(),
+			'src' => $this->storage->getAssetUrl($this->assetManager->get($name))
+		) + $this->assetManager->getOptions($name);
 	}
 
 
@@ -109,7 +144,12 @@ class FormulaeManager extends Nette\Object
 	 */
 	public function publish()
 	{
-		foreach (Kdyby\Tools\Arrays::flatMap($this->types) as $name) {
+		$types = array_merge(
+			Arrays::flatten($this->presenterTypes),
+			Arrays::flatten($this->componentTypes)
+		);
+
+		foreach ($types as $name) {
 			$asset = $this->assetManager->get($name);
 			if ($this->storage->isFresh($asset)) {
 				continue;

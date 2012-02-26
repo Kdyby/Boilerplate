@@ -249,7 +249,7 @@ abstract class MacroBase extends Nette\Object implements Latte\IMacro
 		}
 
 		// registration code
-		$this->assets[] = Code\Helpers::formatArgs('$template->_fm->register(new Assetic\Asset\AssetCollection(' . $assets . '), ?, ?, ?);', array(
+		$this->assets[] = Code\Helpers::formatArgs('$template->_fm->register(new Assetic\Asset\AssetCollection(' . $assets . '), ?, ?, ?, $control);', array(
 			$type, $filters, $options
 		));
 
