@@ -71,6 +71,10 @@ class QueryBuilder extends Doctrine\ORM\QueryBuilder
 
 		$joined[] = $rootAlias = $this->getRootAlias();
 		$joins = $this->getDQLPart('join');
+		if (!isset($joins[$rootAlias])) {
+			return $joined;
+		}
+
 		foreach ($joins[$rootAlias] as $join) {
 			/** @var \Doctrine\ORM\Query\Expr\Join $join */
 			if ($m = Strings::match((string)$join, '~^(?:LEFT|INNER)\s+JOIN\s+([^\s]+)(?:\s+([^\s]+)\s*(?:ON|WITH)?\s*.*)?$~i')) {
