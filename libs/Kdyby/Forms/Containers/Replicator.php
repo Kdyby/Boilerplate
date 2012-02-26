@@ -32,6 +32,9 @@ class Replicator extends Container
 	/** @var int */
 	public $createDefault;
 
+	/** @var string */
+	public $containerClass = 'Nette\Forms\Container';
+
 	/** @var callback */
 	protected $factoryCallback;
 
@@ -116,7 +119,7 @@ class Replicator extends Container
 			}
 
 		} elseif ($this->forceDefault) {
-			while ($this->getContainers()->count() < $this->createDefault) {
+			while (count($this->getContainers()) < $this->createDefault) {
 				$this->createOne();
 			}
 		}
@@ -126,7 +129,7 @@ class Replicator extends Container
 
 	/**
 	 * @param boolean $recursive
-	 * @return \ArrayIterator
+	 * @return \ArrayIterator|\Nette\Forms\Container[]
 	 */
 	public function getContainers($recursive = FALSE)
 	{
@@ -137,7 +140,7 @@ class Replicator extends Container
 
 	/**
 	 * @param boolean $recursive
-	 * @return \ArrayIterator
+	 * @return \ArrayIterator|Nette\Forms\Controls\SubmitButton[]
 	 */
 	public function getButtons($recursive = FALSE)
 	{
@@ -184,7 +187,8 @@ class Replicator extends Container
 	 */
 	protected function createContainer($name)
 	{
-		return new Container;
+		$class = $this->containerClass;
+		return new $class();
 	}
 
 
@@ -219,7 +223,7 @@ class Replicator extends Container
 	public function createOne($name = NULL)
 	{
 		if ($name === NULL) {
-			$names = array_keys($this->getContainers()->getArrayCopy());
+			$names = array_keys(iterator_to_array($this->getContainers()));
 			$name = $names ? max($names) + 1 : 0;
 		}
 
@@ -339,13 +343,14 @@ class Replicator extends Container
 
 		// to check if form was submitted by this one
 		foreach ($container->getComponents(TRUE, 'Nette\Forms\ISubmitterControl') as $button) {
+			/** @var \Nette\Forms\Controls\SubmitButton $button */
 			if ($button->isSubmittedBy()) {
 				$this->submittedBy = TRUE;
 				break;
 			}
 		}
 
-		// get components
+		/** @var \Nette\Forms\Controls\BaseControl[] $components */
 		$components = $container->getComponents(TRUE);
 		$this->removeComponent($container);
 
@@ -357,6 +362,7 @@ class Replicator extends Container
 		// walk groups and clean then from removed components
 		$affected = array();
 		foreach ($this->getForm()->getGroups() as $group) {
+			/** @var \SplObjectStorage $groupControls */
 			$groupControls = $controlsProperty->getValue($group);
 
 			foreach ($components as $control) {
@@ -378,6 +384,7 @@ class Replicator extends Container
 				}
 			}
 
+			/** @var \Nette\Forms\ControlGroup[] $affected */
 			foreach ($affected as $group) {
 				if (!$group->getControls() && in_array($group, $this->getForm()->getGroups(), TRUE)) {
 					$this->getForm()->removeGroup($group);
@@ -422,11 +429,13 @@ class Replicator extends Container
 	{
 		$components = array();
 		foreach ($this->getComponents(FALSE, 'Nette\Forms\IControl') as $control) {
+			/** @var \Nette\Forms\Controls\BaseControl $control */
 			$components[] = $control->getName();
 		}
 
 		foreach ($this->getContainers() as $container) {
 			foreach ($container->getComponents(TRUE, 'Nette\Forms\ISubmitterControl') as $button) {
+				/** @var \Nette\Forms\Controls\SubmitButton $button */
 				$exceptChildren[] = $button->getName();
 			}
 		}
@@ -450,6 +459,7 @@ class Replicator extends Container
 			$replicator = $_this->lookup('Kdyby\Forms\Containers\Replicator');
 			$_this->setValidationScope(FALSE);
 			$_this->onClick[] = function (SubmitButton $button) use ($replicator) {
+				/** @var \Kdyby\Forms\Containers\Replicator $replicator */
 				$replicator->remove($button->parent);
 			};
 			return $_this;
