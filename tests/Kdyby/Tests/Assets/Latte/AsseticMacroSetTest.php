@@ -75,7 +75,7 @@ class AsseticMacroSetTest extends Kdyby\Tests\LatteTestCase
 ), array(
 	'root' => 'root',
 	'output' => 'static/main.css',
-));
+), \$control);
 
 php;
 		$this->assertLattePrologEquals($prolog);
@@ -114,7 +114,7 @@ php;
 ), array(
 	'root' => 'root',
 	'output' => 'static/main.js',
-));
+), \$control);
 
 php;
 		$this->assertLattePrologEquals($prolog);
