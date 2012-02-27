@@ -189,7 +189,10 @@ class FileResponse extends Response
 	 */
 	public static function prepareDownload(CurlWrapper $curl, $dir)
 	{
-		$fileName = urlencode((string)$curl->getUrl()) . '.' . Strings::random();
+		do {
+			$fileName = urlencode((string)$curl->getUrl()) . '.' . Strings::random() . '.tmp';
+		} while (is_file($dir . '/' . $fileName));
+
 		if (($fileHandle = @fopen($curl->file = $dir . '/' . $fileName, 'wb')) === FALSE) {
 			throw Kdyby\FileNotWritableException::fromFile($curl->file);
 		}
