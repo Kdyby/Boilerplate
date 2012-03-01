@@ -162,7 +162,7 @@ class Form extends Kdyby\Application\UI\Form implements IObjectContainer
 	{
 		try {
 			$args = func_get_args();
-			call_user_func_array(array($this, 'parent::dispatchEvent'), $args);
+			call_user_func_array('parent::dispatchEvent', $args);
 			return FALSE;
 
 		} catch (Nette\Application\AbortException $e) {
