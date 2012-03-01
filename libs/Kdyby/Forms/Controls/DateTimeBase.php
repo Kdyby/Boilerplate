@@ -86,7 +86,7 @@ abstract class DateTimeBase extends Nette\Forms\Controls\BaseControl
 	public function loadHttpData()
 	{
 		parent::loadHttpData();
-		$this->dateTime = Nette\DateTime::createFromFormat($this->getFormat(), $this->value);
+		$this->dateTime = Nette\DateTime::createFromFormat('!' . $this->getFormat(), $this->value);
 		$this->valid = (bool)($this->dateTime);
 	}
 
