@@ -149,13 +149,15 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 
 	/**
 	 * @param \Nette\ComponentModel\IComponent $component
+	 * @param array $methods
 	 * @param string $name
+	 *
 	 * @return \PHPUnit_Framework_MockObject_MockObject|\Kdyby\Application\UI\Presenter
 	 */
-	public function attachToPresenter(Nette\ComponentModel\IComponent $component, $name = 'component')
+	public function attachToPresenter(Nette\ComponentModel\IComponent $component, $methods = array(), $name = 'component')
 	{
 		/** @var \PHPUnit_Framework_MockObject_MockObject|\Kdyby\Application\UI\Presenter $presenter */
-		$presenter = $this->getMock('Kdyby\Application\UI\Presenter', array(), array($this->getContext()));
+		$presenter = $this->getMock('Kdyby\Application\UI\Presenter', (array)$methods, array($this->getContext()));
 		$component->setParent($presenter, $name);
 		return $presenter;
 	}
