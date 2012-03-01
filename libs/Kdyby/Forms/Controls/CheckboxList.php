@@ -202,4 +202,16 @@ class CheckboxList extends Nette\Forms\Controls\BaseControl
 		return $control->getValue() !== NULL;
 	}
 
+
+
+	/**
+	 * @param string $name
+	 */
+	public static function register($name = 'addCheckboxList')
+	{
+		Nette\Forms\Container::extensionMethod($name, function (Nette\Forms\Container $container, $name, $label, array $items = NULL) {
+			return $container[$name] = new Kdyby\Forms\Controls\CheckboxList($label, $items);
+		});
+	}
+
 }

@@ -186,7 +186,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 	 * @param \Nette\Application\UI\Form $form
 	 * @param array $values
 	 */
-	protected function submitForm(UI\Form $form, array $values = array())
+	public function submitForm(UI\Form $form, array $values = array())
 	{
 		$get = $form->getMethod() !== UI\Form::POST ? $values : array();
 		$post = $form->getMethod() === UI\Form::POST ? $values : array();

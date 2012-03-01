@@ -19,7 +19,11 @@ use Nette\Forms\ISubmitterControl;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
- * @method Kdyby\Forms\Controls\CheckboxList addCheckboxList() addCheckboxList(string $name, string $label, array $items = NULL)
+ * @method \Kdyby\Forms\Controls\CheckboxList addCheckboxList(string $name, string $label, array $items = NULL)
+ * @method \Kdyby\Forms\Controls\DateInput addDate(string $name, string $label, int $cols = 10, string $format = NULL)
+ * @method \Kdyby\Forms\Controls\TimeInput addTime(string $name, string $label, int $cols = 10, string $format = NULL)
+ * @method \Kdyby\Forms\Controls\DateTimeInput addDatetime(string $name, string $label, int $cols = 10, string $format = NULL)
+ * @method \Kdyby\Forms\Containers\Replicator addDynamic(string $name, callback $factory, int $default)
  */
 class Form extends Nette\Application\UI\Form
 {
@@ -166,18 +170,9 @@ class Form extends Nette\Application\UI\Form
 
 }
 
-
 // extension methods
-Nette\Forms\Container::extensionMethod('addCheckboxList', function (Nette\Forms\Container $container, $name, $label, array $items = NULL) {
-	return $container[$name] = new Kdyby\Forms\Controls\CheckboxList($label, $items);
-});
-
-Nette\Forms\Container::extensionMethod('addDate', function (Nette\Forms\Container $container, $name, $label) {
-	return $container[$name] = new Kdyby\Forms\Controls\DateTime($label);
-});
-
-Nette\Forms\Container::extensionMethod('addDatetime', function (Nette\Forms\Container $container, $name, $label) {
-	return $container[$name] = new Kdyby\Forms\Controls\DateTime($label);
-});
-
+Kdyby\Forms\Controls\CheckboxList::register();
+Kdyby\Forms\Controls\DateInput::register();
+Kdyby\Forms\Controls\DateTimeInput::register();
+Kdyby\Forms\Controls\TimeInput::register();
 Kdyby\Forms\Containers\Replicator::register();
