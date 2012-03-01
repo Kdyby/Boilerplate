@@ -155,7 +155,7 @@ final class Filesystem extends Nette\Object
 
 
 	/**
-	 * @param strung $file
+	 * @param string $file
 	 * @param bool $need
 	 *
 	 * @return string
