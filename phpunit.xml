@@ -19,8 +19,12 @@
 	</testsuites>
 
 	<filter>
-	  <whitelist>
-		<directory suffix=".php">./libs/Kdyby</directory>
-	  </whitelist>
+		<blacklist>
+			<directory suffix=".php">./vendor</directory>
+			<directory suffix=".php">./tests</directory>
+		</blacklist>
+		<whitelist addUncoveredFilesFromWhitelist="true">
+			<directory suffix=".php">./libs</directory>
+		</whitelist>
 	</filter>
 </phpunit>
