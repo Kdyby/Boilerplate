@@ -132,6 +132,35 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 	}
 
 
+	/********************* Mocking *********************/
+
+
+	/**
+	 * @return \PHPUnit_Framework_MockObject_MockObject|\Closure
+	 */
+	public function getCallbackMock()
+	{
+		return $this->getMockBuilder('Kdyby\Tests\Tools\Callback')
+			->disableOriginalConstructor()
+			->getMock();
+	}
+
+
+
+	/**
+	 * @param \Nette\ComponentModel\IComponent $component
+	 * @param string $name
+	 * @return \PHPUnit_Framework_MockObject_MockObject|\Kdyby\Application\UI\Presenter
+	 */
+	public function attachToPresenter(Nette\ComponentModel\IComponent $component, $name = 'component')
+	{
+		/** @var \PHPUnit_Framework_MockObject_MockObject|\Kdyby\Application\UI\Presenter $presenter */
+		$presenter = $this->getMock('Kdyby\Application\UI\Presenter', array(), array($this->getContext()));
+		$component->setParent($presenter, $name);
+		return $presenter;
+	}
+
+
 	/********************* DataProvider *********************/
 
 

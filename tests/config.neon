@@ -11,3 +11,6 @@ php:
 services:
     cacheStorage:
         class: Nette\Caching\Storages\MemoryStorage
+
+    session:
+        class: Kdyby\Tests\Http\FakeSession
