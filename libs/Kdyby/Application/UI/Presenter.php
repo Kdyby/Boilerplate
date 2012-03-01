@@ -47,8 +47,8 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	{
 		parent::__construct($container);
 
-		if ($container->hasService('templateConfigurator')) {
-			$this->setTemplateConfigurator($container->templateConfigurator);
+		if ($container->hasService('kdyby.templateConfigurator')) {
+			$this->setTemplateConfigurator($container->kdyby->templateConfigurator);
 		}
 	}
 
