@@ -45,7 +45,7 @@ class EntityMapper extends Nette\Object
 	/** @var \SplObjectStorage */
 	private $entities;
 
-	/** @var \SplObjectStorage */
+	/** @var \SplObjectStorage|\Doctrine\Common\Collections\Collection[] */
 	private $collections;
 
 	/** @var array */
@@ -327,7 +327,7 @@ class EntityMapper extends Nette\Object
 
 		$this->entities->detach($entity);
 		$dao = $this->doctrine->getDao(get_class($entity));
-		$dao->delete($entity, $dao::NO_FLUSH);
+		$dao->delete($entity, Dao::NO_FLUSH);
 	}
 
 
