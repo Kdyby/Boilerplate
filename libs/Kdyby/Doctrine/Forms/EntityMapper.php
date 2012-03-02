@@ -414,13 +414,14 @@ class EntityMapper extends Nette\Object
 	 */
 	public function getIdentifierValues($entity)
 	{
-		$class = $this->doctrine->getClassMetadata(get_class($entity));
+		$class = $this->doctrine->getClassMetadata($entity);
 		return array_filter($class->getIdentifierValues($entity));
 	}
 
 
 
 	/**
+	 * @todo: wtf? fixme! targetClass?
 	 * @param \Kdyby\Doctrine\Forms\CollectionContainer $container
 	 * @param array $values
 	 */

@@ -113,6 +113,18 @@ class CollectionContainer extends Kdyby\Forms\Containers\Replicator implements I
 
 
 	/**
+	 * @param bool $need
+	 *
+	 * @return \Nette\Application\UI\Presenter
+	 */
+	public function getPresenter($need = TRUE)
+	{
+		return $this->lookup('Nette\Application\UI\Presenter', $need);
+	}
+
+
+
+	/**
 	 * @return \Kdyby\Doctrine\Forms\EntityMapper
 	 */
 	private function getMapper()
@@ -127,22 +139,47 @@ class CollectionContainer extends Kdyby\Forms\Containers\Replicator implements I
 	 */
 	protected function attached($obj)
 	{
-		if ($obj instanceof Nette\Application\UI\Presenter) {
-			$this->getMapper()->assignCollection($this->collection, $this);
-			if (!$this->getForm()->isSubmitted()) {
-				foreach ($this->collection as $index => $entity) {
-					$this->createOne($index);
-				}
-			}
+		$this->initContainers();
+		parent::attached($obj);
+		$this->clearContainers();
+	}
+
+
+
+	/**
+	 * Initialize entity containers from given collection
+	 */
+	protected function initContainers()
+	{
+		if (!$this->getPresenter(FALSE)) {
+			return; // only if attached to presenter
 		}
 
-		parent::attached($obj);
+		$this->getMapper()->assignCollection($this->collection, $this);
+		if ($this->getForm()->isSubmitted()) {
+			return; // only if not submitted
+		}
 
-		if ($obj instanceof Nette\Application\UI\Presenter && $this->getForm()->isSubmitted()) {
-			foreach ($this->collection->toArray() as $entity) {
-				if (!$this->getMapper()->getComponent($entity)) {
-					$this->getMapper()->remove($entity);
-				}
+		fd($this->collection);
+		foreach ($this->collection as $index => $entity) {
+			$this->createOne($index);
+		}
+	}
+
+
+
+	/**
+	 * Clear containers, that were not submitted
+	 */
+	protected function clearContainers()
+	{
+		if (!$this->getPresenter(FALSE) || !$this->getForm()->isSubmitted()) {
+			return; // only if attached to presenter & submitted
+		}
+
+		foreach ($this->collection->toArray() as $entity) {
+			if (!$this->getMapper()->getComponent($entity)) {
+				$this->getMapper()->remove($entity);
 			}
 		}
 	}
@@ -189,15 +226,34 @@ class CollectionContainer extends Kdyby\Forms\Containers\Replicator implements I
 
 
 	/**
+	 * @return object|NULL
+	 */
+	protected function getParentEntity()
+	{
+		return $this->getParent()->getEntity();
+	}
+
+
+
+	/**
+	 * @return string
+	 */
+	protected function getClassName()
+	{
+		return $this->getMapper()->getTargetClassName($this->getParentEntity(), $this->getName());
+	}
+
+
+
+	/**
 	 * @return object
 	 * @throws \Kdyby\UnexpectedValueException
 	 */
 	protected function createNewEntity()
 	{
-		$parentEntity = $this->getParent()->getEntity();
-		$className = $this->getMapper()->getTargetClassName($this->getParent()->getEntity(), $this->getName());
-
+		$className = $this->getClassName();
 		if ($factory = $this->getEntityFactory()) {
+			$parentEntity = $this->getParentEntity();
 			$related = $factory($parentEntity, $this);
 			if (!$related instanceof $className) {
 				throw new Kdyby\UnexpectedValueException(

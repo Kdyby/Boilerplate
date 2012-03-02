@@ -96,7 +96,7 @@ class EntityContainer extends Nette\Forms\Container implements IObjectContainer
 
 
 	/**
-	 * @param Nette\ComponentModel\Container $obj
+	 * @param \Nette\ComponentModel\Container $obj
 	 */
 	protected function attached($obj)
 	{

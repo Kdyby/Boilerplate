@@ -119,11 +119,15 @@ class Form extends Kdyby\Application\UI\Form implements IObjectContainer
 			if (!$button->getValidationScope() || $this->isValid()) {
 				/** @var \Kdyby\Doctrine\Forms\EntityContainer $buttonContainer */
 				$buttonContainer = $button->getParent();
-				$clickedEntity = $buttonContainer instanceof IObjectContainer
-					? $buttonContainer->getEntity() : $this->getEntity();
+				$clickedEntity = $this->getEntity();
+				if ($buttonContainer instanceof IObjectContainer && method_exists($buttonContainer, 'getEntity')) {
+					$clickedEntity = $buttonContainer->getEntity();
+				}
 
-				$dao = $this->doctrine->getDao(get_class($clickedEntity));
-				$redirect = $this->dispatchEvent($button->onClick, $button, $clickedEntity, $dao);
+				if ($clickedEntity){
+					$dao = $this->doctrine->getDao($clickedEntity);
+					$redirect = $this->dispatchEvent($button->onClick, $button, $clickedEntity, $dao);
+				}
 				$valid = TRUE;
 
 			} else {
@@ -137,8 +141,10 @@ class Form extends Kdyby\Application\UI\Form implements IObjectContainer
 		}
 
 		if (isset($valid) || $this->isValid()) {
-			$dao = $this->doctrine->getDao(get_class($this->getEntity()));
-			$redirect = $this->dispatchEvent($this->onSuccess, $this, $this->getEntity(), $dao);
+			if ($entity = $this->getEntity()) {
+				$dao = $this->doctrine->getDao($entity);
+				$redirect = $this->dispatchEvent($this->onSuccess, $this, $entity, $dao);
+			}
 
 		} else {
 			$redirect = $this->dispatchEvent($this->onError, $this);
