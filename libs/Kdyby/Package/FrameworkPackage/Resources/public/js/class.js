@@ -32,13 +32,13 @@ function callback(obj, method) {
 			var arg = obj;
 			return function () {
 				var obj = arg[0], method = arg[1];
-				return obj[method]();
+				return obj[method].apply(obj, arguments);
 			};
 		}
 
 	} else if (obj[method] !== undefined) {
 		return function () {
-			return obj[method]();
+			return obj[method].apply(obj, arguments);
 		}
 	}
 }
@@ -109,3 +109,100 @@ function selectText(textElement) {
 		selection.addRange(range);
 	}
 };
+
+
+/**
+ * @see http://stackoverflow.com/q/3517064
+ */
+$.fn.extend({
+	disableSelection:function () {
+		this.each(function () {
+			if (typeof this.onselectstart != 'undefined') {
+				this.onselectstart = function () {
+					return false;
+				};
+			} else if (typeof this.style.MozUserSelect != 'undefined') {
+				this.style.MozUserSelect = 'none';
+			} else {
+				this.onmousedown = function () {
+					return false;
+				};
+			}
+		});
+	}
+});
+
+
+/**
+ * @see http://stackoverflow.com/a/1675345
+ */
+jQuery.fn.putCursorAtEnd = function () {
+	return this.each(function () {
+		var me = $(this);
+		me.focus();
+
+		if (this.setSelectionRange) {
+			// Double the length because Opera is inconsistent about whether a carriage return is one character or two. Sigh.
+			var len = me.val().length * 2;
+			this.setSelectionRange(len, len);
+		} else {
+			// (Doesn't work in Google Chrome)
+			var val = me.val();
+			me.val('');
+			me.val(val);
+		}
+
+		// Scroll to the bottom, in case we're in a tall textarea
+		// (Necessary for Firefox and Google Chrome)
+		this.scrollTop = 999999;
+	});
+};
+
+
+/**
+ * @param arr
+ * @return object
+ */
+var EndlessList = $class({
+	constructor: function (arr) {
+		var me = this;
+		this.first = null;
+		this.last = null;
+		this.arr = arr;
+		this.list = [];
+
+		$.each(arr, function (index, value) {
+			if (!me.first) {
+				me.first = value;
+			}
+			me.list.push(value);
+			me.last = value;
+		});
+	},
+	get: function(key) {
+		return this.arr[key];
+	},
+	getFirst: function () {
+		return this.first;
+	},
+	getLast: function () {
+		return this.last;
+	},
+	getNextTo: function (item) {
+		return this.findNextTo(this.list, item) || this.first;
+	},
+	getPrevTo: function (item) {
+		return this.findNextTo(this.list.slice().reverse(), item) || this.last;
+	},
+	findNextTo: function (items, searching) {
+		var prev, next;
+		$.each(items, function (index, value) {
+			if (prev === searching) {
+				next = value;
+				return false;
+			}
+			prev = value;
+		});
+		return next;
+	}
+});

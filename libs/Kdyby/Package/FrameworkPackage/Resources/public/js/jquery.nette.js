@@ -26,12 +26,6 @@ jQuery.extend({
 					jQuery.nette.updateSnippet(i, payload.snippets[i]);
 				}
 			}
-
-			// flashes
-			$('#snippet--flashes div.flash').each(function () {
-				$.achtung({message: $(this).html(), timeout: 5});
-				$(this).remove();
-			});
 		}
 	}
 });
