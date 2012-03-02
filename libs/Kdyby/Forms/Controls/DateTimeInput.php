@@ -58,7 +58,7 @@ class DateTimeInput extends DateTimeBase
 	 */
 	public function getValue()
 	{
-		return $this->dateTime;
+		return $this->dateTime ?: NULL;
 	}
 
 

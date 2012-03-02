@@ -53,7 +53,7 @@ abstract class DateTimeBase extends Nette\Forms\Controls\BaseControl
 		}
 
 		try {
-			$this->dateTime = Nette\DateTime::from($value);
+			$this->dateTime = Nette\DateTime::from($value) ?: NULL;
 
 		} catch (\Exception $e) {
 			$this->valid = FALSE;
@@ -86,7 +86,7 @@ abstract class DateTimeBase extends Nette\Forms\Controls\BaseControl
 	public function loadHttpData()
 	{
 		parent::loadHttpData();
-		$this->dateTime = Nette\DateTime::createFromFormat('!' . $this->getFormat(), $this->value);
+		$this->dateTime = Nette\DateTime::createFromFormat('!' . $this->getFormat(), $this->value) ?: NULL;
 		$this->valid = (bool)($this->dateTime);
 	}
 
