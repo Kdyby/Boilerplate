@@ -65,13 +65,18 @@ class SandboxRegistry extends Kdyby\Doctrine\Registry
 	/**
 	 * Gets the EntityRepository for an entity.
 	 *
-	 * @param string $entityName		The name of the entity.
+	 * @param string $entityName        The name of the entity.
 	 * @param string $entityManagerName The entity manager name (null for the default one)
 	 *
+	 * @throws \Kdyby\InvalidArgumentException
 	 * @return \Doctrine\ORM\EntityRepository
 	 */
 	public function getRepository($entityName, $entityManagerName = NULL)
 	{
+		if (!class_exists($entityName = is_object($entityName) ? get_class($entityName) : $entityName)) {
+			throw new Kdyby\InvalidArgumentException("Expected entity name, '$entityName' given");
+		}
+
 		if (isset($this->daoMocks[$entityManagerName][$lEntityName = strtolower($entityName)])) {
 			return $this->daoMocks[$entityManagerName][$lEntityName];
 		}
@@ -86,10 +91,15 @@ class SandboxRegistry extends Kdyby\Doctrine\Registry
 	 * @param \Kdyby\Doctrine\Dao $dao
 	 * @param string $entityManagerName
 	 *
+	 * @throws \Kdyby\InvalidArgumentException
 	 * @return \Kdyby\Doctrine\Dao
 	 */
 	public function setRepository($entityName, Dao $dao, $entityManagerName = NULL)
 	{
+		if (!class_exists($entityName = is_object($entityName) ? get_class($entityName) : $entityName)) {
+			throw new Kdyby\InvalidArgumentException("Expected entity name, '$entityName' given");
+		}
+
 		return $this->daoMocks[$entityManagerName][strtolower($entityName)] = $dao;
 	}
 
@@ -98,13 +108,18 @@ class SandboxRegistry extends Kdyby\Doctrine\Registry
 	/**
 	 * Gets the Dao for an entity.
 	 *
-	 * @param string $entityName		The name of the entity.
+	 * @param string $entityName        The name of the entity.
 	 * @param string $entityManagerName The entity manager name (null for the default one)
 	 *
+	 * @throws \Kdyby\InvalidArgumentException
 	 * @return \Kdyby\Doctrine\Dao
 	 */
 	public function getDao($entityName, $entityManagerName = NULL)
 	{
+		if (!class_exists($entityName = is_object($entityName) ? get_class($entityName) : $entityName)) {
+			throw new Kdyby\InvalidArgumentException("Expected entity name, '$entityName' given");
+		}
+
 		if (isset($this->daoMocks[$entityManagerName][$lEntityName = strtolower($entityName)])) {
 			return $this->daoMocks[$entityManagerName][$lEntityName];
 		}
@@ -119,10 +134,15 @@ class SandboxRegistry extends Kdyby\Doctrine\Registry
 	 * @param \Kdyby\Doctrine\Dao $dao
 	 * @param string $entityManagerName
 	 *
+	 * @throws \Kdyby\InvalidArgumentException
 	 * @return \Kdyby\Doctrine\Dao
 	 */
 	public function setDao($entityName, Dao $dao, $entityManagerName = NULL)
 	{
+		if (!class_exists($entityName = is_object($entityName) ? get_class($entityName) : $entityName)) {
+			throw new Kdyby\InvalidArgumentException("Expected entity name, '$entityName' given");
+		}
+
 		return $this->daoMocks[$entityManagerName][strtolower($entityName)] = $dao;
 	}
 
@@ -131,13 +151,18 @@ class SandboxRegistry extends Kdyby\Doctrine\Registry
 	/**
 	 * Gets the Dao for an entity.
 	 *
-	 * @param string $entityName		The name of the entity.
+	 * @param string $entityName        The name of the entity.
 	 * @param string $entityManagerName The entity manager name (null for the default one)
 	 *
+	 * @throws \Kdyby\InvalidArgumentException
 	 * @return \Kdyby\Doctrine\Mapping\ClassMetadata
 	 */
 	public function getClassMetadata($entityName, $entityManagerName = NULL)
 	{
+		if (!class_exists($entityName = is_object($entityName) ? get_class($entityName) : $entityName)) {
+			throw new Kdyby\InvalidArgumentException("Expected entity name, '$entityName' given");
+		}
+
 		if (isset($this->metaMocks[$entityManagerName][$lEntityName = strtolower($entityName)])) {
 			return $this->metaMocks[$entityManagerName][$lEntityName];
 		}
@@ -152,10 +177,15 @@ class SandboxRegistry extends Kdyby\Doctrine\Registry
 	 * @param \Kdyby\Doctrine\Mapping\ClassMetadata $meta
 	 * @param string $entityManagerName
 	 *
+	 * @throws \Kdyby\InvalidArgumentException
 	 * @return \Kdyby\Doctrine\Mapping\ClassMetadata
 	 */
 	public function setClassMetadata($entityName, ClassMetadata $meta, $entityManagerName = NULL)
 	{
+		if (!class_exists($entityName = is_object($entityName) ? get_class($entityName) : $entityName)) {
+			throw new Kdyby\InvalidArgumentException("Expected entity name, '$entityName' given");
+		}
+
 		return $this->metaMocks[$entityManagerName][strtolower($entityName)] = $meta;
 	}
 

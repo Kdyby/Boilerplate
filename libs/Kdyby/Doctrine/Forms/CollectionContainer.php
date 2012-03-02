@@ -160,7 +160,6 @@ class CollectionContainer extends Kdyby\Forms\Containers\Replicator implements I
 			return; // only if not submitted
 		}
 
-		fd($this->collection);
 		foreach ($this->collection as $index => $entity) {
 			$this->createOne($index);
 		}
