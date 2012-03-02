@@ -246,10 +246,15 @@ class Registry extends Nette\Object
 	 * @param string $entityName        The name of the entity.
 	 * @param string $entityManagerName The entity manager name (null for the default one)
 	 *
+	 * @throws \Kdyby\InvalidArgumentException
 	 * @return \Doctrine\ORM\EntityRepository
 	 */
 	public function getRepository($entityName, $entityManagerName = NULL)
 	{
+		if (!class_exists($entityName = is_object($entityName) ? get_class($entityName) : $entityName)) {
+			throw new Kdyby\InvalidArgumentException("Expected entity name, '$entityName' given");
+		}
+
 		return $this->getDao($entityName, $entityManagerName);
 	}
 
@@ -261,10 +266,15 @@ class Registry extends Nette\Object
 	 * @param string $entityName        The name of the entity.
 	 * @param string $entityManagerName The entity manager name (null for the default one)
 	 *
+	 * @throws \Kdyby\InvalidArgumentException
 	 * @return \Kdyby\Doctrine\Dao
 	 */
 	public function getDao($entityName, $entityManagerName = NULL)
 	{
+		if (!class_exists($entityName = is_object($entityName) ? get_class($entityName) : $entityName)) {
+			throw new Kdyby\InvalidArgumentException("Expected entity name, '$entityName' given");
+		}
+
 		return $this->getEntityManager($entityManagerName)->getRepository($entityName);
 	}
 
@@ -273,13 +283,18 @@ class Registry extends Nette\Object
 	/**
 	 * Gets the Dao for an entity.
 	 *
-	 * @param string $entityName		The name of the entity.
+	 * @param string $entityName        The name of the entity.
 	 * @param string $entityManagerName The entity manager name (null for the default one)
 	 *
+	 * @throws \Kdyby\InvalidArgumentException
 	 * @return \Kdyby\Doctrine\Mapping\ClassMetadata
 	 */
 	public function getClassMetadata($entityName, $entityManagerName = NULL)
 	{
+		if (!class_exists($entityName = is_object($entityName) ? get_class($entityName) : $entityName)) {
+			throw new Kdyby\InvalidArgumentException("Expected entity name, '$entityName' given");
+		}
+
 		return $this->getEntityManager($entityManagerName)->getClassMetadata($entityName);
 	}
 
@@ -289,10 +304,16 @@ class Registry extends Nette\Object
 	 * Gets the entity manager associated with a given class.
 	 *
 	 * @param string $className A Doctrine Entity class name
+	 *
+	 * @throws \Kdyby\InvalidArgumentException
 	 * @return \Doctrine\ORM\EntityManager|NULL
 	 */
 	public function getEntityManagerForClass($className)
 	{
+		if (!class_exists($className = is_object($className) ? get_class($className) : $className)) {
+			throw new Kdyby\InvalidArgumentException("Expected entity name, '$className' given");
+		}
+
 		$proxyClass = ClassType::from($className);
 		$className = $proxyClass->getName();
 		if ($proxyClass->implementsInterface('Doctrine\ORM\Proxy\Proxy')) {
