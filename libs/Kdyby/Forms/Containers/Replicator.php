@@ -53,7 +53,7 @@ class Replicator extends Container
 
 
 	/**
-	 * @param callable|\Closure $factory
+	 * @param callback $factory
 	 * @param int $createDefault
 	 * @param bool $forceDefault
 	 */
