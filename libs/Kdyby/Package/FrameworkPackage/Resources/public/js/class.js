@@ -160,49 +160,12 @@ jQuery.fn.putCursorAtEnd = function () {
 
 
 /**
- * @param arr
- * @return object
+ * jQuery hasEvent plugin
+ * @see http://stackoverflow.com/a/303670/602899
  */
-var EndlessList = $class({
-	constructor: function (arr) {
-		var me = this;
-		this.first = null;
-		this.last = null;
-		this.arr = arr;
-		this.list = [];
-
-		$.each(arr, function (index, value) {
-			if (!me.first) {
-				me.first = value;
-			}
-			me.list.push(value);
-			me.last = value;
-		});
-	},
-	get: function(key) {
-		return this.arr[key];
-	},
-	getFirst: function () {
-		return this.first;
-	},
-	getLast: function () {
-		return this.last;
-	},
-	getNextTo: function (item) {
-		return this.findNextTo(this.list, item) || this.first;
-	},
-	getPrevTo: function (item) {
-		return this.findNextTo(this.list.slice().reverse(), item) || this.last;
-	},
-	findNextTo: function (items, searching) {
-		var prev, next;
-		$.each(items, function (index, value) {
-			if (prev === searching) {
-				next = value;
-				return false;
-			}
-			prev = value;
-		});
-		return next;
+(function (A) {
+	A.fn.hasEvent = function (C) {
+		var B = this.data("events");
+		return( B && B[C] )
 	}
-});
+})(jQuery);
