@@ -127,6 +127,9 @@ class Form extends Kdyby\Application\UI\Form implements IObjectContainer
 				if ($clickedEntity){
 					$dao = $this->doctrine->getDao($clickedEntity);
 					$redirect = $this->dispatchEvent($button->onClick, $button, $clickedEntity, $dao);
+
+				} else {
+					$redirect = $this->dispatchEvent($button->onClick, $button);
 				}
 				$valid = TRUE;
 
@@ -144,6 +147,9 @@ class Form extends Kdyby\Application\UI\Form implements IObjectContainer
 			if ($entity = $this->getEntity()) {
 				$dao = $this->doctrine->getDao($entity);
 				$redirect = $this->dispatchEvent($this->onSuccess, $this, $entity, $dao);
+
+			} else {
+				$redirect = $this->dispatchEvent($this->onSuccess, $this);
 			}
 
 		} else {
