@@ -16,7 +16,7 @@ but for Christ sake don't use it in your live applications!
 Dependecies:
 ============
 
-- Nette 2.0b https://github.com/nette/nette
+- Nette v2.0 https://github.com/nette/nette
 - Doctrine ORM 2.1.2 https://github.com/doctrine/doctrine2
 - Doctrine DBAL https://github.com/doctrine/dbal
 - Doctrine Common https://github.com/doctrine/common
