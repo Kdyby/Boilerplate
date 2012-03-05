@@ -134,6 +134,28 @@ class EntityMapper extends Nette\Object
 
 
 
+	/************************ fix types ************************/
+
+
+
+	/**
+	 * @param \Doctrine\ORM\Mapping\ClassMetadata $class
+	 * @param string $field
+	 * @param mixed $value
+	 */
+	protected function sanitizeValue(ClassMetadata $class, $field, $value)
+	{
+		switch ($class->getTypeOfField($field)) {
+			case 'integer':
+				$value = (int)$value ?: NULL;
+				break;
+		}
+
+		return $value;
+	}
+
+
+
 	/************************ load to component ************************/
 
 
@@ -191,7 +213,8 @@ class EntityMapper extends Nette\Object
 			$values = new Nette\ArrayHash;
 			foreach ($container->getControls() as $control) {
 				if ($class->hasField($field = $this->getControlField($control))) {
-					$values[$field] = Objects::getProperty($entity, $field);
+					$value = Objects::getProperty($entity, $field);
+					$values[$field] = $this->sanitizeValue($class, $field, $value);
 				}
 			}
 
