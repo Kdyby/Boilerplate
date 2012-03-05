@@ -126,6 +126,7 @@ class Connection extends Doctrine\DBAL\Connection
 		$exception = new PDOException($e, $this);
 		if ($endQuery && $logger = $this->getConfiguration()->getSQLLogger()) {
 			if ($logger instanceof Diagnostics\Panel) {
+				/** @var \Kdyby\Doctrine\Diagnostics\Panel $logger */
 				$logger->queryFailed($exception);
 			}
 		}
