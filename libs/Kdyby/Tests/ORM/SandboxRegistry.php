@@ -76,7 +76,7 @@ class SandboxRegistry extends Kdyby\Doctrine\Registry
 		}
 
 		try {
-			$em = $this->getEntityManager($name);
+			$this->getEntityManager($name);
 
 		} catch (\Exception $e) {
 			Nette\Diagnostics\Debugger::log($e);
