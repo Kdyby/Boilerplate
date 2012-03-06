@@ -31,16 +31,16 @@ class Registry extends Nette\Object
 	protected $container;
 
 	/** @var array */
-	private $connections;
+	protected $connections;
 
 	/** @var array */
-	private $entityManagers;
+	protected $entityManagers;
 
 	/** @var string */
-	private $defaultConnection;
+	protected $defaultConnection;
 
 	/** @var string */
-	private $defaultEntityManager;
+	protected $defaultEntityManager;
 
 
 
@@ -78,6 +78,8 @@ class Registry extends Nette\Object
 	 * Gets the named connection.
 	 *
 	 * @param string $name The connection name (null for the default one)
+	 *
+	 * @throws \Kdyby\InvalidArgumentException
 	 * @return \Doctrine\DBAL\Connection
 	 */
 	public function getConnection($name = NULL)
@@ -140,6 +142,8 @@ class Registry extends Nette\Object
 	 * Gets a named entity manager.
 	 *
 	 * @param string $name The entity manager name (null for the default one)
+	 *
+	 * @throws \Kdyby\InvalidArgumentException
 	 * @return \Doctrine\ORM\EntityManager
 	 */
 	public function getEntityManager($name = NULL)
@@ -188,6 +192,7 @@ class Registry extends Nette\Object
 	 * to avoid this problem.
 	 *
 	 * @param string $name The entity manager name (null for the default one)
+	 * @throws \Kdyby\InvalidArgumentException
 	 */
 	public function resetEntityManager($name = NULL)
 	{
@@ -210,10 +215,12 @@ class Registry extends Nette\Object
 	 * Resolves a registered namespace alias to the full namespace.
 	 *
 	 * This method looks for the alias in all registered entity managers.
+	 * @see Configuration::getEntityNamespace
 	 *
 	 * @param string $alias The alias
+	 *
+	 * @throws \Doctrine\ORM\ORMException
 	 * @return string The full namespace
-	 * @see Configuration::getEntityNamespace
 	 */
 	public function getEntityNamespace($alias)
 	{
@@ -325,6 +332,8 @@ class Registry extends Nette\Object
 				return $em;
 			}
 		}
+
+		return NULL;
 	}
 
 }

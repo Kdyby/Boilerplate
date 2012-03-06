@@ -10,6 +10,8 @@
 
 namespace Kdyby\Tests\ORM;
 
+use Doctrine;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\Driver\DriverChain;
 use Doctrine\ORM\Tools\SchemaTool;
 use Kdyby;
@@ -26,6 +28,11 @@ use Nette\Utils\Finder;
 class SandboxConfigurator extends Kdyby\Config\Configurator
 {
 
+	/** @var array */
+	private $entities = array();
+
+
+
 	/**
 	 * @param array $params
 	 */
@@ -39,15 +46,17 @@ class SandboxConfigurator extends Kdyby\Config\Configurator
 
 
 	/**
+	 * @throws \Kdyby\UnexpectedValueException
 	 * @return \Kdyby\Tests\ORM\SandboxRegistry
 	 */
 	final public function getRegistry()
 	{
+		/** @var \Kdyby\Tests\ORM\SandboxRegistry $registry */
 		$registry = $this->getContainer()->doctrine->registry;
 		if (!$registry instanceof SandboxRegistry) {
 			throw new Kdyby\UnexpectedValueException("Service 'doctrine' must be instance of 'Kdyby\\Tests\\ORM\\SandboxRegistry', instance of '" . get_class($registry) . "' given.");
 		}
-
+		$registry->setConfigurator($this);
 		return $registry;
 	}
 
@@ -64,28 +73,42 @@ class SandboxConfigurator extends Kdyby\Config\Configurator
 
 
 	/**
-	 * Crawls all the entities associations, to avoid requiring of listing of all classes, required by test, by hand.
-	 * Associations are gonna be discovered automatically.
-	 *
-	 * @param array $entities
+	 * @param \Doctrine\ORM\EntityManager $manager
 	 */
-	public function setEntities(array $entities)
+	public function configureManager(EntityManager $manager)
 	{
-		foreach ($this->getAnnotationDrivers() as $driver) {
+		$this->configureEntities($manager);
+		$this->refreshSchema($manager);
+		$this->generateProxyClasses($manager);
+	}
+
+
+
+	/**
+	 * @param \Doctrine\ORM\EntityManager $manager
+	 */
+	private function configureEntities(EntityManager $manager)
+	{
+		if (!$this->entities) {
+			return;
+		}
+
+		$entities = $this->entities;
+		foreach ($this->getAnnotationDrivers($manager) as $driver) {
 			$driver->setClassNames($entities);
 		}
 
 		$allClasses = array();
 		do {
 			$allClasses[] = $entity = array_shift($entities);
-			$meta = $this->getRegistry()->getClassMetadata($entity);
+			$meta = $manager->getClassMetadata($entity);
 			foreach ($meta->getAssociationNames() as $assoc) {
 				$entities = array_merge($entities, array($meta->getAssociationTargetClass($assoc)));
 			}
 
 		} while ($entities = array_diff(array_unique($entities), $allClasses));
 
-		foreach ($this->getAnnotationDrivers() as $driver) {
+		foreach ($this->getAnnotationDrivers($manager) as $driver) {
 			$driver->setClassNames($allClasses);
 		}
 	}
@@ -93,18 +116,31 @@ class SandboxConfigurator extends Kdyby\Config\Configurator
 
 
 	/**
+	 * Crawls all the entities associations, to avoid requiring of listing of all classes, required by test, by hand.
+	 * Associations are gonna be discovered automatically.
+	 * Lazily.
+	 *
+	 * @param array $entities
+	 */
+	public function setEntities(array $entities = NULL)
+	{
+		$this->entities = $entities ?: array();
+	}
+
+
+
+	/**
+	 * @param \Doctrine\ORM\EntityManager $em
 	 * @return \Kdyby\Doctrine\Mapping\Driver\AnnotationDriver[]
 	 */
-	private function getAnnotationDrivers()
+	private function getAnnotationDrivers(EntityManager $em)
 	{
 		$drivers = array();
 
-		foreach ($this->getRegistry()->getEntityManagers() as $em) {
-			$drivers[] = $driver = $em->getConfiguration()->getMetadataDriverImpl();
-
-			if ($driver instanceof DriverChain) {
-				$drivers = array_merge($drivers, $driver->getDrivers());
-			}
+		$drivers[] = $driver = $em->getConfiguration()->getMetadataDriverImpl();
+		if ($driver instanceof DriverChain) {
+			/** @var \Doctrine\ORM\Mapping\Driver\DriverChain $driver */
+			$drivers = array_merge($drivers, $driver->getDrivers());
 		}
 
 		return array_filter($drivers, function ($driver) {
@@ -115,39 +151,40 @@ class SandboxConfigurator extends Kdyby\Config\Configurator
 
 
 	/**
+	 * Prepare schema
+	 *
+	 * @param \Doctrine\ORM\EntityManager $em
 	 */
-	public function refreshSchema()
+	private function refreshSchema(EntityManager $em)
 	{
-		foreach ($this->getRegistry()->getEntityManagers() as $em) {
-			$schemaTool = new SchemaTool($em);
-
-			// prepare schema
-			$classes = $em->getMetadataFactory()->getAllMetadata();
-			$schemaTool->createSchema($classes);
-		}
+		$schemaTool = new SchemaTool($em);
+		$classes = $em->getMetadataFactory()->getAllMetadata();
+		$schemaTool->createSchema($classes);
 	}
 
 
 
 	/**
+	 * @param \Doctrine\ORM\EntityManager $em
+	 *
+	 * @throws \Kdyby\IOException
 	 */
-	public function generateProxyClasses()
+	private function generateProxyClasses(EntityManager $em)
 	{
-		foreach ($this->getRegistry()->getEntityManagers() as $em) {
-			$proxyDir = $em->getConfiguration()->getProxyDir();
-			@mkdir($proxyDir, 0777);
+		$proxyDir = $em->getConfiguration()->getProxyDir();
+		@mkdir($proxyDir, 0777);
 
-			// deleting classes
-			foreach (Finder::findFiles('*Proxy.php')->in($proxyDir) as $proxy) {
-				if (!@unlink($proxy->getRealpath())) {
-					throw new Kdyby\IOException("Proxy class " . $proxy->getBaseName() . " cannot be deleted.");
-				}
+		// deleting classes
+		foreach (Finder::findFiles('*Proxy.php')->in($proxyDir) as $proxy) {
+			/** @var \SplFileInfo $proxy */
+			if (!@unlink($proxy->getRealpath())) {
+				throw new Kdyby\IOException("Proxy class " . $proxy->getBaseName() . " cannot be deleted.");
 			}
-
-			// rebuild proxies
-			$classes = $em->getMetadataFactory()->getAllMetadata();
-			$em->getProxyFactory()->generateProxyClasses($classes);
 		}
+
+		// rebuild proxies
+		$classes = $em->getMetadataFactory()->getAllMetadata();
+		$em->getProxyFactory()->generateProxyClasses($classes);
 	}
 
 

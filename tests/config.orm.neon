@@ -12,8 +12,23 @@ nette:
 
 
 dbal:
-    driver: pdo_sqlite
-    memory: TRUE
+    connections:
+        sqlite:
+            driver: pdo_sqlite
+            memory: TRUE
+
+        mysql:
+            driver: pdo_mysql
+
+
+orm:
+    entityManagers:
+        default:
+            connection: sqlite
+
+        mysql:
+            connection: mysql
+
 
 
 services:

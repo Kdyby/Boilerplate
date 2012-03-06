@@ -54,6 +54,8 @@ abstract class OrmTestCase extends TestCase
 
 	/**
 	 * @param array $entities
+	 *
+	 * @throws \Kdyby\InvalidStateException
 	 */
 	final protected function createOrmSandbox(array $entities = NULL)
 	{
@@ -73,11 +75,8 @@ abstract class OrmTestCase extends TestCase
 			$config->setEntities($entities);
 		}
 
-		$config->refreshSchema();
-		$config->generateProxyClasses();
-
 		$this->ormSandbox = $config->getRegistry();
-		$this->ormSandbox->loadFixtures($this);
+		$this->ormSandbox->setCurrentTest($this);
 	}
 
 

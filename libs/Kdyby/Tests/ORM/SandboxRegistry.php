@@ -12,6 +12,7 @@ namespace Kdyby\Tests\ORM;
 
 use Doctrine;
 use Doctrine\Common\DataFixtures;
+use Doctrine\ORM\EntityManager;
 use Kdyby;
 use Kdyby\Doctrine\Dao;
 use Kdyby\Doctrine\Mapping\ClassMetadata;
@@ -26,10 +27,12 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class SandboxRegistry extends Kdyby\Doctrine\Registry
 {
-	/**
-	 * @var \Kdyby\Tests\ORM\DataFixturesLoader[]
-	 */
-	private $fixtureLoaders;
+
+	/** @var \Kdyby\Tests\TestCase|\Kdyby\Tests\OrmTestCase */
+	private $currentTest;
+
+	/** @var \Kdyby\Tests\ORM\SandboxConfigurator */
+	private $configurator;
 
 	/** @var \Kdyby\Doctrine\Dao[] */
 	private $daoMocks = array();
@@ -40,24 +43,101 @@ class SandboxRegistry extends Kdyby\Doctrine\Registry
 
 
 	/**
-	 * @param \Kdyby\Tests\OrmTestCase $testCase
+	 * @param \Kdyby\Tests\TestCase $test
 	 */
-	public function loadFixtures(OrmTestCase $testCase)
+	public function setCurrentTest(Kdyby\Tests\TestCase $test)
 	{
-		if ($this->fixtureLoaders === NULL) {
-			$this->fixtureLoaders = array();
+		$this->currentTest = $test;
+	}
 
-			foreach ($this->getEntityManagerNames() as $emName) {
-				$this->fixtureLoaders[] = new DataFixturesLoader(
-					$this->container->getService($emName . '.dataFixtures.loader'),
-					$this->container->getService($emName . '.dataFixtures.executor')
-				);
+
+
+	/**
+	 * @param \Kdyby\Tests\ORM\SandboxConfigurator $configurator
+	 */
+	public function setConfigurator(SandboxConfigurator $configurator)
+	{
+		$this->configurator = $configurator;
+	}
+
+
+
+	/**
+	 * @param string $emName
+	 *
+	 * @throws \Kdyby\InvalidStateException
+	 * @return \Doctrine\ORM\EntityManager
+	 */
+	protected function createEntityManager($emName)
+	{
+		if (!$this->currentTest instanceof OrmTestCase) {
+			throw new Kdyby\InvalidStateException("Your test case must be descendant of Kdyby\\Tests\\OrmTestCase to be able to use Doctrine.");
+		}
+
+		// create manager
+		$service = $this->entityManagers[$emName];
+		$em = $this->container->getService($service);
+
+		// configure entities, schema, proxies
+		$this->configurator->configureManager($em);
+
+		// load fixtures
+		$fixtureLoader = new DataFixturesLoader(
+			$this->container->getService($service . '.dataFixtures.loader'),
+			$this->container->getService($service . '.dataFixtures.executor')
+		);
+		$fixtureLoader->loadFixtures($this->currentTest);
+
+		// return
+		return $em;
+	}
+
+
+
+	/**
+	 * @return \Doctrine\ORM\EntityManager[]
+	 */
+	public function getEntityManagers()
+	{
+		$ems = array();
+		foreach ($this->entityManagers as $name => $service) {
+			if (!$this->container->isCreated($service)) {
+				// handle all necessary stuff
+				$ems[$name] = $this->createEntityManager($name);
+				continue;
 			}
+
+			$ems[$name] = $this->container->getService($service);
 		}
 
-		foreach ($this->fixtureLoaders as $loader) {
-			$loader->loadFixtures($testCase);
+		return $ems;
+	}
+
+
+
+	/**
+	 * @param string $name
+	 *
+	 * @throws \Kdyby\InvalidArgumentException
+	 * @return \Doctrine\ORM\EntityManager
+	 */
+	public function getEntityManager($name = NULL)
+	{
+		if ($name === NULL) {
+			$name = $this->defaultEntityManager;
 		}
+
+		if (!isset($this->entityManagers[$name])) {
+			throw new Kdyby\InvalidArgumentException('Doctrine EntityManager named "' . $name . '" does not exist.');
+		}
+
+		$service = $this->entityManagers[$name];
+		if (!$this->container->isCreated($service)) {
+			// handle all necessary stuff
+			return $this->createEntityManager($name);
+		}
+
+		return $this->container->getService($service);
 	}
 
 

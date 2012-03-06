@@ -26,11 +26,15 @@ class CompilerExtension extends Nette\Config\CompilerExtension
 	/**
 	 * @param string $alias
 	 * @param string $service
+	 *
+	 * @return \Nette\DI\ServiceDefinition
 	 */
 	public function addAlias($alias, $service)
 	{
-		$this->getContainerBuilder()
-			->addDefinition($alias)->setFactory('@' . $service);
+		$def = $this->getContainerBuilder()
+			->addDefinition($alias);
+		$def->setFactory('@' . $service);
+		return $def;
 	}
 
 

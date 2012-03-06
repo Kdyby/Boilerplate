@@ -30,11 +30,11 @@ class DbalExtension extends Kdyby\Config\CompilerExtension
 	 */
 	public $connectionDefaults = array(
 		'dbname' => NULL,
-		'host' => 'localhost',
-		'port' => 3306,
+		'host' => NULL,
+		'port' => NULL,
 		'user' => NULL,
 		'password' => NULL,
-		'charset' => 'UTF8',
+		'charset' => NULL,
 		'driver' => 'pdo_mysql',
 		'driverClass' => NULL,
 		'options' => NULL,
@@ -44,6 +44,17 @@ class DbalExtension extends Kdyby\Config\CompilerExtension
 		'wrapperClass' => 'Kdyby\Doctrine\Connection',
 		'logging' => TRUE,
 		'platformService' => NULL,
+	);
+
+	/**
+	 * @var array
+	 */
+	public $driverDefaults = array(
+		'pdo_mysql' => array(
+			'host' => 'localhost',
+			'port' => 3306,
+			'charset' => 'UTF8',
+		)
 	);
 
 	/**
@@ -112,6 +123,9 @@ class DbalExtension extends Kdyby\Config\CompilerExtension
 
 		// options
 		$options = self::getOptions($config, $this->connectionDefaults);
+		if (isset($this->driverDefaults[$options['driver']])) {
+			$options += $this->driverDefaults[$options['driver']];
+		}
 
 		// configuration
 		$configuration = $container->addDefinition($connectionName . '.configuration')
@@ -129,7 +143,8 @@ class DbalExtension extends Kdyby\Config\CompilerExtension
 
 		// event manager
 		$container->addDefinition($connectionName . '.eventManager')
-			->setClass('Doctrine\Common\EventManager');
+			->setClass('Doctrine\Common\EventManager')
+			->setAutowired(FALSE);
 
 		// charset
 		$this->loadConnectionCharset($container, $options, $connectionName);

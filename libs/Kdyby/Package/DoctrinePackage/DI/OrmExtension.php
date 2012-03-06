@@ -149,7 +149,8 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 			$this->loadOrmEntityManager($entityManager);
 		}
 
-		$this->addAlias('doctrine.orm.metadata.annotationReader', 'annotation.readerCached');
+		$this->addAlias('doctrine.orm.metadata.annotationReader', 'annotation.readerCached')
+			->setAutowired(FALSE);
 		$this->addAlias('doctrine.orm.entityManager', 'doctrine.orm.' . $config['defaultEntityManager'] . 'EntityManager');
 	}
 
@@ -169,13 +170,7 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 		$options = self::getOptions($config, $this->entityManagerDefaults);
 		$options['name'] = $config['name'];
 		$options['autoMapping'] = !isset($config['mappings']) && $options['autoMapping'];
-		if ($options['autoMapping']) {
-			if (count($this->entityManagers) > 1) {
-				// todo: why not omg?
-				throw new Kdyby\InvalidStateException($config['name'] . 'EntityManager: You cannot enable "autoMapping" when several entity managers are defined.');
-			}
-
-		} elseif (!isset($config['mappings'])) {
+		if (!$options['autoMapping'] && !isset($config['mappings'])) {
 			throw new Kdyby\InvalidStateException($config['name'] . 'EntityManager: You have disabled "autoMapping" and no "mappings" section is defined.');
 		}
 
@@ -227,7 +222,8 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 			));
 
 		// event manager
-		$this->addAlias($entityManagerName . '.eventManager', $connectionName . '.eventManager');
+		$this->addAlias($entityManagerName . '.eventManager', $connectionName . '.eventManager')
+			->setAutowired(FALSE);
 	}
 
 
