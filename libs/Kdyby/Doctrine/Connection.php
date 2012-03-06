@@ -13,6 +13,7 @@ namespace Kdyby\Doctrine;
 use Doctrine;
 use Kdyby;
 use Nette;
+use Nette\Diagnostics\Debugger;
 
 
 
@@ -27,6 +28,25 @@ use Nette;
  */
 class Connection extends Doctrine\DBAL\Connection
 {
+
+	/**
+	 * @return bool
+	 */
+	public function connect()
+	{
+		try {
+			Debugger::tryError();
+			return parent::connect();
+			if (Debugger::catchError($error)) {
+				throw $error;
+			}
+
+		} catch (\Exception $exception) {
+			throw new Kdyby\InvalidStateException("Connection to database could not be established.", NULL, $exception);
+		}
+	}
+
+
 
 	/**
 	 * Prepares an SQL statement.
@@ -70,15 +90,16 @@ class Connection extends Doctrine\DBAL\Connection
 	/**
 	 * Executes an SQL statement, returning a result set as a Statement object.
 	 *
-	 * @param string $statement
-	 * @param integer $fetchType
+	 * @internal param string $statement
+	 * @internal param int $fetchType
 	 *
 	 * @return \Doctrine\DBAL\Driver\Statement
 	 */
 	public function query()
 	{
 		try {
-			return parent::query();
+			$args = func_get_args();
+			return call_user_func_array('parent::query', $args);
 
 		} catch (\PDOException $e) {
 			$this->handleException($e, TRUE);

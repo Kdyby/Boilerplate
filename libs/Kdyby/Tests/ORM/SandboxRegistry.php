@@ -63,6 +63,35 @@ class SandboxRegistry extends Kdyby\Doctrine\Registry
 
 
 	/**
+	 * @param string $name
+	 *
+	 * @throws \PHPUnit_Framework_SkippedTestError
+	 * @throws \Kdyby\InvalidStateException
+	 */
+	public function requireConfiguredManager($name = "default")
+	{
+		if (!$this->currentTest) {
+			$method = get_called_class() . '::setCurrentTest()';
+			throw new Kdyby\InvalidStateException("Please provide a TestCase instance using method $method.");
+		}
+
+		try {
+			$em = $this->getEntityManager($name);
+
+		} catch (\Exception $e) {
+			Nette\Diagnostics\Debugger::log($e);
+			$configFile = $this->currentTest->getContext()->expand('%appDir%/config.orm.neon');
+			$this->currentTest->markTestSkipped(
+				"TestCase requires configured EntityManager named $name. " .
+				"To run test properly, you have to provide valid database storage credentials in config file $configFile, " .
+				"in section 'orm: entityManagers: $name:'."
+			);
+		}
+	}
+
+
+
+	/**
 	 * @param string $emName
 	 *
 	 * @throws \Kdyby\InvalidStateException

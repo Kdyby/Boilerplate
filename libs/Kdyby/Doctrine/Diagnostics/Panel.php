@@ -231,6 +231,10 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 				list($sql, $params, , , $source) = end($this->queries) + range(1, 5);
 			}
 
+			if (!$sql) {
+				return;
+			}
+
 			return array(
 				'tab' => 'SQL',
 				'panel' => $this->dumpQuery($sql, $params, $source),
