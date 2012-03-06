@@ -29,14 +29,14 @@ class MigrationsExtension extends Kdyby\Config\CompilerExtension
 	{
 		$container = $this->getContainerBuilder();
 
-		$container->addDefinition('migrations_manager')
+		$container->addDefinition($this->prefix('manager'))
 			->setClass('Kdyby\Migrations\MigrationsManager', array(
-				'@doctrine', '@application_packageManager'
+				'@doctrine.registry', '@kdyby.packageManager'
 			));
 
-		$container->addDefinition('migrations_console_dialogHelper')
+		$container->addDefinition($this->prefix('console_dialogHelper'))
 			->setClass('Kdyby\Migrations\Console\MigrationsManagerHelper', array(
-				'@migrations_manager'
+				$this->prefix('@manager')
 			))
 			->addTag('console_helper', array('alias' => 'migrationsManager'));
 	}
