@@ -30,20 +30,25 @@ class Connection extends Doctrine\DBAL\Connection
 {
 
 	/**
+	 * @throws \Kdyby\InvalidStateException
 	 * @return bool
 	 */
 	public function connect()
 	{
 		try {
 			Debugger::tryError();
-			return parent::connect();
+			parent::connect();
 			if (Debugger::catchError($error)) {
 				throw $error;
 			}
 
+			return TRUE;
+
 		} catch (\Exception $exception) {
 			throw new Kdyby\InvalidStateException("Connection to database could not be established.", NULL, $exception);
 		}
+
+		return FALSE;
 	}
 
 
