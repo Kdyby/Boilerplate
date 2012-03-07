@@ -25,7 +25,7 @@ use Symfony\Component\Console\Input\InputOption;
  *
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class MigrateCommand extends Symfony\Component\Console\Command\Command
+class MigrateCommand extends CommandBase
 {
 
 	/**
@@ -34,8 +34,21 @@ class MigrateCommand extends Symfony\Component\Console\Command\Command
 	{
         $this
 			->setName('kdyby:migrate')
-			->setDescription('Generate a blank migration class.')
-			->addArgument('package', InputArgument::OPTIONAL);
+			->setDescription('Migrates database.')
+			->addArgument('package', InputArgument::OPTIONAL, "Name of the package, that will be migrated.")
+			->addArgument('version', InputArgument::OPTIONAL, "Date to be migrated to.")
+			->setHelp(<<<HELP
+The <info>%command.name%</info> command migrates all packages or the given one:
+    <info>%command.full_name% MyPackageName</info>
+
+By specifying the <comment>version</comment>, the command migrates to the specified timestamp. When given only date, it migrates to the end of day.
+    <info>%command.full_name% MyPackageName Y-m-d H:i:s</info>
+    <info>%command.full_name% MyPackageName Y-m-d</info>
+
+By specifying the <comment>--sql</comment> option, the migration will be dumped to <comment>.sql</comment> file, instead of <comment>migration class</comment>
+    <info>%command.full_name% --sql MyPackageName</info>
+HELP
+		);
 	}
 
 

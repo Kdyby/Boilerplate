@@ -40,7 +40,7 @@ class MigrationsManagerHelper extends Symfony\Component\Console\Helper\Helper
 	/**
 	 * @return \Kdyby\Migrations\MigrationsManager
 	 */
-	public function getManager()
+	public function getMigrationsManager()
 	{
 		return $this->manager;
 	}

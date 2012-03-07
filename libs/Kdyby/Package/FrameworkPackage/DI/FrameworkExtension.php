@@ -54,6 +54,10 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 			->setClass('Kdyby\Console\ContainerHelper', array('@container'))
 			->addTag('console.helper', array('alias' => 'di'));
 
+		$container->addDefinition($this->prefix('console.helper.packageManager'))
+			->setClass('Kdyby\Console\PackageManagerHelper', array($this->prefix('@packageManager')))
+			->addTag('console.helper', array('alias' => 'pm'));
+
 		$container->addDefinition($this->prefix('console.helper.ormEntityManager'))
 			->setClass('Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper', array('@doctrine.orm.entityManager'))
 			->addTag('console.helper', array('alias' => 'em'));
