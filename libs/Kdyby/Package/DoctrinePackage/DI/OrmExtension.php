@@ -11,6 +11,7 @@
 namespace Kdyby\Package\DoctrinePackage\DI;
 
 use Kdyby;
+use Kdyby\Packages\PackagesContainer;
 use Nette;
 use Nette\DI\ContainerBuilder;
 use Nette\Utils\Validators;
@@ -116,6 +117,21 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 	 * @var array
 	 */
 	private $entityManagers = array();
+
+	/**
+	 * @var \Kdyby\Packages\PackagesContainer|\Kdyby\Packages\Package[]
+	 */
+	private $packages;
+
+
+
+	/**
+	 * @param \Kdyby\Packages\PackagesContainer $packages
+	 */
+	public function __construct(PackagesContainer $packages)
+	{
+		$this->packages = $packages;
+	}
 
 
 
@@ -456,11 +472,7 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 	protected function loadPackageMappingInformation(array $mappingConfig, array $config)
 	{
 		if ($mappingConfig['package']) {
-			if (NULL === $package = $this->getPackageReflectionByName($mappingConfig['name'])) {
-				throw new Kdyby\InvalidArgumentException('Package "' . $mappingConfig['name'] . '" does not exist or it is not enabled.');
-			}
-
-			if (!$mappingConfig = $this->getPackageMappingDriverConfigDefaults($mappingConfig, $package)) {
+			if (!$mappingConfig = $this->getPackageMappingDriverConfigDefaults($mappingConfig)) {
 				return;
 			}
 		}
@@ -478,13 +490,13 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 	 * Returns false when autodetection failed, an array of the completed information otherwise.
 	 *
 	 * @param array $config
-	 * @param \Nette\Reflection\ClassType $packageRefl
 	 *
 	 * @return array|bool
 	 */
-	protected function getPackageMappingDriverConfigDefaults(array $config, ClassType $packageRefl)
+	protected function getPackageMappingDriverConfigDefaults(array $config)
 	{
-		$packageDir = dirname($packageRefl->getFilename());
+		$package = $this->packages[$config['name']];
+		$packageDir = $package->getPath();
 
 		// mapping type
 		$config['type'] = $config['type'] ?: $this->detectMetadataDriver($packageDir);
@@ -505,7 +517,8 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 		}
 
 		// prefix
-		$config['prefix'] = $config['prefix'] ?: $packageRefl->getNamespaceName() . '\\Entity';
+		$entityNamespaces = $package->getEntityNamespaces();
+		$config['prefix'] = $config['prefix'] ?: reset($entityNamespaces);
 
 		return $config;
 	}

@@ -11,6 +11,7 @@
 namespace Kdyby\Package\DoctrinePackage;
 
 use Kdyby;
+use Kdyby\Packages\PackagesContainer;
 use Nette;
 use Nette\Config\Configurator;
 use Nette\Config\Compiler;
@@ -31,12 +32,13 @@ class DoctrinePackage extends Kdyby\Packages\Package
 	 *
 	 * @param \Nette\Config\Configurator $config
 	 * @param \Nette\Config\Compiler $compiler
+	 * @param \Kdyby\Packages\PackagesContainer $packages
 	 */
-	public function compile(Nette\Config\Configurator $config, Nette\Config\Compiler $compiler)
+	public function compile(Nette\Config\Configurator $config, Nette\Config\Compiler $compiler, PackagesContainer $packages)
 	{
 		$compiler->addExtension('annotation', new DI\AnnotationExtension());
 		$compiler->addExtension('dbal', new DI\DbalExtension());
-		$compiler->addExtension('orm', new DI\OrmExtension());
+		$compiler->addExtension('orm', new DI\OrmExtension($packages));
 		$compiler->addExtension('fixture', new DI\FixtureExtension());
 		$compiler->addExtension('doctrine', new DI\DoctrineExtension());
 	}

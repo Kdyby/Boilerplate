@@ -35,6 +35,8 @@ class PackagesContainer extends Nette\Object implements \IteratorAggregate, \Arr
 
 	/**
 	 * @param \Kdyby\Packages\IPackageList|array $packages
+	 *
+	 * @throws \Kdyby\UnexpectedValueException
 	 */
 	public function __construct($packages)
 	{
@@ -42,6 +44,7 @@ class PackagesContainer extends Nette\Object implements \IteratorAggregate, \Arr
 			$packages = $packages->getPackages();
 		}
 
+		/** @var \Kdyby\Packages\Package[] $packages */
 		foreach ($packages as $package) {
 			$package = is_string($package) ? new $package : $package;
 			if (!$package instanceof Package) {
@@ -185,7 +188,7 @@ class PackagesContainer extends Nette\Object implements \IteratorAggregate, \Arr
 	public function compile(Nette\Config\Configurator $config, Nette\Config\Compiler $compiler)
 	{
 		foreach ($this->packages as $package) {
-			$package->compile($config, $compiler);
+			$package->compile($config, $compiler, $this);
 		}
 	}
 
@@ -250,11 +253,17 @@ class PackagesContainer extends Nette\Object implements \IteratorAggregate, \Arr
 
 
 	/**
-	 * @param string $offset
+	 * @param $offset
+	 *
+	 * @throws \Kdyby\ArgumentOutOfRangeException
 	 * @return \Kdyby\Packages\Package
 	 */
 	public function offsetGet($offset)
 	{
+		if (!$this->offsetExists($offset)) {
+			throw new Kdyby\ArgumentOutOfRangeException("Package $offset is not registered in PackagesContainer.");
+		}
+
 		return $this->packages[$offset];
 	}
 

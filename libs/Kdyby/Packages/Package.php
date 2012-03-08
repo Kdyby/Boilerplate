@@ -234,6 +234,20 @@ abstract class Package extends Nette\Object
 
 
 	/**
+	 * The first returned is used as prefix
+	 *
+	 * @return array
+	 */
+	public function getEntityNamespaces()
+	{
+		return array(
+			$this->getNamespace() . '\\Entity'
+		);
+	}
+
+
+
+	/**
 	 * Finds and registers Commands.
 	 *
 	 * Override this method if your bundle commands do not follow the conventions:
