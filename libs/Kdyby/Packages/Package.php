@@ -171,8 +171,9 @@ abstract class Package extends Nette\Object
 	 *
 	 * @param \Nette\Config\Configurator $config
 	 * @param \Nette\Config\Compiler $compiler
+	 * @param \Kdyby\Packages\PackagesContainer $packages
 	 */
-	public function compile(Nette\Config\Configurator $config, Nette\Config\Compiler $compiler)
+	public function compile(Nette\Config\Configurator $config, Nette\Config\Compiler $compiler, Kdyby\Packages\PackagesContainer $packages)
 	{
 	}
 
@@ -214,14 +215,17 @@ abstract class Package extends Nette\Object
 
 		$ns = $this->getNamespace() . '\\Migration';
 		foreach ($files = Finder::findFiles('Version*.php', 'Version*.sql')->in($dir) as $file) {
+			/** @var \SplFileInfo $file */
 			if ($file->getExtension() === 'sql') {
 				$migrations[] = $file->getRealpath();
 				continue;
 			}
 
-			$class = $ns . '\\' . $file->getBasename('.php');
-
+			// load class
 			require_once $file->getRealpath();
+
+			// check if it's a migration
+			$class = $ns . '\\' . $file->getBasename('.php');
 			$refl = ClassType::from($class);
 			if ($refl->isSubclassOf('Kdyby\Migrations\AbstractMigration') && !$refl->isAbstract()) {
 				$migrations[] = $class;

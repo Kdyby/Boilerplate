@@ -32,16 +32,18 @@ class VersionClassBuilder extends Nette\Object
 
 	/**
 	 * @param \Kdyby\Packages\Package $package
+	 * @param string $name
 	 */
-	public function __construct(Kdyby\Packages\Package $package)
+	public function __construct(Kdyby\Packages\Package $package, $name = NULL)
 	{
 		$this->package = $package;
-		$this->class = new Code\ClassType('Version' . date('YmdHis'));
+		$this->class = new Code\ClassType($name ?: 'Version' . date('YmdHis'));
 		$this->class->addExtend('Kdyby\Migrations\AbstractMigration');
+		$this->class->addDocument("@todo: write description of migration");
 
 		$up = $this->class->addMethod('up');
 		$up->addParameter('schema')->setTypeHint('Schema');
-		$up->addBody('// this method was auto-generated, please modify it to your needs');
+		$up->addBody("// this method was auto-generated, please modify it to your needs\n");
 	}
 
 
@@ -49,12 +51,12 @@ class VersionClassBuilder extends Nette\Object
 	/**
 	 * @param string $sql
 	 * @param array $params
-	 * @param array $types
 	 */
-	public function addUpSql($sql, array $params = array(), array $types = array())
+	public function addUpSql($sql, array $params = array())
 	{
-		$this->class->methods['up']
-			->addBody('$this->addSql(?,?,?)', array($sql, $params, $types));
+		/** @var \Nette\Utils\PhpGenerator\Method $up */
+		$up = $this->class->methods['up'];
+		$up->addBody('$this->addSql(?,?)', array($sql, $params));
 	}
 
 
@@ -62,18 +64,18 @@ class VersionClassBuilder extends Nette\Object
 	/**
 	 * @param string $sql
 	 * @param array $params
-	 * @param array $types
 	 */
-	public function addDownSql($sql, array $params = array(), array $types = array())
+	public function addDownSql($sql, array $params = array())
 	{
 		if (!isset($this->class->methods['down'])) {
 			$down = $this->class->addMethod('down');
 			$down->addParameter('schema')->setTypeHint('Schema');
-			$down->addBody('// this method was auto-generated, please modify it to your needs');
+			$down->addBody("// this method was auto-generated, please modify it to your needs\n");
 		}
 
-		$this->class->methods['down']
-			->addBody('$this->addSql(?,?,?)', array($sql, $params, $types));
+		/** @var \Nette\Utils\PhpGenerator\Method $down */
+		$down = $this->class->methods['down'];
+		$down->addBody('$this->addSql(?,?)', array($sql, $params));
 	}
 
 
@@ -88,7 +90,7 @@ class VersionClassBuilder extends Nette\Object
 		$s .= 'use Kdyby;' . "\n";
 		$s .= 'use Nette;' . "\n";
 
-		return $s . "\n\n\n" . (string)$this->class;
+		return '<?php' . "\n\n" . $s . "\n\n\n" . (string)$this->class;
 	}
 
 }

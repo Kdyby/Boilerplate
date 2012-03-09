@@ -34,6 +34,9 @@ abstract class CommandBase extends Symfony\Component\Console\Command\Command
 	/** @var \Kdyby\Migrations\MigrationsManager */
 	protected $migrationsManager;
 
+	/** @var \Doctrine\ORM\EntityManager */
+	protected $entityManager;
+
 	/** @var \Kdyby\Packages\Package */
 	protected $package;
 
@@ -52,6 +55,11 @@ abstract class CommandBase extends Symfony\Component\Console\Command\Command
 		/** @var \Kdyby\Migrations\Console\MigrationsManagerHelper $mmh */
 		$mmh = $this->getHelper('migrationsManager');
 		$this->migrationsManager = $mmh->getMigrationsManager();
+		$this->migrationsManager->setOutputWriter($output);
+
+		/** @var \Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper $emh */
+		$emh = $this->getHelper('entityManager');
+		$this->entityManager = $emh->getEntityManager();
 
 		// find package
 		if ($package = $input->getArgument('package')) {
@@ -59,9 +67,10 @@ abstract class CommandBase extends Symfony\Component\Console\Command\Command
 				$this->package = $this->packageManager->getPackage($package);
 
 			} catch (\Exception $e) {
-				$list = array();
+				$output->writeln("");
+				$output->writeln("  Following packages are available:\n");
 				foreach ($this->packageManager->getPackages() as $package) {
-					$list[] = $package->getName();
+					$output->writeln("    <info>" . $package->getName() . "</info>");
 				}
 
 				throw $e;

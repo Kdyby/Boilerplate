@@ -39,11 +39,27 @@ class FrameworkPackage extends Kdyby\Packages\Package
 	/**
 	 * @param \Nette\Config\Configurator $config
 	 * @param \Nette\Config\Compiler $compiler
+	 * @param \Kdyby\Packages\PackagesContainer $packages
 	 */
-	public function compile(Nette\Config\Configurator $config, Nette\Config\Compiler $compiler)
+	public function compile(Nette\Config\Configurator $config, Nette\Config\Compiler $compiler, Kdyby\Packages\PackagesContainer $packages)
 	{
 		$compiler->addExtension('kdyby', new DI\FrameworkExtension());
 		$compiler->addExtension('migrations', new DI\MigrationsExtension());
+	}
+
+
+
+	/**
+	 * @return array
+	 */
+	public function getEntityNamespaces()
+	{
+		return array_merge(parent::getEntityNamespaces(), array(
+			'Kdyby\\Security',
+			'Kdyby\\Doctrine\\Entities',
+			'Kdyby\\Domain',
+			'Kdyby\\Media',
+		));
 	}
 
 

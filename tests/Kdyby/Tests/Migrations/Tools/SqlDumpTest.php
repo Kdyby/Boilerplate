@@ -8,10 +8,10 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Tests\Migrations;
+namespace Kdyby\Tests\Migrations\Tools;
 
 use Kdyby;
-use Kdyby\Migrations\SqlDump;
+use Kdyby\Migrations\Tools\SqlDump;
 use Nette;
 
 
@@ -22,7 +22,7 @@ use Nette;
 class SqlDumpTest extends Kdyby\Tests\OrmTestCase
 {
 
-	/** @var \Kdyby\Migrations\SqlDump */
+	/** @var \Kdyby\Migrations\Tools\SqlDump */
 	private $dump;
 
 

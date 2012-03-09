@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Migrations;
+namespace Kdyby\Migrations\Tools;
 
 use Kdyby;
 use Nette;

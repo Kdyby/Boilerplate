@@ -70,7 +70,7 @@ class SqlVersion extends Version
 	 */
 	public function up(MigrationsManager $manager, $commit = TRUE)
 	{
-		$dump = new SqlDump($this->file);
+		$dump = new Tools\SqlDump($this->file);
 
 		$this->setOutputWriter($manager->getOutputWriter());
 		$connection = $manager->getConnection();
@@ -129,7 +129,7 @@ class SqlVersion extends Version
 			$this->down($manager);
 		}
 
-		$dump = new SqlDump($this->file);
+		$dump = new Tools\SqlDump($this->file);
 		return $dump->getSqls();
 	}
 
