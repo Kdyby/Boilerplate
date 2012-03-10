@@ -53,8 +53,8 @@ class DateTime extends Nette\DateTime
 	 */
 	public static function tryFormats(array $formats, $date)
 	{
-		while ($formats) {
-			if ($valid = static::createFromFormat('!' . array_shift($formats), $date)) {
+		foreach ($formats as $format) {
+			if ($valid = static::createFromFormat('!' . $format, $date)) {
 				return $valid;
 			}
 		}
