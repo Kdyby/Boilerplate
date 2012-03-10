@@ -31,7 +31,7 @@ class MigrationLog extends Kdyby\Doctrine\Entities\IdentifiedEntity
 	private $package;
 
 	/**
-	 * @Orm:Column(type="integer")
+	 * @Orm:Column(type="bigint")
 	 * @var int
 	 */
 	private $version;
@@ -54,12 +54,12 @@ class MigrationLog extends Kdyby\Doctrine\Entities\IdentifiedEntity
 	 * @param \Kdyby\Migrations\PackageVersion $package
 	 * @param \Kdyby\Migrations\Version $version
 	 */
-	public function __construct(PackageVersion $package, Version $version)
+	public function __construct(PackageVersion $package, Version $version = NULL)
 	{
 		$this->package = $package;
-		$this->version = $version->getVersion();
+		$this->version = $version ? $version->getVersion() : 0;
 		$this->date = new \DateTime;
-		$this->up = $package->getMigrationVersion() < $version->getVersion();
+		$this->up = $version !== NULL && $package->getMigrationVersion() < $version->getVersion();
 	}
 
 

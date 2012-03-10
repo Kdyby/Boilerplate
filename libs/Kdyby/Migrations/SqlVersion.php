@@ -108,7 +108,8 @@ class SqlVersion extends Version
 	/**
 	 * @param \Kdyby\Migrations\MigrationsManager $manager
 	 * @param boolean $commit
-	 * @throws MigrationException
+	 *
+	 * @throws \Kdyby\Migrations\MigrationException
 	 */
 	public function down(MigrationsManager $manager, $commit = TRUE)
 	{

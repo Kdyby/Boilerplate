@@ -42,8 +42,8 @@ class PackageVersion extends Kdyby\Doctrine\Entities\IdentifiedEntity
 	private $className;
 
 	/**
-	 * @Orm:Column(type="string", nullable=TRUE)
-	 * @var string
+	 * @Orm:Column(type="bigint", nullable=TRUE)
+	 * @var integer
 	 */
 	private $migrationVersion = 0;
 
@@ -105,7 +105,7 @@ class PackageVersion extends Kdyby\Doctrine\Entities\IdentifiedEntity
 	 */
 	public function getMigrationVersion()
 	{
-		return $this->migrationVersion;
+		return (int)$this->migrationVersion;
 	}
 
 
@@ -156,13 +156,14 @@ class PackageVersion extends Kdyby\Doctrine\Entities\IdentifiedEntity
 
 
 	/**
-	 * @param \Kdyby\Migrations\Version $version
+	 * @param \Kdyby\Migrations\Version|NULL $version
 	 *
 	 * @throws \Kdyby\Migrations\MigrationException
 	 */
 	public function setVersion(Version $version = NULL)
 	{
 		if ($version === NULL) {
+			$this->log[] = new MigrationLog($this, $version);
 			$this->migrationVersion = 0;
 			$this->lastUpdate = new \DateTime();
 			return;
@@ -172,14 +173,19 @@ class PackageVersion extends Kdyby\Doctrine\Entities\IdentifiedEntity
 			return;
 		}
 
-		if ($version->getHistory()->getPackage() !== $this) {
-			$packageClass = $version->getHistory()->getPackage()->getClassName();
-			throw new MigrationException('Package of given version ' . get_class($version) . ' is not "' . $this->className . '", "' . $packageClass . '" given.');
+		/** @var \Kdyby\Migrations\History $history */
+		$history = $version->getHistory();
+		if ($history->getPackage() !== $this) {
+			$packageClass = $history->getPackage()->getClassName();
+			throw new MigrationException(
+				'Package of given version ' . get_class($version) .
+				' is not "' . $this->className . '", "' . $packageClass . '" given.'
+			);
 		}
 
 		$this->log[] = new MigrationLog($this, $version);
 		$this->migrationVersion = (int)$version->getVersion();
-		$this->lastUpdate = new \DateTime();
+		$this->lastUpdate = new \DateTime;
 	}
 
 

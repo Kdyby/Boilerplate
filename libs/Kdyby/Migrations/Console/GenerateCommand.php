@@ -81,10 +81,9 @@ HELP
 			throw new Kdyby\InvalidStateException("Please do not provide both --sql and --append options at same time. Whether or not to use sql will be autodetected, when appending.");
 		}
 
-		Nette\Diagnostics\Debugger::$maxLen = 10000;
-
 		// create writer
 		$writer = $this->createWriter($preferSql, $appendQueries);
+		$wasWritten = FALSE;
 
 		// optionally remove previous version of migration
 		if (!$appendQueries) {
@@ -93,20 +92,28 @@ HELP
 
 		// write schema diff
 		$metadata = $this->getMetadata($input->getArgument('entity'));
-		$comparator = new Tools\PartialSchemaComparator($this->entityManager);
-
-		$output->writeln("");
-		$output->writeln("  Writing schema to <info>" . basename($writer->getFile()) . "</info>.");
-		$writer->write($comparator->compare($metadata));
-
 		if ($input->getOption('dump-rows')) {
-			$output->writeln("  Writing rows to <info>" . basename($writer->getFile()) . "</info>.");
 			foreach ($tables = new Tools\TableDumper($this->entityManager, $metadata) as $row) {
 				$writer->write(array($row));
 			}
+
+			if (isset($row)) {
+				$package = $this->package->getName();
+				$output->writeln("  Dump of package <info>$package</info> was written to <info>" . basename($writer->getFile()) . "</info>.");
+				$wasWritten = TRUE;
+			}
+
+		} else {
+			$comparator = new Tools\PartialSchemaComparator($this->entityManager);
+			if ($writer->write($comparator->compare($metadata))) {
+				$output->writeln("  Schema was written to <info>" . basename($writer->getFile()) . "</info>.");
+				$wasWritten = TRUE;
+			}
 		}
 
-		$output->writeln("");
+		if (!$wasWritten) {
+			$output->writeln("Nothing to generate.");
+		}
 	}
 
 
@@ -153,16 +160,6 @@ HELP
 
 
 	/**
-	 * @return \Kdyby\Doctrine\Mapping\ClassMetadata[]
-	 */
-	protected function getAllMetadata()
-	{
-		return $this->entityManager->getMetadataFactory()->getAllMetadata();
-	}
-
-
-
-	/**
 	 * @param array $entities
 	 *
 	 * @return \Kdyby\Doctrine\Mapping\ClassMetadata[]
@@ -196,6 +193,16 @@ HELP
 		}
 
 		return $metadata;
+	}
+
+
+
+	/**
+	 * @return \Kdyby\Doctrine\Mapping\ClassMetadata[]
+	 */
+	private function getAllMetadata()
+	{
+		return $this->entityManager->getMetadataFactory()->getAllMetadata();
 	}
 
 }

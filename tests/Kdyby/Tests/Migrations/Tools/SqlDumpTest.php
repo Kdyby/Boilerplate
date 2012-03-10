@@ -29,7 +29,7 @@ class SqlDumpTest extends Kdyby\Tests\OrmTestCase
 
 	protected function setUp()
 	{
-		$this->dump = new SqlDump(__DIR__ . '/Fixtures/BlogPackage/Migration/Version20120116170000.sql');
+		$this->dump = new SqlDump(__DIR__ . '/../Fixtures/BlogPackage/Migration/Version20120116170000.sql');
 	}
 
 

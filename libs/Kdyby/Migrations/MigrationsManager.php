@@ -13,6 +13,7 @@ namespace Kdyby\Migrations;
 use Doctrine;
 use Doctrine\Common\EventManager;
 use Kdyby;
+use Kdyby\Doctrine\Mapping\ClassMetadata;
 use Kdyby\Doctrine\Registry;
 use Kdyby\Packages\PackageManager;
 use Nette;
@@ -37,6 +38,11 @@ class MigrationsManager extends Nette\Object
 
 	/** @var \Symfony\Component\Console\Output\OutputInterface */
 	private $outputWriter;
+
+	/**
+	 * @var bool
+	 */
+	private $schemaOk = FALSE;
 
 
 
@@ -88,10 +94,35 @@ class MigrationsManager extends Nette\Object
 
 
 	/**
+	 * @param string $entityClass
+	 */
+	private function ensureSchema($entityClass)
+	{
+		/** @var \Kdyby\Doctrine\Mapping\ClassMetadata $class */
+		$class = $this->entityManager->getClassMetadata($entityClass);
+		if ($this->connection->getSchemaManager()->tablesExist($class->getTableName())) {
+			return;
+		}
+
+		$schemaTool = new Doctrine\ORM\Tools\SchemaTool($this->entityManager);
+		foreach ($schemaTool->getCreateSchemaSql(array($class)) as $sql) {
+			$this->connection->executeQuery($sql);
+		}
+	}
+
+
+
+	/**
 	 * @return \Kdyby\Doctrine\Dao
 	 */
 	protected function getPackages()
 	{
+		if (!$this->schemaOk) {
+			$this->ensureSchema('Kdyby\Migrations\PackageVersion');
+			$this->ensureSchema('Kdyby\Migrations\MigrationLog');
+			$this->schemaOk = TRUE;
+		}
+
 		return $this->entityManager->getRepository('Kdyby\Migrations\PackageVersion');
 	}
 

@@ -63,12 +63,13 @@ class HistoryTest extends Kdyby\Tests\TestCase
 
 	/**
 	 * @param \Kdyby\Migrations\PackageVersion $package
+	 * @param int $current
 	 *
-	 * @return \History
+	 * @return \Kdyby\Migrations\History
 	 */
-	private function createShopHistory($package = NULL)
+	private function createShopHistory($package = NULL, $current = 0)
 	{
-		$history = new History($package ?: $this->mockPackage(), 0);
+		$history = new History($package ?: $this->mockPackage(), $current);
 		foreach ($this->dataShopMigrations() as $migration) {
 			$history->add($migration);
 		}

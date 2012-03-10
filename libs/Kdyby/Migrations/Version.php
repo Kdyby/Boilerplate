@@ -74,7 +74,7 @@ class Version extends Nette\Object
 	 */
 	public function getVersion()
 	{
-		return $this->version;
+		return (int)$this->version;
 	}
 
 
@@ -191,6 +191,9 @@ class Version extends Nette\Object
 		$platform = $connection->getDatabasePlatform();
 
 		$connection->beginTransaction();
+		if ($connection->getDriver()->getName() === 'pdo_mysql') {
+			$connection->executeQuery("SET foreign_key_checks = 0");
+		}
 
 		try {
 			$start = microtime(TRUE);
@@ -221,7 +224,7 @@ class Version extends Nette\Object
 
 			// after migration
 			$migration->{'post' . ucfirst($direction)}($toSchema);
-			$this->markMigrated($commit);
+			$this->markMigrated($direction, $commit);
 			$this->time = microtime(TRUE) - $start;
 
 			$time = number_format($this->time * 1000, 1, '.', ' ');
@@ -232,18 +235,22 @@ class Version extends Nette\Object
 				$this->message('<info>--</info> reverted <comment>' . $this->getVersion() . '</comment> in ' . $time . ' ms');
 			}
 
+			if ($connection->getDriver()->getName() === 'pdo_mysql') {
+				$connection->executeQuery("SET foreign_key_checks = 1");
+			}
 			$connection->commit();
 			return $this->sql;
 
 		} catch (SkipException $e) {
 			$connection->rollback();
-			$this->markMigrated($commit);
+			$this->markMigrated($direction, $commit);
 
 			$this->message('<info>SS</info> migration <comment>' . $this->version . '</comment> skipped, reason: ' . $e->getMessage());
 			return array();
 
 		} catch (\Exception $e) {
 			$this->message('<error>Migration ' . $this->version . ' failed. ' . $e->getMessage() . '</error>');
+
 			$connection->rollback();
 			throw $e;
 		}
@@ -273,13 +280,17 @@ class Version extends Nette\Object
 
 
 	/**
+	 * @param string $direction
 	 * @param boolean $commit
 	 */
-	public function markMigrated($commit = TRUE)
+	public function markMigrated($direction, $commit = TRUE)
 	{
-		if ($commit) {
-			$this->getHistory()->setCurrent($this);
+		if (!$commit) {
+			return;
 		}
+
+		$current = $direction === 'down' ? $this->getPrevious() : $this;
+		$this->getHistory()->setCurrent($current ?: NULL);
 	}
 
 
@@ -321,7 +332,7 @@ class Version extends Nette\Object
 	 */
 	public function getNext()
 	{
-		return $this->nth(1);
+		return $this->history->getNextTo($this);
 	}
 
 
@@ -331,24 +342,7 @@ class Version extends Nette\Object
 	 */
 	public function getPrevious()
 	{
-		return $this->nth(-1);
-	}
-
-
-
-	/**
-	 * @param int $nth
-	 *
-	 * @return \Kdyby\Migrations\Version|NULL
-	 */
-	private function nth($nth)
-	{
-		$versions = $this->history->toArray();
-		$currentOffset = Arrays::searchKey($versions, $this->version);
-		if (($offset = $currentOffset + $nth) >= 0) {
-			return current(array_slice($versions, $offset, 1)) ?: NULL;
-		}
-		return NULL;
+		return $this->history->getPreviousTo($this);
 	}
 
 }

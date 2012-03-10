@@ -29,6 +29,24 @@ class MigrateCommand extends CommandBase
 {
 
 	/**
+	 * @var array
+	 */
+	private static $formats = array(
+		'YmdHis',
+		'Y-m-d H:i:s',
+		'Y-m-d H:i',
+		'Y-m-d H',
+		'Y-m-d',
+	);
+
+	/**
+	 * @var \Symfony\Component\Console\Output\OutputInterface
+	 */
+	private $output;
+
+
+
+	/**
 	 */
 	protected function configure()
 	{
@@ -37,6 +55,7 @@ class MigrateCommand extends CommandBase
 			->setDescription('Migrates database.')
 			->addArgument('package', InputArgument::OPTIONAL, "Name of the package, that will be migrated.")
 			->addArgument('version', InputArgument::OPTIONAL, "Date to be migrated to.")
+			->addOption('force', NULL, InputArgument::REQUIRED, "Migration won't start, unless you force it.")
 			->setHelp(<<<HELP
 The <info>%command.name%</info> command migrates all packages or the given one:
     <info>%command.full_name% MyPackageName</info>
@@ -45,8 +64,9 @@ By specifying the <comment>version</comment>, the command migrates to the specif
     <info>%command.full_name% MyPackageName Y-m-d H:i:s</info>
     <info>%command.full_name% MyPackageName Y-m-d</info>
 
-By specifying the <comment>--sql</comment> option, the migration will be dumped to <comment>.sql</comment> file, instead of <comment>migration class</comment>
-    <info>%command.full_name% --sql MyPackageName</info>
+You can also migrate by one step only
+    <info>%command.full_name% MyPackageName up</info>
+    <info>%command.full_name% MyPackageName down</info>
 HELP
 		);
 	}
@@ -59,6 +79,74 @@ HELP
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output)
 	{
+		$this->output = $output;
+
+		$targetVersion = $input->getArgument('version');
+		if ($targetVersion === "0") {
+			$targetVersion = 0;
+
+		} elseif ($targetVersion === NULL) {
+			$targetVersion = date('YmdHis');
+		}
+
+		$force = $input->getOption('force');
+		if ($this->package) {
+			$this->migratePackage($this->package, $targetVersion, $force);
+
+		} else {
+			foreach ($this->packageManager->getPackages() as $package) {
+				$this->migratePackage($package, $targetVersion, $force);
+			}
+		}
+
+		if (!$force) {
+			$output->writeln('');
+			$output->writeln("If everything looks fine, add the --force option.");
+		}
+	}
+
+
+
+	/**
+	 * @param \Kdyby\Packages\Package $package
+	 * @param string $targetVersion
+	 * @param bool $force
+	 */
+	private function migratePackage(Kdyby\Packages\Package $package, $targetVersion, $force = FALSE)
+	{
+		$packageName = $package->getName();
+		$history = $this->migrationsManager->getPackageHistory($packageName);
+
+		if ($targetVersion === 'up') {
+			if ($nextVersion = $history->getNext()) {
+				$targetVersion = $nextVersion->getVersion();
+
+			} else {
+				$this->output->writeln("Next version for <info>$packageName</info> not found");
+				return;
+			}
+
+		} elseif ($targetVersion === 'down') {
+			if ($history->getCurrent()) {
+				$targetVersion = ($prevVersion = $history->getPrevious()) ? $prevVersion->getVersion() : 0;
+
+			} else {
+				$this->output->writeln("Previous version for <info>$packageName</info> not found");
+				return;
+			}
+
+		} else {
+			if ($date = Kdyby\Tools\DateTime::tryFormats(static::$formats, $targetVersion)) {
+				$targetVersion = $date->format('YmdHis');
+			}
+		}
+
+		if ($history->isUpToDate() && (!($curr = $history->getCurrent()) || $targetVersion >= $curr->getVersion())) {
+			$this->output->writeln("Package <info>$packageName</info> is up to date.");
+			return;
+		}
+
+		$history->migrate($this->migrationsManager, $targetVersion, $force);
 
 	}
 

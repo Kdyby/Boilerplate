@@ -48,16 +48,19 @@ class ClassWriter extends Kdyby\Migrations\QueryWriter
 
 	/**
 	 * @param array $sqls
+	 * @return bool
 	 */
 	public function write(array $sqls)
 	{
 		if (!$sqls) {
-			return;
+			return FALSE;
 		}
 
 		foreach ($sqls as $sql){
 			$this->writeSql($sql);
 		}
+
+		return (bool)count($sqls);
 	}
 
 

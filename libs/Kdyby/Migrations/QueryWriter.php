@@ -87,6 +87,7 @@ abstract class QueryWriter extends Nette\Object
 
 	/**
 	 * @param array $sqls
+	 * @return boolean
 	 */
 	abstract public function write(array $sqls);
 
