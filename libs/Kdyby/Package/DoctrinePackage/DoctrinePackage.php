@@ -55,21 +55,7 @@ class DoctrinePackage extends Kdyby\Packages\Package
 		parent::registerCommands($app);
 
 		$app->addCommands(array(
-			// DBAL Commands
-			new DbalCommand\RunSqlCommand(),
-			new DbalCommand\ImportCommand(),
-
 			// ORM Commands
-			//new OrmCommand\ClearCache\MetadataCommand(),
-			//new OrmCommand\ClearCache\ResultCommand(),
-			//new OrmCommand\ClearCache\QueryCommand(),
-			new OrmCommand\SchemaTool\CreateCommand(),
-			new OrmCommand\SchemaTool\UpdateCommand(),
-			new OrmCommand\SchemaTool\DropCommand(),
-			//new OrmCommand\EnsureProductionSettingsCommand(),
-			//new OrmCommand\ConvertDoctrine1SchemaCommand(),
-			//new OrmCommand\GenerateRepositoriesCommand(),
-			//new OrmCommand\GenerateEntitiesCommand(),
 			new OrmCommand\GenerateProxiesCommand(),
 			new OrmCommand\ConvertMappingCommand(),
 			new OrmCommand\RunDqlCommand(),

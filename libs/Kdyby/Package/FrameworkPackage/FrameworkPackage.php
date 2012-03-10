@@ -78,9 +78,6 @@ class FrameworkPackage extends Kdyby\Packages\Package
 			// Migrations Commands
 			new MigrationCommand\GenerateCommand(),
 			new MigrationCommand\MigrateCommand(),
-//			new MigrationCommand\ExecuteCommand(),
-//			new MigrationCommand\StatusCommand(),
-//			new MigrationCommand\VersionCommand()
 		));
 	}
 
