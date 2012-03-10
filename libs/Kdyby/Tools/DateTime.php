@@ -36,6 +36,7 @@ class DateTime extends Nette\DateTime
 	public static function from($time)
 	{
 		if ($time instanceof \DateTime) {
+			/** @var \Datetime $time */
 			return new static(
 					date('Y-m-d H:i:s', $time->getTimestamp()),
 					$time->getTimezone()
