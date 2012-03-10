@@ -12,6 +12,7 @@ namespace Kdyby\Migrations\Console;
 
 use Kdyby;
 use Nette;
+use Nette\Utils\Strings;
 use Symfony;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -63,18 +64,13 @@ abstract class CommandBase extends Symfony\Component\Console\Command\Command
 
 		// find package
 		if ($package = $input->getArgument('package')) {
+			if (!Strings::match($package, '~^[a-z][a-z0-9]*$~i')) {
+				return;
+			}
+
 			try {
 				$this->package = $this->packageManager->getPackage($package);
-
-			} catch (\Exception $e) {
-				$output->writeln("");
-				$output->writeln("  Following packages are available:\n");
-				foreach ($this->packageManager->getPackages() as $package) {
-					$output->writeln("    <info>" . $package->getName() . "</info>");
-				}
-
-				throw $e;
-			}
+			} catch (\Exception $e) { }
 		}
 	}
 

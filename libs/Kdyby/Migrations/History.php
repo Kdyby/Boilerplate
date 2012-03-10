@@ -101,6 +101,7 @@ class History extends Nette\Object implements \IteratorAggregate
 
 		$sqls = array();
 		try {
+			$manager->getOutputWriter()->writeln("");
 			if ($this->current <= ($closest = $this->calculateClosestVersion($target))) {
 				$result = $this->migrateUp($manager, $closest, $commit);
 
@@ -115,11 +116,10 @@ class History extends Nette\Object implements \IteratorAggregate
 			}
 
 			list($totalTime, $totalSqls, $sqls) = $result;
-			$writer->writeln('');
 			$writer->writeln('    <comment>------------------------</comment>');
-			$writer->writeln('    <info>++</info> finished in ' . number_format($totalTime, 2, '.', ' ') . ' s');
-			$writer->writeln('    <info>++</info> ' . count($sqls) . ' migrations executed');
-			$writer->writeln('    <info>++</info> ' . $totalSqls . ' sql queries');
+			$writer->writeln('    <info>II</info> package migration finished in ' . number_format($totalTime, 2, '.', ' ') . ' s');
+			$writer->writeln('    <info>II</info> ' . count($sqls) . ' migrations executed');
+			$writer->writeln('    <info>II</info> ' . $totalSqls . ' sql queries');
 
 		} catch (\Exception $exception) { }
 

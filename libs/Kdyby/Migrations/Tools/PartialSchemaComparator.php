@@ -13,6 +13,7 @@ namespace Kdyby\Migrations\Tools;
 use Doctrine;
 use Doctrine\ORM\EntityManager;
 use Kdyby;
+use Kdyby\Packages\Package;
 use Nette;
 use Nette\Utils\Strings;
 
@@ -125,6 +126,46 @@ class PartialSchemaComparator extends Nette\Object
 	protected function getAllMetadata()
 	{
 		return $this->entityManager->getMetadataFactory()->getAllMetadata();
+	}
+
+
+
+	/**
+	 * @param \Doctrine\ORM\EntityManager $em
+	 * @param \Kdyby\Packages\Package $package
+	 * @param array $entities
+	 *
+	 * @return \Kdyby\Doctrine\Mapping\ClassMetadata[]
+	 */
+	public static function collectPackageMetadata(EntityManager $em, Package $package, array $entities = array())
+	{
+		$metadata = array();
+		if ($entities) {
+			$ns = $package->getNamespace() . '\\Entity';
+			foreach ($entities as $entity) {
+				if ($entity[0] !== '\\') { // absolute
+					$entity = $ns . '\\' . $entity;
+				}
+
+				$metadata[] = $class = $em->getClassMetadata($entity);
+				foreach ($class->discriminatorMap as $className) {
+					$metadata[] = $em->getClassMetadata($className);
+				}
+			}
+
+			return array_unique($metadata);
+		}
+
+		foreach ($em->getMetadataFactory()->getAllMetadata() as $class) {
+			foreach ($package->getEntityNamespaces() as $namespace) {
+				if (strpos($class->getName(), $namespace) === 0) {
+					$metadata[] = $class;
+					break;
+				}
+			}
+		}
+
+		return $metadata;
 	}
 
 }

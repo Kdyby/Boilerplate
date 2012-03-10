@@ -11,6 +11,7 @@
 namespace Kdyby\Migrations\Console;
 
 use Kdyby;
+use Kdyby\Migrations\Tools\PackageMigration;
 use Nette;
 use Symfony;
 use Symfony\Component\Console\Input\InputInterface;
@@ -27,24 +28,6 @@ use Symfony\Component\Console\Input\InputOption;
  */
 class MigrateCommand extends CommandBase
 {
-
-	/**
-	 * @var array
-	 */
-	private static $formats = array(
-		'YmdHis',
-		'Y-m-d H:i:s',
-		'Y-m-d H:i',
-		'Y-m-d H',
-		'Y-m-d',
-	);
-
-	/**
-	 * @var \Symfony\Component\Console\Output\OutputInterface
-	 */
-	private $output;
-
-
 
 	/**
 	 */
@@ -79,9 +62,7 @@ HELP
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output)
 	{
-		$this->output = $output;
-
-		$targetVersion = $input->getArgument('version');
+		$targetVersion = $this->package ? $input->getArgument('version') : $input->getArgument('package');
 		if ($targetVersion === "0") {
 			$targetVersion = 0;
 
@@ -91,11 +72,25 @@ HELP
 
 		$force = $input->getOption('force');
 		if ($this->package) {
-			$this->migratePackage($this->package, $targetVersion, $force);
+			try {
+				$migration = new PackageMigration($this->migrationsManager, $this->package);
+				$migration->run($targetVersion, $force);
+
+			} catch (Kdyby\Migrations\MigrationException $e) {
+				$output->writeln("");
+				$output->writeln('    ' . $e->getMessage());
+			}
 
 		} else {
 			foreach ($this->packageManager->getPackages() as $package) {
-				$this->migratePackage($package, $targetVersion, $force);
+				try {
+					$migration = new PackageMigration($this->migrationsManager, $package);
+					$migration->run($targetVersion, $force);
+
+				} catch (Kdyby\Migrations\MigrationException $e) {
+					$output->writeln("");
+					$output->writeln('    ' . $e->getMessage());
+				}
 			}
 		}
 
@@ -103,51 +98,6 @@ HELP
 			$output->writeln('');
 			$output->writeln("If everything looks fine, add the --force option.");
 		}
-	}
-
-
-
-	/**
-	 * @param \Kdyby\Packages\Package $package
-	 * @param string $targetVersion
-	 * @param bool $force
-	 */
-	private function migratePackage(Kdyby\Packages\Package $package, $targetVersion, $force = FALSE)
-	{
-		$packageName = $package->getName();
-		$history = $this->migrationsManager->getPackageHistory($packageName);
-
-		if ($targetVersion === 'up') {
-			if ($nextVersion = $history->getNext()) {
-				$targetVersion = $nextVersion->getVersion();
-
-			} else {
-				$this->output->writeln("Next version for <info>$packageName</info> not found");
-				return;
-			}
-
-		} elseif ($targetVersion === 'down') {
-			if ($history->getCurrent()) {
-				$targetVersion = ($prevVersion = $history->getPrevious()) ? $prevVersion->getVersion() : 0;
-
-			} else {
-				$this->output->writeln("Previous version for <info>$packageName</info> not found");
-				return;
-			}
-
-		} else {
-			if ($date = Kdyby\Tools\DateTime::tryFormats(static::$formats, $targetVersion)) {
-				$targetVersion = $date->format('YmdHis');
-			}
-		}
-
-		if ($history->isUpToDate() && (!($curr = $history->getCurrent()) || $targetVersion >= $curr->getVersion())) {
-			$this->output->writeln("Package <info>$packageName</info> is up to date.");
-			return;
-		}
-
-		$history->migrate($this->migrationsManager, $targetVersion, $force);
-
 	}
 
 }

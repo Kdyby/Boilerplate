@@ -84,6 +84,16 @@ class MigrationsManager extends Nette\Object
 
 
 	/**
+	 * @return \Doctrine\ORM\EntityManager
+	 */
+	public function getEntityManager()
+	{
+		return $this->entityManager;
+	}
+
+
+
+	/**
 	 * @return \Doctrine\DBAL\Connection
 	 */
 	public function getConnection()

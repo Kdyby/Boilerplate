@@ -90,8 +90,14 @@ HELP
 			$writer->removeExisting();
 		}
 
-		// write schema diff
-		$metadata = $this->getMetadata($input->getArgument('entity'));
+		// collect package metadata
+		$metadata = Tools\PartialSchemaComparator::collectPackageMetadata(
+			$this->entityManager,
+			$this->package,
+			$input->getArgument('entity')
+		);
+
+		// write schema or dump
 		if ($input->getOption('dump-rows')) {
 			foreach ($tables = new Tools\TableDumper($this->entityManager, $metadata) as $row) {
 				$writer->write(array($row));
@@ -155,44 +161,6 @@ HELP
 		} else {
 			return new Writers\ClassWriter($migration, $this->package);
 		}
-	}
-
-
-
-	/**
-	 * @param array $entities
-	 *
-	 * @return \Kdyby\Doctrine\Mapping\ClassMetadata[]
-	 */
-	protected function getMetadata($entities = array())
-	{
-		$metadata = array();
-		if ($entities) {
-			$ns = $this->package->getNamespace() . '\\Entity';
-			foreach ($entities as $entity) {
-				if ($entity[0] !== '\\') { // absolute
-					$entity = $ns . '\\' . $entity;
-				}
-
-				$metadata[] = $class = $this->entityManager->getClassMetadata($entity);
-				foreach ($class->discriminatorMap as $className) {
-					$metadata[] = $this->entityManager->getClassMetadata($className);
-				}
-			}
-
-			return array_unique($metadata);
-		}
-
-		foreach ($this->getAllMetadata() as $class) {
-			foreach ($this->package->getEntityNamespaces() as $namespace) {
-				if (strpos($class->getName(), $namespace) === 0) {
-					$metadata[] = $class;
-					break;
-				}
-			}
-		}
-
-		return $metadata;
 	}
 
 
