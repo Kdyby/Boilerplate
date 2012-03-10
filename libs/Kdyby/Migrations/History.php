@@ -158,16 +158,18 @@ class History extends Nette\Object implements \IteratorAggregate
 
 		$sqls = array();
 		$totalTime = $totalSqls = 0;
-		while ($next = $this->getNext()) {
-			if ($next->getVersion() > $target) {
+		$current = $this->getCurrent() ?: $this->getFirst();
+		do {
+			if ($current->getVersion() > $target) {
 				break;
 			}
 
-			$sqls[$next->getVersion()] = $lastSqls = $next->up($manager, $commit);
+			$sqls[$current->getVersion()] = $lastSqls = $current->up($manager, $commit);
 
-			$totalTime += $next->getTime();
+			$totalTime += $current->getTime();
 			$totalSqls += is_array($lastSqls) ? count($lastSqls) : (int)$lastSqls;
-		}
+
+		} while ($current = $current->getNext());
 
 		return array($totalTime, $totalSqls, $sqls);
 	}
