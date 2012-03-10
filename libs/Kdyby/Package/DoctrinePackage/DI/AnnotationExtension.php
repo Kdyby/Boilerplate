@@ -33,19 +33,9 @@ class AnnotationExtension extends Kdyby\Config\CompilerExtension
 	public function loadConfiguration()
 	{
 		$container = $this->getContainerBuilder();
-		$config = $this->getConfig();
-
-		$reader = $container->addDefinition($this->prefix('reader'))
+		$container->addDefinition($this->prefix('reader'))
 			->setClass('Doctrine\Common\Annotations\AnnotationReader')
-			->addSetup('setIgnoreNotImportedAnnotations', array(FALSE))
-			->addSetup('setAnnotationNamespaceAlias', array('Doctrine\ORM\Mapping\\', 'Orm'))
 			->addSetup('addGlobalIgnoredName', array('serializationVersion'));
-
-		if (!empty($config['aliases'])) {
-			foreach ($config['aliases'] as $alias => $namespace) {
-				$reader->addSetup('setAnnotationNamespaceAlias', array(rtrim($namespace, '\\') . '\\', $alias));
-			}
-		}
 
 		$container->addDefinition($this->prefix('readerIndexed'))
 			->setClass('Doctrine\Common\Annotations\IndexedReader', array($this->prefix('@reader')))

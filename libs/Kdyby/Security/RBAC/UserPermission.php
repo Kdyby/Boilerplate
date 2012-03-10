@@ -10,6 +10,7 @@
 
 namespace Kdyby\Security\RBAC;
 
+use Doctrine\ORM\Mapping as ORM;
 use Kdyby;
 use Kdyby\Security\Identity;
 use Nette;
@@ -18,15 +19,15 @@ use Nette;
 
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
- * @Orm:Entity
- * @Orm:DiscriminatorEntry(name="user")
+ * @ORM\Entity
+ * @ORM\DiscriminatorEntry(name="user")
  */
 class UserPermission extends BasePermission
 {
 	/**
 	 * @var Identity
-	 * @Orm:ManyToOne(targetEntity="Kdyby\Security\Identity")
-	 * @Orm:JoinColumn(name="identity_id", referencedColumnName="id")
+	 * @ORM\ManyToOne(targetEntity="Kdyby\Security\Identity")
+	 * @ORM\JoinColumn(name="identity_id", referencedColumnName="id")
 	 */
 	private $identity;
 

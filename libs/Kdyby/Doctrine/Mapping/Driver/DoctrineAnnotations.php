@@ -10,6 +10,10 @@
 
 namespace Doctrine\ORM\Mapping;
 
+use Doctrine;
+
+
+
 /**
  * I realy do feel bad for definning class in foreign namespace
  * but I have a good reason. This little hack prevents me from doing much uglier things.
@@ -19,12 +23,9 @@ namespace Doctrine\ORM\Mapping;
  * to be able to have annotation in my own namespace, without prefix.
  *
  * So fuck it, this is the best god damn fucking way. Don't you dare to question my sanity.
+ *
+ * @Annotation
  */
-
-use Doctrine\Common\Annotations\Annotation;
-
-/* Annotations */
-
-class DiscriminatorEntry extends Annotation {
+class DiscriminatorEntry extends Doctrine\Common\Annotations\Annotation {
 	public $name;
 }

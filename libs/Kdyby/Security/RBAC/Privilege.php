@@ -10,6 +10,7 @@
 
 namespace Kdyby\Security\RBAC;
 
+use Doctrine\ORM\Mapping as ORM;
 use Kdyby;
 use Nette;
 
@@ -17,29 +18,29 @@ use Nette;
 
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
- * @Orm:Entity
- * @Orm:Table(name="rbac_privileges",uniqueConstraints={
- * 	@Orm:UniqueConstraint(name="resource_action_uniq", columns={"resource_id", "action_id"})
+ * @ORM\Entity
+ * @ORM\Table(name="rbac_privileges",uniqueConstraints={
+ * 	@ORM\UniqueConstraint(name="resource_action_uniq", columns={"resource_id", "action_id"})
  * })
  */
 class Privilege extends Nette\Object
 {
 	const DELIMITER = '#';
 
-	/** @Orm:Id @Orm:Column(type="integer") @Orm:GeneratedValue @var integer */
+	/** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue @var integer */
 	private $id;
 
 	/**
 	 * @var Resource
-	 * @Orm:ManyToOne(targetEntity="Resource", cascade={"persist"}, fetch="EAGER")
-	 * @Orm:JoinColumn(name="resource_id", referencedColumnName="id")
+	 * @ORM\ManyToOne(targetEntity="Resource", cascade={"persist"}, fetch="EAGER")
+	 * @ORM\JoinColumn(name="resource_id", referencedColumnName="id")
 	 */
 	private $resource;
 
 	/**
 	 * @var Action
-	 * @Orm:ManyToOne(targetEntity="Action", cascade={"persist"}, fetch="EAGER")
-	 * @Orm:JoinColumn(name="action_id", referencedColumnName="id")
+	 * @ORM\ManyToOne(targetEntity="Action", cascade={"persist"}, fetch="EAGER")
+	 * @ORM\JoinColumn(name="action_id", referencedColumnName="id")
 	 */
 	private $action;
 

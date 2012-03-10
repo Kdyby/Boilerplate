@@ -27,7 +27,7 @@ class ClassMetadata extends Doctrine\ORM\Mapping\ClassMetadata
 {
 
 	/** @var string */
-	public $customRepositoryClassName = 'Kdyby\Doctrine\EntityRepository';
+	public $customRepositoryClassName = 'Kdyby\Doctrine\Dao';
 
 
 

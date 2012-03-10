@@ -11,6 +11,7 @@
 namespace Kdyby\Migrations;
 
 use Doctrine;
+use Doctrine\ORM\Mapping as ORM;
 use Kdyby;
 use Nette;
 
@@ -19,9 +20,9 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
- * @Orm:Entity()
- * @Orm:Table(name="db_packages", uniqueConstraints={
- * 	@Orm:UniqueConstraint(columns={"name"})
+ * @ORM\Entity()
+ * @ORM\Table(name="db_packages", uniqueConstraints={
+ * 	@ORM\UniqueConstraint(columns={"name"})
  * })
  */
 class PackageVersion extends Kdyby\Doctrine\Entities\IdentifiedEntity
@@ -30,37 +31,37 @@ class PackageVersion extends Kdyby\Doctrine\Entities\IdentifiedEntity
 	const STATUS_INSTALLED = 'installed';
 
 	/**
-	 * @Orm:Column(type="string")
+	 * @ORM\Column(type="string")
 	 * @var string
 	 */
 	private $name;
 
 	/**
-	 * @Orm:Column(type="string")
+	 * @ORM\Column(type="string")
 	 * @var string
 	 */
 	private $className;
 
 	/**
-	 * @Orm:Column(type="bigint", nullable=TRUE)
+	 * @ORM\Column(type="bigint", nullable=TRUE)
 	 * @var integer
 	 */
 	private $migrationVersion = 0;
 
 	/**
-	 * @Orm:Column(type="datetime", nullable=TRUE)
+	 * @ORM\Column(type="datetime", nullable=TRUE)
 	 * @var \DateTime
 	 */
 	private $lastUpdate;
 
 	/**
-	 * @Orm:OneToMany(targetEntity="MigrationLog", mappedBy="package", cascade={"persist"})
+	 * @ORM\OneToMany(targetEntity="MigrationLog", mappedBy="package", cascade={"persist"})
 	 * @var \Kdyby\Migrations\MigrationLog[]
 	 */
 	private $log;
 
 	/**
-	 * @Orm:Column(type="string")
+	 * @ORM\Column(type="string")
 	 * @var string
 	 */
 	private $status = self::STATUS_PRESENT;

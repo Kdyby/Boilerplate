@@ -10,6 +10,7 @@
 
 namespace Kdyby\Security\RBAC;
 
+use Doctrine\ORM\Mapping as ORM;
 use Kdyby;
 use Nette;
 
@@ -17,15 +18,15 @@ use Nette;
 
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
- * @Orm:Entity
- * @Orm:DiscriminatorEntry(name="role")
+ * @ORM\Entity
+ * @ORM\DiscriminatorEntry(name="role")
  */
 class RolePermission extends BasePermission
 {
 	/**
 	 * @var Role
-	 * @Orm:ManyToOne(targetEntity="Role", cascade={"persist"}, fetch="EAGER")
-	 * @Orm:JoinColumn(name="role_id", referencedColumnName="id")
+	 * @ORM\ManyToOne(targetEntity="Role", cascade={"persist"}, fetch="EAGER")
+	 * @ORM\JoinColumn(name="role_id", referencedColumnName="id")
 	 */
 	private $role;
 

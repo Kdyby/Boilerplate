@@ -10,6 +10,7 @@
 
 namespace Kdyby\Migrations;
 
+use Doctrine\ORM\Mapping as ORM;
 use Kdyby;
 use Nette;
 
@@ -18,32 +19,32 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
- * @Orm:Entity()
- * @Orm:Table(name="db_migration_log")
+ * @ORM\Entity()
+ * @ORM\Table(name="db_migration_log")
  */
 class MigrationLog extends Kdyby\Doctrine\Entities\IdentifiedEntity
 {
 
 	/**
-	 * @Orm:ManyToOne(targetEntity="PackageVersion", inversedBy="log")
+	 * @ORM\ManyToOne(targetEntity="PackageVersion", inversedBy="log")
 	 * @var \Kdyby\Migrations\PackageVersion
 	 */
 	private $package;
 
 	/**
-	 * @Orm:Column(type="bigint")
+	 * @ORM\Column(type="bigint")
 	 * @var int
 	 */
 	private $version;
 
 	/**
-	 * @Orm:Column(type="datetime")
+	 * @ORM\Column(type="datetime")
 	 * @var \DateTime
 	 */
 	private $date;
 
 	/**
-	 * @Orm:Column(type="boolean")
+	 * @ORM\Column(type="boolean")
 	 * @var boolean
 	 */
 	private $up;

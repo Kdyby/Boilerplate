@@ -10,12 +10,14 @@
 
 namespace Kdyby\Doctrine\Entities;
 
+use Doctrine\ORM\Mapping as ORM;
+
 
 
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
- * @Orm:MappedSuperclass
+ * @ORM\MappedSuperclass()
  *
  * @property int $id
  * @property string $name
@@ -23,10 +25,10 @@ namespace Kdyby\Doctrine\Entities;
 abstract class NamedEntity extends BaseEntity
 {
 
-	/** @Orm:Id @Orm:Column(type="integer") */
+	/** @ORM\Id() @ORM\Column(type="integer") */
 	private $id;
 
-	/** @Orm:Column(type="string") */
+	/** @ORM\Column(type="string") */
 	private $name;
 
 

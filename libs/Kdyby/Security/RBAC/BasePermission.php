@@ -10,6 +10,7 @@
 
 namespace Kdyby\Security\RBAC;
 
+use Doctrine\ORM\Mapping as ORM;
 use Kdyby;
 use Kdyby\Security\AuthorizatorException;
 use Nette;
@@ -20,33 +21,33 @@ use Nette\Security\IRole;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
- * @Orm:Entity
- * @Orm:Table(name="rbac_permissions")
- * @Orm:InheritanceType("SINGLE_TABLE")
- * @Orm:DiscriminatorColumn(name="_type", type="string")
- * @Orm:DiscriminatorMap({"base" = "BasePermission"})
+ * @ORM\Entity
+ * @ORM\Table(name="rbac_permissions")
+ * @ORM\InheritanceType("SINGLE_TABLE")
+ * @ORM\DiscriminatorColumn(name="_type", type="string")
+ * @ORM\DiscriminatorMap({"base" = "BasePermission"})
  */
 abstract class BasePermission extends Nette\Object
 {
 
-	/** @Orm:Id @Orm:Column(type="integer") @Orm:GeneratedValue @var integer */
+	/** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue @var integer */
 	private $id;
 
 	/**
 	 * @var Division
-	 * @Orm:ManyToOne(targetEntity="Division", inversedBy="permissions", cascade={"persist"})
-	 * @Orm:JoinColumn(name="division_id", referencedColumnName="id")
+	 * @ORM\ManyToOne(targetEntity="Division", inversedBy="permissions", cascade={"persist"})
+	 * @ORM\JoinColumn(name="division_id", referencedColumnName="id")
 	 */
 	private $division;
 
 	/**
 	 * @var Privilege
-	 * @Orm:ManyToOne(targetEntity="Privilege", cascade={"persist"})
-	 * @Orm:JoinColumn(name="privilege_id", referencedColumnName="id")
+	 * @ORM\ManyToOne(targetEntity="Privilege", cascade={"persist"})
+	 * @ORM\JoinColumn(name="privilege_id", referencedColumnName="id")
 	 */
 	private $privilege;
 
-	/** @Orm:Column(type="boolean") @var boolean */
+	/** @ORM\Column(type="boolean") @var boolean */
 	private $isAllowed = TRUE;
 
 
@@ -162,7 +163,7 @@ abstract class BasePermission extends Nette\Object
 	/**
 	 * @todo callback assertion
 	 *
-	 * @param Nette\Security\Permission $permission
+	 * @param \Nette\Security\Permission $permission
 	 */
 	public function applyTo(Nette\Security\Permission $permission)
 	{

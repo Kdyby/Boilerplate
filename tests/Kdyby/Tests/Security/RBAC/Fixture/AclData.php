@@ -11,6 +11,7 @@
 namespace Kdyby\Tests\Security\RBAC\Fixture;
 
 use Doctrine;
+use Doctrine\Common\Persistence\ObjectManager;
 use Kdyby;
 use Kdyby\Security\RBAC\Action;
 use Kdyby\Security\RBAC\Resource;
@@ -29,9 +30,9 @@ class AclData extends Doctrine\Common\DataFixtures\AbstractFixture
 {
 
 	/**
-	 * @param Doctrine\ORM\EntityManager $manager
+	 * @param \Doctrine\Common\Persistence\ObjectManager|\Doctrine\ORM\EntityManager $manager
 	 */
-	public function load($manager)
+	public function load(ObjectManager $manager)
 	{
 		$acl = Nette\Utils\Neon::decode(file_get_contents(__DIR__ . '/AclData.neon'));
 		$builder = new Kdyby\Security\RBAC\UnitBuilder($acl);

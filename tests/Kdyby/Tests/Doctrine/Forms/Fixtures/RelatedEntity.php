@@ -11,31 +11,32 @@
 namespace Kdyby\Tests\Doctrine\Forms\Fixtures;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Mapping as ORM;
 use Kdyby;
 use Nette;
 
 
 
 /**
- * @Orm:Entity()
+ * @ORM\Entity()
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class RelatedEntity extends SharedFieldsEntity
 {
 
 	/**
-	 * @Orm:Column(type="string")
+	 * @ORM\Column(type="string")
 	 */
 	public $name;
 
 	/**
-	 * @Orm:ManyToOne(targetEntity="RootEntity", inversedBy="children", cascade={"persist"})
+	 * @ORM\ManyToOne(targetEntity="RootEntity", inversedBy="children", cascade={"persist"})
 	 * @var \Kdyby\Tests\Doctrine\Forms\Fixtures\RootEntity
 	 */
 	public $daddy;
 
 	/**
-	 * @Orm:ManyToMany(targetEntity="RootEntity", mappedBy="buddies", cascade={"persist"})
+	 * @ORM\ManyToMany(targetEntity="RootEntity", mappedBy="buddies", cascade={"persist"})
 	 * @var \Kdyby\Tests\Doctrine\Forms\Fixtures\RootEntity[]
 	 */
 	public $buddies;

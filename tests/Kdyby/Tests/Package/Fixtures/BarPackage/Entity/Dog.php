@@ -10,6 +10,7 @@
 
 namespace Kdyby\Tests\Package\Fixtures\BarPackage\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
 use Kdyby;
 use Nette;
 
@@ -18,12 +19,12 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
- * @Orm:Entity()
+ * @ORM\Entity()
  */
 class Dog extends Nette\Object
 {
 
-	/** @Orm:Column() */
+	/** @ORM\Column() */
 	private $id;
 
 }

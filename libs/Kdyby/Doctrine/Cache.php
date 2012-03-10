@@ -32,7 +32,7 @@ use Nette\Caching\Cache AS NCache;
  * @author Patrik Votoček
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class Cache extends Doctrine\Common\Cache\AbstractCache
+class Cache extends Doctrine\Common\Cache\CacheProvider
 {
 
 	/** @var string */
@@ -47,7 +47,7 @@ class Cache extends Doctrine\Common\Cache\AbstractCache
 
 
 	/**
-	 * @param Nette\Caching\IStorage $storage
+	 * @param \Nette\Caching\IStorage $storage
 	 * @param string $namespace
 	 */
 	public function __construct(Nette\Caching\IStorage $storage, $namespace = self::CACHE_NS)
@@ -66,7 +66,7 @@ class Cache extends Doctrine\Common\Cache\AbstractCache
 	public function setNamespace($namespace)
 	{
 		$this->namespace = (string)$namespace;
-		return parent::setNamespace($namespace);
+		parent::setNamespace($namespace);
 	}
 
 
@@ -89,7 +89,7 @@ class Cache extends Doctrine\Common\Cache\AbstractCache
 
 
 	/**
-	 * @return Nette\Caching\Cache
+	 * @return \Nette\Caching\Cache
 	 */
 	private function getCache()
 	{
@@ -100,7 +100,11 @@ class Cache extends Doctrine\Common\Cache\AbstractCache
 
 
 	/**
-	 * {@inheritdoc}
+	 * @param $id
+	 * @param $data
+	 * @param array $files
+	 * @param int $lifeTime
+	 * @return bool
 	 */
 	public function saveDependingOnFiles($id, $data, array $files, $lifeTime = 0)
 	{
@@ -110,7 +114,7 @@ class Cache extends Doctrine\Common\Cache\AbstractCache
 
 
 	/**
-	 * {@inheritdoc}
+	 * @return array
 	 */
 	public function getIds()
 	{
@@ -132,9 +136,10 @@ class Cache extends Doctrine\Common\Cache\AbstractCache
 
 
 	/**
-	 * {@inheritdoc}
+	 * @param $id
+	 * @return bool
 	 */
-	protected function _doFetch($id)
+	protected function doFetch($id)
 	{
 		return $this->getCache()->load($id) ?: FALSE;
 	}
@@ -142,9 +147,10 @@ class Cache extends Doctrine\Common\Cache\AbstractCache
 
 
 	/**
-	 * {@inheritdoc}
+	 * @param $id
+	 * @return bool
 	 */
-	protected function _doContains($id)
+	protected function doContains($id)
 	{
 		return $this->getCache()->load($id) !== NULL;
 	}
@@ -152,9 +158,12 @@ class Cache extends Doctrine\Common\Cache\AbstractCache
 
 
 	/**
-	 * {@inheritdoc}
+	 * @param $id
+	 * @param $data
+	 * @param int $lifeTime
+	 * @return bool
 	 */
-	protected function _doSave($id, $data, $lifeTime = 0)
+	protected function doSave($id, $data, $lifeTime = 0)
 	{
 		$files = array();
 		if ($data instanceof Doctrine\ORM\Mapping\ClassMetadata) {
@@ -178,7 +187,7 @@ class Cache extends Doctrine\Common\Cache\AbstractCache
 	 */
 	protected function doSaveDependingOnFiles($id, $data, array $files, $lifeTime = 0)
 	{
-		$dp = array(NCache::TAGS => array("doctrine"), NCache::FILES => $files);
+		$dp = array(NCache::TAGS => array('doctrine'), NCache::FILES => $files);
 		if ($lifeTime != 0) {
 			$dp[NCache::EXPIRE] = time() + $lifeTime;
 		}
@@ -190,12 +199,35 @@ class Cache extends Doctrine\Common\Cache\AbstractCache
 
 
 	/**
-	 * {@inheritdoc}
+	 * @param $id
+	 * @return bool
 	 */
-	protected function _doDelete($id)
+	protected function doDelete($id)
 	{
 		$this->getCache()->save($id, NULL);
 		return TRUE;
+	}
+
+
+
+	/**
+	 *
+	 */
+	protected function doFlush()
+	{
+		$this->getCache()->clean(array(
+			NCache::TAGS => array('doctrine')
+		));
+	}
+
+
+
+	/**
+	 * @return NULL
+	 */
+	protected function doGetStats()
+	{
+		return NULL;
 	}
 
 }

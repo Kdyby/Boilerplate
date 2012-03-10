@@ -12,6 +12,7 @@ namespace Kdyby\Domain\Users;
 
 use Doctrine;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Mapping as ORM;
 use Kdyby;
 use Kdyby\Tools\Mixed;
 use Nette;
@@ -21,8 +22,8 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
- * @Orm:Entity
- * @Orm:Table(name="users_info")
+ * @ORM\Entity
+ * @ORM\Table(name="users_info")
  */
 class IdentityInfo extends Kdyby\Doctrine\Entities\IdentifiedEntity
 {
@@ -30,10 +31,10 @@ class IdentityInfo extends Kdyby\Doctrine\Entities\IdentifiedEntity
 	/** @var \Kdyby\Security\Identity */
 	private $identity;
 
-	/** @Orm:Column(type="string", nullable=TRUE) */
+	/** @ORM\Column(type="string", nullable=TRUE) */
 	private $phone;
 
-	/** @Orm:Column(type="array", nullable=TRUE) */
+	/** @ORM\Column(type="array", nullable=TRUE) */
 	private $data = array();
 
 

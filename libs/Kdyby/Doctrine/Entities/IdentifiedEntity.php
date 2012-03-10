@@ -10,6 +10,7 @@
 
 namespace Kdyby\Doctrine\Entities;
 
+use Doctrine\ORM\Mapping as ORM;
 use Nette;
 use Kdyby;
 
@@ -18,7 +19,7 @@ use Kdyby;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
- * @Orm:MappedSuperclass
+ * @ORM\MappedSuperclass
  *
  * @property-read int $id
  */
@@ -26,9 +27,9 @@ abstract class IdentifiedEntity extends BaseEntity
 {
 
 	/**
-	 * @Orm:Id
-	 * @Orm:Column(type="integer")
-	 * @Orm:GeneratedValue
+	 * @ORM\Id
+	 * @ORM\Column(type="integer")
+	 * @ORM\GeneratedValue
 	 * @var integer
 	 */
 	private $id;

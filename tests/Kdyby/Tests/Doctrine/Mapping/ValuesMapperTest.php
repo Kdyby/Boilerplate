@@ -12,6 +12,7 @@ namespace Kdyby\Tests\Doctrine\Mapping;
 
 use Doctrine;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Mapping as ORM;
 use Kdyby\Doctrine\Mapping\ValuesMapper;
 use Kdyby;
 use Nette;
@@ -131,16 +132,16 @@ class ValuesMapperTest extends Kdyby\Tests\OrmTestCase
 
 
 /**
- * @Orm:MappedSuperclass()
+ * @ORM\MappedSuperclass()
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class SharedFieldsEntity extends Nette\Object
 {
 
 	/**
-	 * @Orm:Id
-	 * @Orm:Column(type="integer")
-	 * @Orm:GeneratedValue
+	 * @ORM\Id
+	 * @ORM\Column(type="integer")
+	 * @ORM\GeneratedValue
 	 * @var integer
 	 */
 	public $id;
@@ -150,29 +151,29 @@ class SharedFieldsEntity extends Nette\Object
 
 
 /**
- * @Orm:Entity()
+ * @ORM\Entity()
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class RootEntity extends SharedFieldsEntity
 {
 
 	/**
-	 * @Orm:Column(type="string")
+	 * @ORM\Column(type="string")
 	 */
 	public $name;
 
 	/**
-	 * @Orm:ManyToOne(targetEntity="RelatedEntity")
+	 * @ORM\ManyToOne(targetEntity="RelatedEntity")
 	 */
 	public $daddy;
 
 	/**
-	 * @Orm:OneToMany(targetEntity="RelatedEntity", mappedBy="daddy")
+	 * @ORM\OneToMany(targetEntity="RelatedEntity", mappedBy="daddy")
 	 */
 	public $children;
 
 	/**
-	 * @Orm:ManyToMany(targetEntity="RelatedEntity", inversedBy="buddies")
+	 * @ORM\ManyToMany(targetEntity="RelatedEntity", inversedBy="buddies")
 	 */
 	public $buddies;
 
@@ -189,24 +190,24 @@ class RootEntity extends SharedFieldsEntity
 
 
 /**
- * @Orm:Entity()
+ * @ORM\Entity()
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class RelatedEntity extends SharedFieldsEntity
 {
 
 	/**
-	 * @Orm:Column(type="string")
+	 * @ORM\Column(type="string")
 	 */
 	public $name;
 
 	/**
-	 * @Orm:ManyToOne(targetEntity="RootEntity", inversedBy="children")
+	 * @ORM\ManyToOne(targetEntity="RootEntity", inversedBy="children")
 	 */
 	public $daddy;
 
 	/**
-	 * @Orm:ManyToMany(targetEntity="RootEntity", mappedBy="buddies")
+	 * @ORM\ManyToMany(targetEntity="RootEntity", mappedBy="buddies")
 	 */
 	public $buddies;
 

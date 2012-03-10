@@ -10,6 +10,7 @@
 
 namespace Kdyby\Tests\Doctrine\Tools;
 
+use Doctrine\ORM\Mapping as ORM;
 use Kdyby;
 use Nette;
 
@@ -17,19 +18,19 @@ use Nette;
 
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
- * @Orm:Entity
- * @Orm:Table(name="names_table")
+ * @ORM\Entity
+ * @ORM\Table(name="names_table")
  */
 class EntityWithUniqueColumns extends Kdyby\Doctrine\Entities\IdentifiedEntity
 {
 
-	/** @Orm:Column(type="string", unique=TRUE) */
+	/** @ORM\Column(type="string", unique=TRUE) */
 	public $email;
 
-	/** @Orm:Column(type="string") */
+	/** @ORM\Column(type="string") */
 	public $name;
 
-	/** @Orm:Column(type="string", nullable=TRUE) */
+	/** @ORM\Column(type="string", nullable=TRUE) */
 	public $address;
 
 

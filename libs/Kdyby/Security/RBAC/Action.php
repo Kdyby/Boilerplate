@@ -10,6 +10,7 @@
 
 namespace Kdyby\Security\RBAC;
 
+use Doctrine\ORM\Mapping as ORM;
 use Kdyby;
 use Nette;
 
@@ -18,16 +19,16 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
- * @Orm:Entity
- * @Orm:Table(name="rbac_actions")
+ * @ORM\Entity
+ * @ORM\Table(name="rbac_actions")
  */
 class Action extends Kdyby\Doctrine\Entities\IdentifiedEntity
 {
 
-	/** @Orm:Column(type="string", unique=TRUE) @var string */
+	/** @ORM\Column(type="string", unique=TRUE) @var string */
 	private $name;
 
-	/** @Orm:Column(type="string", nullable=TRUE) @var string */
+	/** @ORM\Column(type="string", nullable=TRUE) @var string */
 	private $description;
 
 

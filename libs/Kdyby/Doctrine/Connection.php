@@ -11,6 +11,7 @@
 namespace Kdyby\Doctrine;
 
 use Doctrine;
+use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Kdyby;
 use Nette;
 use Nette\Diagnostics\Debugger;
@@ -77,13 +78,14 @@ class Connection extends Doctrine\DBAL\Connection
 	 * @param string $query The SQL query to execute.
 	 * @param array $params The parameters to bind to the query, if any.
 	 * @param array $types
+	 * @param \Doctrine\DBAL\Cache\QueryCacheProfile|null $qcp
 	 *
 	 * @return \Doctrine\DBAL\Driver\Statement The executed statement.
 	 */
-	public function executeQuery($query, array $params = array(), $types = array())
+	public function executeQuery($query, array $params = array(), $types = array(), QueryCacheProfile $qcp = NULL)
 	{
 		try {
-			return parent::executeQuery($query, $params, $types);
+			return parent::executeQuery($query, $params, $types, $qcp);
 
 		} catch (\PDOException $e) {
 			$this->handleException($e, TRUE);

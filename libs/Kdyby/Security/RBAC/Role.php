@@ -10,6 +10,7 @@
 
 namespace Kdyby\Security\RBAC;
 
+use Doctrine\ORM\Mapping as ORM;
 use Kdyby;
 use Nette;
 
@@ -17,25 +18,25 @@ use Nette;
 
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
- * @Orm:Entity
- * @Orm:Table(name="rbac_roles")
+ * @ORM\Entity
+ * @ORM\Table(name="rbac_roles")
  */
 class Role extends Nette\Object implements Nette\Security\IRole
 {
 
-	/** @Orm:Id @Orm:Column(type="integer") @Orm:GeneratedValue @var integer */
+	/** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue @var integer */
 	private $id;
 
-	/** @Orm:Column(type="string") @var string */
+	/** @ORM\Column(type="string") @var string */
 	private $name;
 
-	/** @Orm:Column(type="string", nullable=TRUE) @var string */
+	/** @ORM\Column(type="string", nullable=TRUE) @var string */
 	private $description;
 
 	/**
 	 * @var Division
-	 * @Orm:ManyToOne(targetEntity="Division", cascade={"persist"})
-	 * @Orm:JoinColumn(name="division_id", referencedColumnName="id")
+	 * @ORM\ManyToOne(targetEntity="Division", cascade={"persist"})
+	 * @ORM\JoinColumn(name="division_id", referencedColumnName="id")
 	 */
 	private $division;
 

@@ -10,22 +10,23 @@
 
 namespace Kdyby\Tests\Doctrine\Forms\Fixtures;
 
+use Doctrine\ORM\Mapping as ORM;
 use Kdyby;
 use Nette;
 
 
 
 /**
- * @Orm:MappedSuperclass()
+ * @ORM\MappedSuperclass()
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class SharedFieldsEntity extends Nette\Object
 {
 
 	/**
-	 * @Orm:Id
-	 * @Orm:Column(type="integer")
-	 * @Orm:GeneratedValue
+	 * @ORM\Id
+	 * @ORM\Column(type="integer")
+	 * @ORM\GeneratedValue
 	 * @var integer
 	 */
 	public $id;

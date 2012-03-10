@@ -12,6 +12,7 @@ namespace Kdyby\Security\RBAC;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 use Kdyby;
 use Kdyby\Security\AuthorizatorException;
 use Nette;
@@ -21,32 +22,32 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
- * @Orm:Entity
- * @Orm:Table(name="rbac_divisions")
- * @Orm:InheritanceType("SINGLE_TABLE")
- * @Orm:DiscriminatorColumn(name="_type", type="string")
- * @Orm:DiscriminatorMap({"base" = "Division"})
+ * @ORM\Entity
+ * @ORM\Table(name="rbac_divisions")
+ * @ORM\InheritanceType("SINGLE_TABLE")
+ * @ORM\DiscriminatorColumn(name="_type", type="string")
+ * @ORM\DiscriminatorMap({"base" = "Division"})
  */
 class Division extends Nette\Object
 {
-	/** @Orm:Id @Orm:Column(type="integer") @Orm:GeneratedValue @var integer */
+	/** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue @var integer */
 	private $id;
 
-	/** @Orm:Column(type="string") @var string */
+	/** @ORM\Column(type="string") @var string */
 	private $name;
 
-	/** @Orm:Column(type="string", nullable=TRUE) @var string */
+	/** @ORM\Column(type="string", nullable=TRUE) @var string */
 	private $description;
 
-	/** @Orm:OneToMany(targetEntity="BasePermission", mappedBy="division", cascade={"persist"}) @var Collection */
+	/** @ORM\OneToMany(targetEntity="BasePermission", mappedBy="division", cascade={"persist"}) @var Collection */
 	private $permissions;
 
 	/**
 	 * @var Collection
-	 * @Orm:ManyToMany(targetEntity="Privilege", cascade={"persist"})
-	 * @Orm:JoinTable(name="rbac_divisions_privileges",
-	 *		joinColumns={@Orm:JoinColumn(name="privilege_id", referencedColumnName="id")},
-	 *		inverseJoinColumns={@Orm:JoinColumn(name="division_id", referencedColumnName="id")}
+	 * @ORM\ManyToMany(targetEntity="Privilege", cascade={"persist"})
+	 * @ORM\JoinTable(name="rbac_divisions_privileges",
+	 *		joinColumns={@ORM\JoinColumn(name="privilege_id", referencedColumnName="id")},
+	 *		inverseJoinColumns={@ORM\JoinColumn(name="division_id", referencedColumnName="id")}
 	 *	)
 	 */
 	private $privileges;

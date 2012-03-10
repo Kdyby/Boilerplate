@@ -14,6 +14,7 @@ use DateTime;
 use Doctrine;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Mapping as ORM;
 use Kdyby;
 use Nette;
 use Nette\Utils\Strings;
@@ -24,9 +25,9 @@ use Nette\Utils\Strings;
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
  * @serializationVersion 1.0
- * @Orm:Entity
- * @Orm:Table(name="users")
- * @Orm:HasLifecycleCallbacks
+ * @ORM\Entity
+ * @ORM\Table(name="users")
+ * @ORM\HasLifecycleCallbacks
  *
  * @property-read mixed $id
  * @property \Kdyby\Security\RBAC\Role[] $roles
@@ -34,50 +35,50 @@ use Nette\Utils\Strings;
 class Identity extends Kdyby\Doctrine\Entities\IdentifiedEntity implements Nette\Security\IIdentity, Nette\Security\IRole
 {
 
-	/** @Orm:Column(type="string") */
+	/** @ORM\Column(type="string") */
 	private $username;
 
-	/** @Orm:Column(type="password") @var \Kdyby\Types\Password */
+	/** @ORM\Column(type="password") @var \Kdyby\Types\Password */
 	private $password;
 
-	/** @Orm:Column(type="string", length=5) */
+	/** @ORM\Column(type="string", length=5) */
 	private $salt;
 
-	/** @Orm:Column(type="string", nullable=TRUE, length=50) */
+	/** @ORM\Column(type="string", nullable=TRUE, length=50) */
 	private $name;
 
-	/** @Orm:Column(type="string", nullable=TRUE) */
+	/** @ORM\Column(type="string", nullable=TRUE) */
 	private $email;
 
 	/**
-	 * @Orm:ManyToMany(targetEntity="Kdyby\Security\RBAC\Role", cascade={"persist"})
-	 * @Orm:JoinTable(name="users_roles",
-	 *		joinColumns={@Orm:JoinColumn(name="role_id", referencedColumnName="id")},
-	 *		inverseJoinColumns={@Orm:JoinColumn(name="user_id", referencedColumnName="id")}
+	 * @ORM\ManyToMany(targetEntity="Kdyby\Security\RBAC\Role", cascade={"persist"})
+	 * @ORM\JoinTable(name="users_roles",
+	 *		joinColumns={@ORM\JoinColumn(name="role_id", referencedColumnName="id")},
+	 *		inverseJoinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")}
 	 *	)
 	 * @var \Kdyby\Security\RBAC\Role[]
 	 */
 	private $roles;
 
 	/**
-	 * @Orm:OneToOne(targetEntity="Kdyby\Domain\Users\IdentityInfo", cascade={"persist"}, fetch="EAGER")
-	 * @Orm:JoinColumn(name="info_id", referencedColumnName="id")
+	 * @ORM\OneToOne(targetEntity="Kdyby\Domain\Users\IdentityInfo", cascade={"persist"}, fetch="EAGER")
+	 * @ORM\JoinColumn(name="info_id", referencedColumnName="id")
 	 */
 	private $info;
 
-	/** @Orm:Column(type="boolean") */
+	/** @ORM\Column(type="boolean") */
 	private $approved = TRUE;
 
-	/** @Orm:Column(type="boolean") */
+	/** @ORM\Column(type="boolean") */
 	private $robot = FALSE;
 
-	/** @Orm:Column(type="datetime") @var \DateTime */
+	/** @ORM\Column(type="datetime") @var \DateTime */
 	private $createdTime;
 
-	/** @Orm:Column(type="datetime", nullable=TRUE) @var \DateTime */
+	/** @ORM\Column(type="datetime", nullable=TRUE) @var \DateTime */
 	private $deletedTime;
 
-	/** @Orm:Column(type="datetime", nullable=TRUE) @var \DateTime */
+	/** @ORM\Column(type="datetime", nullable=TRUE) @var \DateTime */
 	private $approveTime;
 
 	/** @var bool */
@@ -107,7 +108,7 @@ class Identity extends Kdyby\Doctrine\Entities\IdentifiedEntity implements Nette
 
 	/**
 	 * @internal
-	 * @Orm:PostLoad
+	 * @ORM\PostLoad
 	 */
 	public function postLoad()
 	{

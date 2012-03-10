@@ -10,6 +10,7 @@
 
 namespace Kdyby\Security\RBAC;
 
+use Doctrine\ORM\Mapping as ORM;
 use Kdyby;
 use Nette;
 
@@ -17,19 +18,19 @@ use Nette;
 
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
- * @Orm:Entity
- * @Orm:Table(name="rbac_resources")
+ * @ORM\Entity
+ * @ORM\Table(name="rbac_resources")
  */
 class Resource extends Nette\Object implements Nette\Security\IResource
 {
 
-	/** @Orm:Id @Orm:Column(type="integer") @Orm:GeneratedValue @var integer */
+	/** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue @var integer */
 	private $id;
 
-	/** @Orm:Column(type="string", unique=TRUE) @var string */
+	/** @ORM\Column(type="string", unique=TRUE) @var string */
 	private $name;
 
-	/** @Orm:Column(type="string", nullable=TRUE) @var string */
+	/** @ORM\Column(type="string", nullable=TRUE) @var string */
 	private $description;
 
 

@@ -10,6 +10,7 @@
 
 namespace Kdyby\Doctrine\Entities;
 
+use Doctrine\ORM\Mapping as ORM;
 use Nette;
 use Nette\Environment;
 
@@ -17,15 +18,16 @@ use Nette\Environment;
 
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
- * @author Jan Smitka
  *
- * @Orm:MappedSuperclass
+ * @ORM\MappedSuperclass()
  *
  * @property-read int $id
  */
 abstract class BaseEntity extends Nette\Object
 {
 
+	/**
+	 */
 	public function __construct() { }
 
 }
