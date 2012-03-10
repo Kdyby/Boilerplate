@@ -111,7 +111,7 @@ class DiscriminatorMapDiscoveryListener extends Nette\Object implements Doctrine
 	{
 		return $this->reader->getClassAnnotation(
 			ClassType::from($className),
-			'Doctrine\ORM\Mapping\DiscriminatorEntry'
+			'Kdyby\Doctrine\Mapping\DiscriminatorEntry'
 		) ? : NULL;
 	}
 

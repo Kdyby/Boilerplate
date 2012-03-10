@@ -19,7 +19,7 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  * @ORM\Entity
- * @ORM\DiscriminatorEntry(name="role")
+ * @Kdyby\Doctrine\Mapping\DiscriminatorEntry(name="role")
  */
 class RolePermission extends BasePermission
 {

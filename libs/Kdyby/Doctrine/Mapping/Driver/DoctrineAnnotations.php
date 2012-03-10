@@ -8,24 +8,16 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Doctrine\ORM\Mapping;
+namespace Kdyby\Doctrine\Mapping;
 
-use Doctrine;
+use Doctrine\Common\Annotations\Annotation;
 
 
 
 /**
- * I realy do feel bad for definning class in foreign namespace
- * but I have a good reason. This little hack prevents me from doing much uglier things.
- *
- * In order to be able to define own annotation without namespace prefix (ugly) I'm forced
- * to create another AnnotationReader instance and read the damn class fucking twice,
- * to be able to have annotation in my own namespace, without prefix.
- *
- * So fuck it, this is the best god damn fucking way. Don't you dare to question my sanity.
- *
  * @Annotation
  */
-class DiscriminatorEntry extends Doctrine\Common\Annotations\Annotation {
+class DiscriminatorEntry extends Annotation
+{
 	public $name;
 }
