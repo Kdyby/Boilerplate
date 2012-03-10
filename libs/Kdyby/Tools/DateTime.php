@@ -48,6 +48,23 @@ class DateTime extends Nette\DateTime
 
 
 	/**
+	 * @param array $formats
+	 * @param $date
+	 */
+	public static function tryFormats(array $formats, $date)
+	{
+		while ($formats) {
+			if ($valid = static::createFromFormat('!' . array_shift($formats), $date)) {
+				return $valid;
+			}
+		}
+
+		return FALSE;
+	}
+
+
+
+	/**
 	 * @param string $defaultFormat
 	 * @return DateTime
 	 */
