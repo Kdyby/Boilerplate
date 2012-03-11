@@ -146,7 +146,7 @@ class DoubleLinkedArray extends Nette\Object implements \IteratorAggregate, \Cou
 	 * @param object $object
 	 *
 	 * @throws \Kdyby\InvalidArgumentException
-	 * @return string|FALSE
+	 * @return string
 	 */
 	public function getOffset($object)
 	{
