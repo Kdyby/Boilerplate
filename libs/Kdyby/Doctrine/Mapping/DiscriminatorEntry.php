@@ -11,13 +11,21 @@
 namespace Kdyby\Doctrine\Mapping;
 
 use Doctrine\Common\Annotations\Annotation;
+use Kdyby;
+use Nette;
 
 
 
 /**
  * @Annotation
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class DiscriminatorEntry extends Annotation
 {
+
+	/**
+	 * @var string
+	 */
 	public $name;
+
 }
