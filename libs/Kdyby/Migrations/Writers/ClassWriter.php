@@ -71,7 +71,7 @@ class ClassWriter extends Kdyby\Migrations\QueryWriter
 	private function writeSql($sql)
 	{
 		if (!file_exists($this->file)) {
-			$versionClass = new Kdyby\Migrations\VersionClassBuilder($this->package, $this->version);
+			$versionClass = new Kdyby\Migrations\Tools\VersionClassBuilder($this->package, $this->version);
 			file_put_contents($this->file, $versionClass->build());
 		}
 
