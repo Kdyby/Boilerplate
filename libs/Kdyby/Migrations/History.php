@@ -195,11 +195,9 @@ class History extends Nette\Object implements \IteratorAggregate
 		$totalTime = $totalSqls = 0;
 
 		$current = $this->getCurrent();
-//		dump(array('target' => $target, 'current' => $current->getVersion()));
 		do {
 			/** @var \Kdyby\Migrations\Version $prev */
 			if ($current->getVersion() === $target) {
-//				dump('ending');
 				break;
 			}
 
@@ -207,8 +205,6 @@ class History extends Nette\Object implements \IteratorAggregate
 
 			$totalTime += $current->getTime();
 			$totalSqls += is_array($lastSqls) ? count($lastSqls) : (int)$lastSqls;
-
-//			dump(array('current' => $this->getCurrent()->getVersion()));
 
 		} while ($current = $current->getPrevious());
 
