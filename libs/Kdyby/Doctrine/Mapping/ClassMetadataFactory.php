@@ -22,7 +22,17 @@ use Nette;
 class ClassMetadataFactory extends Doctrine\ORM\Mapping\ClassMetadataFactory
 {
 
-    /**
+	/**
+	 * Enforce Nette\Reflection
+	 */
+	public function __construct()
+	{
+		$this->setReflectionService(new RuntimeReflectionService);
+	}
+
+
+
+	/**
      * Creates a new ClassMetadata instance for the given class name.
      *
      * @param string $className
