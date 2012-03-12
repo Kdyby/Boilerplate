@@ -18,7 +18,6 @@ use Doctrine\ORM\NonUniqueResultException;
 use Kdyby;
 use Kdyby\Persistence\IDao;
 use Kdyby\Persistence\IQueryObject;
-use Kdyby\Doctrine\Mapping\EntityValuesMapper;
 use Nette;
 use Nette\ObjectMixin;
 
@@ -458,6 +457,26 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 		} else {
 			throw $e;
 		}
+	}
+
+
+
+	/**
+	 * @return \Kdyby\Doctrine\Mapping\ClassMetadata
+	 */
+	public function getClassMetadata()
+	{
+		return parent::getClassMetadata();
+	}
+
+
+
+	/**
+	 * @return \Doctrine\ORM\EntityManager
+	 */
+	public function getEntityManager()
+	{
+		return parent::getEntityManager();
 	}
 
 
