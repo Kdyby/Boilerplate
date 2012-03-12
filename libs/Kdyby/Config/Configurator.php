@@ -36,7 +36,9 @@ class Configurator extends Nette\Object
 {
 
 	/** @var array */
-	public $parameters = array();
+	public $parameters = array(
+		'email' => NULL,
+	);
 
 	/** @var boolean */
 	private $initialized = FALSE;
@@ -52,11 +54,13 @@ class Configurator extends Nette\Object
 	/**
 	 * @param array $parameters
 	 * @param \Kdyby\Packages\IPackageList $packages
+	 *
+	 * @throws \Kdyby\DirectoryNotWritableException
 	 */
 	public function __construct($parameters = NULL, IPackageList $packages = NULL)
 	{
 		// path defaults
-		$this->parameters = array('email' => NULL) + static::defaultPaths($parameters);
+		$this->parameters = static::defaultPaths($parameters) + $this->parameters;
 
 		// check if temp dir is writable
 		if (!is_writable($this->parameters['tempDir'])) {
@@ -263,6 +267,8 @@ class Configurator extends Nette\Object
 	 * Setups the Debugger defaults
 	 *
 	 * @param array $params
+	 *
+	 * @throws \Kdyby\DirectoryNotWritableException
 	 */
 	protected function setupDebugger($params = array())
 	{
@@ -287,6 +293,7 @@ class Configurator extends Nette\Object
 	 * @param string $appDir
 	 * @param string $environment
 	 *
+	 * @throws \Kdyby\IOException
 	 * @return \Kdyby\Config\Configurator
 	 */
 	public static function scriptInit($appDir, $environment = 'console')
