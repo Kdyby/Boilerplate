@@ -19,7 +19,7 @@ use Kdyby;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
- * @ORM\MappedSuperclass
+ * @ORM\MappedSuperclass()
  *
  * @property-read int $id
  */
