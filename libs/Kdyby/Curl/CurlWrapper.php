@@ -322,12 +322,16 @@ class CurlWrapper extends Nette\Object
 
 
 	/**
-	 * @param array $post
+	 * @param array|string $post
 	 * @param array $files
 	 */
-	public function setPost(array $post, array $files = NULL)
+	public function setPost($post = array(), array $files = NULL)
 	{
-		if ($files !== NULL) {
+		if ($files) {
+			if (!is_array($post)) {
+				throw new Kdyby\NotImplementedException;
+			}
+
 			array_walk_recursive($files, function (&$item) { $item = '@' . realpath($item); });
 			$post = Nette\Utils\Arrays::mergeTree($post, $files);
 			$this->setHeader('Content-Type', 'multipart/form-data');

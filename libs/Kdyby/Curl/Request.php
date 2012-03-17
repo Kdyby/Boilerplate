@@ -52,7 +52,7 @@ class Request extends RequestOptions
 	/** @var array name => value */
 	public $cookies = array();
 
-	/** @var array */
+	/** @var array|string */
 	public $post = array();
 
 	/** @var array */
@@ -65,12 +65,12 @@ class Request extends RequestOptions
 
 	/**
 	 * @param string $url
-	 * @param array $post
+	 * @param array|string $post
 	 */
-	public function __construct($url, array $post = NULL)
+	public function __construct($url, $post = array())
 	{
 		$this->setUrl($url);
-		$this->post = (array)$post;
+		$this->post = $post;
 	}
 
 
@@ -152,15 +152,15 @@ class Request extends RequestOptions
 
 
 	/**
-	 * @param array $post
+	 * @param array|string $post
 	 * @param array $files
 	 *
 	 * @return \Kdyby\Curl\Response
 	 */
-	public function post(array $post = NULL, array $files = NULL)
+	public function post($post = array(), array $files = NULL)
 	{
 		$this->method = static::POST;
-		$this->post = (array)$post;
+		$this->post = $post;
 		$this->files = (array)$files;
 		return $this->send();
 	}
@@ -168,14 +168,14 @@ class Request extends RequestOptions
 
 
 	/**
-	 * @param array $post
+	 * @param array|string $post
 	 *
 	 * @return \Kdyby\Curl\Response
 	 */
-	public function put(array $post = NULL)
+	public function put($post = array())
 	{
 		$this->method = static::PUT;
-		$this->post = (array)$post;
+		$this->post = $post;
 		$this->files = array();
 		return $this->send();
 	}
@@ -195,14 +195,14 @@ class Request extends RequestOptions
 
 
 	/**
-	 * @param array $post
+	 * @param array|string $post
 	 *
 	 * @return \Kdyby\Curl\Response
 	 */
-	public function download(array $post = NULL)
+	public function download($post = array())
 	{
 		$this->method = static::DOWNLOAD;
-		$this->post = (array)$post;
+		$this->post = $post;
 		return $this->send();
 	}
 
