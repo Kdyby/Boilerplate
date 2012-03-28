@@ -53,7 +53,7 @@ class EditableTemplatesTest extends Kdyby\Tests\OrmTestCase
 
 
 
-	public function test()
+	public function testSavedTemplateHasAFile()
 	{
 		$template = new TemplateSource;
 		$template->setSource('{$name}');
@@ -65,11 +65,44 @@ class EditableTemplatesTest extends Kdyby\Tests\OrmTestCase
 		$template = $this->dao->getReference($id);
 		$file = $this->templates->getTemplateFile($template);
 
+		$this->assertTemplate($template, $file);
+	}
+
+
+
+	public function testFileWillBeRestoredWhenDeleted()
+	{
+		$template = new TemplateSource;
+		$template->setSource('{$name}');
+
+		$this->templates->save($template);
+		$file = $this->templates->getTemplateFile($template);
+		$this->assertFileExists($file);
+
+		Kdyby\Tools\Filesystem::rm($file);
+		$this->assertFileNotExists($file);
+
+		$file = $this->templates->getTemplateFile($template);
+		$this->assertFileExists($file);
+	}
+
+
+
+	/**
+	 * @param \Kdyby\Templates\TemplateSource $expectedTemplate
+	 * @param string $file
+	 */
+	private function assertTemplate(TemplateSource $expectedTemplate, $file = NULL)
+	{
+		if ($file === NULL) {
+			$file = $this->templates->getTemplateFile($expectedTemplate);
+		}
+
 		ob_start();
 		Nette\Utils\LimitedScope::evaluate(file_get_contents($file));
-		$source = ob_get_clean();
+		$actualSource = ob_get_clean();
 
-		$this->assertEquals($template->getSource(), $source);
+		$this->assertEquals($expectedTemplate->getSource(), $actualSource);
 	}
 
 }

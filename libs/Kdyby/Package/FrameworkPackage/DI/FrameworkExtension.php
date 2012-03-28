@@ -115,7 +115,8 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 
 		// cache
 		$container->addDefinition($this->prefix('editableTemplates.storage'))
-			->setClass('Kdyby\Caching\LatteStorage', array('%tempDir%/cache', '@nette.cacheJournal'));
+			->setClass('Kdyby\Caching\LatteStorage', array('%tempDir%/cache', '@nette.cacheJournal'))
+			->setAutowired(FALSE);
 
 		// macros
 		$this->addMacro('macros.core', 'Kdyby\Templates\CoreMacros::install');

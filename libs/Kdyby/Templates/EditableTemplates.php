@@ -86,6 +86,7 @@ class EditableTemplates extends Nette\Object
 	/**
 	 * @param \Kdyby\Templates\TemplateSource $template
 	 *
+	 * @throws \Kdyby\InvalidStateException
 	 * @throws \Kdyby\FileNotFoundException
 	 * @return string
 	 */
@@ -93,11 +94,19 @@ class EditableTemplates extends Nette\Object
 	{
 		$this->storage->hint = (string)$template->getId();
 
-		if (!$cached = $this->cache->load($template->getId())) {
-			$this->cache->save($template->getId(), $template->getSource());
+		if (!$template->getId()) {
+			$this->save($template);
 		}
 
-		if (!file_exists($cached['file'])) {
+		if (!$cached = $this->cache->load($template->getId())) {
+			$this->cache->save($template->getId(), $template->getSource());
+			$cached = $this->cache->load($template->getId());
+		}
+
+		if ($cached === NULL) {
+			throw new Kdyby\InvalidStateException("No template found.");
+
+		} elseif (!file_exists($cached['file'])) {
 			throw Kdyby\FileNotFoundException::fromFile($cached['file']);
 		}
 
