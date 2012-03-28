@@ -59,6 +59,7 @@ class FrameworkPackage extends Kdyby\Packages\Package
 			'Kdyby\\Doctrine\\Entities',
 			'Kdyby\\Domain',
 			'Kdyby\\Media',
+			'Kdyby\\Templates',
 		));
 	}
 

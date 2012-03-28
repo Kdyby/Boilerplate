@@ -91,6 +91,16 @@ class IOException extends \RuntimeException
 class FileNotFoundException extends IOException
 {
 
+	/**
+	 * @param string $file
+	 *
+	 * @return \Kdyby\FileNotWritableException
+	 */
+	public static function fromFile($file)
+	{
+		return new static("Unable to read file '$file'. Please, make this file readable.");
+	}
+
 }
 
 
@@ -119,6 +129,16 @@ class FileNotWritableException extends IOException
  */
 class DirectoryNotFoundException extends IOException
 {
+
+	/**
+	 * @param string $directory
+	 *
+	 * @return \Kdyby\DirectoryNotWritableException
+	 */
+	public static function fromDir($directory)
+	{
+		return new static("Unable to read directory '$directory'. Please, make this directory readable.");
+	}
 
 }
 

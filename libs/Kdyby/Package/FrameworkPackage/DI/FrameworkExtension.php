@@ -108,6 +108,15 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 		$container->addDefinition($this->prefix('templateConfigurator'))
 			->setClass('Kdyby\Templates\TemplateConfigurator');
 
+		$container->addDefinition($this->prefix('editableTemplates'))
+			->setClass('Kdyby\Templates\EditableTemplates', array(
+				'@doctrine.registry', $this->prefix('@editableTemplates.storage')
+			));
+
+		// cache
+		$container->addDefinition($this->prefix('editableTemplates.storage'))
+			->setClass('Kdyby\Caching\LatteStorage', array('%tempDir%/cache', '@nette.cacheJournal'));
+
 		// macros
 		$this->addMacro('macros.core', 'Kdyby\Templates\CoreMacros::install');
 
