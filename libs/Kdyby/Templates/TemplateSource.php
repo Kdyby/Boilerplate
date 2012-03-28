@@ -44,6 +44,13 @@ class TemplateSource extends Kdyby\Doctrine\Entities\IdentifiedEntity
 	 */
 	private $source;
 
+	/**
+	 * @ORM\ManyToOne(targetEntity="TemplateSource", cascade={"persist"})
+	 * @ORM\JoinColumn(name="extends_id", referencedColumnName="id")
+	 * @var \Kdyby\Templates\TemplateSource
+	 */
+	private $extends;
+
 
 
 	/**
@@ -103,4 +110,46 @@ class TemplateSource extends Kdyby\Doctrine\Entities\IdentifiedEntity
 	{
 		return $this->description;
 	}
+
+
+
+	/**
+	 * @param \Kdyby\Templates\TemplateSource $extends
+	 */
+	public function setExtends(TemplateSource $extends = NULL)
+	{
+		$this->extends = $extends;
+	}
+
+
+
+	/**
+	 * @return \Kdyby\Templates\TemplateSource
+	 */
+	public function getExtends()
+	{
+		return $this->extends;
+	}
+
+
+
+	/**
+	 * @param \Kdyby\Templates\EditableTemplates $templates
+	 * @param array $db
+	 *
+	 * @return string
+	 */
+	public function build(EditableTemplates $templates, array &$db)
+	{
+		if (!$this->getExtends()) {
+			return $this->getSource();
+		}
+
+		$source = $this->getSource();
+		$file = $templates->getTemplateFile($this->getExtends());
+		$db[Nette\Caching\Cache::FILES][] = $file;
+
+		return '{extends "' . $file . '"}' . "\n" . $source;
+	}
+
 }

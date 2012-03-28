@@ -61,10 +61,23 @@ class EditableTemplates extends Nette\Object
 	public function save(TemplateSource $template)
 	{
 		$this->storage->hint = (string)$template->getId();
+		static $trigger;
+		if (!isset($trigger)) {
+			$trigger = $template;
+		}
 
-		$this->sourcesDao->save($template);
-		if ($source = $template->getSource()) { // entity could be partial
-			$this->cache->save($template->getId(), $source);
+		if ($extended = $template->getExtends()) {
+			$this->save($extended);
+		}
+
+		$dp = array();
+		if ($source = $template->build($this, $dp)) {
+			$this->cache->save($template->getId(), $source, $dp);
+		}
+
+		if (isset($trigger) && $trigger === $template) {
+			$this->sourcesDao->save($trigger);
+			$trigger = NULL;
 		}
 	}
 
@@ -99,7 +112,8 @@ class EditableTemplates extends Nette\Object
 		}
 
 		if (!$cached = $this->cache->load($template->getId())) {
-			$this->cache->save($template->getId(), $template->getSource());
+			$dp = array();
+			$this->cache->save($template->getId(), $template->build($this, $dp), $dp);
 			$cached = $this->cache->load($template->getId());
 		}
 

@@ -45,7 +45,12 @@ class EditableTemplatesTest extends Kdyby\Tests\OrmTestCase
 	{
 		$this->createOrmSandbox(array('Kdyby\Templates\TemplateSource'));
 
-		$this->storage = new Kdyby\Caching\LatteStorage($this->getContext()->expand('%tempDir%/cache'));
+		$cacheDir = $this->getContext()->expand('%tempDir%/cache');
+		if ($nsDirs = glob($cacheDir . '/*' . EditableTemplates::CACHE_NS . '*')) {
+			Kdyby\Tools\Filesystem::rmDir(reset($nsDirs));
+		}
+
+		$this->storage = new Kdyby\Caching\LatteStorage($cacheDir);
 		$this->templates = new EditableTemplates($this->getDoctrine(), $this->storage);
 
 		$this->dao = $this->getDao('Kdyby\Templates\TemplateSource');
@@ -65,7 +70,7 @@ class EditableTemplatesTest extends Kdyby\Tests\OrmTestCase
 		$template = $this->dao->getReference($id);
 		$file = $this->templates->getTemplateFile($template);
 
-		$this->assertTemplate($template, $file);
+		$this->assertEquals($template->getSource(), static::readTemplate($file));
 	}
 
 
@@ -89,20 +94,42 @@ class EditableTemplatesTest extends Kdyby\Tests\OrmTestCase
 
 
 	/**
-	 * @param \Kdyby\Templates\TemplateSource $expectedTemplate
-	 * @param string $file
+	 * @group one
 	 */
-	private function assertTemplate(TemplateSource $expectedTemplate, $file = NULL)
+	public function testTemplateCanBeExtended()
 	{
-		if ($file === NULL) {
-			$file = $this->templates->getTemplateFile($expectedTemplate);
-		}
+		$layout = new TemplateSource;
+		$layout->setSource('<div>{include #content}</div>');
 
+		$template = new TemplateSource;
+		$template->setSource('{block #content}{$name}{/block}');
+		$template->setExtends($layout);
+
+		$this->templates->save($template);
+		$this->assertNotNull($id = $template->getId());
+		$this->assertNotNull($layout->getId());
+		$this->getEntityManager()->flush();
+
+		$template = $this->dao->getReference($id);
+		$file = $this->templates->getTemplateFile($template);
+
+		$this->assertStringMatchesFormat(
+			"{extends %s}\n". $template->getSource(),
+			static::readTemplate($file)
+		);
+	}
+
+
+
+	/**
+	 * @param string $file
+	 * @return string
+	 */
+	private static function readTemplate($file)
+	{
 		ob_start();
 		Nette\Utils\LimitedScope::evaluate(file_get_contents($file));
-		$actualSource = ob_get_clean();
-
-		$this->assertEquals($expectedTemplate->getSource(), $actualSource);
+		return ob_get_clean();
 	}
 
 }
