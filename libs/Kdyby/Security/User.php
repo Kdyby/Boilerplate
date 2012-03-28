@@ -39,10 +39,10 @@ class User extends Nette\Security\User implements Nette\Security\IAuthenticator
 
 	/**
 	 * @param \Nette\Security\IUserStorage $storage
-	 * @param \Nette\DI\IContainer $context
+	 * @param \Nette\DI\Container $context
 	 * @param \Kdyby\Doctrine\Dao $users
 	 */
-	public function __construct(IUserStorage $storage, Nette\DI\IContainer $context, Dao $users)
+	public function __construct(IUserStorage $storage, Nette\DI\Container $context, Dao $users)
 	{
 		parent::__construct($storage, $context);
 		$this->users = $users;

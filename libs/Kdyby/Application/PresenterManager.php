@@ -115,6 +115,7 @@ class PresenterManager extends Nette\Application\PresenterFactory implements Net
 	 */
 	public function createPresenter($name)
 	{
+		/** @var \Nette\Application\UI\Presenter $presenter */
 		$serviceName = $this->formatServiceNameFromPresenter($name);
 		if (method_exists($this->container, $method = Nette\DI\Container::getMethodName($serviceName, FALSE))) {
 			$presenter = $this->container->{$method}();
@@ -124,17 +125,14 @@ class PresenterManager extends Nette\Application\PresenterFactory implements Net
 
 		} else {
 			$class = $this->getPresenterClass($name);
-			$presenter = new $class($this->container);
+			$presenter = $this->container->createInstance($class);
 		}
 
 		if (method_exists($presenter, 'setTemplateConfigurator') && $this->container->hasService('kdyby.templateConfigurator')) {
 			$presenter->setTemplateConfigurator($this->container->kdyby->templateConfigurator);
 		}
 
-		if (method_exists($presenter, 'setContext')) {
-			$this->container->callMethod(array($presenter, 'setContext'));
-		}
-
+		$presenter->setContext($this->container);
 		return $presenter;
 	}
 

@@ -41,20 +41,6 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 
 
 	/**
-	 * @param \Nette\DI\Container $container
-	 */
-	public function __construct(Nette\DI\Container $container)
-	{
-		parent::__construct($container);
-
-		if ($container->hasService('kdyby.templateConfigurator')) {
-			$this->setTemplateConfigurator($container->kdyby->templateConfigurator);
-		}
-	}
-
-
-
-	/**
 	 * @return \Kdyby\Doctrine\Registry
 	 */
 	public function getDoctrine()

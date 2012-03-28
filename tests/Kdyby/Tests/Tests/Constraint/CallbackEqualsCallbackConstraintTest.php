@@ -241,6 +241,7 @@ class ObjectWithEventMock extends Nette\Object
 	public $onEvent = array();
 
 	public function foo() { }
+	public function __invoke() { }
 	public static function staticFoo() { }
 
 }

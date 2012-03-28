@@ -61,7 +61,7 @@ class CallbackEqualsCallbackConstraint extends \PHPUnit_Framework_Constraint
 		}
 
 		if ($this->isCallableObject($me) && $this->isCallableObject($other)) {
-			return $me[0] === $other[0];
+			return $me === $other;
 		}
 
 		if ($this->isFunction($me) && $this->isFunction($other)) {
@@ -113,10 +113,6 @@ class CallbackEqualsCallbackConstraint extends \PHPUnit_Framework_Constraint
 	{
 		if ($this->isClosure($callback)) {
 			return FALSE;
-		}
-
-		if (is_array($callback) && isset($callback[1]) && $callback[1] === '__invoke') {
-			return $this->isCallableObject($callback[0]);
 		}
 
 		return is_object($callback) && is_callable(array($callback, '__invoke'));
