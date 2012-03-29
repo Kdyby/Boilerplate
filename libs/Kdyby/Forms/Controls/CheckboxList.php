@@ -20,8 +20,9 @@
 
 namespace Kdyby\Forms\Controls;
 
-use Nette;
 use Kdyby;
+use Nette;
+use Nette\Utils\Html;
 
 
 
@@ -54,8 +55,8 @@ class CheckboxList extends Nette\Forms\Controls\BaseControl
 		parent::__construct($label);
 
 		$this->control->type = 'checkbox';
-		$this->container = Nette\Utils\Html::el();
-		$this->separator = Nette\Utils\Html::el('br');
+		$this->container = Html::el();
+		$this->separator = Html::el('br');
 
 		if ($items !== NULL) {
 			$this->setItems($items);
@@ -147,7 +148,7 @@ class CheckboxList extends Nette\Forms\Controls\BaseControl
 		$id = $control->id;
 		$counter = -1;
 		$values = $this->value === NULL ? NULL : (array) $this->getValue();
-		$label = Nette\Utils\Html::el('label');
+		$label = Html::el('label');
 
 		foreach ($this->items as $k => $val) {
 			$counter++;
@@ -157,14 +158,14 @@ class CheckboxList extends Nette\Forms\Controls\BaseControl
 			$control->checked = (count($values) > 0) ? in_array($k, $values) : false;
 			$control->value = $k;
 
-			if ($val instanceof Nette\Utils\Html) {
+			if ($val instanceof Html) {
 				$label->setHtml($val);
 			} else {
 				$label->setText($this->translate($val));
 			}
 
 			if ($key !== NULL) {
-				return (string) $control . (string) $label;
+				return Html::el()->add($control)->add($label);
 			}
 
 			$container->add((string) $control . (string) $label . $separator);
