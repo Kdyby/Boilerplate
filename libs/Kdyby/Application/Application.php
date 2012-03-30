@@ -22,11 +22,25 @@ use Nette\Diagnostics\Debugger;
 class Application extends Nette\Application\Application
 {
 
-	/** @var \Kdyby\Config\Configurator */
+	/**
+	 * @var \Kdyby\Config\Configurator
+	 */
 	private $configurator;
 
-	/** @var \Kdyby\Packages\PackageManager */
+	/**
+	 * @var \Kdyby\Packages\PackageManager
+	 */
 	private $packageManager;
+
+	/**
+	 * @var \Kdyby\Packages\PackagesContainer
+	 */
+	private $packages;
+
+	/**
+	 * @var \Nette\Http\Request
+	 */
+	protected $httpRequest;
 
 
 
@@ -59,7 +73,27 @@ class Application extends Nette\Application\Application
 		$container->configureService('application', $this);
 
 		// dependencies
+		$this->initialize($container);
+
+		// wire events
+		$this->packages = $this->configurator->getPackages();
+		$this->packages->setContainer($container);
+		$this->packages->attach($this);
+
+		// activate packages
+		$this->packageManager->setActive($this->packages);
+	}
+
+
+
+	/**
+	 * @param \Nette\DI\Container|\SystemContainer $container
+	 */
+	protected function initialize(Nette\DI\Container $container)
+	{
 		$this->packageManager = $container->kdyby->packageManager;
+		$this->httpRequest = $container->httpRequest;
+
 		parent::__construct(
 			$container->nette->presenterFactory,
 			$container->router,
@@ -67,19 +101,20 @@ class Application extends Nette\Application\Application
 			$container->httpResponse,
 			$container->session
 		);
+	}
 
-		// wire events
-		$packages = $this->configurator->getPackages();
-		$packages->setContainer($container);
-		$packages->attach($this);
 
-		// activate packages
-		$this->packageManager->setActive($packages);
 
-		// call debug
+	/**
+	 * When debugger is not in production mode, call ->debug() on packages
+	 */
+	public function run()
+	{
 		if (Debugger::$productionMode === FALSE) {
-			$packages->debug();
+			$this->packages->debug();
 		}
+
+		parent::run();
 	}
 
 
