@@ -132,7 +132,10 @@ class PresenterManager extends Nette\Application\PresenterFactory implements Net
 			$presenter->setTemplateConfigurator($this->container->kdyby->templateConfigurator);
 		}
 
-		$presenter->setContext($this->container);
+		if (method_exists($presenter, 'setContext')) {
+			$presenter->setContext($this->container);
+		}
+
 		return $presenter;
 	}
 
