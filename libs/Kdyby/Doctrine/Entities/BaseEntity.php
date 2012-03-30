@@ -49,7 +49,11 @@ abstract class BaseEntity extends Nette\Object
 
 
 	/**
-	 * Call to undefined method.
+	 * Allows the user to access through magic methods to protected and public properties.
+	 * There are get<name>() and set<name>($value) methods for every protected or public property,
+	 * and for protected or public collections there are add<name>($entity), remove<name>($entity) and has<name>($entity).
+	 * When you'll try to call setter on collection, or collection manipulator on generic value, it will throw.
+	 * Getters on collections will return all it's items.
 	 *
 	 * @param string $name method name
 	 * @param array $args arguments
