@@ -1,0 +1,32 @@
+{
+	"name": "kdyby/framework",
+	"description": "Kdyby Framework is collection of tools and classes used by Kdyby CMS. Based on Nette Framework & Doctrine2",
+	"keywords": ["framework", "nette", "doctrine"],
+	"homepage": "http://kdyby.org",
+	"authors": [
+		{
+			"name": "Filip Procházka",
+			"homepage": "http://filip-prochazka.com"
+		}
+	],
+	"require": {
+		"php" : ">=5.3.2",
+		"nette/nette" : "dev-master",
+		"doctrine/orm" : "2.2.1",
+		"doctrine/data-fixtures" : "dev-master",
+		"beberlei/DoctrineExtensions" : "dev-master",
+		"symfony/console" : "2.0.6",
+		"symfony/class-loader" : "2.0.6",
+		"symfony/css-selector" : "2.0.6",
+		"symfony/validator" : "2.0.6",
+		"kriswallsmith/assetic" : "dev-master"
+	},
+	"autoload": {
+        "psr-0": {"Kdyby": "libs/"}
+    },
+	"extra": {
+		"branch-alias": {
+			"dev-master": "2.1-dev"
+		}
+	}
+}
