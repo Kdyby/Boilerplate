@@ -71,6 +71,87 @@ class DeprecatedException extends NotSupportedException
 class MemberAccessException extends \LogicException
 {
 
+	/**
+	 * @param string $type
+	 * @param string|object $class
+	 * @param string $property
+	 *
+	 * @return \Kdyby\MemberAccessException
+	 */
+	public static function propertyNotWritable($type, $class, $property)
+	{
+		$class = is_object($class) ? get_class($class) : $class;
+		return new static("Cannot write to $type property $class::\$$property.");
+	}
+
+
+
+	/**
+	 * @param string|object $class
+	 *
+	 * @return \Kdyby\MemberAccessException
+	 */
+	public static function propertyWriteWithoutName($class)
+	{
+		$class = is_object($class) ? get_class($class) : $class;
+		return new static("Cannot write to a class '$class' property without name.");
+	}
+
+
+
+	/**
+	 * @param string $type
+	 * @param string|object $class
+	 * @param string $property
+	 *
+	 * @return \Kdyby\MemberAccessException
+	 */
+	public static function propertyNotReadable($type, $class, $property)
+	{
+		$class = is_object($class) ? get_class($class) : $class;
+		return new static("Cannot read $type property $class::\$$property.");
+	}
+
+
+
+	/**
+	 * @param string|object $class
+	 *
+	 * @return \Kdyby\MemberAccessException
+	 */
+	public static function propertyReadWithoutName($class)
+	{
+		$class = is_object($class) ? get_class($class) : $class;
+		return new static("Cannot read a class '$class' property without name.");
+	}
+
+
+
+	/**
+	 * @param string|object $class
+	 *
+	 * @return MemberAccessException
+	 */
+	public static function callWithoutName($class)
+	{
+		$class = is_object($class) ? get_class($class) : $class;
+		return new static("Call to class '$class' method without name.");
+	}
+
+
+
+	/**
+	 * @param object|string $class
+	 * @param string $method
+	 *
+	 * @return \Kdyby\MemberAccessException
+	 */
+	public static function undefinedMethodCall($class, $method)
+	{
+		$class = is_object($class) ? get_class($class) : $class;
+		return new static("Call to undefined method $class::$method().");
+	}
+
 }
 
 
@@ -188,6 +269,48 @@ class OutOfRangeException extends \OutOfRangeException
  */
 class UnexpectedValueException extends \UnexpectedValueException
 {
+
+
+	/**
+	 * @param mixed $list
+	 * @param string|object $class
+	 * @param string $property
+	 *
+	 * @return \Kdyby\UnexpectedValueException
+	 */
+	public static function invalidEventValue($list, $class, $property)
+	{
+		$class = is_object($class) ? get_class($class) : $class;
+		return new static("Property $class::$$property must be array or NULL, " . gettype($list) . " given.");
+	}
+
+
+
+	/**
+	 * @param string|object $class
+	 * @param string $property
+	 *
+	 * @return \Kdyby\UnexpectedValueException
+	 */
+	public static function notACollection($class, $property)
+	{
+		$class = is_object($class) ? get_class($class) : $class;
+		return new static("Class property $class::\$$property is not an instance of Doctrine\\Common\\Collections\\Collection.");
+	}
+
+
+
+	/**
+	 * @param string|object $class
+	 * @param string $property
+	 *
+	 * @return \Kdyby\UnexpectedValueException
+	 */
+	public static function collectionCannotBeReplaced($class, $property)
+	{
+		$class = is_object($class) ? get_class($class) : $class;
+		return new static("Class property $class::\$$property is an instance of Doctrine\\Common\\Collections\\Collection. Use add<property>() and remove<property>() methods to manipulate it or declare your own.");
+	}
 
 }
 
