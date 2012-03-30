@@ -8,35 +8,29 @@
  * @license http://www.kdyby.org/license
  */
 
-use Symfony\Component\ClassLoader\UniversalClassLoader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
+use Symfony\Component\ClassLoader\UniversalClassLoader;
+
+
 
 // load Nette Framework first
-require_once __DIR__ . '/vendor/nette/Nette/loader.php';
+require_once __DIR__ . '/vendor/nette/nette/Nette/loader.php';
 
 // require class loader
-require_once __DIR__ . '/vendor/symfony/src/Symfony/Component/ClassLoader/UniversalClassLoader.php';
+require_once __DIR__ . '/vendor/.composer/autoload.php';
 
-// libraries
+
+// library
 $loader = new UniversalClassLoader();
 $loader->registerNamespaces(array(
 	'Kdyby\\Tests' => __DIR__ . '/tests',
 	'Kdyby' => __DIR__ . '/libs',
-	'Symfony' => __DIR__ . '/vendor/symfony/src',
-	'Doctrine\\Common\\DataFixtures' => __DIR__ . '/vendor/doctrine-data-fixtures/lib',
-	'Doctrine\\Common' => __DIR__ . '/vendor/doctrine-common/lib',
-	'Doctrine\\DBAL\\Migrations' => __DIR__ . '/vendor/doctrine-migrations/lib',
-	'Doctrine\\DBAL' => __DIR__ . '/vendor/doctrine-dbal/lib',
-	'Doctrine\\ORM' => __DIR__ . '/vendor/doctrine/lib',
-	'DoctrineExtensions' => __DIR__ . '/vendor/doctrine-extensions/lib',
-	'Gedmo' => __DIR__ . '/vendor/doctrine-gedmo/lib',
-	'Assetic' => __DIR__ . '/vendor/assetic/src',
 ));
 $loader->register();
 
-// annotations
+// Doctrine annotations
 AnnotationRegistry::registerLoader(function($class) use ($loader) {
-	$loader->loadClass($class);
-	return class_exists($class, FALSE);
+   $loader->loadClass($class);
+   return class_exists($class, FALSE);
 });
-AnnotationRegistry::registerFile(__DIR__ . '/vendor/doctrine/lib/Doctrine/ORM/Mapping/Driver/DoctrineAnnotations.php');
+AnnotationRegistry::registerFile(__DIR__ . '/vendor/doctrine/orm/lib/Doctrine/ORM/Mapping/Driver/DoctrineAnnotations.php');
