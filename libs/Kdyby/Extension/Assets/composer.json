@@ -1,28 +1,29 @@
 {
-	"name": "kdyby/assets-extension",
-	"description": "Integration of Assetic into Nette Framework",
-	"keywords": ["nette", "assetic", "assets"],
-	"homepage": "http://kdyby.org",
-	"authors": [
-		{
-			"name": "Filip Procházka",
-			"homepage": "http://filip-prochazka.com"
-		}
-	],
-	"require": {
-		"php" : ">=5.3.2",
-		"nette/nette" : "2.0.*"
-	},
+    "name": "kdyby/assets-extension",
+    "description": "Integration of Assetic into Nette Framework",
+    "keywords": ["nette", "assetic", "assets"],
+    "homepage": "http://kdyby.org",
+    "authors": [
+        {
+            "name": "Filip Procházka",
+            "homepage": "http://filip-prochazka.com"
+        }
+    ],
+    "require": {
+        "php" : ">=5.3.2",
+        "nette/nette" : "2.0.*",
+        "kriswallsmith/assetic": "dev-master"
+    },
     "conflict": {
         "kdyby/framework": "self.version"
     },
-	"autoload": {
+    "autoload": {
         "psr-0": {"Kdyby\\Extension\\Assets": ""}
     },
     "target-dir":"Kdyby/Extension/Assets",
-	"extra": {
-		"branch-alias": {
-			"dev-master": "2.1-dev"
-		}
-	}
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.1-dev"
+        }
+    }
 }
