@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Curl;
+namespace Kdyby\Extension\Curl;
 
 use Kdyby;
 use Nette;
@@ -20,8 +20,8 @@ use Nette\Http\UrlScript as Url;
 /**
  * @author Filip Procházka <hosiplan@kdyby.org>
  *
- * @method \Kdyby\Curl\Request setUrl(string $url)
- * @method \Kdyby\Curl\Request setMethod(string $url)
+ * @method \Kdyby\Extension\Curl\Request setUrl(string $url)
+ * @method \Kdyby\Extension\Curl\Request setMethod(string $url)
  */
 class Request extends RequestOptions
 {
@@ -58,7 +58,7 @@ class Request extends RequestOptions
 	/** @var array */
 	public $files = array();
 
-	/** @var \Kdyby\Curl\CurlSender */
+	/** @var \Kdyby\Extension\Curl\CurlSender */
 	private $sender;
 
 
@@ -89,7 +89,7 @@ class Request extends RequestOptions
 
 
 	/**
-	 * @return \Kdyby\Curl\HttpCookies
+	 * @return \Kdyby\Extension\Curl\HttpCookies
 	 */
 	public function getCookies()
 	{
@@ -110,9 +110,9 @@ class Request extends RequestOptions
 
 
 	/**
-	 * @param \Kdyby\Curl\CurlSender $sender
+	 * @param \Kdyby\Extension\Curl\CurlSender $sender
 	 *
-	 * @return \Kdyby\Curl\Request
+	 * @return \Kdyby\Extension\Curl\Request
 	 */
 	public function setSender(CurlSender $sender)
 	{
@@ -123,7 +123,7 @@ class Request extends RequestOptions
 
 
 	/**
-	 * @return \Kdyby\Curl\Response
+	 * @return \Kdyby\Extension\Curl\Response
 	 */
 	public function send()
 	{
@@ -139,7 +139,7 @@ class Request extends RequestOptions
 	/**
 	 * @param array|string $query
 	 *
-	 * @return \Kdyby\Curl\Response
+	 * @return \Kdyby\Extension\Curl\Response
 	 */
 	public function get($query = NULL)
 	{
@@ -155,7 +155,7 @@ class Request extends RequestOptions
 	 * @param array|string $post
 	 * @param array $files
 	 *
-	 * @return \Kdyby\Curl\Response
+	 * @return \Kdyby\Extension\Curl\Response
 	 */
 	public function post($post = array(), array $files = NULL)
 	{
@@ -170,7 +170,7 @@ class Request extends RequestOptions
 	/**
 	 * @param array|string $post
 	 *
-	 * @return \Kdyby\Curl\Response
+	 * @return \Kdyby\Extension\Curl\Response
 	 */
 	public function put($post = array())
 	{
@@ -183,7 +183,7 @@ class Request extends RequestOptions
 
 
 	/**
-	 * @return \Kdyby\Curl\Response
+	 * @return \Kdyby\Extension\Curl\Response
 	 */
 	public function delete()
 	{
@@ -197,7 +197,7 @@ class Request extends RequestOptions
 	/**
 	 * @param array|string $post
 	 *
-	 * @return \Kdyby\Curl\Response
+	 * @return \Kdyby\Extension\Curl\Response
 	 */
 	public function download($post = array())
 	{
@@ -210,9 +210,9 @@ class Request extends RequestOptions
 
 	/**
 	 * Creates new request that can follow requested location
-	 * @param \Kdyby\Curl\Response $response
+	 * @param \Kdyby\Extension\Curl\Response $response
 	 *
-	 * @return \Kdyby\Curl\Request
+	 * @return \Kdyby\Extension\Curl\Request
 	 */
 	final public function followRedirect(Response $response)
 	{

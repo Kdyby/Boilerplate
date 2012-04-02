@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Curl;
+namespace Kdyby\Extension\Curl;
 
 use Kdyby;
 use Nette;
@@ -26,18 +26,18 @@ class HtmlResponse extends Response
 	const CONTENT_TYPE = '~^(?P<type>[^;]+);[\t ]*charset=(?P<charset>.+)$~i';
 	/**#@- */
 
-	/** @var \Kdyby\Browser\DomDocument */
+	/** @var \Kdyby\Extension\Browser\DomDocument */
 	private $document;
 
 
 
 	/**
-	 * @return \Kdyby\Browser\DomDocument
+	 * @return \Kdyby\Extension\Browser\DomDocument
 	 */
 	public function getDocument()
 	{
 		if ($this->document === NULL) {
-			$this->document = Kdyby\Browser\DomDocument::fromMalformedHtml($this->getResponse());
+			$this->document = Kdyby\Extension\Browser\DomDocument::fromMalformedHtml($this->getResponse());
 		}
 
 		return $this->document;
@@ -46,7 +46,7 @@ class HtmlResponse extends Response
 
 
 	/**
-	 * @param \Kdyby\Curl\CurlWrapper $curl
+	 * @param \Kdyby\Extension\Curl\CurlWrapper $curl
 	 * @return string
 	 */
 	public static function convertEncoding(CurlWrapper $curl)

@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Curl;
+namespace Kdyby\Extension\Curl;
 
 use Kdyby;
 use Nette;

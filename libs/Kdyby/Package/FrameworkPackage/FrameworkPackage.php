@@ -44,6 +44,7 @@ class FrameworkPackage extends Kdyby\Packages\Package
 	public function compile(Nette\Config\Configurator $config, Nette\Config\Compiler $compiler, Kdyby\Packages\PackagesContainer $packages)
 	{
 		$compiler->addExtension('assets', new Kdyby\Extension\Assets\DI\AssetsExtension());
+		$compiler->addExtension('curl', new Kdyby\Extension\Curl\DI\CurlExtension());
 		$compiler->addExtension('kdyby', new DI\FrameworkExtension());
 		$compiler->addExtension('migrations', new DI\MigrationsExtension());
 	}

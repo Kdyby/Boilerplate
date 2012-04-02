@@ -11,7 +11,7 @@
 namespace Kdyby\Tests\Curl;
 
 use Kdyby;
-use Kdyby\Curl;
+use Kdyby\Extension\Curl;
 use Nette;
 
 

@@ -1,0 +1,28 @@
+{
+	"name": "kdyby/curl-extension",
+	"description": "Curl wrapper for Nette Framework",
+	"keywords": ["nette", "curl", "http"],
+	"homepage": "http://kdyby.org",
+	"authors": [
+		{
+			"name": "Filip Procházka",
+			"homepage": "http://filip-prochazka.com"
+		}
+	],
+	"require": {
+		"php" : ">=5.3.2",
+		"nette/nette" : "2.0.*"
+	},
+    "conflict": {
+        "kdyby/framework": "self.version"
+    },
+	"autoload": {
+        "psr-0": {"Kdyby\\Extension\\Curl": ""}
+    },
+    "target-dir":"Kdyby/Extension/Curl",
+	"extra": {
+		"branch-alias": {
+			"dev-master": "2.1-dev"
+		}
+	}
+}

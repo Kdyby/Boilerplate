@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Curl;
+namespace Kdyby\Extension\Curl;
 
 use Kdyby;
 use Nette;
@@ -22,14 +22,14 @@ interface IRequestLogger
 {
 
 	/**
-	 * @param \Kdyby\Curl\Request $request
+	 * @param \Kdyby\Extension\Curl\Request $request
 	 * @return string the id to pass to response
 	 */
 	function request(Request $request);
 
 
 	/**
-	 * @param \Kdyby\Curl\Response $response
+	 * @param \Kdyby\Extension\Curl\Response $response
 	 * @param string $id
 	 */
 	function response(Response $response, $id);

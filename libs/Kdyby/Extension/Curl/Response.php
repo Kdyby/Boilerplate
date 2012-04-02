@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Curl;
+namespace Kdyby\Extension\Curl;
 
 use Kdyby;
 use Nette;
@@ -21,7 +21,7 @@ use Nette\Utils\Strings;
  * @author Filip Procházka <hosiplan@kdyby.org>
  *
  * @property-read array $headers
- * @property-read \Kdyby\Curl\Response|NULL $previous
+ * @property-read \Kdyby\Extension\Curl\Response|NULL $previous
  * @property-read string $response
  * @property-read array $cookies
  * @property-read array $info
@@ -34,16 +34,16 @@ class Response extends Nette\Object
 	/** @var array */
 	private $cookies = array();
 
-	/** @var \Kdyby\Curl\Response */
+	/** @var \Kdyby\Extension\Curl\Response */
 	private $previous;
 
-	/** @var \Kdyby\Curl\CurlWrapper */
+	/** @var \Kdyby\Extension\Curl\CurlWrapper */
 	protected $curl;
 
 
 
 	/**
-	 * @param \Kdyby\Curl\CurlWrapper $curl
+	 * @param \Kdyby\Extension\Curl\CurlWrapper $curl
 	 * @param array $headers
 	 */
 	public function __construct(CurlWrapper $curl, array $headers)
@@ -60,9 +60,9 @@ class Response extends Nette\Object
 
 
 	/**
-	 * @param \Kdyby\Curl\Response $previous
+	 * @param \Kdyby\Extension\Curl\Response $previous
 	 *
-	 * @return \Kdyby\Curl\Response
+	 * @return \Kdyby\Extension\Curl\Response
 	 */
 	public function setPrevious(Response $previous = NULL)
 	{
@@ -73,7 +73,7 @@ class Response extends Nette\Object
 
 
 	/**
-	 * @return \Kdyby\Curl\Response|NULL
+	 * @return \Kdyby\Extension\Curl\Response|NULL
 	 */
 	public function getPrevious()
 	{
@@ -133,7 +133,7 @@ class Response extends Nette\Object
 
 
 	/**
-	 * @param \Kdyby\Curl\CurlWrapper $curl
+	 * @param \Kdyby\Extension\Curl\CurlWrapper $curl
 	 *
 	 * @return array
 	 */

@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Curl;
+namespace Kdyby\Extension\Curl;
 
 use Kdyby;
 use Nette;
@@ -47,10 +47,10 @@ class CurlSender extends RequestOptions
 	/** @var string */
 	private $downloadDir;
 
-	/** @var \Kdyby\Curl\Request */
+	/** @var \Kdyby\Extension\Curl\Request */
 	private $queriedRequest;
 
-	/** @var \Kdyby\Curl\IRequestLogger */
+	/** @var \Kdyby\Extension\Curl\IRequestLogger */
 	private $logger;
 
 
@@ -58,7 +58,7 @@ class CurlSender extends RequestOptions
 	/**
 	 * @param int $timeout
 	 *
-	 * @return \Kdyby\Curl\CurlSender
+	 * @return \Kdyby\Extension\Curl\CurlSender
 	 */
 	public function setConnectTimeout($timeout)
 	{
@@ -71,7 +71,7 @@ class CurlSender extends RequestOptions
 	/**
 	 * @param string $ua
 	 *
-	 * @return \Kdyby\Curl\CurlSender
+	 * @return \Kdyby\Extension\Curl\CurlSender
 	 */
 	public function setUserAgent($ua)
 	{
@@ -130,7 +130,7 @@ class CurlSender extends RequestOptions
 
 	/**
 	 * Asks for confirmation whether to manually follow redirect
-	 * @param \Kdyby\Curl\Response $response
+	 * @param \Kdyby\Extension\Curl\Response $response
 	 *
 	 * @return boolean
 	 */
@@ -152,7 +152,7 @@ class CurlSender extends RequestOptions
 	 * @param string $password
 	 * @param int $timeout
 	 *
-	 * @return \Kdyby\Curl\CurlSender
+	 * @return \Kdyby\Extension\Curl\CurlSender
 	 */
 	public function addProxy($ip, $port = 3128, $username = NULL, $password = NULL, $timeout = 15)
 	{
@@ -180,7 +180,7 @@ class CurlSender extends RequestOptions
 
 
 	/**
-	 * @param \Kdyby\Curl\IRequestLogger $logger
+	 * @param \Kdyby\Extension\Curl\IRequestLogger $logger
 	 */
 	public function setLogger(IRequestLogger $logger)
 	{
@@ -190,9 +190,9 @@ class CurlSender extends RequestOptions
 
 
 	/**
-	 * @param \Kdyby\Curl\Request $request
+	 * @param \Kdyby\Extension\Curl\Request $request
 	 *
-	 * @return \Kdyby\Curl\Response
+	 * @return \Kdyby\Extension\Curl\Response
 	 */
 	public function send(Request $request)
 	{
@@ -210,10 +210,10 @@ class CurlSender extends RequestOptions
 
 
 	/**
-	 * @param \Kdyby\Curl\Request $request
+	 * @param \Kdyby\Extension\Curl\Request $request
 	 * @param int $cycles
 	 *
-	 * @return \Kdyby\Curl\Response
+	 * @return \Kdyby\Extension\Curl\Response
 	 */
 	protected function sendRequest(Request $request, $cycles)
 	{
@@ -302,9 +302,9 @@ class CurlSender extends RequestOptions
 
 
 	/**
-	 * @param \Kdyby\Curl\CurlWrapper $curl
+	 * @param \Kdyby\Extension\Curl\CurlWrapper $curl
 	 *
-	 * @return \Kdyby\Curl\Response
+	 * @return \Kdyby\Extension\Curl\Response
 	 */
 	protected function buildResponse(CurlWrapper $curl)
 	{
@@ -339,9 +339,9 @@ class CurlSender extends RequestOptions
 
 
 	/**
-	 * @param \Kdyby\Curl\CurlWrapper $curl
+	 * @param \Kdyby\Extension\Curl\CurlWrapper $curl
 	 *
-	 * @return \Kdyby\Curl\Response|NULL
+	 * @return \Kdyby\Extension\Curl\Response|NULL
 	 */
 	protected function buildRedirectResponse(CurlWrapper $curl)
 	{
@@ -383,8 +383,8 @@ class CurlSender extends RequestOptions
 
 
 	/**
-	 * @param \Kdyby\Curl\CurlWrapper $curl
-	 * @param \Kdyby\Curl\Response $response
+	 * @param \Kdyby\Extension\Curl\CurlWrapper $curl
+	 * @param \Kdyby\Extension\Curl\Response $response
 	 *
 	 * @return boolean
 	 */

@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Curl\Diagnostics;
+namespace Kdyby\Extension\Curl\Diagnostics;
 
 use Kdyby;
 use Nette;
@@ -19,7 +19,7 @@ use Nette\Utils\PhpGenerator as Code;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class FileLogger extends Nette\Object implements Kdyby\Curl\IRequestLogger
+class FileLogger extends Nette\Object implements Kdyby\Extension\Curl\IRequestLogger
 {
 
 	/** @var string */
@@ -51,9 +51,9 @@ class FileLogger extends Nette\Object implements Kdyby\Curl\IRequestLogger
 
 
 	/**
-	 * @param \Kdyby\Curl\Request $request
+	 * @param \Kdyby\Extension\Curl\Request $request
 	 */
-	public function request(Kdyby\Curl\Request $request)
+	public function request(Kdyby\Extension\Curl\Request $request)
 	{
 		$id = md5(serialize($request));
 
@@ -75,10 +75,10 @@ class FileLogger extends Nette\Object implements Kdyby\Curl\IRequestLogger
 
 
 	/**
-	 * @param \Kdyby\Curl\Response $response
+	 * @param \Kdyby\Extension\Curl\Response $response
 	 * @param string $id
 	 */
-	public function response(Kdyby\Curl\Response $response, $id)
+	public function response(Kdyby\Extension\Curl\Response $response, $id)
 	{
 		$content = array();
 		foreach ($response->getHeaders() as $name => $value) {

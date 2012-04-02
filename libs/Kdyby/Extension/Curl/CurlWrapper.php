@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Curl;
+namespace Kdyby\Extension\Curl;
 
 use Kdyby;
 use Nette;
@@ -82,7 +82,7 @@ class CurlWrapper extends Nette\Object
 	/**
 	 * @param string $method
 	 *
-	 * @return \Kdyby\Curl\CurlWrapper
+	 * @return \Kdyby\Extension\Curl\CurlWrapper
 	 */
 	public function setMethod($method)
 	{
@@ -95,7 +95,7 @@ class CurlWrapper extends Nette\Object
 	/**
 	 * @param \Nette\Http\UrlScript|string $url
 	 *
-	 * @return \Kdyby\Curl\CurlWrapper
+	 * @return \Kdyby\Extension\Curl\CurlWrapper
 	 */
 	public function setUrl($url)
 	{
@@ -122,7 +122,7 @@ class CurlWrapper extends Nette\Object
 	 * @param string $password
 	 * @param int $timeout
 	 *
-	 * @return \Kdyby\Curl\CurlWrapper
+	 * @return \Kdyby\Extension\Curl\CurlWrapper
 	 */
 	public function setProxy($proxy, $port = 3128, $username = NULL, $password = NULL, $timeout = 15)
 	{
@@ -182,7 +182,7 @@ class CurlWrapper extends Nette\Object
 	/**
 	 * @param array $options
 	 *
-	 * @return \Kdyby\Curl\CurlWrapper
+	 * @return \Kdyby\Extension\Curl\CurlWrapper
 	 */
 	public function setOptions(array $options)
 	{
@@ -198,7 +198,7 @@ class CurlWrapper extends Nette\Object
 	 * @param string $option
 	 * @param mixed $value
 	 *
-	 * @return \Kdyby\Curl\CurlWrapper
+	 * @return \Kdyby\Extension\Curl\CurlWrapper
 	 */
 	public function setOption($option, $value)
 	{
@@ -273,7 +273,7 @@ class CurlWrapper extends Nette\Object
 	/**
 	 * @param array $headers
 	 *
-	 * @return \Kdyby\Curl\CurlWrapper
+	 * @return \Kdyby\Extension\Curl\CurlWrapper
 	 */
 	public function setHeaders(array $headers)
 	{
@@ -291,7 +291,7 @@ class CurlWrapper extends Nette\Object
 	 * @param string $header
 	 * @param string $value
 	 *
-	 * @return \Kdyby\Curl\CurlWrapper
+	 * @return \Kdyby\Extension\Curl\CurlWrapper
 	 */
 	public function setHeader($header, $value)
 	{
@@ -353,7 +353,7 @@ class CurlWrapper extends Nette\Object
 
 
 	/**
-	 * @throws \Kdyby\Curl\FailedRequestException
+	 * @throws \Kdyby\Extension\Curl\FailedRequestException
 	 * @return string|boolean
 	 */
 	public function execute()

@@ -8,10 +8,10 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Curl\Diagnostics;
+namespace Kdyby\Extension\Curl\Diagnostics;
 
 use Kdyby;
-use Kdyby\Curl\CurlException;
+use Kdyby\Extension\Curl\CurlException;
 use Nette;
 
 
@@ -29,7 +29,7 @@ class Panel extends Nette\Object
 	 */
 	public function renderException($e)
 	{
-		if ($e instanceof CurlException && !$e instanceof Kdyby\Curl\FailedRequestException) {
+		if ($e instanceof CurlException && !$e instanceof Kdyby\Extension\Curl\FailedRequestException) {
 			return array(
 				'tab' => 'Curl',
 				'panel' => '<h3>Request</h3>' . Nette\Diagnostics\Helpers::clickableDump($e->getRequest(), TRUE) .
@@ -44,13 +44,13 @@ class Panel extends Nette\Object
 
 
 	/**
-	 * @param \Kdyby\Curl\Response $response
+	 * @param \Kdyby\Extension\Curl\Response $response
 	 *
 	 * @return string
 	 */
 	public static function allResponses($response)
 	{
-		if (!$response instanceof Kdyby\Curl\Response) {
+		if (!$response instanceof Kdyby\Extension\Curl\Response) {
 			return NULL;
 		}
 
@@ -64,7 +64,7 @@ class Panel extends Nette\Object
 
 
 	/**
-	 * @return \Kdyby\Curl\Diagnostics\Panel
+	 * @return \Kdyby\Extension\Curl\Diagnostics\Panel
 	 */
 	public static function register()
 	{

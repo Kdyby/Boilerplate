@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Curl;
+namespace Kdyby\Extension\Curl;
 
 use Kdyby;
 use Nette;
@@ -27,7 +27,7 @@ class FailedRequestException extends CurlException
 
 
 	/**
-	 * @param \Kdyby\Curl\CurlWrapper $curl
+	 * @param \Kdyby\Extension\Curl\CurlWrapper $curl
 	 */
 	public function __construct(CurlWrapper $curl)
 	{

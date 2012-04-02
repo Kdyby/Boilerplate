@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Curl;
+namespace Kdyby\Extension\Curl;
 
 use Kdyby;
 use Nette;
@@ -41,7 +41,7 @@ abstract class RequestOptions extends Nette\Object
 	/**
 	 * @param int $timeout
 	 *
-	 * @return \Kdyby\Curl\RequestOptions
+	 * @return \Kdyby\Extension\Curl\RequestOptions
 	 */
 	public function setTimeout($timeout)
 	{
@@ -54,7 +54,7 @@ abstract class RequestOptions extends Nette\Object
 	/**
 	 * @param string $referer
 	 *
-	 * @return \Kdyby\Curl\RequestOptions
+	 * @return \Kdyby\Extension\Curl\RequestOptions
 	 */
 	public function setReferer($referer)
 	{
@@ -67,7 +67,7 @@ abstract class RequestOptions extends Nette\Object
 	/**
 	 * @param string $ua
 	 *
-	 * @return \Kdyby\Curl\RequestOptions
+	 * @return \Kdyby\Extension\Curl\RequestOptions
 	 */
 	public function setUserAgent($ua)
 	{
@@ -80,7 +80,7 @@ abstract class RequestOptions extends Nette\Object
 	/**
 	 * @param boolean $yes
 	 *
-	 * @return \Kdyby\Curl\RequestOptions
+	 * @return \Kdyby\Extension\Curl\RequestOptions
 	 */
 	public function setFollowRedirects($yes = TRUE)
 	{
@@ -93,7 +93,7 @@ abstract class RequestOptions extends Nette\Object
 	/**
 	 * @param int $count
 	 *
-	 * @return \Kdyby\Curl\RequestOptions
+	 * @return \Kdyby\Extension\Curl\RequestOptions
 	 */
 	public function setMaximumRedirects($count)
 	{
@@ -106,7 +106,7 @@ abstract class RequestOptions extends Nette\Object
 	/**
 	 * @param boolean $yes
 	 *
-	 * @return \Kdyby\Curl\RequestOptions
+	 * @return \Kdyby\Extension\Curl\RequestOptions
 	 */
 	public function setReturnTransfer($yes = TRUE)
 	{
@@ -121,7 +121,7 @@ abstract class RequestOptions extends Nette\Object
 	 *
 	 * @param boolean $yes
 	 *
-	 * @return \Kdyby\Curl\RequestOptions
+	 * @return \Kdyby\Extension\Curl\RequestOptions
 	 */
 	public function setCertificationVerify($yes = TRUE)
 	{
@@ -144,7 +144,7 @@ abstract class RequestOptions extends Nette\Object
 	 * @param int $verifyHost
 	 *
 	 * @throws \Kdyby\InvalidArgumentException
-	 * @return \Kdyby\Curl\RequestOptions
+	 * @return \Kdyby\Extension\Curl\RequestOptions
 	 */
 	public function setTrustedCertificate($cert, $verifyHost = self::VERIFYHOST_MATCH)
 	{
@@ -179,7 +179,7 @@ abstract class RequestOptions extends Nette\Object
 	 * @param int $verifyHost
 	 *
 	 * @throws \Kdyby\InvalidArgumentException
-	 * @return \Kdyby\Curl\RequestOptions
+	 * @return \Kdyby\Extension\Curl\RequestOptions
 	 */
 	public function setTrustedCertificatesDirectory($dir, $verifyHost = 2)
 	{

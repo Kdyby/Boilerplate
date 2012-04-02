@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Curl;
+namespace Kdyby\Extension\Curl;
 
 use Kdyby;
 use Nette;
@@ -32,7 +32,7 @@ class FileResponse extends Response
 
 
 	/**
-	 * @param \Kdyby\Curl\CurlWrapper $curl
+	 * @param \Kdyby\Extension\Curl\CurlWrapper $curl
 	 * @param array $headers
 	 */
 	public function __construct(CurlWrapper $curl, array $headers)
@@ -94,7 +94,7 @@ class FileResponse extends Response
 	 * Move file to new location.
 	 * @param string $dest
 	 *
-	 * @return \Kdyby\Curl\FileResponse
+	 * @return \Kdyby\Extension\Curl\FileResponse
 	 */
 	public function move($dest)
 	{
@@ -154,7 +154,7 @@ class FileResponse extends Response
 
 
 	/**
-	 * @param \Kdyby\Curl\CurlWrapper $curl
+	 * @param \Kdyby\Extension\Curl\CurlWrapper $curl
 	 *
 	 * @return array
 	 */
@@ -182,10 +182,10 @@ class FileResponse extends Response
 
 
 	/**
-	 * @param \Kdyby\Curl\CurlWrapper $curl
+	 * @param \Kdyby\Extension\Curl\CurlWrapper $curl
 	 * @param string $dir
 	 *
-	 * @return \Kdyby\Curl\CurlWrapper
+	 * @return \Kdyby\Extension\Curl\CurlWrapper
 	 */
 	public static function prepareDownload(CurlWrapper $curl, $dir)
 	{

@@ -11,7 +11,7 @@
 namespace Kdyby\Tests\Curl;
 
 use Kdyby;
-use Kdyby\Curl\HttpCookies;
+use Kdyby\Extension\Curl\HttpCookies;
 use Nette;
 
 

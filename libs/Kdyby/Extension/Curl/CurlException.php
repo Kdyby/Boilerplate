@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Curl;
+namespace Kdyby\Extension\Curl;
 
 use Kdyby;
 use Nette;
@@ -21,18 +21,18 @@ use Nette;
 class CurlException extends Kdyby\InvalidStateException
 {
 
-	/** @var \Kdyby\Curl\Request */
+	/** @var \Kdyby\Extension\Curl\Request */
 	private $request;
 
-	/** @var \Kdyby\Curl\Response */
+	/** @var \Kdyby\Extension\Curl\Response */
 	private $response;
 
 
 
 	/**
 	 * @param string $message
-	 * @param \Kdyby\Curl\Request $request
-	 * @param \Kdyby\Curl\Response $response
+	 * @param \Kdyby\Extension\Curl\Request $request
+	 * @param \Kdyby\Extension\Curl\Response $response
 	 */
 	public function __construct($message, Request $request = NULL, Response $response = NULL)
 	{
@@ -46,7 +46,7 @@ class CurlException extends Kdyby\InvalidStateException
 
 
 	/**
-	 * @return \Kdyby\Curl\Request
+	 * @return \Kdyby\Extension\Curl\Request
 	 */
 	public function getRequest()
 	{
@@ -56,7 +56,7 @@ class CurlException extends Kdyby\InvalidStateException
 
 
 	/**
-	 * @return \Kdyby\Curl\Response
+	 * @return \Kdyby\Extension\Curl\Response
 	 */
 	public function getResponse()
 	{
