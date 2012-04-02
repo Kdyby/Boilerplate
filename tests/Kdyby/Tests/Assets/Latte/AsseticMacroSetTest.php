@@ -22,21 +22,19 @@ use Nette;
 class AsseticMacroSetTest extends Kdyby\Tests\LatteTestCase
 {
 
-	/** @var \Kdyby\Assets\AssetFactory|\PHPUnit_Framework_MockObject_MockObject */
+	/** @var \Kdyby\Extension\Assets\AssetFactory|\PHPUnit_Framework_MockObject_MockObject */
 	private $factory;
 
 
 
 	public function setUp()
 	{
-		$this->factory = $this->getMockBuilder('Kdyby\Assets\AssetFactory')
+		$this->factory = $this->getMockBuilder('Kdyby\Extension\Assets\AssetFactory')
 			->disableOriginalConstructor()
 			->getMock();
 
-		$ms = $this->installMacro('Kdyby\Assets\Latte\JavascriptMacro::install');
-		$ms->setFactory($this->factory);
-
-		$ms = $this->installMacro('Kdyby\Assets\Latte\StylesheetMacro::install');
+		/** @var \Kdyby\Extension\Assets\Latte\AssetMacros $ms */
+		$ms = $this->installMacro('Kdyby\Extension\Assets\Latte\AssetMacros::install');
 		$ms->setFactory($this->factory);
 	}
 

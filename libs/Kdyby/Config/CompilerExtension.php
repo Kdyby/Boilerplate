@@ -12,6 +12,7 @@ namespace Kdyby\Config;
 
 use Kdyby;
 use Nette;
+use Nette\DI\Container;
 
 
 
@@ -49,12 +50,18 @@ class CompilerExtension extends Nette\Config\CompilerExtension
 	 */
 	public function addMacro($name, $installer)
 	{
-		return $this->getContainerBuilder()
-			->addDefinition($this->prefix($name))
+		$builder = $this->getContainerBuilder();
+
+		$macro = $builder->addDefinition($name = $this->prefix($name))
 			->setClass(substr($installer, 0, strpos($installer, '::')))
 			->setFactory($installer, array('%compiler%'))
 			->setParameters(array('compiler'))
 			->addTag('latte.macro');
+
+		$builder->getDefinition('nette.latte')
+			->addSetup('$this->' . Container::getMethodName($name, FALSE) . '(?->compiler);', array('@self'));
+
+		return $macro;
 	}
 
 

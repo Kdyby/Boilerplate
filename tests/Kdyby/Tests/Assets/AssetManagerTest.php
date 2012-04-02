@@ -14,7 +14,7 @@ use Assetic;
 use Assetic\Asset\AssetCollection;
 use Assetic\Asset\FileAsset;
 use Kdyby;
-use Kdyby\Assets\AssetManager;
+use Kdyby\Extension\Assets\AssetManager;
 use Nette;
 
 
@@ -25,7 +25,7 @@ use Nette;
 class AssetManagerTest extends Kdyby\Tests\TestCase
 {
 
-	/** @var \Kdyby\Assets\AssetManager */
+	/** @var \Kdyby\Extension\Assets\AssetManager */
 	private $manager;
 
 

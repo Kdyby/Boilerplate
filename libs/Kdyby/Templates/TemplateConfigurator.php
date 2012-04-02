@@ -19,7 +19,7 @@ use Nette\Latte;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class TemplateConfigurator extends Nette\Object implements ITemplateConfigurator
+class TemplateConfigurator extends Nette\Object
 {
 	/** @var array */
 	private $macroFactories = array();
@@ -58,7 +58,7 @@ class TemplateConfigurator extends Nette\Object implements ITemplateConfigurator
 	public function configure(Nette\Templating\Template $template)
 	{
 		$template->registerHelperLoader('Kdyby\Templates\DefaultHelpers::loader');
-		$template->_fm = $this->container->assetic->formulaeManager;
+		$template->_fm = $this->container->assets->formulaeManager;
 	}
 
 
@@ -66,9 +66,9 @@ class TemplateConfigurator extends Nette\Object implements ITemplateConfigurator
 	/**
 	 * @param \Nette\Templating\Template $template
 	 */
-	public function prepareFilters(Nette\Templating\Template $template)
+	public function prepareFilters(Latte\Engine $latte)
 	{
-		$this->latte = new Latte\Engine();
+		$this->latte = $latte;
 		foreach ($this->macroFactories as $factory) {
 			if (!$this->container->hasService($factory)) {
 				continue;
@@ -76,8 +76,6 @@ class TemplateConfigurator extends Nette\Object implements ITemplateConfigurator
 
 			$this->container->$factory->invoke($this->latte->getCompiler());
 		}
-
-		$template->registerFilter($this->latte);
 	}
 
 

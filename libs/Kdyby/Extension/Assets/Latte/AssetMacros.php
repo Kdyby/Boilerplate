@@ -8,11 +8,12 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Assets\Latte;
+namespace Kdyby\Extension\Assets\Latte;
 
 use Assetic;
 use Kdyby;
-use Kdyby\Assets\AssetFactory;
+use Kdyby\Extension\Assets\AssetFactory;
+use Kdyby\Extension\Assets\FormulaeManager;
 use Kdyby\Templates\LatteHelpers;
 use Nette;
 use Nette\Utils\PhpGenerator as Code;
@@ -26,10 +27,10 @@ use Nette\Utils\Strings;
  *
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-abstract class MacroBase extends Nette\Object implements Latte\IMacro
+class AssetMacros extends Nette\Object implements Latte\IMacro
 {
 
-	/** @var \Kdyby\Assets\AssetFactory */
+	/** @var \Kdyby\Extension\Assets\AssetFactory */
 	private $factory;
 
 	/** @var \Nette\Latte\Compiler; */
@@ -51,6 +52,65 @@ abstract class MacroBase extends Nette\Object implements Latte\IMacro
 
 
 	/**
+	 * @param \Nette\Latte\Compiler $compiler
+	 *
+	 * @return \Kdyby\Extension\Assets\Latte\AssetMacros
+	 */
+	public static function install(Latte\Compiler $compiler)
+	{
+		$me = new static($compiler);
+
+		$compiler->addMacro('javascript', $me);
+		$compiler->addMacro('js', $me);
+
+		$compiler->addMacro('stylesheet', $me);
+		$compiler->addMacro('css', $me);
+
+		return $me;
+	}
+
+
+
+	/**
+	 * New node is found. Returns FALSE to reject.
+	 *
+	 * @param \Nette\Latte\MacroNode $node
+	 *
+	 * @return bool
+	 */
+	public function nodeOpened(Latte\MacroNode $node)
+	{
+		if ($node->name === 'js' || $node->name === 'javascript') {
+			return $this->macroOpen($node, FormulaeManager::TYPE_JAVASCRIPT);
+
+		} elseif ($node->name === 'css' || $node->name === 'stylesheet') {
+			return $this->macroOpen($node, FormulaeManager::TYPE_STYLESHEET);
+
+		} else {
+			return FALSE;
+		}
+	}
+
+
+
+	/**
+	 * Node is closed.
+	 * @return void
+	 */
+	public function nodeClosed(Latte\MacroNode $node)
+	{
+		if ($node->name === 'js' || $node->name === 'javascript') {
+			$this->macroClosed($node, FormulaeManager::TYPE_JAVASCRIPT);
+
+		} elseif ($node->name === 'css' || $node->name === 'stylesheet') {
+			$this->macroClosed($node, FormulaeManager::TYPE_STYLESHEET);
+		}
+	}
+
+
+
+
+	/**
 	 * @return \Nette\Latte\Compiler
 	 */
 	public function getCompiler()
@@ -61,7 +121,7 @@ abstract class MacroBase extends Nette\Object implements Latte\IMacro
 
 
 	/**
-	 * @param \Kdyby\Assets\AssetFactory $factory
+	 * @param \Kdyby\Extension\Assets\AssetFactory $factory
 	 */
 	public function setFactory(AssetFactory $factory)
 	{
@@ -227,7 +287,7 @@ abstract class MacroBase extends Nette\Object implements Latte\IMacro
 	protected function createFactory(array $args, $type)
 	{
 		if ($this->factory === NULL) {
-			throw new Kdyby\InvalidStateException('Please provide instance of Kdyby\Assets\AssetFactory using ' . get_called_class() . '::setFactory().');
+			throw new Kdyby\InvalidStateException('Please provide instance of Kdyby\Extension\Assets\AssetFactory using ' . get_called_class() . '::setFactory().');
 		}
 
 		// divide arguments

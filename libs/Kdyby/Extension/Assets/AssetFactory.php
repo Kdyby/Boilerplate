@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Assets;
+namespace Kdyby\Extension\Assets;
 
 use Assetic;
 use Kdyby;
@@ -53,7 +53,7 @@ class AssetFactory extends Assetic\Factory\AssetFactory
 	 * @param string $input
 	 * @param array $options
 	 *
-	 * @return \Assetic\Factory\AssetInterface
+	 * @return \Assetic\Asset\AssetInterface
 	 */
 	protected function parseInput($input, array $options = array())
 	{

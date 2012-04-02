@@ -12,7 +12,7 @@ namespace Kdyby\Tests\Assets;
 
 use Assetic;
 use Kdyby;
-use Kdyby\Assets\FilterManager;
+use Kdyby\Extension\Assets\FilterManager;
 use Nette;
 use Nette\DI\Container;
 
@@ -24,7 +24,7 @@ use Nette\DI\Container;
 class FilterManagerTest extends Kdyby\Tests\TestCase
 {
 
-	/** @var \Kdyby\Assets\FilterManager */
+	/** @var \Kdyby\Extension\Assets\FilterManager */
 	private $manager;
 
 	/** @var \Nette\DI\Container */

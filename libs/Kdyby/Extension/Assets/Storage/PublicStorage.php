@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Assets\Storage;
+namespace Kdyby\Extension\Assets\Storage;
 
 use Assetic;
 use Assetic\Asset\AssetInterface;
@@ -20,7 +20,7 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class PublicStorage extends Nette\Object implements Kdyby\Assets\IStorage
+class PublicStorage extends Nette\Object implements Kdyby\Extension\Assets\IStorage
 {
 
 	/** @var string */

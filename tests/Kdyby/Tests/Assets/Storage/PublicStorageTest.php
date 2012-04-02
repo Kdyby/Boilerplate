@@ -14,7 +14,7 @@ use Assetic;
 use Assetic\Asset\AssetCollection;
 use Assetic\Asset\FileAsset;
 use Kdyby;
-use Kdyby\Assets\Storage\PublicStorage;
+use Kdyby\Extension\Assets\Storage\PublicStorage;
 use Nette;
 
 
@@ -25,7 +25,7 @@ use Nette;
 class PublicStorageTest extends Kdyby\Tests\TestCase
 {
 
-	/** @var \Kdyby\Assets\Storage\PublicStorage */
+	/** @var \Kdyby\Extension\Assets\Storage\PublicStorage */
 	private $storage;
 
 	/** @var string */

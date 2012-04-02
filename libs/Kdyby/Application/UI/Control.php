@@ -11,7 +11,7 @@
 namespace Kdyby\Application\UI;
 
 use Kdyby;
-use Kdyby\Templates\ITemplateConfigurator;
+use Kdyby\Templates\TemplateConfigurator;
 use Nette;
 use Nette\Utils\Strings;
 
@@ -29,15 +29,15 @@ use Nette\Utils\Strings;
 abstract class Control extends Nette\Application\UI\Control
 {
 
-	/** @var \Kdyby\Templates\ITemplateConfigurator */
+	/** @var \Kdyby\Templates\TemplateConfigurator */
 	protected $templateConfigurator;
 
 
 
 	/**
-	 * @param \Kdyby\Templates\ITemplateConfigurator $configurator
+	 * @param \Kdyby\Templates\TemplateConfigurator $configurator
 	 */
-	public function setTemplateConfigurator(ITemplateConfigurator $configurator = NULL)
+	public function setTemplateConfigurator(TemplateConfigurator $configurator = NULL)
 	{
 		$this->templateConfigurator = $configurator;
 	}
@@ -86,12 +86,12 @@ abstract class Control extends Nette\Application\UI\Control
 	 */
 	public function templatePrepareFilters($template)
 	{
+		$engine = $this->getPresenter()->getContext()->nette->createLatte();
 		if ($this->templateConfigurator !== NULL) {
-			$this->templateConfigurator->prepareFilters($template);
-
-		} else {
-			$template->registerFilter(new Nette\Latte\Engine);
+			$this->templateConfigurator->prepareFilters($engine);
 		}
+
+		$template->registerFilter($engine);
 	}
 
 

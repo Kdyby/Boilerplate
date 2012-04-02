@@ -21,6 +21,9 @@
 		"symfony/validator" : "2.0.6",
 		"kriswallsmith/assetic" : "dev-master"
 	},
+    "replace": {
+        "kdyby/assets-extension": "self.version"
+    },
 	"repositories": [
         {
             "type": "vcs",

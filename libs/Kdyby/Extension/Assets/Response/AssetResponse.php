@@ -8,9 +8,10 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Assets\Response;
+namespace Kdyby\Extension\Assets\Response;
 
 use Kdyby;
+use Kdyby\Extension\Assets;
 use Nette;
 
 
@@ -23,7 +24,7 @@ use Nette;
  */
 class AssetResponse extends Nette\Object implements Nette\Application\IResponse
 {
-	/** @var \Kdyby\Assets\Storage\CacheStorage */
+	/** @var \Kdyby\Extension\Assets\Storage\CacheStorage */
 	private $storage;
 
 	/** @var string */
@@ -32,10 +33,10 @@ class AssetResponse extends Nette\Object implements Nette\Application\IResponse
 
 
 	/**
-	 * @param \Kdyby\Assets\Storage\CacheStorage $storage
+	 * @param \Kdyby\Extension\Assets\Storage\CacheStorage $storage
 	 * @param string $assetOutput
 	 */
-	public function __construct(Kdyby\Assets\Storage\CacheStorage $storage, $assetOutput)
+	public function __construct(Assets\Storage\CacheStorage $storage, $assetOutput)
 	{
 		$this->storage = $storage;
 		$this->assetOutput = $assetOutput;

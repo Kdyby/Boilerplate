@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Assets;
+namespace Kdyby\Extension\Assets;
 
 use Assetic;
 use Assetic\Asset\AssetInterface;
@@ -27,13 +27,13 @@ class FormulaeManager extends Nette\Object
 	const TYPE_STYLESHEET = 'css';
 	const TYPE_JAVASCRIPT = 'js';
 
-	/** @var \Kdyby\Assets\IStorage */
+	/** @var \Kdyby\Extension\Assets\IStorage */
 	private $storage;
 
-	/** @var \Kdyby\Assets\AssetManager */
+	/** @var \Kdyby\Extension\Assets\AssetManager */
 	private $assetManager;
 
-	/** @var \Kdyby\Assets\FilterManager */
+	/** @var \Kdyby\Extension\Assets\FilterManager */
 	private $filterManager;
 
 	/** @var array */
@@ -54,9 +54,9 @@ class FormulaeManager extends Nette\Object
 
 
 	/**
-	 * @param \Kdyby\Assets\IStorage $storage
-	 * @param \Kdyby\Assets\AssetManager $assetManager
-	 * @param \Kdyby\Assets\FilterManager $filterManager
+	 * @param \Kdyby\Extension\Assets\IStorage $storage
+	 * @param \Kdyby\Extension\Assets\AssetManager $assetManager
+	 * @param \Kdyby\Extension\Assets\FilterManager $filterManager
 	 */
 	public function __construct(IStorage $storage, AssetManager $assetManager, FilterManager $filterManager)
 	{

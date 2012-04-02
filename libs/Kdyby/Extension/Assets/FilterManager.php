@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Assets;
+namespace Kdyby\Extension\Assets;
 
 use Assetic;
 use Kdyby;

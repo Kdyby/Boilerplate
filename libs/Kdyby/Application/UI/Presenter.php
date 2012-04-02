@@ -11,7 +11,7 @@
 namespace Kdyby\Application\UI;
 
 use Kdyby;
-use Kdyby\Templates\ITemplateConfigurator;
+use Kdyby\Templates\TemplateConfigurator;
 use Nette;
 use Nette\Application\Responses;
 use Nette\Diagnostics\Debugger;
@@ -62,9 +62,9 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 
 
 	/**
-	 * @param \Kdyby\Templates\ITemplateConfigurator $configurator
+	 * @param \Kdyby\Templates\TemplateConfigurator $configurator
 	 */
-	public function setTemplateConfigurator(ITemplateConfigurator $configurator = NULL)
+	public function setTemplateConfigurator(TemplateConfigurator $configurator = NULL)
 	{
 		$this->templateConfigurator = $configurator;
 	}
@@ -95,12 +95,12 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 	 */
 	public function templatePrepareFilters($template)
 	{
+		$engine = $this->getPresenter()->getContext()->nette->createLatte();
 		if ($this->templateConfigurator !== NULL) {
-			$this->templateConfigurator->prepareFilters($template);
-
-		} else {
-			$template->registerFilter(new Nette\Latte\Engine);
+			$this->templateConfigurator->prepareFilters($engine);
 		}
+
+		$template->registerFilter($engine);
 	}
 
 

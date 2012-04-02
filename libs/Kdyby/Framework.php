@@ -43,7 +43,6 @@ final class Framework
 		return array(
 			'Kdyby\Package\FrameworkPackage\FrameworkPackage',
 			'Kdyby\Package\DoctrinePackage\DoctrinePackage',
-			'Kdyby\Package\AsseticPackage\AsseticPackage'
 		);
 	}
 
