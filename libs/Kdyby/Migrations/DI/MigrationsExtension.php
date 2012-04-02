@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Package\FrameworkPackage\DI;
+namespace Kdyby\Migrations\DI;
 
 use Kdyby;
 use Nette;
