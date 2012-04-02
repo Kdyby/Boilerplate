@@ -25,18 +25,6 @@ class FrameworkPackage extends Kdyby\Packages\Package
 {
 
 	/**
-	 * Occurs before the application loads presenter
-	 */
-	public function startup()
-	{
-		if ($this->container->session->exists()) {
-			$this->container->session->start();
-		}
-	}
-
-
-
-	/**
 	 * @param \Nette\Config\Configurator $config
 	 * @param \Nette\Config\Compiler $compiler
 	 * @param \Kdyby\Packages\PackagesContainer $packages
