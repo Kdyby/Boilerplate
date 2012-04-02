@@ -19,10 +19,5 @@
 	"autoload": {
         "psr-0": {"Kdyby\\Extension\\Curl": ""}
     },
-    "target-dir":"Kdyby/Extension/Curl",
-	"extra": {
-		"branch-alias": {
-			"dev-master": "2.1-dev"
-		}
-	}
+    "target-dir":"Kdyby/Extension/Curl"
 }
