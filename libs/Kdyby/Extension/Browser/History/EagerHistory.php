@@ -8,9 +8,10 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Browser\History;
+namespace Kdyby\Extension\Browser\History;
 
 use Kdyby;
+use Kdyby\Extension\Curl;
 use Nette;
 
 
@@ -51,7 +52,7 @@ class EagerHistory extends Nette\Object implements \Countable
 
 
 	/**
-	 * @return \SplObjectStorage|\Kdyby\Browser\WebPage[]
+	 * @return \SplObjectStorage|\Kdyby\Extension\Browser\WebPage[]
 	 */
 	public function getPages()
 	{
@@ -81,17 +82,17 @@ class EagerHistory extends Nette\Object implements \Countable
 
 
 	/**
-	 * @param \Kdyby\Browser\WebPage|\stdClass $content
-	 * @param \Kdyby\Curl\Request|null $request
-	 * @param \Kdyby\Curl\Response|null $response
+	 * @param \Kdyby\Extension\Browser\WebPage|\stdClass $content
+	 * @param \Kdyby\Extension\Curl\Request|null $request
+	 * @param \Kdyby\Extension\Curl\Response|null $response
 	 */
-	public function push($content, Kdyby\Curl\Request $request = NULL, Kdyby\Curl\Response $response = NULL)
+	public function push($content, Curl\Request $request = NULL, Curl\Response $response = NULL)
 	{
 		$this->history[$content] = array(
 			$request ? clone $request : NULL,
 			$response ? clone $response : NULL,
 		);
-		$this->lastPage = $content instanceof Kdyby\Browser\WebPage ? $content : NULL;
+		$this->lastPage = $content instanceof Kdyby\Extension\Browser\WebPage ? $content : NULL;
 
 		if ($response) {
 			$this->totalTime += $response->info['total_time'];
@@ -101,7 +102,7 @@ class EagerHistory extends Nette\Object implements \Countable
 
 
 	/**
-	 * @return \Kdyby\Browser\WebPage|NULL
+	 * @return \Kdyby\Extension\Browser\WebPage|NULL
 	 */
 	public function getLast()
 	{

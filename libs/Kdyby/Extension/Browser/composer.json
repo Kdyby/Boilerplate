@@ -1,0 +1,29 @@
+{
+    "name": "kdyby/browser-extension",
+    "description": "Browser extension of Curl wrapper",
+    "keywords": ["nette", "curl", "http", "browser"],
+    "homepage": "http://kdyby.org",
+    "authors": [
+        {
+            "name": "Filip Procházka",
+            "homepage": "http://filip-prochazka.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.2",
+        "nette/nette": "2.0.*",
+        "kdyby/curl-extension": "*"
+    },
+    "conflict": {
+        "kdyby/framework": "self.version"
+    },
+    "autoload": {
+        "psr-0": {"Kdyby\\Extension\\Browser": ""}
+    },
+    "target-dir":"Kdyby/Extension/Browser",
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.1-dev"
+        }
+    }
+}

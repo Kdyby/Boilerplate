@@ -8,10 +8,10 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Browser;
+namespace Kdyby\Extension\Browser;
 
 use Kdyby;
-use Kdyby\Curl;
+use Kdyby\Extension\Curl;
 use Nette;
 
 
@@ -22,7 +22,7 @@ use Nette;
 class WebBrowser extends Nette\Object
 {
 
-	/** @var \Kdyby\Curl\CurlSender */
+	/** @var \Kdyby\Extension\Curl\CurlSender */
 	private $curl;
 
 	/** @var array */
@@ -38,7 +38,7 @@ class WebBrowser extends Nette\Object
 
 
 	/**
-	 * @param \Kdyby\Curl\CurlSender $curl
+	 * @param \Kdyby\Extension\Curl\CurlSender $curl
 	 */
 	public function __construct(Curl\CurlSender $curl = NULL)
 	{
@@ -71,7 +71,7 @@ class WebBrowser extends Nette\Object
 
 
 	/**
-	 * @return \Kdyby\Browser\BrowserSession
+	 * @return \Kdyby\Extension\Browser\BrowserSession
 	 */
 	public function createSession()
 	{
@@ -82,7 +82,7 @@ class WebBrowser extends Nette\Object
 
 	/**
 	 * @param string $link
-	 * @return \Kdyby\Browser\WebPage
+	 * @return \Kdyby\Extension\Browser\WebPage
 	 */
 	public function open($link)
 	{
@@ -92,9 +92,9 @@ class WebBrowser extends Nette\Object
 
 
 	/**
-	 * @param \Kdyby\Curl\Request $request
+	 * @param \Kdyby\Extension\Curl\Request $request
 	 *
-	 * @return \Kdyby\Curl\HtmlResponse
+	 * @return \Kdyby\Extension\Curl\HtmlResponse
 	 */
 	public function send(Curl\Request $request)
 	{

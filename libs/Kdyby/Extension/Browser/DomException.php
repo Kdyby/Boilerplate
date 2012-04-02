@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Browser;
+namespace Kdyby\Extension\Browser;
 
 use Kdyby;
 use Nette;

@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Browser\History;
+namespace Kdyby\Extension\Browser\History;
 
 use Kdyby;
 use Nette;
@@ -22,11 +22,11 @@ class ForgetfulHistory extends EagerHistory
 {
 
 	/**
-	 * @param \Kdyby\Browser\WebPage|\stdClass $content
-	 * @param \Kdyby\Curl\Request|null $request
-	 * @param \Kdyby\Curl\Response|null $response
+	 * @param \Kdyby\Extension\Browser\WebPage|\stdClass $content
+	 * @param \Kdyby\Extension\Curl\Request|null $request
+	 * @param \Kdyby\Extension\Curl\Response|null $response
 	 */
-	public function push($content, Kdyby\Curl\Request $request = NULL, Kdyby\Curl\Response $response = NULL)
+	public function push($content, Kdyby\Extension\Curl\Request $request = NULL, Kdyby\Extension\Curl\Response $response = NULL)
 	{
 		$this->clean();
 		parent::push($content, $request, $response);

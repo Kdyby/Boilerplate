@@ -23,7 +23,8 @@
     },
     "replace": {
         "kdyby/assets-extension": "self.version",
-        "kdyby/curl-extension": "self.version"
+        "kdyby/curl-extension": "self.version",
+        "kdyby/browser-extension": "self.version"
     },
     "repositories": [
         {

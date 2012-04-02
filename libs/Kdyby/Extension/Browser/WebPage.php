@@ -8,10 +8,10 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Browser;
+namespace Kdyby\Extension\Browser;
 
 use Kdyby;
-use Kdyby\Curl;
+use Kdyby\Extension\Curl;
 use Nette;
 use Nette\Http\UrlScript as Url;
 
@@ -26,7 +26,7 @@ class WebPage extends DomElement
 	/** @var \Nette\Http\UrlScript */
 	private $address;
 
-	/** @var \Kdyby\Browser\BrowserSession */
+	/** @var \Kdyby\Extension\Browser\BrowserSession */
 	private $session;
 
 
@@ -58,7 +58,7 @@ class WebPage extends DomElement
 
 
 	/**
-	 * @param \Kdyby\Browser\BrowserSession $session
+	 * @param \Kdyby\Extension\Browser\BrowserSession $session
 	 */
 	public function setSession(BrowserSession $session)
 	{
@@ -68,7 +68,7 @@ class WebPage extends DomElement
 
 
 	/**
-	 * @return \Kdyby\Browser\BrowserSession
+	 * @return \Kdyby\Extension\Browser\BrowserSession
 	 */
 	public function getSession()
 	{
@@ -78,7 +78,7 @@ class WebPage extends DomElement
 
 
 	/**
-	 * @param \Kdyby\Browser\IDocumentProcessor $processor
+	 * @param \Kdyby\Extension\Browser\IDocumentProcessor $processor
 	 *
 	 * @return mixed
 	 */
@@ -91,7 +91,7 @@ class WebPage extends DomElement
 
 	/**
 	 * @param string $selector
-	 * @return \Kdyby\Browser\Form
+	 * @return \Kdyby\Extension\Browser\Form
 	 */
 	public function findForm($selector)
 	{
@@ -102,7 +102,7 @@ class WebPage extends DomElement
 
 	/**
 	 * @param string|\DOMElement $link
-	 * @return \Kdyby\Browser\WebPage|NULL
+	 * @return \Kdyby\Extension\Browser\WebPage|NULL
 	 */
 	public function open($link)
 	{
@@ -128,10 +128,10 @@ class WebPage extends DomElement
 
 
 	/**
-	 * @param \Kdyby\Browser\Form $form
+	 * @param \Kdyby\Extension\Browser\Form $form
 	 * @param string $button
 	 *
-	 * @return \Kdyby\Browser\WebPage
+	 * @return \Kdyby\Extension\Browser\WebPage
 	 */
 	public function submit(Form $form, $button = NULL)
 	{

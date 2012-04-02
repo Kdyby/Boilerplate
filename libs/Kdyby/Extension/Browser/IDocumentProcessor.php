@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Browser;
+namespace Kdyby\Extension\Browser;
 
 use Kdyby;
 use Nette;
@@ -22,7 +22,7 @@ interface IDocumentProcessor
 {
 
 	/**
-	 * @param \Kdyby\Browser\DomDocument $node
+	 * @param \Kdyby\Extension\Browser\DomDocument $node
 	 * @return mixed
 	 */
 	function process(DomDocument $document);

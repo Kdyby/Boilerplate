@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Browser;
+namespace Kdyby\Extension\Browser;
 
 use Kdyby;
 use Nette;
@@ -22,7 +22,7 @@ use Symfony\Component\CssSelector\CssSelector;
 class DomElement extends Nette\Object
 {
 
-	/** @var \DOMElement|\Kdyby\Browser\DomDocument */
+	/** @var \DOMElement|\Kdyby\Extension\Browser\DomDocument */
 	protected $element;
 
 
@@ -38,7 +38,7 @@ class DomElement extends Nette\Object
 
 
 	/**
-	 * @return \DOMElement|\Kdyby\Browser\DomDocument
+	 * @return \DOMElement|\Kdyby\Extension\Browser\DomDocument
 	 */
 	public function getElement()
 	{
@@ -92,7 +92,7 @@ class DomElement extends Nette\Object
 
 	/**
 	 * @param string $selector
-	 * @param \Kdyby\Browser\ISnippetProcessor $processor
+	 * @param \Kdyby\Extension\Browser\ISnippetProcessor $processor
 	 *
 	 * @return mixed
 	 */

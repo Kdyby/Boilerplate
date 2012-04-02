@@ -8,10 +8,10 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Browser;
+namespace Kdyby\Extension\Browser;
 
 use Kdyby;
-use Kdyby\Curl;
+use Kdyby\Extension\Curl;
 use Nette;
 use Nette\Http\UrlScript as Url;
 use Nette\Utils\Arrays;
@@ -24,7 +24,7 @@ use Nette\Utils\Strings;
  */
 class Form extends DomElement
 {
-	/** @var \Kdyby\Browser\WebPage */
+	/** @var \Kdyby\Extension\Browser\WebPage */
 	private $page;
 
 	/** @var string */
@@ -49,7 +49,7 @@ class Form extends DomElement
 
 	/**
 	 * @param \DOMNode $element
-	 * @param \Kdyby\Browser\WebPage $webPage
+	 * @param \Kdyby\Extension\Browser\WebPage $webPage
 	 */
 	public function __construct(\DOMNode $element, WebPage $webPage)
 	{
@@ -82,7 +82,7 @@ class Form extends DomElement
 	public function getMethod()
 	{
 		if ($this->method === NULL) {
-			$this->method = Kdyby\Curl\Request::POST;
+			$this->method = Kdyby\Extension\Curl\Request::POST;
 			if ($method = $this->getElement()->getAttribute('method')) {
 				$this->method = strtoupper($method);
 			}
@@ -166,7 +166,7 @@ class Form extends DomElement
 	 * TODO: think about appending to lists, not overwriting
 	 * @param array $values
 	 *
-	 * @return \Kdyby\Browser\Form
+	 * @return \Kdyby\Extension\Browser\Form
 	 */
 	public function setValues(array $values)
 	{

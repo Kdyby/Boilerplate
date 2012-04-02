@@ -8,10 +8,10 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Browser\Diagnostics;
+namespace Kdyby\Extension\Browser\Diagnostics;
 
 use Kdyby;
-use Kdyby\Browser\DomException;
+use Kdyby\Extension\Browser\DomException;
 use Nette;
 
 
@@ -40,7 +40,7 @@ class Panel extends Nette\Object
 
 
 	/**
-	 * @param \Kdyby\Browser\DomException $e
+	 * @param \Kdyby\Extension\Browser\DomException $e
 	 * @return string
 	 */
 	private function dumpException(DomException $e)
@@ -124,7 +124,7 @@ class Panel extends Nette\Object
 
 
 	/**
-	 * @return \Kdyby\Browser\Diagnostics\Panel
+	 * @return \Kdyby\Extension\Browser\Diagnostics\Panel
 	 */
 	public static function register()
 	{

@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Browser;
+namespace Kdyby\Extension\Browser;
 
 use Kdyby;
 use Nette;
@@ -76,7 +76,7 @@ class DomDocument extends \DOMDocument
 
 
 	/**
-	 * @param \Kdyby\Browser\IDocumentProcessor $processor
+	 * @param \Kdyby\Extension\Browser\IDocumentProcessor $processor
 	 *
 	 * @return mixed
 	 */
@@ -89,7 +89,7 @@ class DomDocument extends \DOMDocument
 
 	/**
 	 * @param string $selector
-	 * @param \Kdyby\Browser\ISnippetProcessor $processor
+	 * @param \Kdyby\Extension\Browser\ISnippetProcessor $processor
 	 *
 	 * @return mixed
 	 */
@@ -110,7 +110,7 @@ class DomDocument extends \DOMDocument
 	 * @param string $version
 	 * @param string $encoding
 	 *
-	 * @return \Kdyby\Browser\DomDocument
+	 * @return \Kdyby\Extension\Browser\DomDocument
 	 */
 	public static function fromMalformedHtml($html, $version = '1.0', $encoding = 'UTF-8')
 	{
@@ -127,7 +127,7 @@ class DomDocument extends \DOMDocument
 
 	/**
 	 * @param string $html
-	 * @return \Kdyby\Browser\DomDocument
+	 * @return \Kdyby\Extension\Browser\DomDocument
 	 */
 	public function loadMalformed($html)
 	{

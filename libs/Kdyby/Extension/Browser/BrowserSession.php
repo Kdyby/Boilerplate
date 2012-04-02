@@ -8,10 +8,10 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Browser;
+namespace Kdyby\Extension\Browser;
 
 use Kdyby;
-use Kdyby\Curl;
+use Kdyby\Extension\Curl;
 use Nette;
 use Nette\Http\UrlScript as Url;
 
@@ -26,10 +26,10 @@ class BrowserSession extends Nette\Object
 	/** @var \Nette\Http\UrlScript */
 	private $page;
 
-	/** @var \Kdyby\Browser\History\EagerHistory */
+	/** @var \Kdyby\Extension\Browser\History\EagerHistory */
 	private $history;
 
-	/** @var \Kdyby\Browser\WebBrowser */
+	/** @var \Kdyby\Extension\Browser\WebBrowser */
 	private $browser;
 
 	/** @var array */
@@ -38,8 +38,8 @@ class BrowserSession extends Nette\Object
 
 
 	/**
-	 * @param \Kdyby\Browser\WebBrowser $browser
-	 * @param \Kdyby\Browser\History\EagerHistory $history
+	 * @param \Kdyby\Extension\Browser\WebBrowser $browser
+	 * @param \Kdyby\Extension\Browser\History\EagerHistory $history
 	 */
 	public function __construct(WebBrowser $browser = NULL, History\EagerHistory $history = NULL)
 	{
@@ -50,7 +50,7 @@ class BrowserSession extends Nette\Object
 
 
 	/**
-	 * @param \Kdyby\Browser\WebBrowser $browser
+	 * @param \Kdyby\Extension\Browser\WebBrowser $browser
 	 */
 	public function setBrowser(WebBrowser $browser)
 	{
@@ -61,7 +61,7 @@ class BrowserSession extends Nette\Object
 
 
 	/**
-	 * @return \Kdyby\Browser\WebBrowser
+	 * @return \Kdyby\Extension\Browser\WebBrowser
 	 */
 	public function getBrowser()
 	{
@@ -85,7 +85,7 @@ class BrowserSession extends Nette\Object
 
 
 	/**
-	 * @return \SplObjectStorage|\Kdyby\Browser\WebPage[]
+	 * @return \SplObjectStorage|\Kdyby\Extension\Browser\WebPage[]
 	 */
 	public function getHistory()
 	{
@@ -115,7 +115,7 @@ class BrowserSession extends Nette\Object
 
 
 	/**
-	 * @return \Kdyby\Browser\WebPage
+	 * @return \Kdyby\Extension\Browser\WebPage
 	 */
 	public function getLastPage()
 	{
@@ -166,7 +166,7 @@ class BrowserSession extends Nette\Object
 
 	/**
 	 * @param $link
-	 * @return \Kdyby\Browser\WebPage
+	 * @return \Kdyby\Extension\Browser\WebPage
 	 */
 	public function open($link)
 	{
@@ -176,10 +176,10 @@ class BrowserSession extends Nette\Object
 
 
 	/**
-	 * @param \Kdyby\Curl\Request $request
+	 * @param \Kdyby\Extension\Curl\Request $request
 	 *
-	 * @throws \Kdyby\Curl\CurlException
-	 * @return \Kdyby\Browser\WebPage
+	 * @throws \Kdyby\Extension\Curl\CurlException
+	 * @return \Kdyby\Extension\Browser\WebPage
 	 */
 	public function send(Curl\Request $request)
 	{
@@ -212,7 +212,7 @@ class BrowserSession extends Nette\Object
 
 
 	/**
-	 * @param \Kdyby\Curl\Request $request
+	 * @param \Kdyby\Extension\Curl\Request $request
 	 * @return string
 	 */
 	public function ajax(Curl\Request $request)

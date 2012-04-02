@@ -120,18 +120,6 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 
 		// macros
 		$this->addMacro('macros.core', 'Kdyby\Templates\CoreMacros::install');
-
-		// curl
-		$container->addDefinition($this->prefix('curl'))
-			->setClass('Kdyby\Curl\CurlSender');
-
-		$container->addDefinition($this->prefix('browser.panel'))
-			->setFactory('Kdyby\Browser\Diagnostics\Panel::register')
-			->addTag('run', TRUE);
-
-		$container->addDefinition($this->prefix('curl.panel'))
-			->setFactory('Kdyby\Curl\Diagnostics\Panel::register')
-			->addTag('run', TRUE);
 	}
 
 

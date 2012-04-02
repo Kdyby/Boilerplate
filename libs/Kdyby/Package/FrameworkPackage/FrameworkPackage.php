@@ -45,6 +45,7 @@ class FrameworkPackage extends Kdyby\Packages\Package
 	{
 		$compiler->addExtension('assets', new Kdyby\Extension\Assets\DI\AssetsExtension());
 		$compiler->addExtension('curl', new Kdyby\Extension\Curl\DI\CurlExtension());
+		$compiler->addExtension('browser', new Kdyby\Extension\Browser\DI\BrowserExtension());
 		$compiler->addExtension('kdyby', new DI\FrameworkExtension());
 		$compiler->addExtension('migrations', new DI\MigrationsExtension());
 	}
