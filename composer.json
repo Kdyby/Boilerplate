@@ -34,10 +34,5 @@
     ],
     "autoload": {
         "psr-0": {"Kdyby": "libs/"}
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "2.1-dev"
-        }
     }
 }
