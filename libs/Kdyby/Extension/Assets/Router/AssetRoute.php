@@ -24,9 +24,9 @@ class AssetRoute extends Nette\Application\Routers\Route
 
 	/**
 	 * @param string $prefix
-	 * @param \Kdyby\Extension\Assets\Storage\CacheStorage $storage
+	 * @param \Kdyby\Extension\Assets\IStorage $storage
 	 */
-	public function __construct($prefix, Assets\Storage\CacheStorage $storage)
+	public function __construct($prefix, Assets\IStorage $storage)
 	{
 		parent::__construct('<prefix ' . $prefix . '>/<name .*>', array(
 			static::PRESENTER_KEY => 'Nette:Micro',

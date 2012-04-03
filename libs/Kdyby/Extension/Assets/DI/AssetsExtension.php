@@ -47,12 +47,10 @@ class AssetsExtension extends Kdyby\Config\CompilerExtension
 
 		if ($debug) {
 			$builder->addDefinition($this->prefix('assetStorage'))
-				->setClass('Kdyby\Extension\Assets\Storage\CacheStorage', array(
-				'@kdyby.cacheStorage', '%tempDir%/cache', '@httpRequest'
-			));
+				->setClass('Kdyby\Extension\Assets\Storage\CacheStorage', array('@kdyby.cacheStorage', '%tempDir%/cache'));
 
 			$builder->addDefinition($this->prefix('route.asset'))
-				->setClass('Kdyby\Extension\Assets\Router\AssetRoute', array('%assets.prefix%', $this->prefix('@assetStorage')))
+				->setClass('Kdyby\Extension\Assets\Router\AssetRoute', array('%assets.prefix%'))
 				->setAutowired(FALSE);
 
 			$builder->getDefinition('router')
@@ -60,9 +58,7 @@ class AssetsExtension extends Kdyby\Config\CompilerExtension
 
 		} else {
 			$builder->addDefinition($this->prefix('assetStorage'))
-				->setClass('Kdyby\Extension\Assets\Storage\PublicStorage', array(
-					'%assets.publicDir%/%assets.prefix%', '@httpRequest'
-				));
+				->setClass('Kdyby\Extension\Assets\Storage\PublicStorage', array('%assets.publicDir%/%assets.prefix%'));
 		}
 
 		$builder->addDefinition($this->prefix('filterManager'))
@@ -72,7 +68,7 @@ class AssetsExtension extends Kdyby\Config\CompilerExtension
 			->setClass('Kdyby\Extension\Assets\AssetManager');
 
 		$factory = $builder->addDefinition($this->prefix('assetFactory'))
-			->setClass('Kdyby\Extension\Assets\AssetFactory', array('@container', '%assets.publicDir%'))
+			->setClass('Kdyby\Extension\Assets\AssetFactory', array(1 => '%assets.publicDir%'))
 			->addSetup('setAssetManager')
 			->addSetup('setFilterManager')
 			->addSetup('setDefaultOutput', array('%assets.outputMask%'))

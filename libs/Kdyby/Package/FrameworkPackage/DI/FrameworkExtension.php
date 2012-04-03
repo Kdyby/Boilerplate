@@ -51,11 +51,11 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 			->setClass('Symfony\Component\Console\Helper\HelperSet');
 
 		$container->addDefinition($this->prefix('console.helper.serviceContainer'))
-			->setClass('Kdyby\Console\ContainerHelper', array('@container'))
+			->setClass('Kdyby\Console\ContainerHelper')
 			->addTag('console.helper', array('alias' => 'di'));
 
 		$container->addDefinition($this->prefix('console.helper.packageManager'))
-			->setClass('Kdyby\Console\PackageManagerHelper', array($this->prefix('@packageManager')))
+			->setClass('Kdyby\Console\PackageManagerHelper')
 			->addTag('console.helper', array('alias' => 'pm'));
 
 		$container->addDefinition($this->prefix('console.helper.ormEntityManager'))
@@ -101,7 +101,7 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 			->setFactory($this->prefix('@security.authorizatorFactory::create'));
 
 		$container->addDefinition($this->prefix('security.authorizatorFactory'))
-			->setClass('Kdyby\Security\AuthorizatorFactory', array('@user', '@session', '@doctrine.registry'))
+			->setClass('Kdyby\Security\AuthorizatorFactory')
 			->setInternal(TRUE);
 
 		// template
@@ -109,13 +109,11 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 			->setClass('Kdyby\Templates\TemplateConfigurator');
 
 		$container->addDefinition($this->prefix('editableTemplates'))
-			->setClass('Kdyby\Templates\EditableTemplates', array(
-				'@doctrine.registry', $this->prefix('@editableTemplates.storage')
-			));
+			->setClass('Kdyby\Templates\EditableTemplates', array(1 => $this->prefix('@editableTemplates.storage')));
 
 		// cache
 		$container->addDefinition($this->prefix('editableTemplates.storage'))
-			->setClass('Kdyby\Caching\LatteStorage', array('%tempDir%/cache', '@nette.cacheJournal'))
+			->setClass('Kdyby\Caching\LatteStorage', array('%tempDir%/cache'))
 			->setAutowired(FALSE);
 
 		// macros
@@ -181,7 +179,7 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 			}
 
 			if ($this->componentHasTemplate($meta) && !$this->hasTemplateConfigurator($component)) {
-				$component->addSetup('setTemplateConfigurator', array($this->prefix('@templateConfigurator')));
+				$component->addSetup('setTemplateConfigurator');
 			}
 		}
 	}
