@@ -66,24 +66,25 @@ class AssetsExtension extends Kdyby\Config\CompilerExtension
 		}
 
 		$builder->addDefinition($this->prefix('filterManager'))
-			->setClass('Kdyby\Extension\Assets\FilterManager', array('@container'));
+			->setClass('Kdyby\Extension\Assets\FilterManager');
 
 		$builder->addDefinition($this->prefix('assetManager'))
 			->setClass('Kdyby\Extension\Assets\AssetManager');
 
-		$builder->addDefinition($this->prefix('assetFactory'))
-			->setClass('Kdyby\Extension\Assets\AssetFactory', array(
-				'@kdyby.packageManager', '@container', '%assets.publicDir%'
-			))
-			->addSetup('setAssetManager', array($this->prefix('@assetManager')))
-			->addSetup('setFilterManager', array($this->prefix('@filterManager')))
+		$factory = $builder->addDefinition($this->prefix('assetFactory'))
+			->setClass('Kdyby\Extension\Assets\AssetFactory', array('@container', '%assets.publicDir%'))
+			->addSetup('setAssetManager')
+			->addSetup('setFilterManager')
 			->addSetup('setDefaultOutput', array('%assets.outputMask%'))
 			->addSetup('setDebug', array('%assets.debug%'));
 
+		if (class_exists('Kdyby\Packages\PackageManager')) {
+			$resolver = new Nette\DI\Statement('Kdyby\Extension\Assets\Resolver\PackageResolver');
+			$factory->addSetup('addResolver', array($resolver));
+		}
+
 		$builder->addDefinition($this->prefix('formulaeManager'))
-			->setClass('Kdyby\Extension\Assets\FormulaeManager', array(
-				$this->prefix('@assetStorage'), $this->prefix('@assetManager'), $this->prefix('@filterManager')
-			))
+			->setClass('Kdyby\Extension\Assets\FormulaeManager')
 			->addSetup('setDebug', array('%assets.debug%'));
 
 		// macros

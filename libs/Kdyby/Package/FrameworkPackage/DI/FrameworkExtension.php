@@ -129,7 +129,6 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 		$container = $this->getContainerBuilder();
 
 		$this->registerConsoleHelpers($container);
-		$this->registerMacroFactories($container);
 		$this->unifyComponents($container);
 
 		$routes = array();
@@ -152,25 +151,12 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 	 */
 	protected function registerConsoleHelpers(ContainerBuilder $container)
 	{
+		/** @var \Nette\DI\ServiceDefinition $helpers */
 		$helpers = $container->getDefinition($this->prefix('console.helpers'));
 
 		foreach ($container->findByTag('console.helper') as $helper => $meta) {
 			$alias = isset($meta['alias']) ? $meta['alias'] : NULL;
 			$helpers->addSetup('set', array('@' . $helper, $alias));
-		}
-	}
-
-
-
-	/**
-	 * @param \Nette\DI\ContainerBuilder $container
-	 */
-	protected function registerMacroFactories(ContainerBuilder $container)
-	{
-		$config = $container->getDefinition($this->prefix('templateConfigurator'));
-
-		foreach ($container->findByTag('latte.macro') as $factory => $meta) {
-			$config->addSetup('addFactory', array($factory));
 		}
 	}
 
@@ -184,6 +170,7 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 	protected function unifyComponents(ContainerBuilder $container)
 	{
 		foreach ($container->findByTag('component') as $name => $meta) {
+			/** @var \Nette\DI\ServiceDefinition $component */
 			$component = $container->getDefinition($name);
 
 			if (!$component->parameters) {
@@ -237,6 +224,7 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 	public function afterCompile(Code\ClassType $class)
 	{
 		$this->compileConfigurator($class);
+		/** @var \Nette\Utils\PhpGenerator\Method $init */
 		$init = $class->methods['initialize'];
 
 		$config = $this->getConfig();
@@ -265,6 +253,7 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 			if ($lines = Nette\Utils\Strings::split($createBody, '~;[\n\r]*~mi')) {
 				array_shift($lines); // naive: first line is creation
 
+				/** @var \Nette\Utils\PhpGenerator\Method $configure */
 				$configure = $class->addMethod('configure' . ucfirst(strtr($name, '.', '_')));
 				$configure->visibility = 'private';
 				$configure->addParameter('service')->typeHint = $def->class;
@@ -272,6 +261,7 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 			}
 		}
 
+		/** @var \Nette\Utils\PhpGenerator\Method $configure */
 		$configure = $class->addMethod('configureService');
 		$configure->addParameter('name');
 		$configure->addParameter('service');

@@ -12,7 +12,6 @@ namespace Kdyby\Extension\Assets;
 
 use Assetic;
 use Kdyby;
-use Kdyby\Packages\PackageManager;
 use Nette;
 use Nette\DI\Container;
 
@@ -24,31 +23,42 @@ use Nette\DI\Container;
 class AssetFactory extends Assetic\Factory\AssetFactory
 {
 
-	/** @var \Kdyby\Packages\PackageManager */
-	private $packageManager;
-
-	/** @var \SystemContainer|\Nette\DI\Container */
+	/**
+	 * @var \SystemContainer|\Nette\DI\Container
+	 */
 	private $container;
+
+	/**
+	 * @var array|\Kdyby\Extension\Assets\IResourceResolver
+	 */
+	private $resolvers = array();
 
 
 
 	/**
-	 * @param \Kdyby\Packages\PackageManager $packageManager
 	 * @param \Nette\DI\Container $container
 	 * @param string $baseDir
 	 */
-	public function __construct(PackageManager $packageManager, Container $container, $baseDir)
+	public function __construct(Container $container, $baseDir)
 	{
-		$this->packageManager = $packageManager;
 		$this->container = $container;
-
 		parent::__construct($baseDir, FALSE);
 	}
 
 
 
 	/**
-	 * Adds support for package notation file and glob assets and parameter placeholders.
+	 * @param \Kdyby\Extension\Assets\IResourceResolver $resolver
+	 */
+	public function addResolver(IResourceResolver $resolver)
+	{
+		$this->resolvers[] = $resolver;
+	}
+
+
+
+	/**
+	 * Adds support parameter placeholders and resource resolvers.
 	 *
 	 * @param string $input
 	 * @param array $options
@@ -59,21 +69,11 @@ class AssetFactory extends Assetic\Factory\AssetFactory
 	{
 		$input = $this->container->expand($input);
 
-		// expand bundle notation
-		if ('@' == $input[0] && strpos($input, '/') !== FALSE) {
-			list($packageName) = explode('/', substr($input, 1), 2);
-			$packagePath = $this->packageManager->getPackage($packageName)->getPath();
-
-			// use the bundle path as this asset's root
-			$options['root'] = array($packagePath . '/Resources/public');
-
-			// canonicalize the input
-			if (FALSE !== ($pos = strpos($input, '*'))) {
-				list($before, $after) = explode('*', $input, 2);
-				$input = $this->packageManager->locateResource($before) . '*' . $after;
-
-			} else {
-				$input = $this->packageManager->locateResource($input);
+		foreach ($this->resolvers as $resolver) {
+			/** @var IResourceResolver $resolver */
+			if (($resolved = $resolver->locateResource($input, $options)) !== FALSE) {
+				$input = $resolved;
+				break;
 			}
 		}
 
