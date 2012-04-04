@@ -35,7 +35,8 @@ class AnnotationExtension extends Kdyby\Config\CompilerExtension
 		$container = $this->getContainerBuilder();
 		$container->addDefinition($this->prefix('reader'))
 			->setClass('Doctrine\Common\Annotations\AnnotationReader')
-			->addSetup('addGlobalIgnoredName', array('serializationVersion'));
+			->addSetup('addGlobalIgnoredName', array('serializationVersion'))
+			->addSetup('addGlobalIgnoredName', array('todo:'));
 
 		$container->addDefinition($this->prefix('readerIndexed'))
 			->setClass('Doctrine\Common\Annotations\IndexedReader', array($this->prefix('@reader')))
