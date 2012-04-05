@@ -37,11 +37,6 @@ class Application extends Nette\Application\Application
 	 */
 	private $packages;
 
-	/**
-	 * @var \Nette\Http\Request
-	 */
-	protected $httpRequest;
-
 
 
 	/**
@@ -92,7 +87,6 @@ class Application extends Nette\Application\Application
 	protected function initialize(Nette\DI\Container $container)
 	{
 		$this->packageManager = $container->kdyby->packageManager;
-		$this->httpRequest = $container->httpRequest;
 
 		parent::__construct(
 			$container->nette->presenterFactory,
