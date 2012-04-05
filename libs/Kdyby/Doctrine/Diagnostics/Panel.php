@@ -95,7 +95,7 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 	{
 		return is_file($file)
 			&& strpos($file, NETTE_DIR) === FALSE
-			&& strpos($file, '/Doctrine/ORM/EntityRepository') === FALSE
+			&& strpos($file, '/Doctrine/ORM/') === FALSE
 			&& strpos($file, '/Doctrine/DBAL/') === FALSE
 			&& strpos($file, "/Kdyby/Doctrine/") === FALSE
 			&& strpos($file, "/Kdyby/Tests/") === FALSE
