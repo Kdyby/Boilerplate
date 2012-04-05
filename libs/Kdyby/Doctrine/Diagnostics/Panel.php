@@ -216,6 +216,19 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 				);
 			}
 
+		} elseif ($e instanceof Doctrine\ORM\Mapping\MappingException) {
+			if ($invalidEntity = Strings::match($e->getMessage(), '~^Class ([^\\s]*?) is not .*? valid~i')) {
+				$refl = Nette\Reflection\ClassType::from($invalidEntity[1]);
+				$file = $refl->getFileName();
+				$errorLine = $refl->getStartLine();
+
+				return array(
+					'tab' => 'Invalid entity',
+					'panel' => '<p><b>File:</b> ' . Nette\Diagnostics\Helpers::editorLink($file, $errorLine) . '</p>' .
+						'<pre>' . Nette\Diagnostics\BlueScreen::highlightFile($file, $errorLine) . '</pre>',
+				);
+			}
+
 		} elseif ($e instanceof \PDOException && count($this->queries)) {
 			if ($this->connection !== NULL) {
 				if (!$e instanceof Kdyby\Doctrine\PDOException || $e->getConnection() !== $this->connection) {
