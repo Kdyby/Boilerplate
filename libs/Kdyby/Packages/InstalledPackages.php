@@ -97,7 +97,10 @@ class InstalledPackages extends Nette\Object implements \IteratorAggregate, IPac
 
 
 	/**
-	 * @param $file
+	 * @param string $file
+	 *
+	 * @throws \Kdyby\FileNotWritableException
+	 * @return array
 	 */
 	private function supplyDefaultPackages($file)
 	{
