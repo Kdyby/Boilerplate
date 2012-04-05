@@ -76,14 +76,15 @@ class InstalledPackages extends Nette\Object implements \IteratorAggregate, IPac
 	public function getPackages()
 	{
 		if (!file_exists($file = $this->getFilename())) {
-			$this->supplyDefaultPackages($file);
-		}
+			$list = $this->supplyDefaultPackages($file);
 
-		try {
-			$list = (array)Neon::decode(@file_get_contents($file));
+		} else {
+			try {
+				$list = (array)Neon::decode(@file_get_contents($file));
 
-		} catch (Nette\Utils\NeonException $e) {
-			throw new Kdyby\InvalidStateException("Packages file '$file' is corrupted!", NULL, $e);
+			} catch (Nette\Utils\NeonException $e) {
+				throw new Kdyby\InvalidStateException("Packages file '$file' is corrupted!", NULL, $e);
+			}
 		}
 
 		if (!$list) {
@@ -100,7 +101,6 @@ class InstalledPackages extends Nette\Object implements \IteratorAggregate, IPac
 	 */
 	private function supplyDefaultPackages($file)
 	{
-		$default = array();
 		if (class_exists('Kdyby\CMS')) {
 			$default = Kdyby\CMS::createPackagesList()->getPackages();
 
