@@ -80,6 +80,16 @@ abstract class Control extends Nette\Application\UI\Control
 
 
 	/**
+	 * Renders the default template
+	 */
+	public function render()
+	{
+		$this->template->render();
+	}
+
+
+
+	/**
 	 * @param \Nette\Templating\Template $template
 	 *
 	 * @return void
