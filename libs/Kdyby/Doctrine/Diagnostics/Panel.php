@@ -344,6 +344,7 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 	}
 
 
+
 	/**
 	 * @param \Doctrine\Common\Annotations\AnnotationException $e
 	 *
@@ -376,7 +377,10 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 			$refl = $refl->getProperty($context['method']);
 		}
 
-		$errorLine = $this->calculateErrorLine($refl, $e, $line);
+		if (($errorLine = $this->calculateErrorLine($refl, $e, $line)) === NULL) {
+			return FALSE;
+		}
+
 		$dump = Nette\Diagnostics\BlueScreen::highlightFile($file, $errorLine);
 		return '<p><b>File:</b> ' . Nette\Diagnostics\Helpers::editorLink($file, $errorLine) . '</p>' .
 			'<pre>' . $dump . '</pre>';
@@ -385,7 +389,7 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 
 
 	/**
-	 * @param \Reflector $refl
+	 * @param \Reflector|\Nette\Reflection\ClassType|\Nette\Reflection\Method $refl
 	 * @param \Exception $e
 	 * @param int $startLine
 	 *
@@ -397,17 +401,25 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 			$startLine = $refl->getStartLine();
 		}
 
-		$pos = Strings::match($e->getMessage(), '~position\s*(\d+)~');
-		$targetLine = $this->calculateAffectedLine($refl, $pos[1]);
-		$phpDocLines = count(Strings::split($refl->getDocComment(), '~[\n\r]+~'));
+		if ($pos = Strings::match($e->getMessage(), '~position\s*(\d+)~')){
+			$targetLine = $this->calculateAffectedLine($refl, $pos[1]);
 
+		} elseif ($notImported = Strings::match($e->getMessage(), '~^\[Semantical Error\] The annotation "([^"]*?)" in .*? was never imported~')) {
+			$parts = explode($notImported[1], $this->cleanedPhpDoc($refl), 2);
+			$targetLine = $this->calculateAffectedLine($refl, strlen($parts[0]));
+
+		} else {
+			return NULL;
+		}
+
+		$phpDocLines = count(Strings::split($refl->getDocComment(), '~[\n\r]+~'));
 		return $startLine - ($phpDocLines - ($targetLine - 1));
 	}
 
 
 
 	/**
-	 * @param \Reflector $refl
+	 * @param \Reflector|\Nette\Reflection\ClassType|\Nette\Reflection\Method $refl
 	 * @param int $symbolPos
 	 *
 	 * @return int
@@ -415,11 +427,25 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 	protected function calculateAffectedLine(\Reflector $refl, $symbolPos)
 	{
 		$doc = $refl->getDocComment();
-		$cleanedDoc = trim(substr($doc, $atPos = strpos($doc, '@') - 1), '* /');
+		$cleanedDoc = $this->cleanedPhpDoc($refl, $atPos);
 		$beforeCleanLines = count(Strings::split(substr($doc, 0, $atPos), '~[\n\r]+~'));
 		$parsedDoc = substr($cleanedDoc, 0, $symbolPos + 1);
 		$parsedLines = count(Strings::split($parsedDoc, '~[\n\r]+~'));
 		return $parsedLines + max($beforeCleanLines - 1, 0);
+	}
+
+
+
+	/**
+	 * @param \Nette\Reflection\ClassType|\Nette\Reflection\Method|\Reflector $refl
+	 * @param null $atPos
+	 *
+	 * @return string
+	 */
+	private static function cleanedPhpDoc(\Reflector $refl, &$atPos = NULL)
+	{
+		$doc = $refl->getDocComment();
+		return trim(substr($doc, $atPos = strpos($doc, '@') - 1), '* /');
 	}
 
 
