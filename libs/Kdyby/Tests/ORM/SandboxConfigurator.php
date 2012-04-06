@@ -101,9 +101,15 @@ class SandboxConfigurator extends Kdyby\Config\Configurator
 		$allClasses = array();
 		do {
 			$allClasses[] = $entity = array_shift($entities);
-			$meta = $manager->getClassMetadata($entity);
-			foreach ($meta->getAssociationNames() as $assoc) {
-				$entities = array_merge($entities, array($meta->getAssociationTargetClass($assoc)));
+			$class = $manager->getClassMetadata($entity);
+			/** @var \Kdyby\Doctrine\Mapping\ClassMetadata $class */
+			foreach ($class->getAssociationNames() as $assoc) {
+				$entities = array_merge($entities, array($class->getAssociationTargetClass($assoc)));
+			}
+
+			if ($root = $class->rootEntityName) {
+				$class = $manager->getClassMetadata($root);
+				$entities = array_merge($entities, array_values($class->discriminatorMap));
 			}
 
 		} while ($entities = array_diff(array_unique($entities), $allClasses));
