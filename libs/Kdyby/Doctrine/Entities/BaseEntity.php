@@ -198,19 +198,6 @@ abstract class BaseEntity extends Nette\Object
 			throw Kdyby\MemberAccessException::propertyReadWithoutName($this);
 		}
 
-		// protected attribute support
-		$properties = $this->listObjectProperties();
-		if (isset($properties[$name])) {
-			if ($this->$name instanceof Collection) {
-				$coll = $this->$name->toArray();
-				return $coll;
-
-			} else {
-				$val = $this->$name;
-				return $val;
-			}
-		}
-
 		// property getter support
 		$name[0] = $name[0] & "\xDF"; // case-sensitive checking, capitalize first character
 		$m = 'get' . $name;
@@ -228,6 +215,19 @@ abstract class BaseEntity extends Nette\Object
 		if (isset($methods[$m])) {
 			$val = $this->$m();
 			return $val;
+		}
+
+		// protected attribute support
+		$properties = $this->listObjectProperties();
+		if (isset($properties[$name = func_get_arg(0)])) {
+			if ($this->$name instanceof Collection) {
+				$coll = $this->$name->toArray();
+				return $coll;
+
+			} else {
+				$val = $this->$name;
+				return $val;
+			}
 		}
 
 		$type = isset($methods['set' . $name]) ? 'a write-only' : 'an undeclared';
@@ -250,17 +250,6 @@ abstract class BaseEntity extends Nette\Object
 			throw Kdyby\MemberAccessException::propertyWriteWithoutName($this);
 		}
 
-		// protected attribute support
-		$properties = $this->listObjectProperties();
-		if (isset($properties[$name])) {
-			if ($this->$name instanceof Collection) {
-				throw Kdyby\UnexpectedValueException::collectionCannotBeReplaced($this, $name);
-			}
-
-			$this->$name = $value;
-			return;
-		}
-
 		// property setter support
 		$name[0] = $name[0] & "\xDF"; // case-sensitive checking, capitalize first character
 
@@ -268,6 +257,17 @@ abstract class BaseEntity extends Nette\Object
 		$m = 'set' . $name;
 		if (isset($methods[$m])) {
 			$this->$m($value);
+			return;
+		}
+
+		// protected attribute support
+		$properties = $this->listObjectProperties();
+		if (isset($properties[$name = func_get_arg(0)])) {
+			if ($this->$name instanceof Collection) {
+				throw Kdyby\UnexpectedValueException::collectionCannotBeReplaced($this, $name);
+			}
+
+			$this->$name = $value;
 			return;
 		}
 

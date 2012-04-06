@@ -388,6 +388,23 @@ class BaseEntityTest extends Kdyby\Tests\TestCase
 		$this->assertEmpty($entity->getProxies());
 	}
 
+
+
+	public function testGetterHaveHigherPriority()
+	{
+		$entity = new ConcreteEntity();
+		$this->assertEquals(4, $entity->something);
+	}
+
+
+
+	public function testSetterHaveHigherPriority()
+	{
+		$entity = new ConcreteEntity();
+		$entity->something = 4;
+		$this->assertAttributeEquals(2, 'something', $entity);
+	}
+
 }
 
 
@@ -443,6 +460,11 @@ class ConcreteEntity extends BaseEntity
 	 */
 	public $threes;
 
+	/**
+	 * @var int
+	 */
+	protected $something = 2;
+
 
 
 	/**
@@ -457,6 +479,26 @@ class ConcreteEntity extends BaseEntity
 		$this->twos = new ArrayCollection(array((object)array('id' => 2)));
 		$this->proxies = new ArrayCollection(array((object)array('id' => 3)));
 		$this->threes = new ArrayCollection(array((object)array('id' => 4)));
+	}
+
+
+
+	/**
+	 * @param int $something
+	 */
+	public function setSomething($something)
+	{
+		$this->something = (int)ceil($something / 2);
+	}
+
+
+
+	/**
+	 * @return int
+	 */
+	public function getSomething()
+	{
+		return $this->something * 2;
 	}
 
 }
