@@ -417,7 +417,7 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 		if ($pos = Strings::match($e->getMessage(), '~position\s*(\d+)~')){
 			$targetLine = $this->calculateAffectedLine($refl, $pos[1]);
 
-		} elseif ($notImported = Strings::match($e->getMessage(), '~^\[Semantical Error\] The annotation "([^"]*?)" in .*? was never imported~')) {
+		} elseif ($notImported = Strings::match($e->getMessage(), '~^\[Semantical Error\] The annotation "([^"]*?)"~i')) {
 			$parts = explode($notImported[1], $this->cleanedPhpDoc($refl), 2);
 			$targetLine = $this->calculateAffectedLine($refl, strlen($parts[0]));
 
