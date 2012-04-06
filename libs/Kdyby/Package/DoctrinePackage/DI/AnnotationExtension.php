@@ -32,28 +32,42 @@ class AnnotationExtension extends Kdyby\Config\CompilerExtension
 	 */
 	public function loadConfiguration()
 	{
-		$container = $this->getContainerBuilder();
-		$container->addDefinition($this->prefix('reader'))
+		$builder = $this->getContainerBuilder();
+		$builder->addDefinition($this->prefix('reader'))
 			->setClass('Doctrine\Common\Annotations\AnnotationReader')
 			->addSetup('addGlobalIgnoredName', array('serializationVersion'))
 			->addSetup('addGlobalIgnoredName', array('todo:'));
 
-		$container->addDefinition($this->prefix('readerIndexed'))
+		$builder->addDefinition($this->prefix('readerIndexed'))
 			->setClass('Doctrine\Common\Annotations\IndexedReader', array($this->prefix('@reader')))
 			->setInternal(TRUE)
 			->setShared(FALSE);
 
-		$container->addDefinition($this->prefix('readerCached'))
+		$builder->addDefinition($this->prefix('readerCached'))
 			->setClass('Kdyby\Doctrine\Annotations\CachedReader', array(
 				$this->prefix('@readerIndexed'), $this->prefix('@readerCached.cache')
 			))
 			->setInternal(TRUE)
 			->setShared(FALSE);
 
-		$container->addDefinition($this->prefix('readerCached.cache'))
+		$builder->addDefinition($this->prefix('readerCached.cache'))
 			->setClass('Kdyby\Doctrine\Cache', array('@kdyby.cacheStorage'))
 			->setInternal(TRUE)
 			->setShared(FALSE);
+	}
+
+
+
+	/**
+	 * @param \Nette\Utils\PhpGenerator\ClassType $class
+	 */
+	public function afterCompile(Nette\Utils\PhpGenerator\ClassType $class)
+	{
+		/** @var \Nette\Utils\PhpGenerator\Method $init */
+		$init = $class->methods['initialize'];
+
+		// just look it up, mother fucker!
+		$init->addBody('Doctrine\Common\Annotations\AnnotationRegistry::registerLoader("class_exists");');
 	}
 
 }
