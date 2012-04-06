@@ -104,7 +104,7 @@ function wc($level = 1, $return = FALSE, $fullTrace = FALSE) {
 	if (Debugger::$productionMode) { return; }
 
 	$o = function ($t) { return (isset($t->class) ? htmlspecialchars($t->class) . "->" : NULL) . htmlspecialchars($t->function) . '()'; };
-	$f = function ($t) { return Helpers::editorLink($t->file, $t->line); };
+	$f = function ($t) { return isset($t->file) ? '(' . Helpers::editorLink($t->file, $t->line) . ')' : NULL; };
 
 	$trace = debug_backtrace();
 	$target = (object)$trace[$level];
@@ -118,7 +118,7 @@ function wc($level = 1, $return = FALSE, $fullTrace = FALSE) {
 		}
 
 	} else {
-		$message = $o($target) . " called from " . $o($caller) . " (" . $f($caller) . ")";
+		$message = $o($target) . " called from " . $o($caller) . $f($caller);
 	}
 
 	if ($return) {
