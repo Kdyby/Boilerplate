@@ -27,17 +27,32 @@ use Nette;
 class EntityContainer extends Nette\Forms\Container implements IObjectContainer
 {
 
-	/** @var array of function(array $values, object $entity); Occurs when the entity values are being mapped to form */
+	/**
+	 * Occurs when the entity values are being mapped to form
+	 * @var array of function(array $values, object $entity);
+	 */
 	public $onLoad = array();
 
-	/** @var array of function(array $values, Nette\Forms\Container $container); Occurs when the form values are being mapped to entity */
+	/**
+	 * Occurs when the form values are being mapped to entity
+	 * @var array of function(array $values, Nette\Forms\Container $container);
+	 */
 	public $onSave = array();
 
-	/** @var object */
+	/**
+	 * @var object
+	 */
 	private $entity;
 
-	/** @var \Kdyby\Doctrine\Forms\EntityMapper */
+	/**
+	 * @var \Kdyby\Doctrine\Forms\EntityMapper
+	 */
 	private $mapper;
+
+	/**
+	 * @var \Kdyby\Doctrine\Forms\ContainerBuilder
+	 */
+	private $builder;
 
 
 
@@ -52,6 +67,33 @@ class EntityContainer extends Nette\Forms\Container implements IObjectContainer
 
 		$this->entity = $entity;
 		$this->mapper = $mapper;
+	}
+
+
+
+	/**
+	 * @return \Kdyby\Doctrine\Forms\ContainerBuilder
+	 */
+	private function getBuilder()
+	{
+		if ($this->builder === NULL) {
+			$class = $this->getMapper()->getMeta($this->getEntity());
+			$this->builder = new ContainerBuilder($this, $class);
+		}
+
+		return $this->builder;
+	}
+
+
+
+	/**
+	 * @param string $field
+	 * @return \Nette\Forms\Controls\BaseControl
+	 */
+	public function add($field)
+	{
+		$this->getBuilder()->addFields($fields = func_get_args());
+		return $this[reset($fields)];
 	}
 
 

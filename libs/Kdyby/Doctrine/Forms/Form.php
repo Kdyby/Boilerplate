@@ -22,23 +22,42 @@ use Nette;
 class Form extends Kdyby\Application\UI\Form implements IObjectContainer
 {
 
-	/** @var bool */
+	/**
+	 * @var bool
+	 */
 	public $autoFlush = TRUE;
 
-	/** @var array of function(array $values, object $entity); Occurs when the entity values are being mapped to form */
+	/**
+	 * Occurs when the entity values are being mapped to form
+	 * @var array of function(array $values, object $entity);
+	 */
 	public $onLoad = array();
 
-	/** @var array of function($values, Nette\Forms\Container $container); Occurs when the form values are being mapped to entity */
+	/**
+	 *  Occurs when the form values are being mapped to entity
+	 * @var array of function($values, Nette\Forms\Container $container);
+	 */
 	public $onSave = array();
 
-	/** @var \Kdyby\Doctrine\Forms\EntityMapper */
+	/**
+	 * @var \Kdyby\Doctrine\Forms\EntityMapper
+	 */
 	private $mapper;
 
-	/** @var \Kdyby\Doctrine\Registry */
+	/**
+	 * @var \Kdyby\Doctrine\Registry
+	 */
 	private $doctrine;
 
-	/** @var object */
+	/**
+	 * @var object
+	 */
 	private $entity;
+
+	/**
+	 * @var \Kdyby\Doctrine\Forms\ContainerBuilder
+	 */
+	private $builder;
 
 
 
@@ -52,8 +71,7 @@ class Form extends Kdyby\Application\UI\Form implements IObjectContainer
 		$this->doctrine = $doctrine;
 		$this->mapper = $mapper ?: new EntityMapper($doctrine);
 
-		$this->entity = $entity;
-		if ($entity !== NULL) {
+		if (($this->entity = $entity) !== NULL) {
 			$this->mapper->assign($entity, $this);
 		}
 
@@ -63,10 +81,42 @@ class Form extends Kdyby\Application\UI\Form implements IObjectContainer
 
 
 	/**
+	 * @return \Kdyby\Doctrine\Forms\ContainerBuilder
+	 */
+	private function getBuilder()
+	{
+		if ($this->builder === NULL) {
+			$class = $this->getMapper()->getMeta($this->getEntity());
+			$this->builder = new ContainerBuilder($this, $class);
+		}
+
+		return $this->builder;
+	}
+
+
+
+	/**
+	 * @param string $field
+	 * @return \Nette\Forms\Controls\BaseControl
+	 */
+	public function add($field)
+	{
+		$this->getBuilder()->addFields($fields = func_get_args());
+		return $this[reset($fields)];
+	}
+
+
+
+	/**
+	 * @throws \Kdyby\InvalidStateException
 	 * @return null|object
 	 */
 	public function getEntity()
 	{
+		if (!$this->entity) {
+			throw new Kdyby\InvalidStateException("No entity was provided.");
+		}
+
 		return $this->entity;
 	}
 
@@ -109,14 +159,14 @@ class Form extends Kdyby\Application\UI\Form implements IObjectContainer
 	 */
 	public function fireEvents()
 	{
-		$redirect = FALSE;
+		$valid = $redirect = FALSE;
 
 		/** @var \Nette\Forms\Controls\SubmitButton $button */
 		if (!$button = $this->isSubmitted()) {
 			return;
 
 		} elseif ($button instanceof Nette\Forms\ISubmitterControl) {
-			if (!$button->getValidationScope() || $this->isValid()) {
+			if (!$button->getValidationScope() || ($valid = $this->isValid())) {
 				/** @var \Kdyby\Doctrine\Forms\EntityContainer $buttonContainer */
 				$buttonContainer = $button->getParent();
 				$clickedEntity = $this->getEntity();
@@ -131,7 +181,6 @@ class Form extends Kdyby\Application\UI\Form implements IObjectContainer
 				} else {
 					$redirect = $this->dispatchEvent($button->onClick, $button);
 				}
-				$valid = TRUE;
 
 			} else {
 				$redirect = $this->dispatchEvent($button->onInvalidClick, $button);
@@ -139,11 +188,14 @@ class Form extends Kdyby\Application\UI\Form implements IObjectContainer
 		}
 
 		if ($redirect) {
-			$this->persistEntities();
+			if ($valid || ($valid = $this->isValid())){
+				$this->persistEntities();
+			}
+
 			$this->getPresenter()->terminate();
 		}
 
-		if (isset($valid) || $this->isValid()) {
+		if ($valid || ($valid = $this->isValid())) {
 			if ($entity = $this->getEntity()) {
 				$dao = $this->doctrine->getDao($entity);
 				$redirect = $this->dispatchEvent($this->onSuccess, $this, $entity, $dao);
@@ -156,7 +208,10 @@ class Form extends Kdyby\Application\UI\Form implements IObjectContainer
 			$redirect = $this->dispatchEvent($this->onError, $this);
 		}
 
-		$this->persistEntities();
+		if ($valid) {
+			$this->persistEntities();
+		}
+
 		if ($redirect) {
 			$this->getPresenter()->terminate();
 		}

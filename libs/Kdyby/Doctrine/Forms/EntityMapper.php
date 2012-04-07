@@ -505,7 +505,7 @@ class EntityMapper extends Nette\Object
 	 * @param object|string $entity
 	 * @return \Kdyby\Doctrine\Mapping\ClassMetadata
 	 */
-	private function getMeta($entity)
+	public function getMeta($entity)
 	{
 		$className = is_object($entity) ? get_class($entity) : $entity;
 		if (!isset($this->meta[$className])) {
