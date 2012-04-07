@@ -30,19 +30,25 @@ class TemplateSource extends Kdyby\Doctrine\Entities\IdentifiedEntity
 	 * @ORM\Column(type="string", nullable=TRUE)
 	 * @var string
 	 */
-	private $name;
+	protected $name;
 
 	/**
 	 * @ORM\Column(type="text", nullable=TRUE)
 	 * @var string
 	 */
-	private $description;
+	protected $description;
 
 	/**
 	 * @ORM\Column(type="text")
 	 * @var string
 	 */
-	private $source;
+	protected $source;
+
+	/**
+	 * @ORM\Column(type="boolean")
+	 * @var boolean
+	 */
+	protected $layout = FALSE;
 
 	/**
 	 * @ORM\ManyToOne(targetEntity="TemplateSource", cascade={"persist"})
@@ -50,66 +56,6 @@ class TemplateSource extends Kdyby\Doctrine\Entities\IdentifiedEntity
 	 * @var \Kdyby\Templates\TemplateSource
 	 */
 	private $extends;
-
-
-
-	/**
-	 * @param string $source
-	 */
-	public function setSource($source)
-	{
-		$this->source = $source;
-	}
-
-
-
-	/**
-	 * @return string
-	 */
-	public function getSource()
-	{
-		return $this->source;
-	}
-
-
-
-	/**
-	 * @param string $name
-	 */
-	public function setName($name)
-	{
-		$this->name = $name ?: NULL;
-	}
-
-
-
-	/**
-	 * @return string
-	 */
-	public function getName()
-	{
-		return $this->name;
-	}
-
-
-
-	/**
-	 * @param string $description
-	 */
-	public function setDescription($description)
-	{
-		$this->description = $description ?: NULL;
-	}
-
-
-
-	/**
-	 * @return string
-	 */
-	public function getDescription()
-	{
-		return $this->description;
-	}
 
 
 
