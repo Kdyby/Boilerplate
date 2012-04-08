@@ -58,7 +58,6 @@ class TemplateConfigurator extends Nette\Object
 	public function configure(Nette\Templating\Template $template)
 	{
 		$template->registerHelperLoader('Kdyby\Templates\DefaultHelpers::loader');
-		$template->_fm = $this->container->assets->formulaeManager;
 	}
 
 

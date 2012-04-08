@@ -46,10 +46,14 @@ final class LatteHelpers extends Nette\Object
 		$key = $value = NULL;
 		while ($token = $tokenizer->fetchToken()) {
 			if ($tokenizer->isCurrent($tokenizer::T_STRING) || $tokenizer->isCurrent($tokenizer::T_SYMBOL)) {
-				$value = trim($token['value'], '\'"');
+				$value .= trim($token['value'], '\'"');
 
 				if ($tokenizer->fetchUntil($tokenizer::T_CHAR)) {
 					$key = $value;
+					$value = NULL;
+					continue;
+
+				} elseif ($tokenizer->isNext('/')) {
 					continue;
 				}
 
@@ -59,12 +63,15 @@ final class LatteHelpers extends Nette\Object
 
 				} else {
 					if (isset($args[$key])) {
-						throw new Nette\Latte\ParseException("Ambiguous definition of '$key'.");
+						throw new Nette\Latte\CompileException("Ambiguous definition of '$key'.");
 					}
 
 					$args[$key] = $value;
 					$key = $value = NULL;
 				}
+
+			} elseif ($tokenizer->isCurrent($tokenizer::T_CHAR) && $token['value'] === '/') {
+				$value .= '/';
 			}
 		}
 

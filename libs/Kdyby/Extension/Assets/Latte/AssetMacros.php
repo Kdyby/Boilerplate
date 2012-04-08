@@ -12,8 +12,7 @@ namespace Kdyby\Extension\Assets\Latte;
 
 use Assetic;
 use Kdyby;
-use Kdyby\Extension\Assets\AssetFactory;
-use Kdyby\Extension\Assets\FormulaeManager;
+use Kdyby\Extension\Assets;
 use Kdyby\Templates\LatteHelpers;
 use Nette;
 use Nette\Utils\PhpGenerator as Code;
@@ -30,13 +29,24 @@ use Nette\Utils\Strings;
 class AssetMacros extends Nette\Object implements Latte\IMacro
 {
 
-	/** @var \Kdyby\Extension\Assets\AssetFactory */
+	/**
+	 * @var \Kdyby\Extension\Assets\AssetFactory
+	 */
 	private $factory;
 
-	/** @var \Nette\Latte\Compiler; */
+	/**
+	 * @var \Kdyby\Extension\Assets\IAssetRepository
+	 */
+	private $repository;
+
+	/**
+	 * @var \Nette\Latte\Compiler;
+	 */
 	private $compiler;
 
-	/** @var string[] */
+	/**
+	 * @var \Kdyby\Extension\Assets\Repository\AssetFile
+	 */
 	private $assets = array();
 
 
@@ -60,6 +70,8 @@ class AssetMacros extends Nette\Object implements Latte\IMacro
 	{
 		$me = new static($compiler);
 
+		$compiler->addMacro('assets', $me);
+
 		$compiler->addMacro('javascript', $me);
 		$compiler->addMacro('js', $me);
 
@@ -81,10 +93,27 @@ class AssetMacros extends Nette\Object implements Latte\IMacro
 	public function nodeOpened(Latte\MacroNode $node)
 	{
 		if ($node->name === 'js' || $node->name === 'javascript') {
-			return $this->macroOpen($node, FormulaeManager::TYPE_JAVASCRIPT);
+			return $this->macroOpen($node, Assets\FormulaeManager::TYPE_JAVASCRIPT);
 
 		} elseif ($node->name === 'css' || $node->name === 'stylesheet') {
-			return $this->macroOpen($node, FormulaeManager::TYPE_STYLESHEET);
+			return $this->macroOpen($node, Assets\FormulaeManager::TYPE_STYLESHEET);
+
+		} elseif ($node->name === 'assets') {
+			if ($node->data->inline = empty($node->args)) {
+				throw new Nette\Latte\CompileException("Macro {assets} cannot be used inline.");
+
+			} elseif ($node->htmlNode) {
+				throw new Nette\Latte\CompileException("Macro {assets} cannot be used in HTML tag.");
+			}
+
+			try {
+				if ($this->createFactory($this->readArguments($node), NULL)) {
+					$node->isEmpty = TRUE;
+				}
+
+			} catch (Kdyby\FileNotFoundException $e) {
+				throw new Nette\Latte\CompileException($e->getMessage());
+			}
 
 		} else {
 			return FALSE;
@@ -100,10 +129,10 @@ class AssetMacros extends Nette\Object implements Latte\IMacro
 	public function nodeClosed(Latte\MacroNode $node)
 	{
 		if ($node->name === 'js' || $node->name === 'javascript') {
-			$this->macroClosed($node, FormulaeManager::TYPE_JAVASCRIPT);
+			$this->macroClosed($node, Assets\FormulaeManager::TYPE_JAVASCRIPT);
 
 		} elseif ($node->name === 'css' || $node->name === 'stylesheet') {
-			$this->macroClosed($node, FormulaeManager::TYPE_STYLESHEET);
+			$this->macroClosed($node, Assets\FormulaeManager::TYPE_STYLESHEET);
 		}
 	}
 
@@ -122,10 +151,26 @@ class AssetMacros extends Nette\Object implements Latte\IMacro
 
 	/**
 	 * @param \Kdyby\Extension\Assets\AssetFactory $factory
+	 *
+	 * @return \Kdyby\Extension\Assets\Latte\AssetMacros
 	 */
-	public function setFactory(AssetFactory $factory)
+	public function setFactory(Assets\AssetFactory $factory)
 	{
 		$this->factory = $factory;
+		return $this;
+	}
+
+
+
+	/**
+	 * @param \Kdyby\Extension\Assets\IAssetRepository $repository
+	 *
+	 * @return \Kdyby\Extension\Assets\Latte\AssetMacros
+	 */
+	public function setRepository(Assets\IAssetRepository $repository)
+	{
+		$this->repository = $repository;
+		return $this;
 	}
 
 
@@ -191,7 +236,7 @@ class AssetMacros extends Nette\Object implements Latte\IMacro
 	 *
 	 * @return string
 	 */
-	protected function macroClosed(Latte\MacroNode $node, $type)
+	protected function macroClosed(Latte\MacroNode $node, $type = NULL)
 	{
 		if (isset($node->data->emptyTag)) {
 			$node->content = NULL;
@@ -227,9 +272,36 @@ class AssetMacros extends Nette\Object implements Latte\IMacro
 	 */
 	public function finalize()
 	{
-		$prolog = array_reverse($this->assets);
+		if (!$this->assets) {
+			return array();
+		}
+
+		$lookupMethod = get_called_class() . '::findFormulaeManager';
+		$fmLookup = 'if (!isset($template->_fm)) $template->_fm = ' . $lookupMethod . '($control);';
+
+		$prolog = $visited = array();
+		foreach (array_reverse($this->assets) as $asset) {
+			/** @var \Kdyby\Extension\Assets\Repository\AssetFile $asset */
+
+			$inputs = md5(serialize($asset->input));
+			if (in_array($inputs, $visited)) {
+				continue;
+			}
+
+			// registration code
+			$code = '$template->_fm->register(' . $asset->serialized . ', ?, ?, ?, $control);';
+			$prolog[] = Code\Helpers::formatArgs($code, array(
+				$asset->type, $asset->filters, $asset->options
+			));
+
+			// do not include twice
+			$visited[] = $inputs;
+		}
+
 		$this->assets = array();
-		return array(implode("\n", $prolog));
+		return array(
+			$fmLookup . "\n" . implode("\n", $prolog) // prolog
+		);
 	}
 
 
@@ -296,22 +368,30 @@ class AssetMacros extends Nette\Object implements Latte\IMacro
 			throw new Nette\Latte\CompileException("No input file was provided.");
 		}
 
-		// array for AssetCollection
-		$assets = "array(\n";
-		foreach ($asset = $this->factory->createAsset($inputs, array(), $options) as $leaf) {
-			$this->validateAssetLeaf($leaf);
-			$assets .= "\t" . Code\Helpers::formatArgs('unserialize(?)', array(serialize($leaf))) . ",\n";
-		}
-		$assets = (isset($leaf) ? substr($assets, 0, -2) : $assets) . "\n)";
-
-		if ($asset instanceof Assetic\Asset\AssetInterface && !isset($options['output'])) {
-			$options['output'] = $asset->getTargetPath();
+		$packages = array();
+		foreach ($inputs as $input) {
+			if (Strings::match($input, '~^[-a-z0-9]+/[-a-z0-9]+$~i')) {
+				$packages[] = $input;
+			}
 		}
 
-		// registration code
-		$this->assets[] = Code\Helpers::formatArgs('$template->_fm->register(new Assetic\Asset\AssetCollection(' . $assets . '), ?, ?, ?, $control);', array(
-			$type, $filters, $options
-		));
+		// regular inputs
+		if ($inputs = array_diff($inputs, $packages)) {
+			$this->addAsset(new Assets\Repository\AssetFile($inputs, $type, $options, $filters));
+		}
+
+		if ($packages && !$this->repository) {
+			throw new Kdyby\InvalidStateException('Please provide instance of Kdyby\Extension\Assets\IAssetRepository using ' . get_called_class() . '::setRepository().');
+		}
+
+		// packages
+		foreach ($packages as $package) {
+			$version = isset($options['version']) ? $options['version'] : NULL;
+			$asset = $this->repository->getAsset($package, $version);
+			foreach ($asset->resolveFiles($this->repository) as $file) {
+				$this->addAsset($file);
+			}
+		}
 
 		return TRUE;
 	}
@@ -319,19 +399,59 @@ class AssetMacros extends Nette\Object implements Latte\IMacro
 
 
 	/**
-	 * @param \Assetic\Asset\AssetInterface $leaf
-	 *
-	 * @return bool
+	 * @param \Kdyby\Extension\Assets\Repository\AssetFile $asset
 	 */
-	private function validateAssetLeaf(Assetic\Asset\AssetInterface $leaf)
+	private function addAsset(Assets\Repository\AssetFile $asset)
 	{
-		if (!$leaf instanceof Assetic\Asset\FileAsset) {
-			return;
+		if (isset($asset->options['name']) && isset($asset->options['requiredBy'])) {
+			$name = $asset->options['name'];
+			foreach ($this->assets as $registered) {
+				if (!isset($registered->options['name']) || $name !== $registered->options['name']) {
+					continue;
+				}
+
+				$requiredBy = array_unique(array_merge(
+					$asset->options['requiredBy'],
+					isset($registered->options['requiredBy'])
+						? $registered->options['requiredBy']
+						: array()
+				));
+
+				$registered->options['requiredBy'] = $requiredBy;
+				$asset->options['requiredBy'] = $requiredBy;
+			}
 		}
 
-		if (!file_exists($file = $leaf->getSourceRoot() . '/' . $leaf->getSourcePath())) {
-			throw new Kdyby\FileNotFoundException('Assetic wasn\'t able to process your input, file "' . $file . '" doesn\'t exists.');
+		// add
+		$asset->serialized = $asset->serialize($this->factory);
+		$this->assets[] = $asset;
+	}
+
+
+	/************************ Helpers ************************/
+
+
+	/**
+	 * @param \Nette\Application\UI\PresenterComponent $control
+	 *
+	 * @throws \Kdyby\InvalidStateException
+	 * @return \Kdyby\Extension\Assets\FormulaeManager
+	 */
+	public static function findFormulaeManager(Nette\Application\UI\PresenterComponent $control)
+	{
+		/** @var \Nette\Application\UI\Presenter $presenter */
+		$presenter = $control->getPresenter();
+		$components = $presenter->getComponents(FALSE, 'Kdyby\Components\Header\HeaderControl');
+		if (!$headerControl = iterator_to_array($components)) {
+			throw new Kdyby\InvalidStateException(
+				'Missing link to FormulaeManager from template. ' .
+				'Either provide a $_fm property with instanceof Kdyby\Extension\Assets\FormulaeManager, ' .
+				'or register Kdyby\Components\Header\HeaderControl in presenter.' .
+				'If you have the component registered and this error keeps returning, try to instantiate it.'
+			);
 		}
+
+		return reset($headerControl)->getFormulaeManager();
 	}
 
 }

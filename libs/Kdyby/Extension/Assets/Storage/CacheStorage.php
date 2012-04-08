@@ -13,6 +13,7 @@ namespace Kdyby\Extension\Assets\Storage;
 use Assetic;
 use Assetic\Asset\AssetInterface;
 use Kdyby;
+use Kdyby\Extension\Curl;
 use Kdyby\Tools\Filesystem;
 use Kdyby\Tools\MimeTypeDetector;
 use Nette;
@@ -27,13 +28,24 @@ use Nette\Caching\Storages\FileStorage;
 class CacheStorage extends Nette\Object implements Kdyby\Extension\Assets\IStorage
 {
 
-	/** @var string */
+	/**
+	 * @var bool
+	 */
+	private static $rewriteIsWorking = FALSE;
+
+	/**
+	 * @var string
+	 */
 	private $cache;
 
-	/** @var string */
+	/**
+	 * @var string
+	 */
 	private $tempDir;
 
-	/** @var string */
+	/**
+	 * @var string
+	 */
 	private $baseUrl;
 
 
@@ -75,13 +87,37 @@ class CacheStorage extends Nette\Object implements Kdyby\Extension\Assets\IStora
 		$contentType = MimeTypeDetector::fromFile($tempFile);
 
 		// store
-		$this->cache->save($asset->getTargetPath(), $assetDump, $dp = array(
+		$this->cache->save($contentKey = $asset->getTargetPath(), $assetDump, $dp = array(
 			Cache::FILES => (array)$this->getAssetDeps($asset)
 		));
-		$this->cache->save('Content-Type:' . $asset->getTargetPath(), $contentType, $dp);
+		$this->cache->save($metaKey = 'Content-Type:' . $asset->getTargetPath(), $contentType, $dp);
 
 		// cleanup
 		Filesystem::rm($tempFile);
+
+		if (static::$rewriteIsWorking === TRUE) {
+			return;
+		}
+
+		try {
+			$test = new Curl\Request($this->getAssetUrl($asset));
+			$test->method = 'HEAD';
+			$test->setSender($tester = new Curl\CurlSender());
+			$tester->timeout = 5;
+
+			static::$rewriteIsWorking = (bool)$test->send();
+
+		} catch (Curl\CurlException $e) {
+			$this->cache->remove($contentKey);
+			$this->cache->remove($metaKey);
+
+			$class = get_called_class();
+			throw new Kdyby\InvalidStateException(
+				"Your current server settings doesn't allow to properly link assets. " .
+				"$class requires working rewrite technology, " .
+				"e.g. mod_rewrite on Apache or properly configured nginx.", 0, $e
+			);
+		}
 	}
 
 

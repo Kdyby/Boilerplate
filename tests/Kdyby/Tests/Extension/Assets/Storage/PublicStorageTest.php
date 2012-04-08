@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Tests\Assets\Storage;
+namespace Kdyby\Tests\Extension\Assets\Storage;
 
 use Assetic;
 use Assetic\Asset\AssetCollection;

@@ -19,7 +19,7 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class PackageResolver extends Nette\Object implements Kdyby\Extension\Assets\IResourceResolver
+class PackagePathResolver extends Nette\Object implements Kdyby\Extension\Assets\IResourceResolver
 {
 
 	/**

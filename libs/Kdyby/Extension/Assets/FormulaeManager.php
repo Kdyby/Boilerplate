@@ -27,29 +27,59 @@ class FormulaeManager extends Nette\Object
 	const TYPE_STYLESHEET = 'css';
 	const TYPE_JAVASCRIPT = 'js';
 
-	/** @var \Kdyby\Extension\Assets\IStorage */
+	/**
+	 * @var \Kdyby\Extension\Assets\IStorage
+	 */
 	private $storage;
 
-	/** @var \Kdyby\Extension\Assets\AssetManager */
+	/**
+	 * @var \Kdyby\Extension\Assets\AssetManager
+	 */
 	private $assetManager;
 
-	/** @var \Kdyby\Extension\Assets\FilterManager */
+	/**
+	 * @var \Kdyby\Extension\Assets\FilterManager
+	 */
 	private $filterManager;
 
-	/** @var array */
+	/**
+	 * @var \Kdyby\Extension\Assets\IAssetRepository
+	 */
+	private $repository;
+
+	/**
+	 * @var bool
+	 */
+	private $debug = FALSE;
+
+	/**
+	 * @var array
+	 */
 	private $presenterTypes = array(
 		self::TYPE_STYLESHEET => array(),
 		self::TYPE_JAVASCRIPT => array()
 	);
 
-	/** @var array */
+	/**
+	 * @var array
+	 */
 	private $componentTypes = array(
 		self::TYPE_STYLESHEET => array(),
 		self::TYPE_JAVASCRIPT => array()
 	);
 
-	/** @var bool */
-	private $debug = FALSE;
+	/**
+	 * @var array
+	 */
+	private $packagesRequiredBy = array();
+
+	/**
+	 * @var array
+	 */
+	private $resolved = array(
+		self::TYPE_STYLESHEET => array(),
+		self::TYPE_JAVASCRIPT => array()
+	);
 
 
 
@@ -63,6 +93,16 @@ class FormulaeManager extends Nette\Object
 		$this->storage = $storage;
 		$this->assetManager = $assetManager;
 		$this->filterManager = $filterManager;
+	}
+
+
+
+	/**
+	 * @param \Kdyby\Extension\Assets\IAssetRepository $provider
+	 */
+	public function setJavascriptProvider(IAssetRepository $provider)
+	{
+		$this->repository = $provider;
 	}
 
 
@@ -93,14 +133,36 @@ class FormulaeManager extends Nette\Object
 		}
 
 		$name = $this->assetManager->add($asset, $filters, $options);
-		if ($presenterComponent instanceof Nette\Application\IPresenter) {
-			$this->presenterTypes[$type][] = $name;
+		if (!empty($options['requiredBy'])) {
+			foreach ($options['requiredBy'] as $requiredBy) {
+				$this->packagesRequiredBy[$requiredBy][] = $name;
+			}
 
 		} else {
-			$this->componentTypes[$type][] = $name;
+			if ($presenterComponent instanceof Nette\Application\IPresenter) {
+				$this->presenterTypes[$type][] = $name;
+
+			} else {
+				$this->componentTypes[$type][] = $name;
+			}
 		}
 
 		return $name;
+	}
+
+
+
+	/**
+	 * @param string $name
+	 * @param string $version
+	 */
+	public function requireAsset($name, $version = NULL)
+	{
+		if (!$this->repository) {
+			throw new Kdyby\InvalidStateException("No implementation of IJavascriptProvider was given.");
+		}
+
+		$this->componentTypes[$name] = $version;
 	}
 
 
@@ -111,15 +173,7 @@ class FormulaeManager extends Nette\Object
 	 */
 	public function getAssets($type)
 	{
-		$assets = array();
-		foreach ($this->componentTypes[$type] as $name) {
-			$assets[] = $this->getAssetInfo($name);
-		}
-		foreach ($this->presenterTypes[$type] as $name) {
-			$assets[] = $this->getAssetInfo($name);
-		}
-
-		return array_reverse($assets);
+		return array_reverse($this->resolved[$type]);
 	}
 
 
@@ -130,9 +184,17 @@ class FormulaeManager extends Nette\Object
 	 */
 	public function getAssetInfo($name)
 	{
-		$all = $this->assetManager->get($name)->all();
+		$asset = $this->assetManager->get($name);
+		if ($asset instanceof Assetic\Asset\AssetCollection) {
+			/** @var \Assetic\Asset\AssetCollection $asset */
+			foreach ($asset as $one) {
+				$asset = $one;
+				break;
+			}
+		}
+
 		return array(
-			'source' => reset($all)->getSourcePath(),
+			'source' => $asset->getSourcePath(),
 			'src' => $this->storage->getAssetUrl($this->assetManager->get($name))
 		) + $this->assetManager->getOptions($name);
 	}
@@ -144,29 +206,60 @@ class FormulaeManager extends Nette\Object
 	 */
 	public function publish()
 	{
-		$types = array_merge(
+		$types = array_unique(array_merge(
 			Arrays::flatten($this->presenterTypes),
 			Arrays::flatten($this->componentTypes)
-		);
+		));
 
 		foreach ($types as $name) {
-			$asset = $this->assetManager->get($name);
-			if ($this->storage->isFresh($asset)) {
-				continue;
-			}
-
-			// ensure filters before write
-			foreach ($this->assetManager->getFilters($name) as $filter) {
-				if ('?' != $filter[0]) {
-					$asset->ensureFilter($this->filterManager->get($filter));
-
-				} elseif ($this->debug) {
-					$asset->ensureFilter($this->filterManager->get(substr($filter, 1)));
-				}
-			}
-
-			$this->storage->writeAsset($asset);
+			$this->publishAndResolve($name);
 		}
+	}
+
+
+
+	/**
+	 * @param $name
+	 * @return mixed
+	 */
+	private function publishAndResolve($name)
+	{
+		$asset = $this->assetManager->get($name);
+		$info = $this->getAssetInfo($name);
+
+		if (isset($info['name']) && isset($this->packagesRequiredBy[$info['name']])) {
+			foreach ($this->packagesRequiredBy[$info['name']] as $requiredName) {
+				$this->publishAndResolve($requiredName);
+			}
+		}
+
+		// register resolved
+		if (!in_array($extension = pathinfo($info['src'], PATHINFO_EXTENSION), array_keys($this->resolved))) {
+			$extension = pathinfo($info['source'], PATHINFO_EXTENSION);
+		}
+		if (isset($info['name'])) {
+			$this->resolved[$extension][$info['name']] = $info;
+
+		} else {
+			$this->resolved[$extension][$info['source']] = $info;
+		}
+
+		// if files is not fresh or published, make it right
+		if ($this->storage->isFresh($asset)) {
+			return;
+		}
+
+		// ensure filters before write
+		foreach ($this->assetManager->getFilters($name) as $filter) {
+			if ('?' != $filter[0]) {
+				$asset->ensureFilter($this->filterManager->get($filter));
+
+			} elseif ($this->debug) {
+				$asset->ensureFilter($this->filterManager->get(substr($filter, 1)));
+			}
+		}
+
+		$this->storage->writeAsset($asset);
 	}
 
 }

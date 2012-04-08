@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Tests\Assets\Storage;
+namespace Kdyby\Tests\Extension\Assets\Storage;
 
 use Assetic;
 use Kdyby;
@@ -54,8 +54,8 @@ class AsseticMacroSetTest extends Kdyby\Tests\LatteTestCase
 		$this->factory->expects($this->once())
 			->method('createAsset')
 			->with($this->equalTo(array($input = '@BarPackage/public/css/*.less')),
-			$this->equalTo(array()),
-			$this->equalTo(array('root' => 'root')))
+				$this->equalTo(array('less', 'yui')),
+				$this->equalTo(array('root' => 'root')))
 			->will($this->returnValue($assetColl));
 
 		// parse
@@ -65,14 +65,12 @@ class AsseticMacroSetTest extends Kdyby\Tests\LatteTestCase
 		$this->assertLatteMacroEquals("", "Macro has no output");
 
 		$prolog = <<<php
-\$template->_fm->register(new Assetic\Asset\AssetCollection(array(
-	unserialize($serialized)
-)), 'css', array(
+if (!isset(\$template->_fm)) \$template->_fm = Kdyby\Extension\Assets\Latte\AssetMacros::findFormulaeManager(\$control);
+\$template->_fm->register(unserialize($serialized), 'css', array(
 	'less',
 	'yui',
 ), array(
 	'root' => 'root',
-	'output' => 'static/main.css',
 ), \$control);
 
 php;
@@ -94,8 +92,8 @@ php;
 		$this->factory->expects($this->once())
 			->method('createAsset')
 			->with($this->equalTo(array($input = '@BarPackage/public/js/jQuery.js')),
-			$this->equalTo(array()),
-			$this->equalTo(array('root' => 'root', 'output' => 'static/main.js')))
+				$this->equalTo(array('closure')),
+				$this->equalTo(array('root' => 'root', 'output' => 'static/main.js')))
 			->will($this->returnValue($assetColl));
 
 		// parse
@@ -105,9 +103,8 @@ php;
 		$this->assertLatteMacroEquals("", "Macro has no output");
 
 		$prolog = <<<php
-\$template->_fm->register(new Assetic\Asset\AssetCollection(array(
-	unserialize($serialized)
-)), 'js', array(
+if (!isset(\$template->_fm)) \$template->_fm = Kdyby\Extension\Assets\Latte\AssetMacros::findFormulaeManager(\$control);
+\$template->_fm->register(unserialize($serialized), 'js', array(
 	'closure',
 ), array(
 	'root' => 'root',

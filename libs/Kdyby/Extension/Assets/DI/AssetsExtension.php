@@ -75,8 +75,15 @@ class AssetsExtension extends Kdyby\Config\CompilerExtension
 			->addSetup('setDebug', array('%assets.debug%'));
 
 		if (class_exists('Kdyby\Packages\PackageManager')) {
-			$resolver = new Nette\DI\Statement('Kdyby\Extension\Assets\Resolver\PackageResolver');
+			$resolver = new Nette\DI\Statement('Kdyby\Extension\Assets\Resolver\PackagePathResolver');
 			$factory->addSetup('addResolver', array($resolver));
+
+			$builder->addDefinition($this->prefix('repository'))
+				->setClass('Kdyby\Extension\Assets\Repository\KdybyPackagesRepository');
+
+		} else {
+			$builder->addDefinition($this->prefix('repository'))
+				->setClass('Kdyby\Extension\Assets\Repository\PackagesRepository');
 		}
 
 		$builder->addDefinition($this->prefix('formulaeManager'))
@@ -84,9 +91,11 @@ class AssetsExtension extends Kdyby\Config\CompilerExtension
 			->addSetup('setDebug', array('%assets.debug%'));
 
 		// macros
+		$macroFactory = 'Kdyby\Extension\Assets\Latte\AssetMacros::install($service->compiler)';
 		$builder->getDefinition('nette.latte')
-			->addSetup('Kdyby\Extension\Assets\Latte\AssetMacros::install($service->compiler)->setFactory(?)', array(
-				$this->prefix('@assetFactory')
+			->addSetup($macroFactory . '->setFactory(?)->setRepository(?)', array(
+				$this->prefix('@assetFactory'),
+				$this->prefix('@repository')
 			));
 	}
 

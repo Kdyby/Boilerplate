@@ -14,7 +14,6 @@ use Doctrine;
 use Kdyby;
 use Kdyby\Packages\IPackageList;
 use Nette;
-use Nette\Application\Routers\Route;
 use Nette\Application\UI\Presenter;
 use Nette\Caching\Storages\FileStorage;
 use Nette\DI\Container as NContainer;
