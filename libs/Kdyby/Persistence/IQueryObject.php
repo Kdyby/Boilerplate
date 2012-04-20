@@ -27,7 +27,7 @@ interface IQueryObject
 
 	/**
 	 * @param IQueryable $repository
-	 * @return mixed
+	 * @return mixed|\Kdyby\Doctrine\ResultSet
 	 */
 	function fetch(IQueryable $repository);
 

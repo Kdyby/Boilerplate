@@ -12,7 +12,6 @@ namespace Kdyby\Doctrine;
 
 use Doctrine;
 use Doctrine\ORM\AbstractQuery;
-use DoctrineExtensions\Paginate\Paginate;
 use Kdyby;
 use Kdyby\Persistence\IQueryable;
 use Nette;
@@ -23,33 +22,26 @@ use Nette\Utils\Paginator;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-abstract class QueryObjectBase implements Kdyby\Persistence\IQueryObject
+abstract class QueryObjectBase extends Nette\Object implements Kdyby\Persistence\IQueryObject
 {
 
-	/** @var \Nette\Utils\Paginator */
-	private $paginator;
-
-	/** @var \Doctrine\ORM\Query */
+	/**
+	 * @var \Doctrine\ORM\Query
+	 */
 	private $lastQuery;
 
-
-
 	/**
-	 * @param \Nette\Utils\Paginator $paginator
+	 * @var \Kdyby\Doctrine\ResultSet
 	 */
-	public function __construct(Paginator $paginator = NULL)
-	{
-		$this->paginator = $paginator;
-	}
+	private $lastResult;
 
 
 
 	/**
-	 * @return \Nette\Utils\Paginator
 	 */
-	public function getPaginator()
+	public function __construct()
 	{
-		return $this->paginator;
+
 	}
 
 
@@ -64,22 +56,33 @@ abstract class QueryObjectBase implements Kdyby\Persistence\IQueryObject
 
 	/**
 	 * @param \Kdyby\Persistence\IQueryable $repository
+	 *
+	 * @throws \Kdyby\UnexpectedValueException
 	 * @return \Doctrine\ORM\Query
 	 */
-	protected function getQuery(IQueryable $repository)
+	private function getQuery(IQueryable $repository)
 	{
 		$query = $this->doCreateQuery($repository);
 		if ($query instanceof Doctrine\ORM\QueryBuilder) {
-			return $this->lastQuery = $query->getQuery();
-
-		} elseif ($query instanceof Doctrine\ORM\Query) {
-			return $this->lastQuery = $query;
+			$query = $query->getQuery();
 		}
 
-		$class = $this->getReflection()->getMethod('doCreateQuery')->getDeclaringClass();
-		throw new Kdyby\UnexpectedValueException("Method " . $class . "::doCreateQuery() must return" .
+		if (!$query instanceof Doctrine\ORM\Query) {
+			$class = $this->getReflection()->getMethod('doCreateQuery')->getDeclaringClass();
+			throw new Kdyby\UnexpectedValueException("Method " . $class . "::doCreateQuery() must return" .
 				" instanceof Doctrine\\ORM\\Query or instanceof Doctrine\\ORM\\QueryBuilder, " .
 				Kdyby\Tools\Mixed::getType($query) . " given.");
+		}
+
+		if ($this->lastQuery->getDQL() === $query->getDQL()) {
+			$query = $this->lastQuery;
+		}
+
+		if ($this->lastQuery !== $query) {
+			$this->lastResult = new ResultSet($query);
+		}
+
+		return $this->lastQuery = $query;
 	}
 
 
@@ -91,7 +94,8 @@ abstract class QueryObjectBase implements Kdyby\Persistence\IQueryObject
 	 */
 	public function count(IQueryable $repository)
 	{
-		return Paginate::getTotalQueryResults($this->getQuery($repository));
+		return $this->fetch($repository)
+			->getTotalCount();
 	}
 
 
@@ -100,21 +104,17 @@ abstract class QueryObjectBase implements Kdyby\Persistence\IQueryObject
 	 * @param \Kdyby\Persistence\IQueryable $repository
 	 * @param int $hydrationMode
 	 *
-	 * @return array
+	 * @return \Kdyby\Doctrine\ResultSet|array
 	 */
 	public function fetch(IQueryable $repository, $hydrationMode = AbstractQuery::HYDRATE_OBJECT)
 	{
-		$query = $this->getQuery($repository);
+		$query = $this->getQuery($repository)
+			->setFirstResult(NULL)
+			->setMaxResults(NULL);
 
-		if ($this->paginator) {
-			$query = Paginate::getPaginateQuery($query, $this->paginator->getOffset(), $this->paginator->getLength()); // Step 2 and 3
-
-		} else {
-			$query = $query->setMaxResults(NULL)->setFirstResult(NULL);
-		}
-
-		$this->lastQuery = $query;
-		return $query->getResult($hydrationMode);
+		return $hydrationMode !== AbstractQuery::HYDRATE_OBJECT
+			? $query->execute($hydrationMode)
+			: $this->lastResult;
 	}
 
 
@@ -129,7 +129,6 @@ abstract class QueryObjectBase implements Kdyby\Persistence\IQueryObject
 			->setFirstResult(NULL)
 			->setMaxResults(1);
 
-		$this->lastQuery = $query;
 		return $query->getSingleResult();
 	}
 

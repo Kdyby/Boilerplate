@@ -16,8 +16,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\NonUniqueResultException;
 use Kdyby;
-use Kdyby\Persistence\IDao;
-use Kdyby\Persistence\IQueryObject;
+use Kdyby\Persistence;
 use Nette;
 use Nette\ObjectMixin;
 
@@ -28,7 +27,7 @@ use Nette\ObjectMixin;
  *
  * @method Mapping\ClassMetadata getClassMetadata() getClassMetadata()
  */
-class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persistence\IQueryable, Kdyby\Persistence\IObjectFactory
+class Dao extends Doctrine\ORM\EntityRepository implements Persistence\IDao, Persistence\IQueryExecutor, Persistence\IQueryable, Persistence\IObjectFactory
 {
 
 	/** @var \Kdyby\Doctrine\Mapping\ValuesMapper */
@@ -179,6 +178,7 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 			$criteria = array();
 		}
 
+		$query = $this->createQuery();
 		try {
 			$where = $params = array();
 			foreach ($criteria as $k => $v) {
@@ -187,7 +187,7 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 			}
 
 			$where = $where ? 'WHERE ' . implode(' AND ', $where) : NULL;
-			$query = $this->createQuery('SELECT e FROM ' . $this->getEntityName() . " e INDEX BY e.$key $where");
+			$query->setDQL('SELECT e FROM ' . $this->getEntityName() . " e INDEX BY e.$key $where");
 			$query->setParameters($params);
 			return $query->getResult();
 
@@ -200,9 +200,12 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 
 	/**
 	 * @param object|array|\Doctrine\Common\Collections\Collection $entity
-	 * @param boolean $withoutFlush
+	 * @param bool $withoutFlush
+	 *
+	 * @throws \Kdyby\InvalidArgumentException
+	 * @return null
 	 */
-	public function delete($entity, $withoutFlush = IDao::FLUSH)
+	public function delete($entity, $withoutFlush = Persistence\IDao::FLUSH)
 	{
 		if ($entity instanceof Collection) {
 			return $this->delete($entity->toArray(), $withoutFlush);
@@ -211,11 +214,12 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 		if (is_array($entity)) {
 			$dao = $this;
 			array_map(function ($entity) use ($dao) {
-				return $dao->delete($entity, IDao::NO_FLUSH);
+				/** @var \Kdyby\Doctrine\Dao $dao */
+				return $dao->delete($entity, Persistence\IDao::NO_FLUSH);
 			}, $entity);
 
 			$this->flush($withoutFlush);
-			return;
+			return NULL;
 		}
 
 		if (!$entity instanceof $this->_entityName) {
@@ -231,9 +235,9 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 	/**
 	 * @param boolean $withoutFlush
 	 */
-	protected function flush($withoutFlush = IDao::FLUSH)
+	protected function flush($withoutFlush = Persistence\IDao::FLUSH)
 	{
-		if ($withoutFlush === IDao::FLUSH) {
+		if ($withoutFlush === Persistence\IDao::FLUSH) {
 			try {
 				$this->getEntityManager()->flush();
 
@@ -276,7 +280,7 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 
 
 	/**
-	 * @param callable $callback
+	 * @param callback $callback
 	 * @return mixed|boolean
 	 */
 	public function transactional($callback)
@@ -299,13 +303,13 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 
 
 	/**
-	 * @param \Kdyby\Persistence\IQueryObject $queryObject
+	 * @param \Kdyby\Persistence\IQueryObject|\Kdyby\Doctrine\QueryObjectBase $queryObject
 	 * @return integer
 	 */
-	public function count(IQueryObject $queryObject)
+	public function count(Persistence\IQueryObject $queryObject)
 	{
 		try {
-			return $queryObject->count($this->getEntityManager()->createQueryBuilder());
+			return $queryObject->count($this);
 
 		} catch (\Exception $e) {
 			return $this->handleQueryException($e, $queryObject);
@@ -315,10 +319,10 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 
 
 	/**
-	 * @param \Kdyby\Persistence\IQueryObject $queryObject
-	 * @return array
+	 * @param \Kdyby\Persistence\IQueryObject|\Kdyby\Doctrine\QueryObjectBase $queryObject
+	 * @return array|\Kdyby\Doctrine\ResultSet
 	 */
-	public function fetch(IQueryObject $queryObject)
+	public function fetch(Persistence\IQueryObject $queryObject)
 	{
 		try {
 			return $queryObject->fetch($this);
@@ -331,10 +335,12 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 
 
 	/**
-	 * @param \Kdyby\Persistence\IQueryObject $queryObject
+	 * @param \Kdyby\Persistence\IQueryObject|\Kdyby\Doctrine\QueryObjectBase $queryObject
+	 *
+	 * @throws \Kdyby\InvalidStateException
 	 * @return object
 	 */
-	public function fetchOne(IQueryObject $queryObject)
+	public function fetchOne(Persistence\IQueryObject $queryObject)
 	{
 		try {
 			return $queryObject->fetchOne($this);
@@ -343,7 +349,7 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 			return NULL;
 
 		} catch (NonUniqueResultException $e) { // this should never happen!
-			throw new Kdyby\InvalidStateException("You have to setup your query using ->setMaxResult(1).", NULL, $e);
+			throw new Kdyby\InvalidStateException("You have to setup your query calling ->setMaxResult(1).", 0, $e);
 
 		} catch (\Exception $e) {
 			return $this->handleQueryException($e, $queryObject);
@@ -353,17 +359,17 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 
 
 	/**
-	 * @param \Kdyby\Persistence\IQueryObject $queryObject
+	 * @param \Kdyby\Persistence\IQueryObject|\Kdyby\Doctrine\QueryObjectBase $queryObject
 	 * @param string $key
 	 * @param string $value
 	 *
 	 * @return array
 	 */
-	public function fetchPairs(IQueryObject $queryObject, $key = NULL, $value = NULL)
+	public function fetchPairs(Persistence\IQueryObject $queryObject, $key = NULL, $value = NULL)
 	{
 		try {
 			$pairs = array();
-			foreach ($res = $queryObject->fetch($this, AbstractQuery::HYDRATE_ARRAY) as $row) {
+			foreach ($queryObject->fetch($this, AbstractQuery::HYDRATE_ARRAY) as $row) {
 				$offset = $key ? $row[$key] : reset($row);
 				$pairs[$offset] = $value ? $value[$row] : next($row);
 			}
@@ -379,17 +385,20 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 	/**
 	 * Fetches all records and returns an associative array indexed by key
 	 *
-	 * @param \Kdyby\Persistence\IQueryObject $queryObject
+	 * @param \Kdyby\Persistence\IQueryObject|\Kdyby\Doctrine\QueryObjectBase $queryObject
 	 * @param string $key
 	 *
+	 * @throws \Exception
+	 * @throws \Kdyby\InvalidStateException
 	 * @return array
 	 */
-	public function fetchAssoc(IQueryObject $queryObject, $key = NULL)
+	public function fetchAssoc(Persistence\IQueryObject $queryObject, $key = NULL)
 	{
 		try {
-			$result = $queryObject->fetch($this);
-			if (empty($result)) {
-				return $result ? : NULL;
+			/** @var \Kdyby\Doctrine\ResultSet|mixed $resultSet */
+			$resultSet = $queryObject->fetch($this);
+			if (!$resultSet instanceof ResultSet || !($result = iterator_to_array($resultSet->getIterator()))) {
+				return NULL;
 			}
 
 			try {
@@ -445,6 +454,8 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 	 * @param string $message
 	 *
 	 * @throws \Exception
+	 * @throws \Kdyby\Doctrine\QueryException
+	 * @throws \Kdyby\Doctrine\SqlException
 	 */
 	private function handleException(\Exception $e, Doctrine\ORM\Query $query = NULL, $message = NULL)
 	{
@@ -495,6 +506,10 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 
 
 
+	/**
+	 * @param string $name
+	 * @return mixed
+	 */
 	public function &__get($name)
 	{
 		return ObjectMixin::get($this, $name);
@@ -502,6 +517,10 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 
 
 
+	/**
+	 * @param string $name
+	 * @param mixed $value
+	 */
 	public function __set($name, $value)
 	{
 		return ObjectMixin::set($this, $name, $value);
@@ -509,6 +528,10 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 
 
 
+	/**
+	 * @param string $name
+	 * @return bool
+	 */
 	public function __isset($name)
 	{
 		return ObjectMixin::has($this, $name);
@@ -516,6 +539,9 @@ class Dao extends Doctrine\ORM\EntityRepository implements IDao, Kdyby\Persisten
 
 
 
+	/**
+	 * @param string $name
+	 */
 	public function __unset($name)
 	{
 		ObjectMixin::remove($this, $name);
