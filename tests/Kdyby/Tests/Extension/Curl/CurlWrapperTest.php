@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Tests\Curl;
+namespace Kdyby\Tests\Extension\Curl;
 
 use Kdyby;
 use Kdyby\Extension\Curl;
