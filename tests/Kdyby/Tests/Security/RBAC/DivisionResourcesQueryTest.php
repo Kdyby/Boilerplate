@@ -44,6 +44,7 @@ class DivisionResourcesQueryTest extends Kdyby\Tests\OrmTestCase
 		$resources = $this->getDao('Kdyby\Security\RBAC\Resource')
 			->fetch(new Kdyby\Security\RBAC\DivisionResourcesQuery($blog));
 
+		$resources = iterator_to_array($resources);
 		$this->assertCount(2, $resources, "There are two resources comment & article in blog");
 		$this->assertContainsOnly('Kdyby\Security\RBAC\Resource', $resources);
 

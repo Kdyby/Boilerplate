@@ -74,7 +74,7 @@ abstract class QueryObjectBase extends Nette\Object implements Kdyby\Persistence
 				Kdyby\Tools\Mixed::getType($query) . " given.");
 		}
 
-		if ($this->lastQuery->getDQL() === $query->getDQL()) {
+		if ($this->lastQuery && $this->lastQuery->getDQL() === $query->getDQL()) {
 			$query = $this->lastQuery;
 		}
 
