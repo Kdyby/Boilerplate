@@ -93,6 +93,16 @@ class CurlWrapper extends Nette\Object
 
 
 	/**
+	 * @return string
+	 */
+	public function getMethod()
+	{
+		return $this->method;
+	}
+
+
+
+	/**
 	 * @param \Nette\Http\UrlScript|string $url
 	 *
 	 * @return \Kdyby\Extension\Curl\CurlWrapper

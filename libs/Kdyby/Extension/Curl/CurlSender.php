@@ -324,7 +324,7 @@ class CurlSender extends RequestOptions
 			$headers = CurlWrapper::parseHeaders($curl->responseHeaders);
 		}
 
-		if (strpos($headers['Content-Type'], 'html') !== FALSE || strpos($headers['Content-Type'], 'html') !== FALSE) {
+		if ($this->isHtmlResponse($curl, $headers)) {
 			$curl->response = HtmlResponse::convertEncoding($curl);
 			$response = new HtmlResponse($curl, $headers);
 			$response->setPrevious($previous);
@@ -334,6 +334,20 @@ class CurlSender extends RequestOptions
 		$response = new Response($curl, $headers);
 		$response->setPrevious($previous);
 		return $response;
+	}
+
+
+
+	/**
+	 * @param \Kdyby\Extension\Curl\CurlWrapper $curl
+	 * @param array $headers
+	 * @return bool
+	 */
+	private function isHtmlResponse(CurlWrapper $curl, array $headers)
+	{
+		return $curl->getMethod() !== Request::HEAD
+			&& (strpos($headers['Content-Type'], 'html') !== FALSE
+				|| strpos($headers['Content-Type'], 'html') !== FALSE);
 	}
 
 
