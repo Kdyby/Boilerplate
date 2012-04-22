@@ -1,0 +1,86 @@
+{form $form}
+
+{* errors *}
+<div n:foreach="$renderer->findErrors() as $error" class="alert alert-error">
+    <a class="close" data-dismiss="alert">×</a>{$error}
+</div>
+
+{* controls with group *}
+<fieldset n:foreach="$renderer->findGroups() as $group">
+    <legend n:if="$group->label">{$group->label}</legend>
+    <p n:if="$group->description">{$group->description}</p>
+
+    {var $controls = $group->controls}
+    {if isset($group->template) && $group->template}
+        {include "$group->template", group => $group,
+            controls => $controls, submitters => $submitters,
+            form => $form, _form => $form}
+
+    {else}
+        {block #controls}
+        {foreach $controls as $control}
+        {if $renderer->isSubmitButton($control)}
+            {input $renderer->getControlName($control)}
+            {if !$renderer->isSubmitButton($iterator->nextValue)}{!="</div>"}{/if}
+            {?continue}
+        {/if}
+
+        <div id="{$control->htmlId}-pair" n:class="$control->getOption('required')? required, control-group, $control->errors? error">
+            {var
+                $name = $renderer->getControlName($control),
+                $description = $renderer->getControlDescription($control),
+                $error = $renderer->getControlError($control)
+            }
+
+            {if $controlTemplate = $renderer->getControlTemplate($control)}
+                <div class="controls">
+                    {include "$controlTemplate", name => $name,
+                        form => $form, _form => $form,
+                        description => $description, error => $error
+                    }
+                </div>
+
+            {elseif $renderer->isButton($control)}
+                <div class="controls">
+                    {input $name, class => 'btn'}{$error}{$description}
+                </div>
+
+            {elseif $renderer->isCheckbox($control)}
+                <div class="controls">
+                    {label $name, class => 'checkbox'}{input $name}{$control->label->getText()}{/label}{$error}{$description}
+                </div>
+
+            {elseif $renderer->isRadioList($control)}
+                {label $name, class => 'control-label' /}
+                <div class="controls">
+                    {foreach $renderer->getRadioListItems($control) as $item}
+                        {!$item->label->startTag()}
+                            {$item->input}{$item->caption}
+                        {!$item->label->endTag()}
+                    {/foreach}
+                    {$error}{$description}
+                </div>
+
+            {else}
+                {label $name, class => 'control-label' /}
+                <div class="controls">
+                    {var $prepend = $control->getOption('input-prepend'), $append = $control->getOption('input-append')}
+                    <div n:class="$prepend? input-prepend, $append? input-append" n:tag-if="$prepend || $append">
+                        {$prepend}{input $name}{$append}
+                    </div>{$error}{$description}
+                </div>
+
+            {/if}
+        </div>
+
+        {if $renderer->isSubmitButton($iterator->nextValue)}{!='<div class="form-actions">'}{/if}
+        {/foreach}
+        {/block}
+
+    {/if}
+</fieldset>
+
+{* controls without group *}
+{include #controls, controls => $renderer->findFormControls()}
+
+{/form}
