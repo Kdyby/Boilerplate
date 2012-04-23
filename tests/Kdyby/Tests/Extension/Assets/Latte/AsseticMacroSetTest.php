@@ -71,6 +71,7 @@ if (!isset(\$template->_fm)) \$template->_fm = Kdyby\Extension\Assets\Latte\Asse
 	'yui',
 ), array(
 	'root' => 'root',
+	'output' => 'static/main.css',
 ), \$control);
 
 php;

@@ -207,9 +207,8 @@ class AssetMacros extends Nette\Object implements Latte\IMacro
 	protected function macroOpen(Latte\MacroNode $node, $type)
 	{
 		try {
-			if ($node->data->inline = empty($node->args)) {
-				$node->openingCode = '<?php ob_start(); ?>';
-				return;
+			if (empty($node->args) && $node->htmlNode) { // inline handles head macro
+				return FALSE;
 
 			} elseif ($node->htmlNode) {
 				$args = $node->htmlNode->attrs + Strings::split($node->args, '~\s*,\s*~');
@@ -240,12 +239,6 @@ class AssetMacros extends Nette\Object implements Latte\IMacro
 	{
 		if (isset($node->data->emptyTag)) {
 			$node->content = NULL;
-			return;
-		}
-
-		if ($node->data->inline) {
-			$node->closingCode = '<?php $_g->kdyby->assets["' . $type . '"][] = ob_get_clean();' .
-				'if (empty($_g->kdyby->captureAssets)) echo array_pop($_g->kdyby->assets["' . $type . '"]); ?>';
 			return;
 		}
 

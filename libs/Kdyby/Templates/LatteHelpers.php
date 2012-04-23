@@ -115,7 +115,10 @@ final class LatteHelpers extends Nette\Object
 
 	/**
 	 * @param string $content
-	 * @param \Nette\Latte\PhpWriter $writer
+	 * @param null $before
+	 * @param null $after
+	 *
+	 * @internal param \Nette\Latte\PhpWriter $writer
 	 *
 	 * @return string
 	 */

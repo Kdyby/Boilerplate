@@ -173,7 +173,7 @@ class FormulaeManager extends Nette\Object
 	 */
 	public function getAssets($type)
 	{
-		return array_reverse($this->resolved[$type]);
+		return $this->resolved[$type];
 	}
 
 
@@ -227,6 +227,7 @@ class FormulaeManager extends Nette\Object
 		$asset = $this->assetManager->get($name);
 		$info = $this->getAssetInfo($name);
 
+		// resolve deps
 		if (isset($info['name']) && isset($this->packagesRequiredBy[$info['name']])) {
 			foreach ($this->packagesRequiredBy[$info['name']] as $requiredName) {
 				$this->publishAndResolve($requiredName);
