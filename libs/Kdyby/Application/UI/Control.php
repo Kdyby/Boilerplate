@@ -20,8 +20,8 @@ use Nette\Utils\Strings;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
- * @property-read \Nette\Templating\FileTemplate $template
- * @method \Nette\Templating\FileTemplate getTemplate() getTemplate()
+ * @property-read \Nette\Templating\FileTemplate|\stdClass $template
+ * @method \Nette\Templating\FileTemplate|\stdClass getTemplate() getTemplate()
  *
  * @property-read \Kdyby\Application\UI\Presenter $presenter
  * @method \Kdyby\Application\UI\Presenter getPresenter() getPresenter(bool $need = TRUE)
@@ -68,13 +68,21 @@ abstract class Control extends Nette\Application\UI\Control
 	/**
 	 * Derives template path from class name.
 	 *
-	 * @return null|string
+	 * @return string|NULL
 	 */
 	protected function getTemplateDefaultFile()
 	{
-		$refl = $this->getReflection();
-		$file = dirname($refl->getFileName()) . '/' . $refl->getShortName() . '.latte';
-		return file_exists($file) ? $file : NULL;
+		$class = $this->getReflection();
+		do {
+			$file = dirname($class->getFileName()) . '/' . $class->getShortName() . '.latte';
+			if (file_exists($file)) {
+				return $file;
+
+			} elseif (!$class = $class->getParentClass()) {
+				break;
+			}
+
+		} while (TRUE);
 	}
 
 
