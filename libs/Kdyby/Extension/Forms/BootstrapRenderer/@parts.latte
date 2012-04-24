@@ -1,0 +1,18 @@
+{includeblock "@form.latte"}
+
+{if $mode === "errors"}
+    {include #errors, renderer => $renderer}
+
+{elseif $mode === "body"}
+    {include #body, renderer => $renderer}
+
+{elseif $mode instanceof \Nette\Forms\Container}
+    {include #controls, renderer => $renderer, controls => $mode->components}
+
+{elseif $mode instanceof \Nette\Forms\ControlGroup}
+    {include #group, renderer => $renderer, group => $renderer->processGroup($mode)}
+
+{elseif $mode instanceof \Nette\Forms\IControl}
+    {include #control, renderer => $renderer, control => $mode}
+
+{/if}
