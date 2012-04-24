@@ -1,0 +1,28 @@
+[
+    {
+        "name":"jquery/jquery",
+        "paths":["public/js/jquery.js"]
+    },
+    {
+        "name":"jquery/ui",
+        "paths":["public/js/jquery.ui.js", "public/css/jquery.ui.css"],
+        "require":{
+            "jquery/jquery":"*"
+        }
+    },
+    {
+        "name":"nette/forms",
+        "paths":["public/js/netteForms.js"]
+    },
+    {
+        "name":"nette/ajax",
+        "paths":["public/js/jquery.nette.js"],
+        "require":{
+            "jquery/jquery":"*"
+        }
+    },
+    {
+        "name":"kdyby/class",
+        "paths":["public/js/class.js"]
+    }
+]
