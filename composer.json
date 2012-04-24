@@ -15,10 +15,10 @@
         "doctrine/orm" : "2.2.1",
         "doctrine/data-fixtures" : "dev-master",
         "beberlei/DoctrineExtensions" : "dev-master",
-        "symfony/console" : "2.0.6",
-        "symfony/class-loader" : "2.0.6",
-        "symfony/css-selector" : "2.0.6",
-        "symfony/validator" : "2.0.6",
+        "symfony/console" : "2.0.*",
+        "symfony/class-loader" : "2.0.*",
+        "symfony/css-selector" : "2.0.*",
+        "symfony/validator" : "2.0.*",
         "kriswallsmith/assetic":"dev-master"
     },
     "replace": {
@@ -28,8 +28,8 @@
     },
     "repositories": [
         {
-            "type": "vcs",
-            "url": "git://github.com/HosipLan/nette.git"
+            "type":"vcs",
+            "url":"git://github.com/HosipLan/nette.git"
         }
     ],
     "autoload": {
