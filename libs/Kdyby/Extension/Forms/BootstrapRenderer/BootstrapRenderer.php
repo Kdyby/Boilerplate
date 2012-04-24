@@ -19,7 +19,7 @@ use Nette\Utils\Html;
  * Created with twitter bootstrap in mind.
  *
  * Usage:
- * $form->addRenderer(new Kdyby\Forms\BootstrapRenderer\BootstrapRenderer);
+ * $form->addRenderer(new Kdyby\Extension\Forms\BootstrapRenderer\BootstrapRenderer);
  *
  * @author Pavel Ptacek
  * @author Filip Procházka
@@ -71,6 +71,7 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 	 *
 	 * @param \Nette\Forms\Form $form
 	 * @param string $mode
+	 *
 	 * @return void
 	 */
 	public function render(Nette\Forms\Form $form, $mode = NULL)
@@ -236,7 +237,7 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 			$container = $this->form;
 		}
 
-		$controls = iterator_to_array($this->form->getControls());
+		$controls = iterator_to_array($container->getControls());
 		return array_filter($controls, function (Controls\BaseControl $control) {
 			return !$control->getOption('rendered');
 		});
@@ -246,7 +247,9 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 
 	/**
 	 * @internal
+	 *
 	 * @param \Nette\Forms\ControlGroup $group
+	 *
 	 * @return object
 	 */
 	public function processGroup(Nette\Forms\ControlGroup $group)
@@ -286,7 +289,9 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 
 	/**
 	 * @internal
+	 *
 	 * @param \Nette\Forms\Controls\BaseControl $control
+	 *
 	 * @return string
 	 */
 	public static function getControlName(Controls\BaseControl $control)
@@ -298,7 +303,9 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 
 	/**
 	 * @internal
+	 *
 	 * @param \Nette\Forms\Controls\BaseControl $control
+	 *
 	 * @return \Nette\Utils\Html
 	 */
 	public static function getControlDescription(Controls\BaseControl $control)
@@ -321,7 +328,9 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 
 	/**
 	 * @internal
+	 *
 	 * @param \Nette\Forms\Controls\BaseControl $control
+	 *
 	 * @return \Nette\Utils\Html
 	 */
 	public function getControlError(Controls\BaseControl $control)
@@ -345,7 +354,9 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 
 	/**
 	 * @internal
+	 *
 	 * @param \Nette\Forms\Controls\BaseControl $control
+	 *
 	 * @return string
 	 */
 	public static function getControlTemplate(Controls\BaseControl $control)
@@ -357,7 +368,9 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 
 	/**
 	 * @internal
+	 *
 	 * @param \Nette\Forms\IControl $control
+	 *
 	 * @return bool
 	 */
 	public static function isButton(Nette\Forms\IControl $control)
@@ -369,7 +382,9 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 
 	/**
 	 * @internal
+	 *
 	 * @param \Nette\Forms\IControl $control
+	 *
 	 * @return bool
 	 */
 	public static function isSubmitButton(Nette\Forms\IControl $control = NULL)
@@ -381,7 +396,9 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 
 	/**
 	 * @internal
+	 *
 	 * @param \Nette\Forms\IControl $control
+	 *
 	 * @return bool
 	 */
 	public static function isCheckbox(Nette\Forms\IControl $control)
@@ -393,7 +410,9 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 
 	/**
 	 * @internal
+	 *
 	 * @param \Nette\Forms\IControl $control
+	 *
 	 * @return bool
 	 */
 	public static function isRadioList(Nette\Forms\IControl $control)
@@ -405,7 +424,9 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 
 	/**
 	 * @internal
+	 *
 	 * @param \Nette\Forms\Controls\RadioList $control
+	 *
 	 * @return bool
 	 */
 	public static function getRadioListItems(Controls\RadioList $control)
