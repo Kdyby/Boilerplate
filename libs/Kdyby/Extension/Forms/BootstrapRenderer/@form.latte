@@ -1,4 +1,4 @@
-{block #form}
+{define #form}
 {form $form}
 
 {block #errors}
@@ -85,11 +85,15 @@
 
             {/if}
         </fieldset>
-    {/block}
+    {/block}{/foreach}
 
     {* controls without group *}
-    {include #controls, controls => $renderer->findFormControls()}
+    {include #controls, controls => $renderer->findControls()}
 {/block}
 
 {/form}
-{/block}
+{/define}
+
+{if !isset($mode)}
+    {include #form, form => $form, renderer => $renderer}
+{/if}

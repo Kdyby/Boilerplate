@@ -7,7 +7,7 @@
     {include #body, renderer => $renderer}
 
 {elseif $mode instanceof \Nette\Forms\Container}
-    {include #controls, renderer => $renderer, controls => $mode->components}
+    {include #controls, renderer => $renderer, controls => $renderer->findControls($mode)}
 
 {elseif $mode instanceof \Nette\Forms\ControlGroup}
     {include #group, renderer => $renderer, group => $renderer->processGroup($mode)}

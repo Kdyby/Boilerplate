@@ -5,7 +5,7 @@
  * @copyright Animal Group
  */
 
-namespace Kdyby\Forms\BootstrapRenderer;
+namespace Kdyby\Extension\Forms\BootstrapRenderer;
 
 use Nette;
 use Nette\Forms\Controls;
@@ -95,6 +95,7 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 		}
 
 		$this->template->form = $this->form;
+		$this->template->_form = $this->form;
 		$this->template->renderer = $this;
 
 		if ($mode === NULL) {
@@ -229,8 +230,12 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 	/**
 	 * @return array
 	 */
-	public function findFormControls()
+	public function findControls(Nette\Forms\Container $container = NULL)
 	{
+		if ($container === NULL) {
+			$container = $this->form;
+		}
+
 		$controls = iterator_to_array($this->form->getControls());
 		return array_filter($controls, function (Controls\BaseControl $control) {
 			return !$control->getOption('rendered');
