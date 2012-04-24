@@ -116,9 +116,9 @@ class Configurator extends Nette\Object
 	 */
 	public function setProductionMode($value = NULL)
 	{
-		$this->parameters['productionMode'] = is_bool($value) ? $value
-			: Nette\Config\Configurator::detectProductionMode($value);
-
+		$this->parameters['debugMode'] = is_bool($value) ? $value
+			: Nette\Config\Configurator::detectDebugMode($value);
+		$this->parameters['productionMode'] = !$this->parameters['debugMode'];
 		$this->parameters['kdyby']['debug'] = !$this->parameters['productionMode'];
 		return $this;
 	}
@@ -148,7 +148,7 @@ class Configurator extends Nette\Object
 		foreach (Nette\Loaders\AutoLoader::getLoaders() as $loader) {
 			if ($loader instanceof Nette\Loaders\RobotLoader) {
 				/** @var \Nette\Loaders\RobotLoader $loader */
-				$loader->autoRebuild = !$this->parameters['productionMode'];
+				$loader->autoRebuild = $this->parameters['debugMode'];
 				$loader->setCacheStorage(new FileStorage($this->parameters['tempDir'] . '/cache'));
 			}
 		}
