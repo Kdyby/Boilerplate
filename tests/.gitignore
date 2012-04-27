@@ -2,3 +2,4 @@
 *.html
 *.htm
 !.*
+config.local.neon

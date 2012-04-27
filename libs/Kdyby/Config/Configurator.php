@@ -155,7 +155,10 @@ class Configurator extends Nette\Object
 
 		// create container
 		$configurator->onCompile[] = callback($this->packages, 'compile');
-		$configurator->addConfig($this->getConfigFile(), Nette\Config\Configurator::NONE);
+		$configurator->addConfig($configFile = $this->getConfigFile(), Nette\Config\Configurator::NONE);
+		if (is_file($localConfig = str_replace('.neon', '.local.neon', $configFile))) {
+			$configurator->addConfig($localConfig, Nette\Config\Configurator::NONE);
+		}
 		$this->container = $configurator->createContainer();
 
 		$this->initialized = TRUE;

@@ -1,9 +1,3 @@
-
-kdyby:
-    debugger:
-        browser: "google-chrome %s"
-
-
 php:
     date.timezone: Europe/Prague
 
