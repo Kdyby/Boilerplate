@@ -77,6 +77,7 @@ abstract class OrmTestCase extends TestCase
 
 		$this->ormSandbox = $config->getRegistry();
 		$this->ormSandbox->setCurrentTest($this);
+		$this->ormSandbox->requireConfiguredManager();
 	}
 
 

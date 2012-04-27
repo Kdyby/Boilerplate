@@ -84,7 +84,7 @@ class SandboxRegistry extends Kdyby\Doctrine\Registry
 			$this->currentTest->markTestSkipped(
 				"TestCase requires configured EntityManager named $name. " .
 				"To run test properly, you have to provide valid database storage credentials in config file $configFile, " .
-				"in section 'orm: entityManagers: $name:'."
+				"in section 'orm: entityManagers: $name:'. \nDoctrine cries: " . $e->getMessage()
 			);
 		}
 	}
