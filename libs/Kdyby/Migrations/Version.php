@@ -53,7 +53,9 @@ class Version extends Nette\Object
 		$this->history = $history;
 		if ($class !== NULL){
 			$this->class = $class;
-			$this->version = (int)\DateTime::createFromFormat('YmdHis', (int)substr($class, -14))->format('YmdHis');
+			if ($formatted = \DateTime::createFromFormat('YmdHis', (int)substr($class, -14))) {
+				$this->version = (int)$formatted->format('YmdHis');
+			}
 		}
 	}
 
