@@ -67,14 +67,14 @@ class Configurator extends Nette\Object
 		}
 
 		// debugger defaults
-		$this->setupDebugger(array('productionMode' => TRUE, 'consoleMode' => PHP_SAPI === 'cli'));
+		$this->setupDebugger(array('debugMode' => FALSE, 'consoleMode' => PHP_SAPI === 'cli'));
 
 		// finder
 		$packages = $packages ?: new Kdyby\Packages\InstalledPackages($this->parameters['appDir']);
 		$this->packages = new Kdyby\Packages\PackagesContainer($packages);
 
 		// environment
-		$this->setProductionMode();
+		$this->setDebugMode();
 		$this->setEnvironment($this->parameters['productionMode'] ? 'prod' : 'dev');
 	}
 
@@ -108,18 +108,18 @@ class Configurator extends Nette\Object
 
 
 	/**
-	 * When given NULL, the production mode gets detected automatically
+	 * When given NULL, the debug mode gets detected automatically
 	 *
 	 * @param bool|NULL $value
 	 *
 	 * @return \Kdyby\Config\Configurator
 	 */
-	public function setProductionMode($value = NULL)
+	public function setDebugMode($value = NULL)
 	{
 		$this->parameters['debugMode'] = is_bool($value) ? $value
 			: Nette\Config\Configurator::detectDebugMode($value);
 		$this->parameters['productionMode'] = !$this->parameters['debugMode'];
-		$this->parameters['kdyby']['debug'] = !$this->parameters['productionMode'];
+		$this->parameters['kdyby']['debug'] = $this->parameters['debugMode'];
 		return $this;
 	}
 
@@ -284,10 +284,8 @@ class Configurator extends Nette\Object
 			throw new Kdyby\DirectoryNotWritableException("Logging directory '" . $logDir . "' is not writable.");
 		}
 
-		var_dump(array(__METHOD__ => $params));
-
 		Debugger::$strictMode = TRUE;
-		Debugger::enable($params['productionMode'], $logDir, $params['email']);
+		Debugger::enable(!$params['debugMode'], $logDir, $params['email']);
 		Debugger::$consoleMode = $params['consoleMode'];
 	}
 
@@ -307,14 +305,14 @@ class Configurator extends Nette\Object
 		}
 
 		// arguments
-		$conf = new static(array(
+		$config = new static(array(
 			'appDir' => $appDir,
 			'wwwDir' => $appDir . '/../www',
 		));
 
-		$conf->setEnvironment($environment);
-		$conf->setProductionMode(TRUE);
-		return $conf;
+		$config->setEnvironment($environment);
+		$config->setDebugMode(FALSE);
+		return $config;
 	}
 
 }
