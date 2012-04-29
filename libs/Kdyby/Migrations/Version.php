@@ -14,6 +14,7 @@ use Doctrine\DBAL\Connection;
 use Kdyby;
 use Nette;
 use Nette\Utils\Arrays;
+use Nette\Utils\Strings;
 use Symfony\Component\Console\Output\OutputInterface;
 
 
@@ -53,8 +54,8 @@ class Version extends Nette\Object
 		$this->history = $history;
 		if ($class !== NULL){
 			$this->class = $class;
-			if ($formatted = \DateTime::createFromFormat('YmdHis', (int)substr($class, -14))) {
-				$this->version = (int)$formatted->format('YmdHis');
+			if ($formatted = Strings::match($class, '~(\d{14})$~')) {
+				$this->version = (int)$formatted[0];
 			}
 		}
 	}
