@@ -284,6 +284,8 @@ class Configurator extends Nette\Object
 			throw new Kdyby\DirectoryNotWritableException("Logging directory '" . $logDir . "' is not writable.");
 		}
 
+		var_dump(array(__METHOD__ => $params));
+
 		Debugger::$strictMode = TRUE;
 		Debugger::enable($params['productionMode'], $logDir, $params['email']);
 		Debugger::$consoleMode = $params['consoleMode'];
