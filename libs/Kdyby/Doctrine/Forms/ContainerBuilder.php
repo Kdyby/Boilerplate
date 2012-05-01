@@ -158,8 +158,10 @@ class ContainerBuilder extends Nette\Object
 				break;
 
 			case Type::TEXT:
-				$control->addCondition(Form::FILLED)
-					->addRule(Form::MAX_LENGTH, NULL, $mapping['length'] ?: 255);
+				if ($mapping['length']) {
+					$control->addCondition(Form::FILLED)
+						->addRule(Form::MAX_LENGTH, NULL, $mapping['length']);
+				}
 				break;
 
 			case Type::FLOAT:
