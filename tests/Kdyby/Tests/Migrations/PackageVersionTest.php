@@ -12,6 +12,7 @@ namespace Kdyby\Tests\Migrations;
 
 use Kdyby;
 use Kdyby\Migrations\PackageVersion;
+use Kdyby\Migrations\VersionDatetime;
 use Nette;
 
 
@@ -131,7 +132,7 @@ class PackageVersionTest extends Kdyby\Tests\TestCase
 	public function testSetVersion_WhenSettingTheSameVersionNothingHappens()
 	{
 		$package = new PackageVersion($this->mockPackage());
-		$this->setMigrationVersion($package, $time = 20120116140000);
+		$this->setMigrationVersion($package, $time = VersionDatetime::from("20120116140000"));
 		$lastUpdate = $package->getLastUpdate();
 
 		$version = $this->mockVersion();
@@ -149,13 +150,13 @@ class PackageVersionTest extends Kdyby\Tests\TestCase
 	public function testSetVersion_SettingDifferentVersion()
 	{
 		$package = new PackageVersion($this->mockPackage());
-		$this->setMigrationVersion($package, 20120116140000);
+		$this->setMigrationVersion($package, VersionDatetime::from("20120116140000"));
 		$lastUpdate = $package->getLastUpdate();
 
 		$version = $this->mockVersion();
 		$version->expects($this->atLeastOnce())
 			->method('getVersion')
-			->will($this->returnValue($newTime = 20120116150000));
+			->will($this->returnValue($newTime = VersionDatetime::from("20120116150000")));
 		$version->expects($this->atLeastOnce())
 			->method('getHistory')
 			->will($this->returnValue($history = $this->mockHistory($package)));
@@ -177,12 +178,12 @@ class PackageVersionTest extends Kdyby\Tests\TestCase
 	public function testSetVersion_VersionNotAttachedToPackageException()
 	{
 		$package = new PackageVersion($this->mockPackage());
-		$this->setMigrationVersion($package, 20120116140000);
+		$this->setMigrationVersion($package, VersionDatetime::from("20120116140000"));
 
 		$version = $this->mockVersion();
 		$version->expects($this->atLeastOnce())
 			->method('getVersion')
-			->will($this->returnValue($newTime = 20120116150000));
+			->will($this->returnValue($newTime = VersionDatetime::from("20120116150000")));
 		$version->expects($this->atLeastOnce())
 			->method('getHistory')
 			->will($this->returnValue($history = $this->mockHistory(new PackageVersion($this->mockPackage()))));

@@ -24,7 +24,7 @@ class DateTime extends Nette\DateTime
 {
 
 	/** @var string */
-	private $defaultFormat = 'j.n.Y G:i';
+	protected static $defaultFormat = 'j.n.Y G:i';
 
 
 
@@ -35,12 +35,21 @@ class DateTime extends Nette\DateTime
 	 */
 	public static function from($time)
 	{
-		if ($time instanceof \DateTime) {
+		if ($time === NULL) {
+			return NULL;
+
+		} elseif ($time instanceof \DateTime) {
 			/** @var \Datetime $time */
 			return new static(
-					date('Y-m-d H:i:s', $time->getTimestamp()),
-					$time->getTimezone()
-				);
+				$time->format('Y-m-d H:i:s'),
+				$time->getTimezone()
+			);
+
+		} elseif ($time === 0) {
+			return static::tryFormats('U', 0);
+
+		} elseif ($date = static::tryFormats(array(static::$defaultFormat), $time)) {
+			return $date;
 		}
 
 		return parent::from($time);
@@ -49,14 +58,16 @@ class DateTime extends Nette\DateTime
 
 
 	/**
-	 * @param array $formats
+	 * @param array|string $formats
 	 * @param $date
+	 *
+	 * @return bool|\Kdyby\Tools\DateTime
 	 */
-	public static function tryFormats(array $formats, $date)
+	public static function tryFormats($formats, $date)
 	{
-		foreach ($formats as $format) {
+		foreach ((array)$formats as $format) {
 			if ($valid = static::createFromFormat('!' . $format, $date)) {
-				return $valid;
+				return static::from($valid);
 			}
 		}
 
@@ -66,33 +77,11 @@ class DateTime extends Nette\DateTime
 
 
 	/**
-	 * @param string $defaultFormat
-	 * @return DateTime
-	 */
-	public function setDefaultFormat($defaultFormat)
-	{
-		$this->defaultFormat = (string)$defaultFormat;
-		return $this;
-	}
-
-
-
-	/**
-	 * @return string
-	 */
-	public function getDefaultFormat()
-	{
-		return $this->defaultFormat;
-	}
-
-
-
-	/**
 	 * @return string
 	 */
 	public function __toString()
 	{
-		return $this->format($this->defaultFormat);
+		return $this->format(static::$defaultFormat);
 	}
 
 }

@@ -53,9 +53,9 @@ class HistoryTest extends Kdyby\Tests\TestCase
 	public function dataShopMigrations()
 	{
 		return array(
-			20120116140000 => $this->migrationClass(20120116140000),
-			20120116150000 => $this->migrationClass(20120116150000),
-			20120116160000 => $this->migrationClass(20120116160000),
+			"20120116140000" => $this->migrationClass("20120116140000"),
+			"20120116150000" => $this->migrationClass("20120116150000"),
+			"20120116160000" => $this->migrationClass("20120116160000"),
 		);
 	}
 
@@ -120,8 +120,8 @@ class HistoryTest extends Kdyby\Tests\TestCase
 		$this->assertInstanceOf('Kdyby\Migrations\Version', $version = $history->add(reset($migrations)));
 
 		$this->assertCount(2, $versions = $history->toArray());
-		$this->assertEquals('20120116140000', array_shift($versions)->getVersion());
-		$this->assertEquals('20120116160000', array_shift($versions)->getVersion());
+		$this->assertEquals('20120116140000', (string)array_shift($versions)->getVersion());
+		$this->assertEquals('20120116160000', (string)array_shift($versions)->getVersion());
 	}
 
 

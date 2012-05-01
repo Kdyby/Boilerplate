@@ -32,11 +32,8 @@ class SqlVersion extends Version
 	 */
 	public function __construct(History $history, $file)
 	{
-		parent::__construct($history);
+		parent::__construct($history, substr(pathinfo($file, PATHINFO_FILENAME), -14));
 		$this->file = $file;
-
-		$time = (int)substr(pathinfo($file, PATHINFO_FILENAME), -14);
-		$this->version = (int)\DateTime::createFromFormat('YmdHis', (int)$time)->format('YmdHis');
 	}
 
 
@@ -97,7 +94,7 @@ class SqlVersion extends Version
 			return array();
 
 		} catch (\Exception $e) {
-			$this->message('<error>Migration ' . $this->version . ' failed. ' . $e->getMessage() . '</error>');
+			$this->message('<error>Migration ' . $this->getVersion() . ' failed. ' . $e->getMessage() . '</error>');
 			$connection->rollback();
 			throw $e;
 		}

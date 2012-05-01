@@ -13,6 +13,7 @@ namespace Kdyby\Tests\Migrations;
 use Kdyby;
 use Kdyby\Packages;
 use Kdyby\Migrations\MigrationsManager;
+use Kdyby\Migrations\VersionDatetime;
 use Nette;
 use Symfony;
 
@@ -151,8 +152,8 @@ class MigrationsManagerTest extends Kdyby\Tests\OrmTestCase
 
 		// should migrate till now
 		$history = $manager->getPackageHistory('BlogPackage');
-		$history->migrate($manager, 20120116160000);
-		$this->assertEquals(20120116160000, $history->getCurrent()->getVersion());
+		$history->migrate($manager, "20120116160000");
+		$this->assertEquals("20120116160000", (string)$history->getCurrent()->getVersion());
 
 		$this->assertEquals(array(
 			array('content' => 'trains are cool', 'title' => 'trains'),
@@ -172,7 +173,7 @@ class MigrationsManagerTest extends Kdyby\Tests\OrmTestCase
 
 		// migrate
 		$history = $manager->install('BlogPackage');
-		$this->assertEquals(20120116170000, $history->getCurrent()->getVersion());
+		$this->assertEquals("20120116170000", (string)$history->getCurrent()->getVersion());
 
 		$this->assertEquals(array(
 			array('content' => 'trains are cool', 'title' => 'trains'),
@@ -194,17 +195,17 @@ class MigrationsManagerTest extends Kdyby\Tests\OrmTestCase
 
 		// dump
 		$this->assertEquals(array(
-			20120116140000 => array(
+			"20120116140000" => array(
 				array("CREATE TABLE articles (content CLOB NOT NULL, title VARCHAR(255) NOT NULL)", array(), array())
 			),
-			20120116150000 => array(
+			"20120116150000" => array(
 				array("INSERT INTO articles VALUES ('trains are cool', 'trains')", array(), array()),
 				array("INSERT INTO articles VALUES ('car are fun', 'cars')", array(), array())
 			),
-			20120116160000 => array(
+			"20120116160000" => array(
 				array("UPDATE articles SET content='cars are way more cool!' WHERE title='cars'", array(), array())
 			)
-		), $history->dumpSql($manager, 20120116160000));
+		), $history->dumpSql($manager, "20120116160000"));
 
 		$this->assertNull($history->getCurrent());
 	}
@@ -218,7 +219,7 @@ class MigrationsManagerTest extends Kdyby\Tests\OrmTestCase
 
 		// should migrate till now
 		$history = $manager->install('ShopPackage');
-		$this->assertEquals(20120116180000, $history->getCurrent()->getVersion());
+		$this->assertEquals("20120116180000", $history->getCurrent()->getVersion());
 
 		$this->assertEquals(array(
 			array('name' => 'chuchu'),
@@ -240,8 +241,8 @@ class MigrationsManagerTest extends Kdyby\Tests\OrmTestCase
 
 		// migrate
 		$history = $manager->getPackageHistory('ShopPackage');
-		$history->migrate($manager, 20120116160000);
-		$this->assertEquals(20120116160000, $history->getCurrent()->getVersion());
+		$history->migrate($manager, "20120116160000");
+		$this->assertEquals("20120116160000", $history->getCurrent()->getVersion());
 
 		$this->assertEquals(array(
 			array('name' => 'chuchu'),

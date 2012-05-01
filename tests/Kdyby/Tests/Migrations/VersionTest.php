@@ -12,6 +12,7 @@ namespace Kdyby\Tests\Migrations;
 
 use Kdyby;
 use Kdyby\Migrations\Version;
+use Kdyby\Migrations\VersionDatetime;
 use Nette;
 
 
@@ -71,7 +72,7 @@ class VersionTest extends Kdyby\Tests\OrmTestCase
 
 	public function testCreation()
 	{
-		$version = new Version($history = $this->mockHistory(), $class = $this->migrationClass($time = 20120116140000));
+		$version = new Version($history = $this->mockHistory(), $class = $this->migrationClass($time = VersionDatetime::from("20120116140000")));
 		$this->assertSame($history, $version->getHistory());
 		$this->assertEquals($class, $version->getClass());
 		$this->assertEquals($time, $version->getVersion());
@@ -83,7 +84,7 @@ class VersionTest extends Kdyby\Tests\OrmTestCase
 	public function testIsMigrated_WhenEquals()
 	{
 		$package = $this->mockPackage();
-		$version = new Version($this->mockHistory($package), $this->migrationClass($time = 20120116150000));
+		$version = new Version($this->mockHistory($package), $this->migrationClass($time = VersionDatetime::from("20120116150000")));
 		$package->expects($this->once())
 			->method('getMigrationVersion')
 			->will($this->returnValue($time));
@@ -96,10 +97,11 @@ class VersionTest extends Kdyby\Tests\OrmTestCase
 	public function testIsMigrated_WhenLess()
 	{
 		$package = $this->mockPackage();
-		$version = new Version($this->mockHistory($package), $this->migrationClass($time = 20120116150000));
+		$version = new Version($this->mockHistory($package), $this->migrationClass($time = VersionDatetime::from("20120116150000")));
+		$time = clone $time;
 		$package->expects($this->once())
 			->method('getMigrationVersion')
-			->will($this->returnValue($time + 1));
+			->will($this->returnValue($time->modify('+1 second')));
 
 		$this->assertTrue($version->isMigrated());
 	}
@@ -109,10 +111,11 @@ class VersionTest extends Kdyby\Tests\OrmTestCase
 	public function testIsNotMigrated_WhenBigger()
 	{
 		$package = $this->mockPackage();
-		$version = new Version($this->mockHistory($package), $this->migrationClass($time = 20120116150000));
+		$version = new Version($this->mockHistory($package), $this->migrationClass($time = VersionDatetime::from("20120116150000")));
+		$time = clone $time;
 		$package->expects($this->once())
 			->method('getMigrationVersion')
-			->will($this->returnValue($time - 1));
+			->will($this->returnValue($time->modify('-1 second')));
 
 		$this->assertFalse($version->isMigrated());
 	}
@@ -121,7 +124,7 @@ class VersionTest extends Kdyby\Tests\OrmTestCase
 
 	public function testIsReversible_WhenDownMethodIsImplemented()
 	{
-		$version = new Version($this->mockHistory(), $this->migrationClass(20120116140000));
+		$version = new Version($this->mockHistory(), $this->migrationClass("20120116140000"));
 		$this->assertTrue($version->isReversible());
 	}
 
@@ -129,7 +132,7 @@ class VersionTest extends Kdyby\Tests\OrmTestCase
 
 	public function testIsNotReversible_WhenDownMethodIsNotImplemented()
 	{
-		$version = new Version($this->mockHistory(), $this->migrationClass(20120116150000));
+		$version = new Version($this->mockHistory(), $this->migrationClass("20120116150000"));
 		$this->assertFalse($version->isReversible());
 	}
 
@@ -137,7 +140,7 @@ class VersionTest extends Kdyby\Tests\OrmTestCase
 
 	public function testAddingSql()
 	{
-		$version = new Version($this->mockHistory(), $this->migrationClass(20120116150000));
+		$version = new Version($this->mockHistory(), $this->migrationClass("20120116150000"));
 		$version->addSql($sql1 = "INSERT INTO user ('admin')");
 		$version->addSql($sql2 = "INSERT INTO user (?)", array('admin'), array('string'));
 
@@ -151,7 +154,7 @@ class VersionTest extends Kdyby\Tests\OrmTestCase
 
 	public function testMarkMigrated()
 	{
-		$version = new Version($history = $this->mockHistory(), $this->migrationClass(20120116150000));
+		$version = new Version($history = $this->mockHistory(), $this->migrationClass("20120116150000"));
 		$history->expects($this->once())
 			->method('setCurrent')
 			->with($this->equalTo($version));
@@ -163,10 +166,10 @@ class VersionTest extends Kdyby\Tests\OrmTestCase
 
 	public function testGetNextAndPrevious()
 	{
-		$history = new Kdyby\Migrations\History($this->mockPackage(), 0);
-		$first = $history->add($this->migrationClass(20120116140000));
-		$second = $history->add($this->migrationClass(20120116150000));
-		$third = $history->add($this->migrationClass(20120116160000));
+		$history = new Kdyby\Migrations\History($this->mockPackage(), NULL);
+		$first = $history->add($this->migrationClass("20120116140000"));
+		$second = $history->add($this->migrationClass("20120116150000"));
+		$third = $history->add($this->migrationClass("20120116160000"));
 
 		$this->assertNull($first->getPrevious());
 		$this->assertSame($first, $second->getPrevious());

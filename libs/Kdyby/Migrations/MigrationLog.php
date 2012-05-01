@@ -32,8 +32,8 @@ class MigrationLog extends Kdyby\Doctrine\Entities\IdentifiedEntity
 	private $package;
 
 	/**
-	 * @ORM\Column(type="bigint")
-	 * @var int
+	 * @ORM\Column(type="datetime", nullable = TRUE)
+	 * @var \Datetime
 	 */
 	private $version;
 
@@ -58,7 +58,7 @@ class MigrationLog extends Kdyby\Doctrine\Entities\IdentifiedEntity
 	public function __construct(PackageVersion $package, Version $version = NULL)
 	{
 		$this->package = $package;
-		$this->version = $version ? $version->getVersion() : 0;
+		$this->version = $version ? $version->getVersion() : NULL;
 		$this->date = new \DateTime;
 		$this->up = $version !== NULL && $package->getMigrationVersion() < $version->getVersion();
 	}
@@ -70,7 +70,9 @@ class MigrationLog extends Kdyby\Doctrine\Entities\IdentifiedEntity
 	 */
 	public function getDate()
 	{
-		return $this->date;
+		return $this->date
+			? clone $this->date
+			: NULL;
 	}
 
 
@@ -86,11 +88,13 @@ class MigrationLog extends Kdyby\Doctrine\Entities\IdentifiedEntity
 
 
 	/**
-	 * @return int
+	 * @return \DateTime
 	 */
 	public function getVersion()
 	{
-		return $this->version;
+		return $this->version
+			? clone $this->version
+			: NULL;
 	}
 
 

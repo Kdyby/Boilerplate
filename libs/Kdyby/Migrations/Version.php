@@ -28,8 +28,8 @@ class Version extends Nette\Object
 	/** @var \Kdyby\Migrations\History */
 	private $history;
 
-	/** @var int */
-	protected $version;
+	/** @var VersionDatetime */
+	private $version;
 
 	/** @var int */
 	protected $time = 0;
@@ -48,15 +48,24 @@ class Version extends Nette\Object
 	/**
 	 * @param \Kdyby\Migrations\History $history
 	 * @param string $class
+	 *
+	 * @throws \Kdyby\InvalidArgumentException
 	 */
-	public function __construct(History $history, $class = NULL)
+	public function __construct(History $history, $class)
 	{
 		$this->history = $history;
-		if ($class !== NULL){
+
+		if (class_exists($class)) {
 			$this->class = $class;
-			if ($formatted = Strings::match($class, '~(\d{14})$~')) {
-				$this->version = (int)$formatted[0];
+		}
+
+		if ($formatted = Strings::match($class, '~(\d{14})$~')) {
+			if (!$this->version = VersionDatetime::from($formatted[0])) {
+				throw new \Kdyby\InvalidArgumentException("Given class '$class' is not valid migration version name.");
 			}
+
+		} else {
+			throw new \Kdyby\InvalidArgumentException("Given class '$class' is not valid migration version name.");
 		}
 	}
 
@@ -73,11 +82,11 @@ class Version extends Nette\Object
 
 
 	/**
-	 * @return int
+	 * @return VersionDatetime
 	 */
 	public function getVersion()
 	{
-		return (int)$this->version;
+		return $this->version ? clone $this->version : NULL;
 	}
 
 
@@ -97,7 +106,8 @@ class Version extends Nette\Object
 	 */
 	public function isMigrated()
 	{
-		return $this->history->getPackage()->getMigrationVersion() >= $this->getVersion();
+		return $this->history->getPackage()
+			->getMigrationVersion() >= $this->getVersion();
 	}
 
 
@@ -132,6 +142,7 @@ class Version extends Nette\Object
 	 * @param \Kdyby\Migrations\MigrationsManager $manager
 	 * @param boolean $commit
 	 *
+	 * @throws MigrationException
 	 * @return array
 	 */
 	public function down(MigrationsManager $manager, $commit = TRUE)
@@ -190,6 +201,7 @@ class Version extends Nette\Object
 		$migration = $this->createMigration();
 		$migration->setConnection($connection);
 
+		/** @var \Doctrine\DBAL\Schema\AbstractSchemaManager $sm */
 		$sm = $connection->getSchemaManager();
 		$platform = $connection->getDatabasePlatform();
 
@@ -248,11 +260,11 @@ class Version extends Nette\Object
 			$connection->rollback();
 			$this->markMigrated($direction, $commit);
 
-			$this->message('<info>SS</info> migration <comment>' . $this->version . '</comment> skipped, reason: ' . $e->getMessage());
+			$this->message('<info>SS</info> migration <comment>' . $this->getVersion() . '</comment> skipped, reason: ' . $e->getMessage());
 			return array();
 
 		} catch (\Exception $e) {
-			$this->message('<error>Migration ' . $this->version . ' failed. ' . $e->getMessage() . '</error>');
+			$this->message('<error>Migration ' . $this->getVersion() . ' failed. ' . $e->getMessage() . '</error>');
 
 			$connection->rollback();
 			throw $e;

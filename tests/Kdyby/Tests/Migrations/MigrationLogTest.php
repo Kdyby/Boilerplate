@@ -12,6 +12,7 @@ namespace Kdyby\Tests\Migrations;
 
 use Kdyby;
 use Kdyby\Migrations\MigrationLog;
+use Kdyby\Migrations\VersionDatetime;
 use Nette;
 
 
@@ -51,12 +52,12 @@ class MigrationLogTest extends Kdyby\Tests\TestCase
 		$package = $this->mockPackage();
 		$package->expects($this->once())
 			->method('getMigrationVersion')
-			->will($this->returnValue($oldTime = 20120116140000));
+			->will($this->returnValue($oldTime = VersionDatetime::from("20120116140000")));
 
 		$version = $this->mockVersion();
 		$version->expects($this->atLeastOnce())
 			->method('getVersion')
-			->will($this->returnValue($newTime = 20120116150000));
+			->will($this->returnValue($newTime = VersionDatetime::from("20120116150000")));
 
 		$log = new MigrationLog($package, $version);
 

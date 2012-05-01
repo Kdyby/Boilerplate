@@ -26,7 +26,7 @@ class History extends Nette\Object implements \IteratorAggregate
 	/** @var \Kdyby\Tools\DoubleLinkedArray|\Kdyby\Migrations\Version[] */
 	private $versions;
 
-	/** @var int */
+	/** @var string */
 	private $current;
 
 	/** @var \Kdyby\Migrations\PackageVersion */
@@ -36,13 +36,13 @@ class History extends Nette\Object implements \IteratorAggregate
 
 	/**
 	 * @param \Kdyby\Migrations\PackageVersion $package
-	 * @param $current
+	 * @param string $current
 	 */
 	public function __construct(PackageVersion $package, $current)
 	{
 		$this->versions = new Kdyby\Tools\DoubleLinkedArray();
 		$this->package = $package;
-		$this->current = (int)$current;
+		$this->current = VersionDatetime::from($current);
 	}
 
 
@@ -73,8 +73,12 @@ class History extends Nette\Object implements \IteratorAggregate
 	 */
 	public function getCurrent()
 	{
-		if ($this->current && isset($this->versions[$this->current])) {
-			return $this->versions[$this->current];
+		if ($this->current) {
+			foreach ($this->versions as $version) {
+				if ($version->getVersion() == $this->current) {
+					return $version;
+				}
+			}
 		}
 
 		return NULL;
@@ -101,7 +105,7 @@ class History extends Nette\Object implements \IteratorAggregate
 
 		$sqls = array();
 		try {
-			$manager->getOutputWriter()->writeln("");
+			$writer->writeln("");
 			if ($this->current <= ($closest = $this->calculateClosestVersion($target))) {
 				$result = $this->migrateUp($manager, $closest, $commit);
 
@@ -149,11 +153,13 @@ class History extends Nette\Object implements \IteratorAggregate
 
 		$writer = $manager->getOutputWriter();
 		$packageName = $this->package->getName();
+
+		$msg = '    Migrating <comment>' . $packageName . '</comment> to <comment>' . $target . '</comment>';
 		if (!$this->current) {
-			$writer->writeln('    Migrating <comment>' . $packageName . '</comment> to <comment>' . $target . '</comment>');
+			$writer->writeln($msg);
 
 		} else {
-			$writer->writeln('    Migrating <comment>' . $packageName . '</comment> to <comment>' . $target . '</comment> from <comment>' . $this->getCurrent()->getVersion() . '</comment>');
+			$writer->writeln($msg . ' from <comment>' . $this->getCurrent()->getVersion() . '</comment>');
 		}
 
 		$sqls = array();
@@ -164,7 +170,7 @@ class History extends Nette\Object implements \IteratorAggregate
 				break;
 			}
 
-			$sqls[$current->getVersion()] = $lastSqls = $current->up($manager, $commit);
+			$sqls[(string)$current->getVersion()] = $lastSqls = $current->up($manager, $commit);
 
 			$totalTime += $current->getTime();
 			$totalSqls += is_array($lastSqls) ? count($lastSqls) : (int)$lastSqls;
@@ -189,19 +195,20 @@ class History extends Nette\Object implements \IteratorAggregate
 
 		$packageName = $this->package->getName();
 		$writer = $manager->getOutputWriter();
-		$writer->writeln('    Reverting <comment>' . $packageName . '</comment> to <comment>' . $target . '</comment> from <comment>' . $this->getCurrent()->getVersion() . '</comment>');
+		if (!$current = $this->getCurrent()) {
+			throw new \Kdyby\InvalidStateException("There is no current version.");
+		}
+		$writer->writeln('    Reverting <comment>' . $packageName . '</comment> to <comment>' . $target . '</comment> from <comment>' . $current->getVersion() . '</comment>');
 
 		$sqls = array();
 		$totalTime = $totalSqls = 0;
-
-		$current = $this->getCurrent();
 		do {
 			/** @var \Kdyby\Migrations\Version $prev */
-			if ($current->getVersion() === $target) {
+			if ($current->getVersion() == $target) {
 				break;
 			}
 
-			$sqls[$current->getVersion()] = $lastSqls = $current->down($manager, $commit);
+			$sqls[(string)$current->getVersion()] = $lastSqls = $current->down($manager, $commit);
 
 			$totalTime += $current->getTime();
 			$totalSqls += is_array($lastSqls) ? count($lastSqls) : (int)$lastSqls;
@@ -216,19 +223,22 @@ class History extends Nette\Object implements \IteratorAggregate
 	/**
 	 * Ensures the target is in range
 	 * @param int $target
-	 *
-	 * @return int
+	 * @return VersionDatetime
 	 */
 	private function calculateClosestVersion($target)
 	{
-		return max(0, min($target, $this->getLast()->getVersion()));
+		$last = $this->getLast()->getVersion();
+		$target = VersionDatetime::from($target);
+		$unixEpoch = VersionDatetime::from(0);
+		$lower = $last < $target ? $last : $target;
+		return $unixEpoch > $lower ? $unixEpoch : $lower;
 	}
 
 
 
 	/**
 	 * @param \Kdyby\Migrations\MigrationsManager $manager
-	 * @param int $time
+	 * @param string $time
 	 *
 	 * @return array
 	 */
@@ -269,11 +279,12 @@ class History extends Nette\Object implements \IteratorAggregate
 			throw new Kdyby\InvalidArgumentException("Given migration is neither migration class or sql dump.");
 		}
 
-		if (isset($this->versions[$version->getVersion()])) {
+		$key = 'v' . (string)$version->getVersion();
+		if (isset($this->versions[$key])) {
 			throw new Kdyby\InvalidStateException('Given version ' . $version->getVersion() . ' is already registered.');
 		}
 
-		$this->versions[$version->getVersion()] = $version;
+		$this->versions[$key] = $version;
 		return $version;
 	}
 

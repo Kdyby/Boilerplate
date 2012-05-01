@@ -43,10 +43,10 @@ class PackageVersion extends Kdyby\Doctrine\Entities\IdentifiedEntity
 	private $className;
 
 	/**
-	 * @ORM\Column(type="bigint", nullable=TRUE)
-	 * @var integer
+	 * @ORM\Column(type="datetime", nullable=TRUE)
+	 * @var \Datetime
 	 */
-	private $migrationVersion = 0;
+	private $migrationVersion;
 
 	/**
 	 * @ORM\Column(type="datetime", nullable=TRUE)
@@ -102,11 +102,11 @@ class PackageVersion extends Kdyby\Doctrine\Entities\IdentifiedEntity
 
 
 	/**
-	 * @return string
+	 * @return VersionDatetime
 	 */
 	public function getMigrationVersion()
 	{
-		return (int)$this->migrationVersion;
+		return $this->migrationVersion ? clone $this->migrationVersion : NULL;
 	}
 
 
@@ -133,6 +133,8 @@ class PackageVersion extends Kdyby\Doctrine\Entities\IdentifiedEntity
 
 	/**
 	 * @param string $status
+	 *
+	 * @throws \Kdyby\InvalidArgumentException
 	 */
 	public function setStatus($status)
 	{
@@ -165,12 +167,12 @@ class PackageVersion extends Kdyby\Doctrine\Entities\IdentifiedEntity
 	{
 		if ($version === NULL) {
 			$this->log[] = new MigrationLog($this, $version);
-			$this->migrationVersion = 0;
+			$this->migrationVersion = NULL;
 			$this->lastUpdate = new \DateTime();
 			return;
 		}
 
-		if ($version->getVersion() === $this->migrationVersion) {
+		if ($version->getVersion() == $this->migrationVersion) {
 			return;
 		}
 
@@ -185,7 +187,7 @@ class PackageVersion extends Kdyby\Doctrine\Entities\IdentifiedEntity
 		}
 
 		$this->log[] = new MigrationLog($this, $version);
-		$this->migrationVersion = (int)$version->getVersion();
+		$this->migrationVersion = $version->getVersion();
 		$this->lastUpdate = new \DateTime;
 	}
 
