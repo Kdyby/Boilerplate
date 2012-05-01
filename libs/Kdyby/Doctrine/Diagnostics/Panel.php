@@ -11,6 +11,7 @@
 namespace Kdyby\Doctrine\Diagnostics;
 
 use Doctrine;
+use Doctrine\Common\Persistence\Proxy;
 use Doctrine\Common\Annotations\AnnotationException;
 use Kdyby;
 use Kdyby\Doctrine\QueryException;
@@ -75,6 +76,18 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 		$source = NULL;
 		foreach (debug_backtrace(FALSE) as $row) {
 			if (isset($row['file']) && $this->filterTracePaths(realpath($row['file']))) {
+				if (isset($row['class']) && stripos($row['class'], '\\' . Proxy::MARKER) !== FALSE) {
+					if (!in_array('Doctrine\Common\Persistence\Proxy', class_implements($row['class']))) {
+						continue;
+
+					} elseif (isset($row['function']) && $row['function'] === '__load') {
+						continue;
+					}
+
+				} elseif (stripos($row['file'], '/' . Proxy::MARKER) !== FALSE) {
+					continue;
+				}
+
 				$source = array($row['file'], (int) $row['line']);
 				break;
 			}
