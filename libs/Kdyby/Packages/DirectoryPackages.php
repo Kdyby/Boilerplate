@@ -62,6 +62,7 @@ class DirectoryPackages extends Nette\Object implements \IteratorAggregate, IPac
 			}
 		}
 
+		sort($packages);
 		return $packages;
 	}
 

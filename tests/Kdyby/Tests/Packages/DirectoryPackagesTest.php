@@ -26,8 +26,8 @@ class DirectoryPackagesTest extends Kdyby\Tests\TestCase
 		$dir = realpath(__DIR__ . '/../Package/Fixtures');
         $finder = new Kdyby\Packages\DirectoryPackages($dir, 'Kdyby\Tests\Package\Fixtures');
         $this->assertEquals(array(
-                 'Kdyby\Tests\Package\Fixtures\BarPackage\BarPackage',
-                 'Kdyby\Tests\Package\Fixtures\FooPackage\FooPackage',
+				'Kdyby\Tests\Package\Fixtures\BarPackage\BarPackage',
+				'Kdyby\Tests\Package\Fixtures\FooPackage\FooPackage',
             ), $finder->getPackages());
     }
 
