@@ -23,7 +23,7 @@ use Nette\Diagnostics\Debugger;
  *
  * @property-read \SystemContainer|\Nette\DI\Container $container
  * @property-read \Kdyby\Security\User $user
- * @property-read \Nette\Templating\Template $template
+ * @property-read \Nette\Templating\FileTemplate $template
  * @property-read \Kdyby\Doctrine\Registry $doctrine
  *
  * @method \Kdyby\Security\User getUser() getUser()
