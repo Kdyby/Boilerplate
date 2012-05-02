@@ -411,6 +411,17 @@ class BaseEntityTest extends Kdyby\Tests\TestCase
 
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
+ *
+ * @method setTwo()
+ * @method addTwo()
+ * @method getTwo()
+ * @method removeTwo()
+ * @method hasTwo()
+ * @method getTwos()
+ * @method addProxy()
+ * @method hasProxy()
+ * @method removeProxy()
+ * @method getProxies()
  */
 class ConcreteEntity extends BaseEntity
 {
