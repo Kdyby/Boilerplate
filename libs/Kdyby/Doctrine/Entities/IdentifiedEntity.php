@@ -10,6 +10,7 @@
 
 namespace Kdyby\Doctrine\Entities;
 
+use Doctrine\ORM\Proxy\Proxy;
 use Doctrine\ORM\Mapping as ORM;
 use Nette;
 use Kdyby;
@@ -41,6 +42,13 @@ abstract class IdentifiedEntity extends BaseEntity
 	 */
 	final public function getId()
 	{
+		if ($this instanceof Proxy && !$this->__isInitialized__) {
+			$identifier = $this->getReflection()->getProperty('_identifier');
+			$identifier->setAccessible(TRUE);
+			$id = $identifier->getValue($this);
+			$this->id = reset($id);
+		}
+
 		return $this->id;
 	}
 
