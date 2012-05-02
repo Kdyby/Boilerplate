@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2008, 2011 Filip Procházka (filip.prochazka@kdyby.org)
  *
- * @license http://www.kdyby.org/license
+ * For the full copyright and license information, please view the file license.txt that was distributed with this source code.
  */
 
 namespace Kdyby\Tests\Doctrine\Entities;
