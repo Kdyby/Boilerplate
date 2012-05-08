@@ -155,11 +155,13 @@ class FormulaeManager extends Nette\Object
 	/**
 	 * @param string $name
 	 * @param string $version
+	 *
+	 * @throws MissingServiceException
 	 */
 	public function requireAsset($name, $version = NULL)
 	{
 		if (!$this->repository) {
-			throw new Kdyby\InvalidStateException("No implementation of IJavascriptProvider was given.");
+			throw new MissingServiceException("No implementation of IJavascriptProvider was given.");
 		}
 
 		$this->componentTypes[$name] = $version;

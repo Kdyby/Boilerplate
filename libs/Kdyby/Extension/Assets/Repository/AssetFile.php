@@ -70,7 +70,7 @@ class AssetFile extends Nette\Object
 	/**
 	 * @param \Kdyby\Extension\Assets\AssetFactory $factory
 	 *
-	 * @throws \Kdyby\FileNotFoundException
+	 * @throws \Kdyby\Extension\Assets\FileNotFoundException
 	 * @return \Assetic\Asset\AssetCollection
 	 */
 	public function createAsset(Assets\AssetFactory $factory)
@@ -83,7 +83,7 @@ class AssetFile extends Nette\Object
 
 			/** @var \Assetic\Asset\FileAsset $leaf */
 			if (!file_exists($file = $leaf->getSourceRoot() . '/' . $leaf->getSourcePath())) {
-				throw new Kdyby\FileNotFoundException('Assetic wasn\'t able to process your input, file "' . $file . '" doesn\'t exists.');
+				throw new Assets\FileNotFoundException('Assetic wasn\'t able to process your input, file "' . $file . '" doesn\'t exists.');
 			}
 		}
 

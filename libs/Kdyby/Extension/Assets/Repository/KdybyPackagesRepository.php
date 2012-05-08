@@ -59,7 +59,6 @@ final class KdybyPackagesRepository extends PackagesRepository
 	 * @param string $name
 	 * @param string $version
 	 *
-	 * @throws \Kdyby\InvalidStateException
 	 * @return \Kdyby\Extension\Assets\Repository\AssetPackage
 	 */
 	public function getAsset($name, $version = NULL)

@@ -72,13 +72,13 @@ class PackagesRepository extends Nette\Object implements Kdyby\Extension\Assets\
 	 * @param string $name
 	 * @param string $version
 	 *
-	 * @throws \Kdyby\InvalidStateException
-	 * @return \Kdyby\Extension\Assets\Repository\AssetPackage
+	 * @throws \Kdyby\Extension\Assets\AssetNotFoundException
+	 * @return mixed
 	 */
 	public function getAsset($name, $version = NULL)
 	{
 		if (!$this->hasAsset($name = strtolower($name), $version)) {
-			throw new Kdyby\InvalidStateException("Assets {$name} are not registered.");
+			throw new Assets\AssetNotFoundException("Assets {$name} are not registered.");
 		}
 
 		$versions = $this->assets[$name];
@@ -104,16 +104,22 @@ class PackagesRepository extends Nette\Object implements Kdyby\Extension\Assets\
 	/**
 	 * @param string $definitionFile
 	 *
-	 * @throws \Kdyby\FileNotFoundException
+	 * @throws \Kdyby\Extension\Assets\FileNotFoundException
+	 * @throws \Kdyby\Extension\Assets\InvalidDefinitionFileException
 	 */
 	public function registerAssetsFile($definitionFile)
 	{
 		if (!file_exists($definitionFile)) {
-			throw Kdyby\FileNotFoundException::fromFile($definitionFile);
+			throw new Assets\FileNotFoundException("Definition file $definitionFile is missing.");
 		}
 
 		foreach (Json::decode(file_get_contents($definitionFile)) as $definition) {
-			$this->registerAsset($this->createAsset($definition, $definitionFile));
+			try {
+				$this->registerAsset($this->createAsset($definition, $definitionFile));
+
+			} catch (\Exception $e) {
+				throw new Assets\InvalidDefinitionFileException($e->getMessage(), 0, $e);
+			}
 		}
 	}
 
@@ -165,11 +171,11 @@ class PackagesRepository extends Nette\Object implements Kdyby\Extension\Assets\
 		$baseDir = dirname($definitionFile);
 		foreach ($definition['paths'] as $path) {
 			if (!file_exists($assetPath = $baseDir . '/' . $path)) {
-				throw new Kdyby\FileNotFoundException("Path '{$path}' of asset '{$asset->name}', in $definitionFile is not valid.");
+				throw new Assets\FileNotFoundException("Path '{$path}' of asset '{$asset->name}', in $definitionFile is not valid.");
 			}
 			$extension = pathinfo($assetPath, PATHINFO_EXTENSION);
 			if (!isset(static::$extensionsMap[$extension]) && !isset($definition['filter'])) {
-				throw new Kdyby\NotSupportedException("Cannot handle extension $extension of asset '{$asset->name}'.");
+				throw new Assets\NotSupportedException("Cannot handle extension $extension of asset '{$asset->name}'.");
 				$extension = static::$extensionsMap[$extension];
 			}
 			$files[$path] = $asset->addPath($assetPath, $extension);
@@ -184,7 +190,7 @@ class PackagesRepository extends Nette\Object implements Kdyby\Extension\Assets\
 			unset($definition['filter']);
 
 		} elseif (isset($definition['filters'])) {
-			throw new Kdyby\UnexpectedValueException("Key 'filters' of asset '{$asset->name}' should be named 'filter'.");
+			throw new Assets\UnexpectedValueException("Key 'filters' of asset '{$asset->name}' should be named 'filter'.");
 		}
 
 		// options
@@ -195,7 +201,7 @@ class PackagesRepository extends Nette\Object implements Kdyby\Extension\Assets\
 			unset($definition['options']);
 
 		} elseif (isset($definition['option'])) {
-			throw new Kdyby\UnexpectedValueException("Key 'option' of asset '{$asset->name}' should be named 'options'.");
+			throw new Assets\UnexpectedValueException("Key 'option' of asset '{$asset->name}' should be named 'options'.");
 		}
 
 		// version
@@ -211,7 +217,7 @@ class PackagesRepository extends Nette\Object implements Kdyby\Extension\Assets\
 		$definition = (array)$definition;
 		if (!empty($definition)) {
 			$keys = implode(', ', array_keys($definition));
-			throw new Kdyby\UnexpectedValueException("Keys $keys in definition of asset '{$asset->name}', in $definitionFile are ambiguous.");
+			throw new Assets\UnexpectedValueException("Keys $keys in definition of asset '{$asset->name}', in $definitionFile are ambiguous.");
 		}
 
 		return $asset;

@@ -17,6 +17,9 @@ use Nette;
 
 
 
+// exceptions
+require_once __DIR__ . '/exceptions.php';
+
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
@@ -57,8 +60,8 @@ class AssetManager extends Assetic\AssetManager
 	/**
 	 * @param \Assetic\Asset\AssetInterface $asset
 	 *
-	 * @return mixed
-	 * @throws \Kdyby\InvalidArgumentException
+	 * @throws AssetNotFoundException
+	 * @return string
 	 */
 	public function getAssetName(AssetInterface $asset)
 	{
@@ -68,7 +71,7 @@ class AssetManager extends Assetic\AssetManager
 			}
 		}
 
-		throw new Kdyby\InvalidArgumentException('Asset is not registered.');
+		throw new AssetNotFoundException('Asset is not registered.');
 	}
 
 

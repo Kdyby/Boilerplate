@@ -14,6 +14,7 @@ use Assetic;
 use Assetic\Asset\AssetInterface;
 use Kdyby;
 use Kdyby\Extension\Curl;
+use Kdyby\Extension\Assets;
 use Kdyby\Tools\Filesystem;
 use Kdyby\Tools\MimeTypeDetector;
 use Nette;
@@ -78,6 +79,9 @@ class CacheStorage extends Nette\Object implements Kdyby\Extension\Assets\IStora
 
 	/**
 	 * @param \Assetic\Asset\AssetInterface $asset
+	 *
+	 * @throws \Kdyby\Extension\Assets\NotSupportedException
+	 * @return
 	 */
 	public function writeAsset(AssetInterface $asset)
 	{
@@ -112,7 +116,7 @@ class CacheStorage extends Nette\Object implements Kdyby\Extension\Assets\IStora
 			$this->cache->remove($metaKey);
 
 			$class = get_called_class();
-			throw new Kdyby\InvalidStateException(
+			throw new Assets\NotSupportedException(
 				"Your current server settings doesn't allow to properly link assets. " .
 				"$class requires working rewrite technology, " .
 				"e.g. mod_rewrite on Apache or properly configured nginx.", 0, $e

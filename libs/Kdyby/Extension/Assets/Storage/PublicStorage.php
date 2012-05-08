@@ -13,6 +13,7 @@ namespace Kdyby\Extension\Assets\Storage;
 use Assetic;
 use Assetic\Asset\AssetInterface;
 use Kdyby;
+use Kdyby\Extension\Assets;
 use Nette;
 
 
@@ -68,11 +69,12 @@ class PublicStorage extends Nette\Object implements Kdyby\Extension\Assets\IStor
 	/**
 	 * @param string $assetOutput
 	 *
+	 * @throws \Kdyby\Extension\Assets\NotSupportedException
 	 * @return \Assetic\Asset\AssetInterface
 	 */
 	public function readAsset($assetOutput)
 	{
-		throw new Kdyby\NotSupportedException;
+		throw new Assets\NotSupportedException("Not supported");
 	}
 
 

@@ -13,6 +13,7 @@ namespace Kdyby\Extension\Assets\Latte;
 use Assetic;
 use Kdyby;
 use Kdyby\Extension\Assets;
+use Kdyby\Extension\Assets\LatteCompileException;
 use Kdyby\Templates\LatteHelpers;
 use Nette;
 use Nette\Utils\PhpGenerator as Code;
@@ -88,6 +89,7 @@ class AssetMacros extends Nette\Object implements Latte\IMacro
 	 *
 	 * @param \Nette\Latte\MacroNode $node
 	 *
+	 * @throws \Kdyby\Extension\Assets\LatteCompileException
 	 * @return bool
 	 */
 	public function nodeOpened(Latte\MacroNode $node)
@@ -100,10 +102,10 @@ class AssetMacros extends Nette\Object implements Latte\IMacro
 
 		} elseif ($node->name === 'assets') {
 			if ($node->data->inline = empty($node->args)) {
-				throw new Nette\Latte\CompileException("Macro {assets} cannot be used inline.");
+				throw new LatteCompileException("Macro {assets} cannot be used inline.");
 
 			} elseif ($node->htmlNode) {
-				throw new Nette\Latte\CompileException("Macro {assets} cannot be used in HTML tag.");
+				throw new LatteCompileException("Macro {assets} cannot be used in HTML tag.");
 			}
 
 			try {
@@ -111,8 +113,8 @@ class AssetMacros extends Nette\Object implements Latte\IMacro
 					$node->isEmpty = TRUE;
 				}
 
-			} catch (Kdyby\FileNotFoundException $e) {
-				throw new Nette\Latte\CompileException($e->getMessage());
+			} catch (Assets\FileNotFoundException $e) {
+				throw new LatteCompileException(NULL, $e);
 			}
 
 		} else {
@@ -202,6 +204,7 @@ class AssetMacros extends Nette\Object implements Latte\IMacro
 	 * @param \Nette\Latte\MacroNode $node
 	 * @param string $type
 	 *
+	 * @throws \Kdyby\Extension\Assets\LatteCompileException
 	 * @return string
 	 */
 	protected function macroOpen(Latte\MacroNode $node, $type)
@@ -222,8 +225,8 @@ class AssetMacros extends Nette\Object implements Latte\IMacro
 				$node->isEmpty = TRUE;
 			}
 
-		} catch (Kdyby\FileNotFoundException $e) {
-			throw new Nette\Latte\CompileException($e->getMessage());
+		} catch (Assets\FileNotFoundException $e) {
+			throw new LatteCompileException(NULL, $e);
 		}
 	}
 
@@ -233,6 +236,7 @@ class AssetMacros extends Nette\Object implements Latte\IMacro
 	 * @param \Nette\Latte\MacroNode $node
 	 * @param string $type
 	 *
+	 * @throws \Kdyby\Extension\Assets\LatteCompileException
 	 * @return string
 	 */
 	protected function macroClosed(Latte\MacroNode $node, $type = NULL)
@@ -253,7 +257,7 @@ class AssetMacros extends Nette\Object implements Latte\IMacro
 			$node->content = NULL;
 
 		} catch (\Exception $e) {
-			throw new Nette\Latte\CompileException($e->getMessage());
+			throw new LatteCompileException(NULL, $e);
 		}
 	}
 
@@ -347,18 +351,20 @@ class AssetMacros extends Nette\Object implements Latte\IMacro
 	 * @param array $args
 	 * @param string $type
 	 *
+	 * @throws \Kdyby\Extension\Assets\LatteCompileException
+	 * @throws \Kdyby\Extension\Assets\MissingServiceException
 	 * @return string
 	 */
 	protected function createFactory(array $args, $type)
 	{
 		if ($this->factory === NULL) {
-			throw new Kdyby\InvalidStateException('Please provide instance of Kdyby\Extension\Assets\AssetFactory using ' . get_called_class() . '::setFactory().');
+			throw new Assets\MissingServiceException('Please provide instance of Kdyby\Extension\Assets\AssetFactory using ' . get_called_class() . '::setFactory().');
 		}
 
 		// divide arguments
 		list($inputs, $filters, $options) = $this->partitionArguments($args);
 		if (empty($inputs)) {
-			throw new Nette\Latte\CompileException("No input file was provided.");
+			throw new LatteCompileException("No input file was provided.");
 		}
 
 		$packages = array();
@@ -374,7 +380,7 @@ class AssetMacros extends Nette\Object implements Latte\IMacro
 		}
 
 		if ($packages && !$this->repository) {
-			throw new Kdyby\InvalidStateException('Please provide instance of Kdyby\Extension\Assets\IAssetRepository using ' . get_called_class() . '::setRepository().');
+			throw new Assets\MissingServiceException('Please provide instance of Kdyby\Extension\Assets\IAssetRepository using ' . get_called_class() . '::setRepository().');
 		}
 
 		// packages
@@ -427,7 +433,7 @@ class AssetMacros extends Nette\Object implements Latte\IMacro
 	/**
 	 * @param \Nette\Application\UI\PresenterComponent $control
 	 *
-	 * @throws \Kdyby\InvalidStateException
+	 * @throws \Kdyby\Extension\Assets\MissingServiceException
 	 * @return \Kdyby\Extension\Assets\FormulaeManager
 	 */
 	public static function findFormulaeManager(Nette\Application\UI\PresenterComponent $control)
@@ -436,7 +442,7 @@ class AssetMacros extends Nette\Object implements Latte\IMacro
 		$presenter = $control->getPresenter();
 		$components = $presenter->getComponents(FALSE, 'Kdyby\Components\Header\HeaderControl');
 		if (!$headerControl = iterator_to_array($components)) {
-			throw new Kdyby\InvalidStateException(
+			throw new Assets\MissingServiceException(
 				'Missing link to FormulaeManager from template. ' .
 				'Either provide a $_fm property with instanceof Kdyby\Extension\Assets\FormulaeManager, ' .
 				'or register Kdyby\Components\Header\HeaderControl in presenter.' .
