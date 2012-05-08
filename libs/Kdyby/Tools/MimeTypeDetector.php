@@ -442,6 +442,7 @@ final class MimeTypeDetector extends Nette\Object
 
 	/**
 	 * Static class - cannot be instantiated.
+	 * @throws \Kdyby\StaticClassException
 	 */
 	final public function __construct()
 	{
@@ -491,7 +492,7 @@ final class MimeTypeDetector extends Nette\Object
 	 */
 	public static function extensionToMime($extension, $need = TRUE)
 	{
-		if (FALSE !== ($mime = array_search($extension, static::$mimeTypes)) && $need) {
+		if (FALSE === ($mime = array_search(strtolower($extension), static::$mimeTypes, TRUE)) && $need) {
 			throw new Kdyby\InvalidArgumentException("Extension '$extension' is unknown.");
 		}
 
@@ -509,14 +510,11 @@ final class MimeTypeDetector extends Nette\Object
 	 */
 	public static function mimeToExtension($mimeType, $need = TRUE)
 	{
-		if (!isset(static::$mimeTypes[$mimeType]) && $need) {
+		if (!($has = isset(static::$mimeTypes[$mimeType])) && $need) {
 			throw new Kdyby\InvalidArgumentException("Mime type '$mimeType' is unknown.");
-
-		} else {
-			return NULL;
 		}
 
-		return static::$mimeTypes[$mimeType];
+		return $has ? static::$mimeTypes[$mimeType] : NULL;
 	}
 
 }
