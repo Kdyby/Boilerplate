@@ -14,6 +14,7 @@ use Doctrine;
 use Doctrine\ORM\Mapping as ORM;
 use Kdyby;
 use Nette;
+use Nette\Utils\PhpGenerator as Code;
 
 
 
@@ -82,20 +83,38 @@ class TemplateSource extends Kdyby\Doctrine\Entities\IdentifiedEntity
 	/**
 	 * @param \Kdyby\Templates\EditableTemplates $templates
 	 * @param array $db
+	 * @param string $layoutFile
 	 *
 	 * @return string
 	 */
-	public function build(EditableTemplates $templates, array &$db)
+	public function build(EditableTemplates $templates, array &$db, $layoutFile = NULL)
 	{
-		if (!$this->getExtends()) {
-			return $this->getSource();
+		$source = $this->source;
+
+		$dp[Nette\Caching\Cache::TAGS][] = 'dbTemplate#' . $this->getId();
+
+		// todo: debugging only?
+		$db[Nette\Caching\Cache::FILES][] = self::getReflection()->getFileName();
+		$db[Nette\Caching\Cache::FILES][] = EditableTemplates::getReflection()->getFileName();
+
+		if ($this->getExtends()) {
+			$file = $templates->getTemplateFile($extended = $this->getExtends(), $layoutFile);
+
+			$db[Nette\Caching\Cache::FILES][] = $file; // todo: why?
+			$dp[Nette\Caching\Cache::TAGS][] = 'dbTemplate#' . $extended->getId();
+
+			return '{extends ' . Code\Helpers::dump($file) . '}' .
+				"\n" . $source;
+
+		} elseif ($layoutFile !== NULL) {
+
+			return '{extends ' . Code\Helpers::dump($layoutFile) . '}{block #content}' .
+				"\n" . $source;
+
+		} else {
+			return $source;
+
 		}
-
-		$source = $this->getSource();
-		$file = $templates->getTemplateFile($this->getExtends());
-		$db[Nette\Caching\Cache::FILES][] = $file;
-
-		return '{extends "' . $file . '"}' . "\n" . $source;
 	}
 
 }

@@ -88,9 +88,9 @@ class EditableTemplates extends Nette\Object
 	 */
 	public function remove(TemplateSource $template)
 	{
-		$this->storage->hint = (string)$template->getId();
-
-		$this->cache->remove($template->getId());
+		$this->cache->clean(array(
+			Cache::TAGS => array('dbTemplate#' . $template->getId())
+		));
 		$this->sourcesDao->delete($template);
 	}
 
@@ -98,12 +98,13 @@ class EditableTemplates extends Nette\Object
 
 	/**
 	 * @param \Kdyby\Templates\TemplateSource $template
+	 * @param string $layoutFile
 	 *
 	 * @throws \Kdyby\InvalidStateException
 	 * @throws \Kdyby\FileNotFoundException
 	 * @return string
 	 */
-	public function getTemplateFile(TemplateSource $template)
+	public function getTemplateFile(TemplateSource $template, $layoutFile = NULL)
 	{
 		$this->storage->hint = (string)$template->getId();
 
@@ -111,10 +112,16 @@ class EditableTemplates extends Nette\Object
 			$this->save($template);
 		}
 
-		if (!$cached = $this->cache->load($template->getId())) {
+		$key = $template->getId();
+		if ($layoutFile !== NULL) {
+			$key .= '#l' . md5(serialize($layoutFile));
+		}
+
+		// load or save
+		if (!$cached = $this->cache->load($key)) {
 			$dp = array();
-			$this->cache->save($template->getId(), $template->build($this, $dp), $dp);
-			$cached = $this->cache->load($template->getId());
+			$this->cache->save($key, $template->build($this, $dp, $layoutFile), $dp);
+			$cached = $this->cache->load($key);
 		}
 
 		if ($cached === NULL) {
