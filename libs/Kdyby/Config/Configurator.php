@@ -161,6 +161,13 @@ class Configurator extends Nette\Object
 		}
 		$this->container = $configurator->createContainer();
 
+		// http
+		/** @var \Nette\Http\Response $httpResponse */
+		$httpResponse = $this->container->httpResponse;
+		if (!$httpResponse->isSent()) {
+			$httpResponse->setHeader('X-Powered-By', 'Nette Framework spiced with Kdyby');
+		}
+
 		$this->initialized = TRUE;
 	}
 
