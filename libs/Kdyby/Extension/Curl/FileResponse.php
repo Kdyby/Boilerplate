@@ -92,15 +92,20 @@ class FileResponse extends Response
 
 	/**
 	 * Move file to new location.
+	 *
 	 * @param string $dest
 	 *
+	 * @throws FileNotWritableException
+	 * @throws DirectoryNotWritableException
 	 * @return \Kdyby\Extension\Curl\FileResponse
 	 */
 	public function move($dest)
 	{
-		Kdyby\Tools\Filesystem::mkDir(dirname($dest));
+		if (!is_dir($destDir = dirname($dest))) {
+			throw new DirectoryNotWritableException("Please make directory $destDir writable.");
+		}
 		if (!@rename($this->file, $dest)) {
-			throw new Kdyby\IOException("Unable to move file '$this->file' to '$dest'.");
+			throw new FileNotWritableException("Unable to move file '$this->file' to '$dest'.");
 		}
 		chmod($dest, 0666);
 		$this->file = $dest;
@@ -156,6 +161,8 @@ class FileResponse extends Response
 	/**
 	 * @param \Kdyby\Extension\Curl\CurlWrapper $curl
 	 *
+	 * @throws CurlException
+	 * @throws InvalidStateException
 	 * @return array
 	 */
 	public static function stripHeaders(CurlWrapper $curl)
@@ -165,7 +172,7 @@ class FileResponse extends Response
 		@fclose($curl->options['writeHeader']); // internationally @
 
 		if (($headersHandle = @fopen($headersFile, "rb")) === FALSE) { // internationally @
-			throw new Kdyby\IOException("File '$headersFile' not readable.");
+			throw new InvalidStateException("File '$headersFile' not readable.");
 		}
 
 		$curl->responseHeaders = fread($headersHandle, filesize($headersFile));
@@ -173,7 +180,7 @@ class FileResponse extends Response
 			throw new CurlException("Failed parsing of response headers");
 		}
 		if (!@fclose($headersHandle) || !@unlink($headersFile)) {
-			throw new Kdyby\IOException("File '$headersFile' can't be deleted.");
+			throw new InvalidStateException("File '$headersFile' can't be deleted.");
 		}
 
 		return $headers;
@@ -185,6 +192,7 @@ class FileResponse extends Response
 	 * @param \Kdyby\Extension\Curl\CurlWrapper $curl
 	 * @param string $dir
 	 *
+	 * @throws FileNotWritableException
 	 * @return \Kdyby\Extension\Curl\CurlWrapper
 	 */
 	public static function prepareDownload(CurlWrapper $curl, $dir)
@@ -194,10 +202,10 @@ class FileResponse extends Response
 		} while (is_file($dir . '/' . $fileName));
 
 		if (($fileHandle = @fopen($curl->file = $dir . '/' . $fileName, 'wb')) === FALSE) {
-			throw Kdyby\FileNotWritableException::fromFile($curl->file);
+			throw new FileNotWritableException("File $curl->file is not writable.");
 		}
 		if (($headersHandle = @fopen($curl->file . '.headers', 'wb')) === FALSE) {
-			throw Kdyby\FileNotWritableException::fromFile($curl->file);
+			throw new FileNotWritableException("File $curl->file is not writable.");
 		}
 		return $curl->setOptions(array(
 			'file' => $fileHandle,

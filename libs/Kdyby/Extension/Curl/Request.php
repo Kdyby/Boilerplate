@@ -252,10 +252,10 @@ class Request extends RequestOptions
 
 
 	/**
-	 * @param string $from
-	 * @param string $to
+	 * @param string|Url $from
+	 * @param string|Url $to
 	 *
-	 * @throws \Kdyby\InvalidStateException
+	 * @throws InvalidUrlException
 	 * @return Url
 	 */
 	public static function fixUrl($from, $to)
@@ -265,7 +265,7 @@ class Request extends RequestOptions
 
 		if (empty($url->scheme)) { // scheme
 			if (empty($lastUrl->scheme)) {
-				throw new Kdyby\InvalidStateException("Missing URL scheme!");
+				throw new InvalidUrlException("Missing URL scheme!");
 			}
 
 			$url->scheme = $lastUrl->scheme;
@@ -273,7 +273,7 @@ class Request extends RequestOptions
 
 		if (empty($url->host)) { // host
 			if (empty($lastUrl->host)) {
-				throw new Kdyby\InvalidStateException("Missing URL host!");
+				throw new InvalidUrlException("Missing URL host!");
 			}
 
 			$url->host = $lastUrl->host;

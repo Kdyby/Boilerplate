@@ -85,14 +85,14 @@ class CurlSender extends RequestOptions
 
 	/**
 	 * @param string $downloadDir
+	 * @throws DirectoryNotWritableException
 	 */
 	public function setDownloadDir($downloadDir)
 	{
-		if (!is_writable($downloadDir)) {
-			throw Kdyby\DirectoryNotWritableException::fromDir($downloadDir);
+		if (!is_dir($downloadDir) || !is_writable($downloadDir)) {
+			throw new DirectoryNotWritableException("Please make directory $downloadDir writable.");
 		}
 
-		Kdyby\Tools\Filesystem::mkDir($downloadDir);
 		$this->downloadDir = $downloadDir;
 	}
 
@@ -192,6 +192,7 @@ class CurlSender extends RequestOptions
 	/**
 	 * @param \Kdyby\Extension\Curl\Request $request
 	 *
+	 * @throws \Exception
 	 * @return \Kdyby\Extension\Curl\Response
 	 */
 	public function send(Request $request)
@@ -244,7 +245,7 @@ class CurlSender extends RequestOptions
 		// method & prepare download
 		if ($request->isMethod(Request::DOWNLOAD)) {
 			if (!is_dir($this->downloadDir)) {
-				throw new Kdyby\InvalidStateException("Please provide a writable directory for download.");
+				throw new DirectoryNotWritableException("Please provide a writable directory for download.");
 			}
 			FileResponse::prepareDownload($cUrl, $this->downloadDir);
 

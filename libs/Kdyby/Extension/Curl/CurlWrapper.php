@@ -69,12 +69,18 @@ class CurlWrapper extends Nette\Object
 	/**
 	 * @param \Nette\Http\UrlScript|string $url
 	 * @param string $method
+	 *
+	 * @throws NotSupportedException
 	 */
 	public function __construct($url = NULL, $method = Request::GET)
 	{
 		$this->setUrl($url);
 		$this->setMethod($method);
 		$this->setOption('returnTransfer', TRUE);
+
+		if (!function_exists('curl_init')) {
+			throw new NotSupportedException("cURL is not supported by server.");
+		}
 	}
 
 
@@ -208,12 +214,13 @@ class CurlWrapper extends Nette\Object
 	 * @param string $option
 	 * @param mixed $value
 	 *
+	 * @throws InvalidArgumentException
 	 * @return \Kdyby\Extension\Curl\CurlWrapper
 	 */
 	public function setOption($option, $value)
 	{
 		if (!defined($constant = 'CURLOPT_' . strtoupper($option))) {
-			throw new Kdyby\InvalidArgumentException('There is no constant "' . $constant . '", therefore "' . $option . '" cannot be set.');
+			throw new InvalidArgumentException('There is no constant "' . $constant . '", therefore "' . $option . '" cannot be set.');
 		}
 
 		if ($value !== NULL) {
@@ -334,12 +341,15 @@ class CurlWrapper extends Nette\Object
 	/**
 	 * @param array|string $post
 	 * @param array $files
+	 *
+	 * @throws NotSupportedException
+	 * @return \Kdyby\Extension\Curl\CurlWrapper
 	 */
 	public function setPost($post = array(), array $files = NULL)
 	{
 		if ($files) {
 			if (!is_array($post)) {
-				throw new Kdyby\NotImplementedException;
+				throw new NotSupportedException("Not implemented.");
 			}
 
 			array_walk_recursive($files, function (&$item) { $item = '@' . realpath($item); });
@@ -363,7 +373,8 @@ class CurlWrapper extends Nette\Object
 
 
 	/**
-	 * @throws \Kdyby\Extension\Curl\FailedRequestException
+	 *
+	 * @throws InvalidStateException
 	 * @return string|boolean
 	 */
 	public function execute()
@@ -373,7 +384,7 @@ class CurlWrapper extends Nette\Object
 
 		// method shouldn't be GET, when posting data
 		if ($this->method === Request::GET && isset($this->options['postFields'])) {
-			throw new Kdyby\InvalidStateException("Method GET cannot send POST data or files.");
+			throw new InvalidStateException("Method GET cannot send POST data or files.");
 		}
 
 		// init

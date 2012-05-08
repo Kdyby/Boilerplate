@@ -135,6 +135,7 @@ class Response extends Nette\Object
 	/**
 	 * @param \Kdyby\Extension\Curl\CurlWrapper $curl
 	 *
+	 * @throws CurlException
 	 * @return array
 	 */
 	public static function stripHeaders(CurlWrapper $curl)
