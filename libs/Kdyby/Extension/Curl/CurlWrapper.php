@@ -74,13 +74,13 @@ class CurlWrapper extends Nette\Object
 	 */
 	public function __construct($url = NULL, $method = Request::GET)
 	{
-		$this->setUrl($url);
-		$this->setMethod($method);
-		$this->setOption('returnTransfer', TRUE);
-
 		if (!function_exists('curl_init')) {
 			throw new NotSupportedException("cURL is not supported by server.");
 		}
+
+		$this->setUrl($url);
+		$this->setMethod($method);
+		$this->setOption('returnTransfer', TRUE);
 	}
 
 
