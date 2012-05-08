@@ -197,7 +197,7 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 
 
 	/**
-	 * @throws \Nette\InvalidStateException
+	 * @throws \RuntimeException
 	 * @return object[]
 	 */
 	public function findGroups()
@@ -207,7 +207,7 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 			if (!$group instanceof Nette\Forms\ControlGroup) {
 				if (!$group = $this->form->getGroup($group)) {
 					$groupName = (string)$this->priorGroups[$i];
-					throw new Nette\InvalidStateException("Form has no group $groupName.");
+					throw new \RuntimeException("Form has no group $groupName.");
 				}
 			}
 
