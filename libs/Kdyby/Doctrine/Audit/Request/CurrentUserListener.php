@@ -2,7 +2,7 @@
 /*
  * (c) 2011 SimpleThings GmbH
  *
- * @package SimpleThings\EntityAudit
+ * @package Kdyby\Doctrine\Audit
  * @author Benjamin Eberlei <eberlei@simplethings.de>
  * @link http://www.simplethings.de
  *
@@ -21,12 +21,14 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-namespace SimpleThings\EntityAudit\Request;
+namespace Kdyby\Doctrine\Audit\Request;
 
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\Security\Core\SecurityContext;
-use SimpleThings\EntityAudit\AuditConfiguration;
+use Kdyby\Doctrine\Audit\AuditConfiguration;
+
+
 
 /**
  * Inject the SecurityContext username into the AuditConfiguration as current username.
@@ -41,13 +43,13 @@ class CurrentUserListener
      * @var SecuritYcontext
      */
     private $securityContext;
-    
+
     public function __construct(AuditConfiguration $config, SecurityContext $context = null)
     {
         $this->auditConfiguration = $config;
         $this->securityContext = $context;
     }
-    
+
     /**
      * Handles access authorization.
      *

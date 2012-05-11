@@ -26,7 +26,44 @@ use Nette\Reflection\Property;
 class ClassMetadata extends Doctrine\ORM\Mapping\ClassMetadata
 {
 
-	/** @var string */
+	/**
+	 * @var string
+	 */
 	public $customRepositoryClassName = 'Kdyby\Doctrine\Dao';
+
+	/**
+	 * @var bool
+	 */
+	public $auditChanges = FALSE;
+
+
+
+	/**
+	 * @return bool
+	 */
+	public function isAudited()
+	{
+		return $this->auditChanges;
+	}
+
+
+
+	/**
+	 * @param bool $audited
+	 */
+	public function setAudited($audited = TRUE)
+	{
+		$this->auditChanges = $audited;
+	}
+
+
+
+	/**
+	 * @return array
+	 */
+	public function __sleep()
+	{
+		return parent::__sleep() + array('auditChanges');
+	}
 
 }

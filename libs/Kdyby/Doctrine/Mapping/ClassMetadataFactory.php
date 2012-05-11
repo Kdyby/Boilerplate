@@ -18,6 +18,9 @@ use Nette;
 
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
+ *
+ * @method \Kdyby\Doctrine\Mapping\ClassMetadata getMetadataFor($className)
+ * @method \Kdyby\Doctrine\Mapping\ClassMetadata[] getAllMetadata()
  */
 class ClassMetadataFactory extends Doctrine\ORM\Mapping\ClassMetadataFactory
 {
@@ -28,6 +31,30 @@ class ClassMetadataFactory extends Doctrine\ORM\Mapping\ClassMetadataFactory
 	public function __construct()
 	{
 		$this->setReflectionService(new RuntimeReflectionService);
+	}
+
+
+
+	/**
+	 * @param string|object $entity
+	 * @return bool
+	 */
+	public function isAudited($entity)
+	{
+		$class = $this->getMetadataFor(is_object($entity) ? get_class($entity) : $entity);
+		return $class->isAudited();
+	}
+
+
+
+	/**
+	 * @return \Kdyby\Doctrine\Mapping\ClassMetadata[]
+	 */
+	public function getAllAudited()
+	{
+		return array_filter($this->getAllMetadata(), function (ClassMetadata $class) {
+			return $class->isAudited();
+		});
 	}
 
 

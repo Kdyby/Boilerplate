@@ -3,6 +3,7 @@
     "description": "Browser extension of Curl wrapper",
     "keywords": ["nette", "curl", "http", "browser"],
     "homepage": "http://kdyby.org",
+    "license":["BSD-3", "GPLv2", "GPLv3"],
     "authors": [
         {
             "name": "Filip Procházka",

@@ -28,7 +28,7 @@ Register Bundle in AppKernel.php
     {
         $bundles = array(
             //...
-            new SimpleThings\EntityAudit\SimpleThingsEntityAuditBundle(),
+            new Kdyby\Doctrine\Audit\SimpleThingsEntityAuditBundle(),
             //...
         );
         return $bundles;
@@ -59,13 +59,13 @@ instance and configure the two event listeners.
     <?php
     use Doctrine\ORM\EntityManager;
     use Doctrine\Common\EventManager;
-    use SimpleThings\EntityAudit\AuditConfiguration;
-    use SimpleThings\EntityAudit\AuditManager;
+    use Kdyby\Doctrine\Audit\AuditConfiguration;
+    use Kdyby\Doctrine\Audit\AuditManager;
 
     $auditconfig = new AuditConfiguration();
     $auditconfig->setAuditedEntityClasses(array(
-        'SimpleThings\EntityAudit\Tests\ArticleAudit',
-        'SimpleThings\EntityAudit\Tests\UserAudit'
+        'Kdyby\Doctrine\Audit\Tests\ArticleAudit',
+        'Kdyby\Doctrine\Audit\Tests\UserAudit'
     ));
     $evm = new EventManager();
     $auditManager = new AuditManager($auditconfig);
@@ -78,7 +78,7 @@ instance and configure the two event listeners.
 
 ## Usage
 
-Querying the auditing information is done using a `SimpleThings\EntityAudit\AuditReader` instance.
+Querying the auditing information is done using a `Kdyby\Doctrine\Audit\AuditReader` instance.
 
 In Symfony2 the AuditReader is registered as the service "simplethings_entityaudit.reader":
 
@@ -104,7 +104,7 @@ This command also returns the state of the entity at the given revision, even if
 to that entity was made in a revision before the given one:
 
     <?php
-    $articleAudit = $auditReader->find('SimpleThings\EntityAudit\Tests\ArticleAudit', $id = 1, $rev = 10);
+    $articleAudit = $auditReader->find('Kdyby\Doctrine\Audit\Tests\ArticleAudit', $id = 1, $rev = 10);
 
 Instances created through `AuditReader#find()` are *NOT* injected into the EntityManagers UnitOfWork,
 they need to be merged into the EntityManager if it should be reattached to the persistence context
@@ -113,7 +113,7 @@ in that old version.
 ### Find Revision History of an audited entity
 
     <?php
-    $revisions = $auditReader->findRevisions('SimpleThings\EntityAudit\Tests\ArticleAudit', $id = 1);
+    $revisions = $auditReader->findRevisions('Kdyby\Doctrine\Audit\Tests\ArticleAudit', $id = 1);
 
 A revision has the following API:
 
@@ -152,7 +152,7 @@ In a standalone app or Symfony command you have to set the username to a specifi
     $container->get('simplethings_entityaudit.config')->setCurrentUsername( "beberlei" );
 
     // Standalone App
-    $auditConfig = new \SimpleThings\EntityAudit\AuditConfiguration();
+    $auditConfig = new \Kdyby\Doctrine\Audit\AuditConfiguration();
     $auditConfig->setCurrentUsername( "beberlei" );
 
 ## Viewing auditing

@@ -3,6 +3,7 @@
     "description":"Nette forms renderer with bootstrap",
     "keywords":["nette", "kdyby", "forms", "bootstrap"],
     "homepage":"http://kdyby.org",
+    "license":["BSD-3", "GPLv2", "GPLv3"],
     "authors":[
         {
             "name":"Filip Procházka",

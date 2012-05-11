@@ -1,8 +1,8 @@
 <?php
 
-namespace SimpleThings\EntityAudit\Tests\Utils;
+namespace Kdyby\Doctrine\Audit\Tests\Utils;
 
-use \SimpleThings\EntityAudit\Utils\SimpleDiff;
+use \Kdyby\Doctrine\Audit\Utils\SimpleDiff;
 
 class SimpleDiffTest extends \PHPUnit_Framework_TestCase
 {

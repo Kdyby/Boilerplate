@@ -2,7 +2,8 @@
 	"name": "kdyby/curl-extension",
 	"description": "Curl wrapper for Nette Framework",
 	"keywords": ["nette", "curl", "http"],
-	"homepage": "http://kdyby.org",
+    "homepage":"http://kdyby.org",
+    "license":["BSD-3", "GPLv2", "GPLv3"],
 	"authors": [
 		{
 			"name": "Filip Procházka",

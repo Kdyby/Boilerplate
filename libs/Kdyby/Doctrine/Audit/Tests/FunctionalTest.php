@@ -2,7 +2,7 @@
 /*
  * (c) 2011 SimpleThings GmbH
  *
- * @package SimpleThings\EntityAudit
+ * @package Kdyby\Doctrine\Audit
  * @author Benjamin Eberlei <eberlei@simplethings.de>
  * @link http://www.simplethings.de
  *
@@ -21,14 +21,14 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-namespace SimpleThings\EntityAudit\Tests;
+namespace Kdyby\Doctrine\Audit\Tests;
 
 use Doctrine\Common\EventManager;
-use SimpleThings\EntityAudit\EventListener\CreateSchemaListener;
-use SimpleThings\EntityAudit\EventListener\LogRevisionsListener;
-use SimpleThings\EntityAudit\Metadata\MetadataFactory;
-use SimpleThings\EntityAudit\AuditConfiguration;
-use SimpleThings\EntityAudit\AuditManager;
+use Kdyby\Doctrine\Audit\EventListener\CreateSchemaListener;
+use Kdyby\Doctrine\Audit\EventListener\LogRevisionsListener;
+use Kdyby\Doctrine\Audit\Metadata\MetadataFactory;
+use Kdyby\Doctrine\Audit\AuditConfiguration;
+use Kdyby\Doctrine\Audit\AuditManager;
 
 use Doctrine\ORM\Mapping AS ORM;
 
@@ -38,7 +38,7 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
      * @var EntityManager
      */
     private $em = null;
-    
+
     /**
      * @var AuditManager
      */
@@ -72,67 +72,67 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(2, count($this->em->getConnection()->fetchAll('SELECT * FROM UserAudit_audit')));
         $this->assertEquals(3, count($this->em->getConnection()->fetchAll('SELECT * FROM ArticleAudit_audit')));
     }
-    
+
     public function testFind()
     {
         $user = new UserAudit("beberlei");
-        
+
         $this->em->persist($user);
         $this->em->flush();
-        
+
         $reader = $this->auditManager->createAuditReader($this->em);
         $auditUser = $reader->find(get_class($user), $user->getId(), 1);
-        
+
         $this->assertInstanceOf(get_class($user), $auditUser, "Audited User is also a User instance.");
         $this->assertEquals($user->getId(), $auditUser->getId(), "Ids of audited user and real user should be the same.");
         $this->assertEquals($user->getName(), $auditUser->getName(), "Name of audited user and real user should be the same.");
         $this->assertFalse($this->em->contains($auditUser), "Audited User should not be in the identity map.");
         $this->assertNotSame($user, $auditUser, "User and Audited User instances are not the same.");
     }
-    
+
     public function testFindNoRevisionFound()
     {
         $reader = $this->auditManager->createAuditReader($this->em);
-        
-        $this->setExpectedException("SimpleThings\EntityAudit\AuditException", "No revision of class 'SimpleThings\EntityAudit\Tests\UserAudit' (1) was found at revision 1 or before. The entity did not exist at the specified revision yet.");
-        $auditUser = $reader->find("SimpleThings\EntityAudit\Tests\UserAudit", 1, 1);
+
+        $this->setExpectedException("Kdyby\Doctrine\Audit\AuditException", "No revision of class 'Kdyby\Doctrine\Audit\Tests\UserAudit' (1) was found at revision 1 or before. The entity did not exist at the specified revision yet.");
+        $auditUser = $reader->find("Kdyby\Doctrine\Audit\Tests\UserAudit", 1, 1);
     }
-    
+
     public function testFindNotAudited()
     {
         $reader = $this->auditManager->createAuditReader($this->em);
-        
-        $this->setExpectedException("SimpleThings\EntityAudit\AuditException", "Class 'stdClass' is not audited.");
+
+        $this->setExpectedException("Kdyby\Doctrine\Audit\AuditException", "Class 'stdClass' is not audited.");
         $auditUser = $reader->find("stdClass", 1, 1);
     }
-    
+
     public function testFindRevisionHistory()
-    {        
+    {
         $user = new UserAudit("beberlei");
-        
+
         $this->em->persist($user);
         $this->em->flush();
-        
+
         $article = new ArticleAudit("test", "yadda!", $user);
 
         $this->em->persist($article);
         $this->em->flush();
-        
+
         $reader = $this->auditManager->createAuditReader($this->em);
         $revisions = $reader->findRevisionHistory();
-        
+
         $this->assertEquals(2, count($revisions));
-        $this->assertContainsOnly('SimpleThings\EntityAudit\Revision', $revisions);
-        
+        $this->assertContainsOnly('Kdyby\Doctrine\Audit\Revision', $revisions);
+
         $this->assertEquals(2, $revisions[0]->getRev());
         $this->assertInstanceOf('DateTime', $revisions[0]->getTimestamp());
         $this->assertEquals('beberlei', $revisions[0]->getUsername());
-        
+
         $this->assertEquals(1, $revisions[1]->getRev());
         $this->assertInstanceOf('DateTime', $revisions[1]->getTimestamp());
         $this->assertEquals('beberlei', $revisions[1]->getUsername());
     }
-    
+
     public function testFindEntitesChangedAtRevision()
     {
         $user = new UserAudit("beberlei");
@@ -141,44 +141,44 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
         $this->em->persist($user);
         $this->em->persist($article);
         $this->em->flush();
-        
+
         $reader = $this->auditManager->createAuditReader($this->em);
         $changedEntities = $reader->findEntitesChangedAtRevision(1);
-        
-        $this->assertEquals(2, count($changedEntities));        
-        $this->assertContainsOnly('SimpleThings\EntityAudit\ChangedEntity', $changedEntities);
-        
-        $this->assertEquals('SimpleThings\EntityAudit\Tests\ArticleAudit', $changedEntities[0]->getClassName());
+
+        $this->assertEquals(2, count($changedEntities));
+        $this->assertContainsOnly('Kdyby\Doctrine\Audit\ChangedEntity', $changedEntities);
+
+        $this->assertEquals('Kdyby\Doctrine\Audit\Tests\ArticleAudit', $changedEntities[0]->getClassName());
         $this->assertEquals('INS', $changedEntities[0]->getRevisionType());
         $this->assertEquals(array('id' => 1), $changedEntities[0]->getId());
-        $this->assertInstanceOf('SimpleThings\EntityAudit\Tests\ArticleAudit', $changedEntities[0]->getEntity());
-        
-        $this->assertEquals('SimpleThings\EntityAudit\Tests\UserAudit', $changedEntities[1]->getClassName());
+        $this->assertInstanceOf('Kdyby\Doctrine\Audit\Tests\ArticleAudit', $changedEntities[0]->getEntity());
+
+        $this->assertEquals('Kdyby\Doctrine\Audit\Tests\UserAudit', $changedEntities[1]->getClassName());
         $this->assertEquals('INS', $changedEntities[1]->getRevisionType());
         $this->assertEquals(array('id' => 1), $changedEntities[1]->getId());
-        $this->assertInstanceOf('SimpleThings\EntityAudit\Tests\UserAudit', $changedEntities[1]->getEntity());
+        $this->assertInstanceOf('Kdyby\Doctrine\Audit\Tests\UserAudit', $changedEntities[1]->getEntity());
     }
-    
+
     public function testFindRevisions()
     {
         $user = new UserAudit("beberlei");
-        
+
         $this->em->persist($user);
         $this->em->flush();
-        
+
         $user->setName("beberlei2");
         $this->em->flush();
-        
+
         $reader = $this->auditManager->createAuditReader($this->em);
         $revisions = $reader->findRevisions(get_class($user), $user->getId());
-        
-        $this->assertEquals(2, count($revisions));        
-        $this->assertContainsOnly('SimpleThings\EntityAudit\Revision', $revisions);
-        
+
+        $this->assertEquals(2, count($revisions));
+        $this->assertContainsOnly('Kdyby\Doctrine\Audit\Revision', $revisions);
+
         $this->assertEquals(2, $revisions[0]->getRev());
         $this->assertInstanceOf('DateTime', $revisions[0]->getTimestamp());
         $this->assertEquals('beberlei', $revisions[0]->getUsername());
-        
+
         $this->assertEquals(1, $revisions[1]->getRev());
         $this->assertInstanceOf('DateTime', $revisions[1]->getTimestamp());
         $this->assertEquals('beberlei', $revisions[1]->getUsername());
@@ -190,7 +190,7 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
         $config->setMetadataCacheImpl(new \Doctrine\Common\Cache\ArrayCache);
         $config->setQueryCacheImpl(new \Doctrine\Common\Cache\ArrayCache);
         $config->setProxyDir(sys_get_temp_dir());
-        $config->setProxyNamespace('SimpleThings\EntityAudit\Tests\Proxies');
+        $config->setProxyNamespace('Kdyby\Doctrine\Audit\Tests\Proxies');
         $config->setMetadataDriverImpl($config->newDefaultAnnotationDriver());
 
         $conn = array(
@@ -200,8 +200,8 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
 
         $auditConfig = new AuditConfiguration();
         $auditConfig->setCurrentUsername("beberlei");
-        $auditConfig->setAuditedEntityClasses(array('SimpleThings\EntityAudit\Tests\ArticleAudit', 'SimpleThings\EntityAudit\Tests\UserAudit'));
-        
+        $auditConfig->setAuditedEntityClasses(array('Kdyby\Doctrine\Audit\Tests\ArticleAudit', 'Kdyby\Doctrine\Audit\Tests\UserAudit'));
+
         $this->auditManager = new AuditManager($auditConfig);
         $this->auditManager->registerEvents($evm = new EventManager());
 
@@ -211,8 +211,8 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
 
         $schemaTool = new \Doctrine\ORM\Tools\SchemaTool($this->em);
         $schemaTool->createSchema(array(
-            $this->em->getClassMetadata('SimpleThings\EntityAudit\Tests\ArticleAudit'),
-            $this->em->getClassMetadata('SimpleThings\EntityAudit\Tests\UserAudit'),
+            $this->em->getClassMetadata('Kdyby\Doctrine\Audit\Tests\ArticleAudit'),
+            $this->em->getClassMetadata('Kdyby\Doctrine\Audit\Tests\UserAudit'),
         ));
     }
 }
@@ -261,17 +261,17 @@ class UserAudit
     {
         $this->name = $name;
     }
-    
+
     public function setName($name)
     {
         $this->name = $name;
     }
-    
+
     public function getId()
     {
         return $this->id;
     }
-    
+
     public function getName()
     {
         return $this->name;

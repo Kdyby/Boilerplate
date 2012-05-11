@@ -1,43 +1,58 @@
 <?php
-/*
- * (c) 2011 SimpleThings GmbH
+
+/**
+ * This file is part of the Kdyby (http://www.kdyby.org)
  *
- * @package SimpleThings\EntityAudit
- * @author Benjamin Eberlei <eberlei@simplethings.de>
- * @link http://www.simplethings.de
+ * Copyright (c) 2008, 2012 Filip Procházka (filip.prochazka@kdyby.org)
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * For the full copyright and license information, please view the file license.txt that was distributed with this source code.
  */
 
-namespace SimpleThings\EntityAudit;
+namespace Kdyby\Doctrine\Audit;
 
+use Nette;
+
+
+
+/**
+ * @author Benjamin Eberlei <eberlei@simplethings.de>
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
+ */
 class AuditException extends \Exception
 {
+
+	/**
+	 * @param $className
+	 * @return AuditException
+	 */
     static public function notAudited($className)
     {
         return new self("Class '" . $className . "' is not audited.");
     }
-    
+
+
+
+	/**
+	 * @param $className
+	 * @param $id
+	 * @param $revision
+	 * @return AuditException
+	 */
     static public function noRevisionFound($className, $id, $revision)
     {
         return new self("No revision of class '" . $className . "' (".implode(", ", $id).") was found ".
             "at revision " . $revision . " or before. The entity did not exist at the specified revision yet.");
     }
-    
+
+
+
+	/**
+	 * @param $rev
+	 * @return AuditException
+	 */
     static public function invalidRevision($rev)
     {
         return new self("No revision '".$rev."' exists.");
     }
+
 }

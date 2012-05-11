@@ -1,52 +1,56 @@
 <?php
-/*
- * (c) 2011 SimpleThings GmbH
+
+/**
+ * This file is part of the Kdyby (http://www.kdyby.org)
  *
- * @package SimpleThings\EntityAudit
- * @author Benjamin Eberlei <eberlei@simplethings.de>
- * @link http://www.simplethings.de
+ * Copyright (c) 2008, 2012 Filip Procházka (filip.prochazka@kdyby.org)
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * For the full copyright and license information, please view the file license.txt that was distributed with this source code.
  */
 
-namespace SimpleThings\EntityAudit\EventListener;
+namespace Kdyby\Doctrine\Audit\EventListener;
 
 use Doctrine\ORM\Tools\ToolEvents;
-use SimpleThings\EntityAudit\AuditManager;
+use Kdyby\Doctrine\Audit\AuditManager;
 use Doctrine\ORM\Tools\Event\GenerateSchemaTableEventArgs;
 use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
 use Doctrine\Common\EventSubscriber;
+use Nette;
 
-class CreateSchemaListener implements EventSubscriber
+
+
+/**
+ * @author Benjamin Eberlei <eberlei@simplethings.de>
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
+ */
+class CreateSchemaListener extends Nette\Object implements EventSubscriber
 {
     /**
-     * @var \SimpleThings\EntityAudit\AuditConfiguration
+     * @var \Kdyby\Doctrine\Audit\AuditConfiguration
      */
     private $config;
 
     /**
-     * @var \SimpleThings\EntityAudit\Metadata\MetadataFactory
+     * @var \Kdyby\Doctrine\Mapping\ClassMetadataFactory
      */
     private $metadataFactory;
 
+
+
+	/**
+	 * @param \Kdyby\Doctrine\Audit\AuditManager $auditManager
+	 */
     public function __construct(AuditManager $auditManager)
     {
         $this->config = $auditManager->getConfiguration();
         $this->metadataFactory = $auditManager->getMetadataFactory();
     }
 
+
+
+	/**
+	 * @return array
+	 */
     public function getSubscribedEvents()
     {
         return array(
@@ -55,30 +59,50 @@ class CreateSchemaListener implements EventSubscriber
         );
     }
 
+
+
+	/**
+	 * @param \Doctrine\ORM\Tools\Event\GenerateSchemaTableEventArgs $eventArgs
+	 */
     public function postGenerateSchemaTable(GenerateSchemaTableEventArgs $eventArgs)
     {
         $cm = $eventArgs->getClassMetadata();
-        if ($this->metadataFactory->isAudited($cm->name)) {
-            $schema = $eventArgs->getSchema();
-            $entityTable = $eventArgs->getClassTable();
-            $revisionTable = $schema->createTable(
-                $this->config->getTablePrefix().$entityTable->getName().$this->config->getTableSuffix()
-            );
-            foreach ($entityTable->getColumns() AS $column) {
-                /* @var $column Column */
-                $revisionTable->addColumn($column->getName(), $column->getType()->getName(), array_merge(
-                    $column->toArray(),
-                    array('notnull' => false, 'autoincrement' => false)
-                ));
-            }
-            $revisionTable->addColumn($this->config->getRevisionFieldName(), $this->config->getRevisionIdFieldType());
-            $revisionTable->addColumn($this->config->getRevisionTypeFieldName(), 'string', array('length' => 4));
-            $pkColumns = $entityTable->getPrimaryKey()->getColumns();
-            $pkColumns[] = $this->config->getRevisionFieldName();
-            $revisionTable->setPrimaryKey($pkColumns);
-        }
+        if (!$this->metadataFactory->isAudited($cm->name)) {
+			return;
+		}
+
+		$schema = $eventArgs->getSchema();
+
+		$entityTable = $eventArgs->getClassTable();
+		$revisionTable = $schema->createTable(
+			$this->config->getTablePrefix() . $entityTable->getName() . $this->config->getTableSuffix()
+		);
+
+		foreach ($entityTable->getColumns() AS $column) {
+			/* @var $column \Doctrine\DBAL\Schema\Column */
+			$revisionTable->addColumn($column->getName(), $column->getType()->getName(), array_merge(
+				$column->toArray(),
+				array('notnull' => false, 'autoincrement' => false)
+			));
+		}
+
+		// revision id
+		$revisionTable->addColumn($this->config->getRevisionFieldName(), $this->config->getRevisionIdFieldType());
+
+		// revision type
+		$revisionTable->addColumn($this->config->getRevisionTypeFieldName(), 'string', array('length' => 4));
+
+		// foreing keys
+		$pkColumns = $entityTable->getPrimaryKey()->getColumns();
+		$pkColumns[] = $this->config->getRevisionFieldName();
+		$revisionTable->setPrimaryKey($pkColumns);
     }
 
+
+
+	/**
+	 * @param \Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs $eventArgs
+	 */
     public function postGenerateSchema(GenerateSchemaEventArgs $eventArgs)
     {
         $schema = $eventArgs->getSchema();
@@ -88,6 +112,9 @@ class CreateSchemaListener implements EventSubscriber
         ));
         $revisionsTable->addColumn('timestamp', 'datetime');
         $revisionsTable->addColumn('username', 'string');
+        $revisionsTable->addColumn('message', 'text');
+
         $revisionsTable->setPrimaryKey(array('id'));
     }
+
 }

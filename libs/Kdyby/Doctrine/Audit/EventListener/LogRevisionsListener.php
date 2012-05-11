@@ -1,67 +1,61 @@
 <?php
-/*
- * (c) 2011 SimpleThings GmbH
+
+/**
+ * This file is part of the Kdyby (http://www.kdyby.org)
  *
- * @package SimpleThings\EntityAudit
- * @author Benjamin Eberlei <eberlei@simplethings.de>
- * @link http://www.simplethings.de
+ * Copyright (c) 2008, 2012 Filip Procházka (filip.prochazka@kdyby.org)
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * For the full copyright and license information, please view the file license.txt that was distributed with this source code.
  */
 
-namespace SimpleThings\EntityAudit\EventListener;
+namespace Kdyby\Doctrine\Audit\EventListener;
 
-use SimpleThings\EntityAudit\AuditManager;
+use Kdyby\Doctrine\Audit\AuditManager;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Mapping\ClassMetadata;
+use Nette;
 
-class LogRevisionsListener implements EventSubscriber
+
+
+/**
+ * @author Benjamin Eberlei <eberlei@simplethings.de>
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
+ */
+class LogRevisionsListener extends Nette\Object implements EventSubscriber
 {
     /**
-     * @var \SimpleThings\EntityAudit\AuditConfiguration
+     * @var \Kdyby\Doctrine\Audit\AuditConfiguration
      */
     private $config;
 
     /**
-     * @var \SimpleThings\EntityAudit\Metadata\MetadataFactory
-     */
+	 * @var
+	 */
     private $metadataFactory;
 
     /**
      * @var Doctrine\DBAL\Connection
      */
     private $conn;
-    
+
     /**
      * @var Doctrine\DBAL\Platforms\AbstractPlatform
      */
     private $platform;
-    
+
     /**
      * @var Doctrine\ORM\EntityManager
      */
     private $em;
-    
+
     /**
      * @var array
      */
     private $insertRevisionSQL = array();
-    
+
     /**
      * @var Doctrine\ORM\UnitOfWork
      */
@@ -72,6 +66,11 @@ class LogRevisionsListener implements EventSubscriber
      */
     private $revisionId;
 
+
+
+	/**
+	 * @param \Kdyby\Doctrine\Audit\AuditManager $auditManager
+	 */
     public function __construct(AuditManager $auditManager)
     {
         $this->config = $auditManager->getConfiguration();
@@ -127,10 +126,10 @@ class LogRevisionsListener implements EventSubscriber
             $this->saveRevisionEntityData($class, $entityData, 'DEL');
         }
     }
-    
+
     /**
      * get original entity data, including versioned field, if "version" constraint is used
-     * 
+     *
      * @param mixed $entity
      * @return array
      */

@@ -1,116 +1,86 @@
 <?php
-/*
- * (c) 2011 SimpleThings GmbH
+
+/**
+ * This file is part of the Kdyby (http://www.kdyby.org)
  *
- * @package SimpleThings\EntityAudit
- * @author Benjamin Eberlei <eberlei@simplethings.de>
- * @link http://www.simplethings.de
+ * Copyright (c) 2008, 2012 Filip Procházka (filip.prochazka@kdyby.org)
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * For the full copyright and license information, please view the file license.txt that was distributed with this source code.
  */
 
-namespace SimpleThings\EntityAudit;
+namespace Kdyby\Doctrine\Audit;
 
-class AuditConfiguration
+use Nette;
+
+
+
+/**
+ * @author Benjamin Eberlei <eberlei@simplethings.de>
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
+ *
+ * @method string getTablePrefix()
+ * @method setTablePrefix(string $prefix)
+ * @method string getTableSuffix()
+ * @method setTableSuffix(string $suffix)
+ * @method string getRevisionFieldName()
+ * @method setRevisionFieldName(string $revisionFieldName)
+ * @method string getRevisionTypeFieldName()
+ * @method setRevisionTypeFieldName(string $revisionTypeFieldName)
+ * @method string getRevisionTableName()
+ * @method setRevisionTableName(string $revisionTableName)
+ * @method string getCurrentUsername()
+ * @method setCurrentUsername(string $username)
+ * @method string getRevisionIdFieldType()
+ * @method setRevisionIdFieldType(string $revisionIdFieldType)
+ */
+class AuditConfiguration extends Nette\Object
 {
-    private $prefix = '';
-    private $suffix = '_audit';
-    private $revisionFieldName = 'rev';
-    private $revisionTypeFieldName = 'revtype';
-    private $revisionTableName = 'revisions';
-    private $auditedEntityClasses = array();
-    private $currentUsername = '';
-    private $revisionIdFieldType = 'integer';
+	/**
+	 * @var string
+	 */
+    public $prefix = '';
 
-    public function getTablePrefix()
-    {
-        return $this->prefix;
-    }
+	/**
+	 * @var string
+	 */
+	public $suffix = '_audit';
 
-    public function setTablePrefix($prefix)
-    {
-        $this->prefix = $prefix;
-    }
+	/**
+	 * @var string
+	 */
+	public $revisionFieldName = 'rev';
 
-    public function getTableSuffix()
-    {
-        return $this->suffix;
-    }
+	/**
+	 * @var string
+	 */
+	public $revisionTypeFieldName = 'revtype';
 
-    public function setTableSuffix($suffix)
-    {
-        $this->suffix = $suffix;
-    }
+	/**
+	 * @var string
+	 */
+	public $revisionTableName = 'revisions';
 
-    public function getRevisionFieldName()
-    {
-        return $this->revisionFieldName;
-    }
+	/**
+	 * @var string
+	 */
+	public $currentUsername = '';
 
-    public function setRevisionFieldName($revisionFieldName)
-    {
-        $this->revisionFieldName = $revisionFieldName;
-    }
+	/**
+	 * @var string
+	 */
+	public $revisionIdFieldType = 'integer';
 
-    public function getRevisionTypeFieldName()
-    {
-        return $this->revisionTypeFieldName;
-    }
 
-    public function setRevisionTypeFieldName($revisionTypeFieldName)
-    {
-        $this->revisionTypeFieldName = $revisionTypeFieldName;
-    }
 
-    public function getRevisionTableName()
-    {
-        return $this->revisionTableName;
-    }
+	/**
+	 * @param $name
+	 * @param $args
+	 *
+	 * @return mixed
+	 */
+	public function __call($name, $args)
+	{
+		return \Nette\ObjectMixin::callProperty($this, $name, $args);
+	}
 
-    public function setRevisionTableName($revisionTableName)
-    {
-        $this->revisionTableName = $revisionTableName;
-    }
-
-    public function setAuditedEntityClasses(array $classes)
-    {
-        $this->auditedEntityClasses = $classes;
-    }
-
-    public function createMetadataFactory()
-    {
-        return new Metadata\MetadataFactory($this->auditedEntityClasses);
-    }
-    
-    public function setCurrentUsername($username)
-    {
-        $this->currentUsername = $username;
-    }
-    
-    public function getCurrentUsername()
-    {
-        return $this->currentUsername;
-    }
-
-    public function setRevisionIdFieldType($revisionIdFieldType)
-    {
-        $this->revisionIdFieldType = $revisionIdFieldType;
-    }
-
-    public function getRevisionIdFieldType()
-    {
-        return $this->revisionIdFieldType;
-    }
 }

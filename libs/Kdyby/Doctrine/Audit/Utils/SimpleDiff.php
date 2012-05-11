@@ -1,31 +1,27 @@
 <?php
 
-/*
-	Paul's Simple Diff Algorithm v 0.1
-	(C) Paul Butler 2007 <http://www.paulbutler.org/>
-	May be used and distributed under the zlib/libpng license.
+/**
+ * This file is part of the Kdyby (http://www.kdyby.org)
+ *
+ * Copyright (c) 2008, 2012 Filip Procházka (filip.prochazka@kdyby.org)
+ *
+ * For the full copyright and license information, please view the file license.txt that was distributed with this source code.
+ */
 
-	This code is intended for learning purposes; it was written with short
-	code taking priority over performance. It could be used in a practical
-	application, but there are a few ways it could be optimized.
+namespace Kdyby\Doctrine\Audit\Utils;
 
-	Given two arrays, the function diff will return an array of the changes.
-	I won't describe the format of the array, but it will be obvious
-	if you use print_r() on the result of a diff on some test data.
+use Nette;
 
-	htmlDiff is a wrapper for the diff command, it takes two strings and
-	returns the differences in HTML. The tags used are <ins> and <del>,
-	which can easily be styled with CSS.
-*/
 
-namespace SimpleThings\EntityAudit\Utils;
 
 /**
  * Class of the SimpleDiff PHP library by Paul Butler
  *
  * @link https://github.com/paulgb/simplediff
+ * @author Paul Butler 2007 <http://www.paulbutler.org/>
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class SimpleDiff
+class SimpleDiff extends Nette\Object
 {
     public function diff(array $old, array $new)
     {

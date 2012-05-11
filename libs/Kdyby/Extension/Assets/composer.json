@@ -3,6 +3,7 @@
     "description": "Integration of Assetic into Nette Framework",
     "keywords": ["nette", "assetic", "assets"],
     "homepage": "http://kdyby.org",
+    "license":["BSD-3", "GPLv2", "GPLv3"],
     "authors": [
         {
             "name": "Filip Procházka",

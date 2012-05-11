@@ -1,54 +1,46 @@
 <?php
-/*
- * (c) 2011 SimpleThings GmbH
+
+/**
+ * This file is part of the Kdyby (http://www.kdyby.org)
  *
- * @package SimpleThings\EntityAudit
- * @author Benjamin Eberlei <eberlei@simplethings.de>
- * @link http://www.simplethings.de
+ * Copyright (c) 2008, 2012 Filip Procházka (filip.prochazka@kdyby.org)
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * For the full copyright and license information, please view the file license.txt that was distributed with this source code.
  */
 
-namespace SimpleThings\EntityAudit;
+namespace Kdyby\Doctrine\Audit;
 
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\Common\Collections\ArrayCollection;
-use SimpleThings\EntityAudit\Metadata\MetadataFactory;
+use Nette;
+use Kdyby\Doctrine\Mapping\ClassMetadataFactory;
 
-class AuditReader
+
+
+/**
+ * @author Benjamin Eberlei <eberlei@simplethings.de>
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
+ */
+class AuditReader extends Nette\Object
 {
-    private $em;
+	/**
+	 * @var \Kdyby\Doctrine\Audit\AuditPersister
+	 */
+    private $persister;
 
-    private $config;
 
-    private $metadataFactory;
 
-    /**
-     * @param EntityManager $em
-     * @param AuditConfiguration $config
-     * @param MetadataFactory $factory
-     */
-    public function __construct(EntityManager $em, AuditConfiguration $config, MetadataFactory $factory)
+	/**
+	 * @param \Kdyby\Doctrine\Audit\AuditPersister $persister
+	 */
+    public function __construct(AuditPersister $persister)
     {
-        $this->em = $em;
-        $this->config = $config;
-        $this->metadataFactory = $factory;
-        $this->platform = $this->em->getConnection()->getDatabasePlatform();
+        $this->persister = $persister;
     }
+
+
 
     /**
      * Find a class at the specific revision.
@@ -63,116 +55,10 @@ class AuditReader
      */
     public function find($className, $id, $revision)
     {
-        if (!$this->metadataFactory->isAudited($className)) {
-            throw AuditException::notAudited($className);
-        }
 
-        $class = $this->em->getClassMetadata($className);
-        $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
-
-        if (!is_array($id)) {
-            $id = array($class->identifier[0] => $id);
-        }
-
-        $whereSQL = "e." . $this->config->getRevisionFieldName() ." <= ?";
-        foreach ($class->identifier AS $idField) {
-            if (isset($class->fieldMappings[$idField])) {
-                $whereSQL .= " AND " . $class->fieldMappings[$idField]['columnName'] . " = ?";
-            } else if (isset($class->associationMappings[$idField])) {
-                $whereSQL .= " AND " . $class->associationMappings[$idField]['joinColumns'][0] . " = ?";
-            }
-        }
-
-        $columnList = "";
-        foreach ($class->fieldNames AS $field) {
-            if ($columnList) {
-                $columnList .= ', ';
-            }
-            $columnList .= $class->getQuotedColumnName($field, $this->platform) .' AS ' . $field;
-        }
-        foreach ($class->associationMappings AS $assoc) {
-            if ( ($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide']) {
-                foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
-                    if ($columnList) {
-                        $columnList .= ', ';
-                    }
-                    $columnList .= $sourceCol;
-                }
-            }
-        }
-
-        $values = array_merge(array($revision), array_values($id));
-
-        $query = "SELECT " . $columnList . " FROM " . $tableName . " e WHERE " . $whereSQL . " ORDER BY e.rev DESC";
-        $revisionData = $this->em->getConnection()->fetchAll($query, $values);
-
-        if ($revisionData) {
-            return $this->createEntity($class->name, $revisionData[0]);
-        } else {
-            throw AuditException::noRevisionFound($class->name, $id, $revision);
-        }
     }
 
-    /**
-     * Simplified and stolen code from UnitOfWork::createEntity.
-     *
-     * NOTICE: Creates an old version of the entity, HOWEVER related associations are all managed entities!!
-     *
-     * @param string $className
-     * @param array $data
-     * @return object
-     */
-    private function createEntity($className, array $data)
-    {
-        $class = $this->em->getClassMetadata($className);
-        $entity = $class->newInstance();
 
-        foreach ($data as $field => $value) {
-            if (isset($class->fieldMappings[$field])) {
-                $type = Type::getType($class->fieldMappings[$field]['type']);
-                $value = $type->convertToPHPValue($value, $this->platform);
-                $class->reflFields[$field]->setValue($entity, $value);
-            }
-        }
-
-        foreach ($class->associationMappings as $field => $assoc) {
-            // Check if the association is not among the fetch-joined associations already.
-            if (isset($hints['fetched'][$className][$field])) {
-                continue;
-            }
-
-            $targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
-
-            if ($assoc['type'] & ClassMetadata::TO_ONE) {
-                if ($assoc['isOwningSide']) {
-                    $associatedId = array();
-                    foreach ($assoc['targetToSourceKeyColumns'] as $targetColumn => $srcColumn) {
-                        $joinColumnValue = isset($data[$srcColumn]) ? $data[$srcColumn] : null;
-                        if ($joinColumnValue !== null) {
-                            $associatedId[$targetClass->fieldNames[$targetColumn]] = $joinColumnValue;
-                        }
-                    }
-                    if ( ! $associatedId) {
-                        // Foreign key is NULL
-                        $class->reflFields[$field]->setValue($entity, null);
-                    } else {
-                        $associatedEntity = $this->em->getReference($targetClass->name, $associatedId);
-                        $class->reflFields[$field]->setValue($entity, $associatedEntity);
-                    }
-                } else {
-                    // Inverse side of x-to-one can never be lazy
-                    $class->reflFields[$field]->setValue($entity, $this->getEntityPersister($assoc['targetEntity'])
-                            ->loadOneToOneEntity($assoc, $entity));
-                }
-            } else {
-                // Inject collection
-                $reflField = $class->reflFields[$field];
-                $reflField->setValue($entity, new ArrayCollection);
-            }
-        }
-
-        return $entity;
-    }
 
     /**
      * Return a list of all revisions.
@@ -183,23 +69,10 @@ class AuditReader
      */
     public function findRevisionHistory($limit = 20, $offset = 0)
     {
-        $this->platform = $this->em->getConnection()->getDatabasePlatform();
 
-        $query = $this->platform->modifyLimitQuery(
-            "SELECT * FROM " . $this->config->getRevisionTableName() . " ORDER BY id DESC", $limit, $offset
-        );
-        $revisionsData = $this->em->getConnection()->fetchAll($query);
-
-        $revisions = array();
-        foreach ($revisionsData AS $row) {
-            $revisions[] = new Revision(
-                $row['id'],
-                \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $row['timestamp']),
-                $row['username']
-            );
-        }
-        return $revisions;
     }
+
+
 
     /**
      * Return a list of ChangedEntity instances created at the given revision.
@@ -207,45 +80,12 @@ class AuditReader
      * @param int $revision
      * @return ChangedEntity[]
      */
-    public function findEntitesChangedAtRevision($revision)
+    public function findEntitiesChangedAtRevision($revision)
     {
-        $auditedEntities = $this->metadataFactory->getAllClassNames();
 
-        $changedEntities = array();
-        foreach ($auditedEntities AS $className) {
-            $class = $this->em->getClassMetadata($className);
-            $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
-
-            $whereSQL = "e." . $this->config->getRevisionFieldName() ." = ?";
-            $columnList = "e." . $this->config->getRevisionTypeFieldName();
-            foreach ($class->fieldNames AS $field) {
-                $columnList .= ', ' . $class->getQuotedColumnName($field, $this->platform) .' AS ' . $field;
-            }
-            foreach ($class->associationMappings AS $assoc) {
-                if ( ($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide']) {
-                    foreach ($assoc['targetToSourceKeyColumns'] as $sourceCol) {
-                        $columnList .= ', ' . $sourceCol;
-                    }
-                }
-            }
-
-            $this->platform = $this->em->getConnection()->getDatabasePlatform();
-            $query = "SELECT " . $columnList . " FROM " . $tableName . " e WHERE " . $whereSQL;
-            $revisionsData = $this->em->getConnection()->executeQuery($query, array($revision));
-
-            foreach ($revisionsData AS $row) {
-                $id = array();
-                foreach ($class->identifier AS $idField) {
-                    // TODO: doesnt work with composite foreign keys yet.
-                    $id[$idField] = $row[$idField];
-                }
-
-                $entity = $this->createEntity($className, $row);
-                $changedEntities[] = new ChangedEntity($className, $id, $row[$this->config->getRevisionTypeFieldName()], $entity);
-            }
-        }
-        return $changedEntities;
     }
+
+
 
     /**
      * Return the revision object for a particular revision.
@@ -255,19 +95,10 @@ class AuditReader
      */
     public function findRevision($rev)
     {
-        $query = "SELECT * FROM " . $this->config->getRevisionTableName() . " r WHERE r.id = ?";
-        $revisionsData = $this->em->getConnection()->fetchAll($query, array($rev));
 
-        if (count($revisionsData) == 1) {
-            return new Revision(
-                $revisionsData[0]['id'],
-                \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $revisionsData[0]['timestamp']),
-                $revisionsData[0]['username']
-            );
-        } else {
-            throw AuditException::invalidRevision($rev);
-        }
     }
+
+
 
     /**
      * Find all revisions that were made of entity class with given id.
@@ -278,52 +109,7 @@ class AuditReader
      */
     public function findRevisions($className, $id)
     {
-        if (!$this->metadataFactory->isAudited($className)) {
-            throw AuditException::notAudited($className);
-        }
 
-        $class = $this->em->getClassMetadata($className);
-        $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
-
-        if (!is_array($id)) {
-            $id = array($class->identifier[0] => $id);
-        }
-
-        $whereSQL = "";
-        foreach ($class->identifier AS $idField) {
-            if (isset($class->fieldMappings[$idField])) {
-                if ($whereSQL) {
-                    $whereSQL .= " AND ";
-                }
-                $whereSQL .= "e." . $class->fieldMappings[$idField]['columnName'] . " = ?";
-            } else if (isset($class->associationMappings[$idField])) {
-                if ($whereSQL) {
-                    $whereSQL .= " AND ";
-                }
-                $whereSQL .= "e." . $class->associationMappings[$idField]['joinColumns'][0] . " = ?";
-            }
-        }
-
-        $query = "SELECT r.* FROM " . $this->config->getRevisionTableName() . " r " .
-                 "INNER JOIN " . $tableName . " e ON r.id = e." . $this->config->getRevisionFieldName() . " WHERE " . $whereSQL . " ORDER BY r.id DESC";
-        $revisionsData = $this->em->getConnection()->fetchAll($query, array_values($id));
-
-        $revisions = array();
-        $this->platform = $this->em->getConnection()->getDatabasePlatform();
-        foreach ($revisionsData AS $row) {
-            $revisions[] = new Revision(
-                $row['id'],
-                \DateTime::createFromFormat($this->platform->getDateTimeFormatString(), $row['timestamp']),
-                $row['username']
-            );
-        }
-
-        return $revisions;
     }
 
-    protected function getEntityPersister($entity)
-    {
-        $uow = $this->em->getUnitOfWork();
-        return $uow->getEntityPersister($entity);
-    }
 }
