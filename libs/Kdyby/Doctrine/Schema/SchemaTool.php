@@ -18,6 +18,8 @@ use Nette;
 
 
 /**
+ * Adds own events to doctrine lifecycle, that can be used for generating triggers and views by schema listeners.
+ *
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class SchemaTool extends Doctrine\ORM\Tools\SchemaTool
