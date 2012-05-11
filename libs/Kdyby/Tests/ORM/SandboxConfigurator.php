@@ -13,7 +13,7 @@ namespace Kdyby\Tests\ORM;
 use Doctrine;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\Driver\DriverChain;
-use Doctrine\ORM\Tools\SchemaTool;
+use Kdyby\Doctrine\Schema\SchemaTool;
 use Kdyby;
 use Nette;
 use Nette\Utils\Finder;

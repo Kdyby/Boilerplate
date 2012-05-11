@@ -13,6 +13,7 @@ namespace Kdyby\Migrations\Tools;
 use Doctrine;
 use Doctrine\ORM\EntityManager;
 use Kdyby;
+use Kdyby\Doctrine\Schema\SchemaTool;
 use Nette;
 use Nette\Utils\Strings;
 
@@ -42,7 +43,7 @@ class TableDumper extends Nette\Object implements \Iterator
 	private $platform;
 
 	/**
-	 * @var \Doctrine\ORM\Tools\SchemaTool
+	 * @var \Kdyby\Doctrine\Schema\SchemaTool
 	 */
 	private $schemaTool;
 
@@ -82,7 +83,7 @@ class TableDumper extends Nette\Object implements \Iterator
 		$this->entityManager = $entityManager;
 		$this->connection = $entityManager->getConnection();
 		$this->platform = $this->connection->getDatabasePlatform();
-		$this->schemaTool = new Doctrine\ORM\Tools\SchemaTool($this->entityManager);
+		$this->schemaTool = new SchemaTool($this->entityManager);
 
 		$this->metadata = $metadata;
 	}

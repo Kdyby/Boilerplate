@@ -12,8 +12,8 @@ namespace Kdyby\Migrations\Tools;
 
 use Doctrine;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Tools\SchemaTool;
 use Kdyby;
+use Kdyby\Doctrine\Schema\SchemaTool;
 use Kdyby\Packages\Package;
 use Nette;
 use Symfony\Component\Console\Output;

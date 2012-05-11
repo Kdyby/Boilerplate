@@ -15,6 +15,7 @@ use Doctrine\Common\EventManager;
 use Kdyby;
 use Kdyby\Doctrine\Mapping\ClassMetadata;
 use Kdyby\Doctrine\Registry;
+use Kdyby\Doctrine\Schema\SchemaTool;
 use Kdyby\Packages\PackageManager;
 use Nette;
 use Symfony\Component\Console\Output;
@@ -110,11 +111,13 @@ class MigrationsManager extends Nette\Object
 	{
 		/** @var \Kdyby\Doctrine\Mapping\ClassMetadata $class */
 		$class = $this->entityManager->getClassMetadata($entityClass);
-		if ($this->connection->getSchemaManager()->tablesExist($class->getTableName())) {
+		/** @var \Doctrine\DBAL\Schema\AbstractSchemaManager $sm */
+		$sm = $this->connection->getSchemaManager();
+		if ($sm->tablesExist($class->getTableName())) {
 			return;
 		}
 
-		$schemaTool = new Doctrine\ORM\Tools\SchemaTool($this->entityManager);
+		$schemaTool = new SchemaTool($this->entityManager);
 		foreach ($schemaTool->getCreateSchemaSql(array($class)) as $sql) {
 			$this->connection->executeQuery($sql);
 		}

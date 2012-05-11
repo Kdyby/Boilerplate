@@ -13,6 +13,7 @@ namespace Kdyby\Migrations\Tools;
 use Doctrine;
 use Doctrine\ORM\EntityManager;
 use Kdyby;
+use Kdyby\Doctrine\Schema\SchemaTool;
 use Kdyby\Packages\Package;
 use Nette;
 use Nette\Utils\Strings;
@@ -41,7 +42,7 @@ class PartialSchemaComparator extends Nette\Object
 	private $platform;
 
 	/**
-	 * @var \Doctrine\ORM\Tools\SchemaTool
+	 * @var \Kdyby\Doctrine\Schema\SchemaTool
 	 */
 	private $schemaTool;
 
@@ -55,7 +56,7 @@ class PartialSchemaComparator extends Nette\Object
 		$this->entityManager = $entityManager;
 		$this->connection = $entityManager->getConnection();
 		$this->platform = $this->connection->getDatabasePlatform();
-		$this->schemaTool = new Doctrine\ORM\Tools\SchemaTool($this->entityManager);
+		$this->schemaTool = new SchemaTool($this->entityManager);
 	}
 
 
@@ -67,7 +68,9 @@ class PartialSchemaComparator extends Nette\Object
 	 */
 	public function compare(array $metadata)
 	{
-		$fromSchema = $this->connection->getSchemaManager()->createSchema();
+		/** @var \Doctrine\DBAL\Schema\AbstractSchemaManager $sm */
+		$sm = $this->connection->getSchemaManager();
+		$fromSchema = $sm->createSchema();
 		$toSchema = $this->schemaTool->getSchemaFromMetadata($this->getAllMetadata());
 
 		$comparator = new \Doctrine\DBAL\Schema\Comparator();
