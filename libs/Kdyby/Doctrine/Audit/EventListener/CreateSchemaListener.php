@@ -87,10 +87,7 @@ class CreateSchemaListener extends Nette\Object implements EventSubscriber
 		}
 
 		// revision id
-		$revisionTable->addColumn($this->config->getRevisionFieldName(), $this->config->getRevisionIdFieldType());
-
-		// revision type
-		$revisionTable->addColumn($this->config->getRevisionTypeFieldName(), 'string', array('length' => 4));
+		$revisionTable->addColumn($this->config->getRevisionFieldName(), 'integer');
 
 		// foreing keys
 		$pkColumns = $entityTable->getPrimaryKey()->getColumns();
@@ -107,13 +104,15 @@ class CreateSchemaListener extends Nette\Object implements EventSubscriber
     {
         $schema = $eventArgs->getSchema();
         $revisionsTable = $schema->createTable($this->config->getRevisionTableName());
-        $revisionsTable->addColumn('id', $this->config->getRevisionIdFieldType(), array(
-            'autoincrement' => true,
-        ));
+
+		// columns
+        $revisionsTable->addColumn('id', 'integer', array('autoincrement' => true));
         $revisionsTable->addColumn('timestamp', 'datetime');
         $revisionsTable->addColumn('username', 'string');
         $revisionsTable->addColumn('message', 'text');
+        $revisionsTable->addColumn($this->config->getRevisionTypeFieldName(), 'string', array('length' => 4));
 
+		// primary
         $revisionsTable->setPrimaryKey(array('id'));
     }
 

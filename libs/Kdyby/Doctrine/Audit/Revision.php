@@ -10,64 +10,86 @@
 
 namespace Kdyby\Doctrine\Audit;
 
+use Doctrine\ORM\Mapping as ORM;
 use Nette;
+use Kdyby;
 
 
 
 /**
- * Revision is returned from {@link AuditReader::getRevisions()}
  * @author Benjamin Eberlei <eberlei@simplethings.de>
  * @author Filip Procházka <filip.prochazka@kdyby.org>
+ *
+ * @ORM\Entity(readOnly=TRUE)
+ * @ORM\Table(name="audit_revisions", indexes={
+ * 	@ORM\Index(name="entity_idx", columns={"className", "entityId"})
+ * })
  */
-class Revision extends Nette\Object
+class Revision extends Kdyby\Doctrine\Entities\IdentifiedEntity
 {
-	/**
-	 * @var int
-	 */
-    private $rev;
+	const TYPE_INSERT = 1;
+	const TYPE_UPDATE = 2;
+	const TYPE_DELETE = 3;
 
 	/**
-	 * @var \Datetime
+	 * @ORM\Column(type="smallint")
+	 * @var integer
 	 */
-    private $timestamp;
+	protected $type = self::TYPE_INSERT;
 
 	/**
+	 * @ORM\Column(type="string")
 	 * @var string
 	 */
-    private $username;
+	private $className;
+
+	/**
+	 * @ORM\Column(type="integer")
+	 * @var integer
+	 */
+	private $entityId;
+
+	/**
+	 * @ORM\Column(type="text", nullable=TRUE)
+	 * @var string
+	 */
+	private $message;
+
+	/**
+	 * @ORM\Column(type="datetime")
+	 * @var \Datetime
+	 */
+	private $createdAt;
+
+	/**
+	 * @ORM\Column(type="string", nullable=TRUE)
+	 * @var string
+	 */
+	private $author;
+
+	/**
+	 * This field must be manually completed by hydrator.
+	 * @var object
+	 */
+	private $entity;
 
 
 
 	/**
-	 * @param int $rev
-	 * @param \Datetime $timestamp
-	 * @param string $username
+	 * @param $className
+	 * @param integer $id
+	 * @param int $type
+	 * @param string $author
+	 * @param string $message
 	 */
-    public function __construct($rev, \Datetime $timestamp, $username)
+    public function __construct($className, $id, $type = self::TYPE_INSERT, $author = NULL, $message = NULL)
     {
-        $this->rev = $rev;
-        $this->timestamp = $timestamp;
-        $this->username = $username;
-    }
-
-
-
-	/**
-	 * @return int
-	 */
-    public function getRev()
-    {
-        return $this->rev;
-    }
-
-
-
-	/**
-	 * @return \Datetime
-	 */
-    public function getTimestamp()
-    {
-        return $this->timestamp;
+		$this->className = $className;
+		$this->entityId = $id;
+		$this->type = $type;
+        $this->createdAt = new \DateTime;
+        $this->author = $author;
+		$this->message = $message;
     }
 
 
@@ -75,9 +97,85 @@ class Revision extends Nette\Object
 	/**
 	 * @return string
 	 */
-    public function getUsername()
-    {
-        return $this->username;
-    }
+	public function getAuthor()
+	{
+		return $this->author;
+	}
+
+
+
+	/**
+	 * @return string
+	 */
+	public function getClassName()
+	{
+		return $this->className;
+	}
+
+
+
+	/**
+	 * @return \Datetime
+	 */
+	public function getCreatedAt()
+	{
+		return clone $this->createdAt;
+	}
+
+
+
+	/**
+	 * @return int
+	 */
+	public function getEntityId()
+	{
+		return $this->entityId;
+	}
+
+
+
+	/**
+	 * @return string
+	 */
+	public function getMessage()
+	{
+		return $this->message;
+	}
+
+
+
+	/**
+	 * @return int
+	 */
+	public function getType()
+	{
+		return $this->type;
+	}
+
+
+
+	/**
+	 * @internal
+	 * @param object $entity
+	 * @throws \Kdyby\InvalidStateException
+	 */
+	public function injectEntity($entity)
+	{
+		if ($this->entity) {
+			throw new Kdyby\InvalidStateException("Entity is already injected.");
+		}
+
+		$this->entity = $entity;
+	}
+
+
+
+	/**
+	 * @return object
+	 */
+	public function getEntity()
+	{
+		return $this->entity;
+	}
 
 }

@@ -126,11 +126,11 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(2, $revisions[0]->getRev());
         $this->assertInstanceOf('DateTime', $revisions[0]->getTimestamp());
-        $this->assertEquals('beberlei', $revisions[0]->getUsername());
+        $this->assertEquals('beberlei', $revisions[0]->getAuthor());
 
         $this->assertEquals(1, $revisions[1]->getRev());
         $this->assertInstanceOf('DateTime', $revisions[1]->getTimestamp());
-        $this->assertEquals('beberlei', $revisions[1]->getUsername());
+        $this->assertEquals('beberlei', $revisions[1]->getAuthor());
     }
 
     public function testFindEntitesChangedAtRevision()
@@ -177,11 +177,11 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(2, $revisions[0]->getRev());
         $this->assertInstanceOf('DateTime', $revisions[0]->getTimestamp());
-        $this->assertEquals('beberlei', $revisions[0]->getUsername());
+        $this->assertEquals('beberlei', $revisions[0]->getAuthor());
 
         $this->assertEquals(1, $revisions[1]->getRev());
         $this->assertInstanceOf('DateTime', $revisions[1]->getTimestamp());
-        $this->assertEquals('beberlei', $revisions[1]->getUsername());
+        $this->assertEquals('beberlei', $revisions[1]->getAuthor());
     }
 
     public function setUp()

@@ -30,8 +30,6 @@ use Nette;
  * @method setRevisionTableName(string $revisionTableName)
  * @method string getCurrentUsername()
  * @method setCurrentUsername(string $username)
- * @method string getRevisionIdFieldType()
- * @method setRevisionIdFieldType(string $revisionIdFieldType)
  */
 class AuditConfiguration extends Nette\Object
 {
@@ -64,11 +62,6 @@ class AuditConfiguration extends Nette\Object
 	 * @var string
 	 */
 	public $currentUsername = '';
-
-	/**
-	 * @var string
-	 */
-	public $revisionIdFieldType = 'integer';
 
 
 

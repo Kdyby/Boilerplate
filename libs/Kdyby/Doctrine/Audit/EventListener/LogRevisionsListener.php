@@ -37,17 +37,17 @@ class LogRevisionsListener extends Nette\Object implements EventSubscriber
     private $metadataFactory;
 
     /**
-     * @var Doctrine\DBAL\Connection
+     * @var \Doctrine\DBAL\Connection
      */
     private $conn;
 
     /**
-     * @var Doctrine\DBAL\Platforms\AbstractPlatform
+     * @var \Doctrine\DBAL\Platforms\AbstractPlatform
      */
     private $platform;
 
     /**
-     * @var Doctrine\ORM\EntityManager
+     * @var \Doctrine\ORM\EntityManager
      */
     private $em;
 
@@ -57,7 +57,7 @@ class LogRevisionsListener extends Nette\Object implements EventSubscriber
     private $insertRevisionSQL = array();
 
     /**
-     * @var Doctrine\ORM\UnitOfWork
+     * @var \Doctrine\ORM\UnitOfWork
      */
     private $uow;
 
@@ -77,6 +77,10 @@ class LogRevisionsListener extends Nette\Object implements EventSubscriber
         $this->metadataFactory = $auditManager->getMetadataFactory();
     }
 
+
+	/**
+	 * @return array
+	 */
     public function getSubscribedEvents()
     {
         return array(Events::onFlush, Events::postPersist, Events::postUpdate);
@@ -196,21 +200,20 @@ class LogRevisionsListener extends Nette\Object implements EventSubscriber
         }
         foreach ($class->associationMappings AS $field => $assoc) {
             if (($assoc['type'] & ClassMetadata::TO_ONE) > 0 && $assoc['isOwningSide']) {
-                $targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
-
-                if ($entityData[$field] !== null) {
-                    $relatedId = $this->uow->getEntityIdentifier($entityData[$field]);
-                }
+				$relatedId = $entityData[$field] !== NULL
+					? $this->uow->getEntityIdentifier($entityData[$field])
+					: array();
 
                 $targetClass = $this->em->getClassMetadata($assoc['targetEntity']);
 
                 foreach ($assoc['sourceToTargetKeyColumns'] as $sourceColumn => $targetColumn) {
-                    if ($entityData[$field] === null) {
-                        $params[] = null;
-                        $types[] = \PDO::PARAM_STR;
+                    if ($relatedId) {
+						$params[] = $relatedId[$targetClass->fieldNames[$targetColumn]];
+						$types[] = $targetClass->getTypeOfColumn($targetColumn);
+
                     } else {
-                        $params[] = $relatedId[$targetClass->fieldNames[$targetColumn]];
-                        $types[] = $targetClass->getTypeOfColumn($targetColumn);
+						$params[] = null;
+						$types[] = \PDO::PARAM_STR;
                     }
                 }
             }
