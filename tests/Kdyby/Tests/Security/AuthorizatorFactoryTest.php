@@ -57,7 +57,7 @@ class AuthorizatorFactoryTest extends Kdyby\Tests\OrmTestCase
 			$this->user = new Kdyby\Security\User(
 				$this->userStorage = new Kdyby\Security\SimpleUserStorage(),
 				$this->userContext = new Nette\DI\Container(),
-				$this->getDao('Kdyby\Security\Identity')
+				$this->getDoctrine()
 			),
 			$this->session,
 			$this->getDoctrine()
