@@ -72,10 +72,12 @@ class EventManager extends Nette\Object
 
 
 
-    /**
-     * @param string|array $events
-     * @param EventSubscriber $listener
-     */
+	/**
+	 * @param string|array $events
+	 * @param EventSubscriber $listener
+	 *
+	 * @throws \Kdyby\InvalidStateException
+	 */
     public function addListener($events, EventSubscriber $listener)
     {
 		foreach ((array)$events as $eventName) {

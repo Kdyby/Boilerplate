@@ -13,6 +13,7 @@ namespace Kdyby\Package\DoctrinePackage\DI;
 use Kdyby;
 use Nette;
 use Nette\DI\ContainerBuilder;
+use Nette\DI\Statement;
 use Nette\Utils\Validators;
 
 
@@ -134,8 +135,7 @@ class DbalExtension extends Kdyby\Config\CompilerExtension
 		// logging
 		$container->addDefinition($connectionName . '.logger')
 			->setClass('Kdyby\Doctrine\Diagnostics\Panel')
-			->setFactory('Kdyby\Doctrine\Diagnostics\Panel::register')
-			->setAutowired(FALSE);
+			->setFactory('Kdyby\Doctrine\Diagnostics\Panel::register');
 
 		if ($options['logging']) {
 			$configuration->addSetup('setSQLLogger', array('@' . $connectionName . '.logger'));
@@ -143,7 +143,10 @@ class DbalExtension extends Kdyby\Config\CompilerExtension
 
 		// event manager
 		$container->addDefinition($connectionName . '.eventManager')
-			->setClass('Doctrine\Common\EventManager')
+			->setClass('Kdyby\Doctrine\EventManager')
+			->addSetup('addSubscribers', array(
+				new Statement('Kdyby\Config\TaggedServices', array('doctrine.eventSubscriber.' . $config['name']))
+			))
 			->setAutowired(FALSE);
 
 		// charset
@@ -152,8 +155,7 @@ class DbalExtension extends Kdyby\Config\CompilerExtension
 		// connection factory
 		$container->addDefinition($connectionName . '.factory')
 			->setClass('Kdyby\Package\DoctrinePackage\ConnectionFactory', array('%doctrine.dbal.connectionFactory.types%'))
-			->setInternal(TRUE)
-			->setShared(FALSE);
+			->setInternal(TRUE);
 
 		$mappingTypes = array();
 		if (isset($config['mappingTypes'])) {
@@ -187,7 +189,8 @@ class DbalExtension extends Kdyby\Config\CompilerExtension
 	{
 		if ($this->connectionUsesMysqlDriver($config)) {
 			$container->addDefinition($connectionName . '.events.mysqlSessionInit')
-				->setClass('Doctrine\DBAL\Event\Listeners\MysqlSessionInit', array($config['charset']));
+				->setClass('Doctrine\DBAL\Event\Listeners\MysqlSessionInit', array($config['charset']))
+				->addTag('doctrine.eventSubscriber');
 		}
 	}
 

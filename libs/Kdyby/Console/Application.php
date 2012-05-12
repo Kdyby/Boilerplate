@@ -39,6 +39,7 @@ class Application extends Kdyby\Application\Application
 	{
 		$this->consoleInput = new Console\Input\ArgvInput();
 		$this->consoleOutput = new Console\Output\ConsoleOutput();
+		$this->onStartup($this);
 
 		// package errors should not be handled by console life-cycle
 		$cli = $this->createApplication();

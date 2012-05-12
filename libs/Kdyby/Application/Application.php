@@ -18,6 +18,12 @@ use Nette\Diagnostics\Debugger;
 
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
+ *
+ * @method onStartup(Application $sender)
+ * @method onShutdown(Application $sender, \Exception $e = NULL)
+ * @method onRequest(Application $sender, \Nette\Application\Request $request)
+ * @method onResponse(Application $sender, \Nette\Application\IResponse $response)
+ * @method onError(Application $sender, \Exception $e)
  */
 class Application extends Nette\Application\Application
 {
@@ -60,7 +66,7 @@ class Application extends Nette\Application\Application
 
 		// production mode
 		if ($productionMode !== NULL) {
-			$this->configurator->setProductionMode($productionMode);
+			$this->configurator->setDebugMode(!$productionMode);
 		}
 
 		// inject application instance

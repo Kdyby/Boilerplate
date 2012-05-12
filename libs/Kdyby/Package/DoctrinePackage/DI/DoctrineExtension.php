@@ -50,6 +50,8 @@ class DoctrineExtension extends Kdyby\Config\CompilerExtension
 
 
 
+	/**
+	 */
 	public function beforeCompile()
 	{
 		$this->registerEventSubscribers($this->getContainerBuilder());
@@ -58,22 +60,24 @@ class DoctrineExtension extends Kdyby\Config\CompilerExtension
 
 
 	/**
-	 * @param \Nette\DI\ContainerBuilder $container
+	 * @param \Nette\DI\ContainerBuilder $builder
 	 */
-	protected function registerEventSubscribers(ContainerBuilder $container)
+	protected function registerEventSubscribers(ContainerBuilder $builder)
 	{
-		foreach ($container->findByTag('doctrine.eventSubscriber') as $listener => $meta) {
+		$connectionIds = array_keys($builder->parameters['doctrine']['connections']);
+
+		foreach ($builder->findByTag('doctrine.eventSubscriber') as $listener => $meta) {
 			if (isset($meta['connection'])) {
 				$this->registerEventSubscriber($meta['connection'], $listener);
 
 			} elseif (isset($meta['connections'])) {
-				foreach ($meta['connections'] as $connection) {
-					$this->registerEventSubscriber($connection, $listener);
+				foreach ($meta['connections'] as $id) {
+					$this->registerEventSubscriber($id, $listener);
 				}
 
 			} else {
-				foreach (array_keys($container->parameters['doctrine']['connections']) as $connection) {
-					$this->registerEventSubscriber($connection, $listener);
+				foreach ($connectionIds as $id) {
+					$this->registerEventSubscriber($id, $listener);
 				}
 			}
 		}
@@ -87,21 +91,8 @@ class DoctrineExtension extends Kdyby\Config\CompilerExtension
 	 */
 	protected function registerEventSubscriber($connectionName, $listener)
 	{
-		$this->getConnectionEventManager($connectionName)
-			->addSetup('addEventSubscriber', array('@' . $listener));
-	}
-
-
-
-	/**
-	 * @param string $connectionName
-	 * @return \Nette\DI\ServiceDefinition
-	 */
-	protected function getConnectionEventManager($connectionName)
-	{
-		$container = $this->getContainerBuilder();
-		$connection = $container->parameters['doctrine']['connections'][$connectionName];
-		return $container->getDefinition($connection . '.eventManager');
+		$this->getContainerBuilder()->getDefinition($listener)
+			->addTag('doctrine.eventSubscriber.' . $connectionName);
 	}
 
 }
