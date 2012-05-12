@@ -150,7 +150,7 @@ class DbalExtension extends Kdyby\Config\CompilerExtension
 			->setAutowired(FALSE);
 
 		// charset
-		$this->loadConnectionCharset($container, $options, $connectionName);
+		$this->loadConnectionCharset($container, $options + array('name' => $config['name']), $connectionName);
 
 		// connection factory
 		$container->addDefinition($connectionName . '.factory')
@@ -190,7 +190,7 @@ class DbalExtension extends Kdyby\Config\CompilerExtension
 		if ($this->connectionUsesMysqlDriver($config)) {
 			$container->addDefinition($connectionName . '.events.mysqlSessionInit')
 				->setClass('Doctrine\DBAL\Event\Listeners\MysqlSessionInit', array($config['charset']))
-				->addTag('doctrine.eventSubscriber');
+				->addTag('doctrine.eventSubscriber.' . $config['name']);
 		}
 	}
 

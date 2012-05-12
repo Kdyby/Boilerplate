@@ -18,7 +18,6 @@ use Kdyby\Doctrine\Dao;
 use Kdyby\Doctrine\Mapping\ClassMetadata;
 use Kdyby\Tests\OrmTestCase;
 use Nette;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 
 
@@ -77,6 +76,12 @@ class SandboxRegistry extends Kdyby\Doctrine\Registry
 
 		try {
 			$this->getEntityManager($name);
+
+		} catch (Kdyby\Doctrine\PDOException $e) {
+			throw $e;
+
+		} catch (Doctrine\ORM\ORMException $e) {
+			throw $e;
 
 		} catch (\Exception $e) {
 			Nette\Diagnostics\Debugger::log($e);
