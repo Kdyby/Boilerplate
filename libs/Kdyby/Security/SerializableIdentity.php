@@ -54,7 +54,7 @@ class SerializableIdentity extends Nette\Object implements Nette\Security\IIdent
 	/**
 	 * @internal
 	 * @param \Kdyby\Doctrine\Dao $users
-	 *
+	 * @throws \Kdyby\UnexpectedValueException
 	 * @return void
 	 */
 	public function load(Kdyby\Doctrine\Dao $users)

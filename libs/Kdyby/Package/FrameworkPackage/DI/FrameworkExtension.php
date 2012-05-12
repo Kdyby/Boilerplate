@@ -28,53 +28,53 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 
 	public function loadConfiguration()
 	{
-		$container = $this->getContainerBuilder();
+		$builder = $this->getContainerBuilder();
 
 		// watch for package files to change
-		foreach ($container->parameters['kdyby']['packages'] as $packageClass) {
-			$container->addDependency(ClassType::from($packageClass)->getFileName());
+		foreach ($builder->parameters['kdyby']['packages'] as $packageClass) {
+			$builder->addDependency(ClassType::from($packageClass)->getFileName());
 		}
 
 		foreach ($this->compiler->getExtensions() as $extension) {
-			$container->addDependency(ClassType::from($extension)->getFileName());
+			$builder->addDependency(ClassType::from($extension)->getFileName());
 		}
 
 		// application
-		$container->getDefinition('nette.presenterFactory')
+		$builder->getDefinition('nette.presenterFactory')
 			->setClass('Kdyby\Application\PresenterManager', array('@kdyby.packageManager', '@container', '%appDir%'));
 
-		$container->addDefinition($this->prefix('packageManager'))
+		$builder->addDefinition($this->prefix('packageManager'))
 			->setClass('Kdyby\Packages\PackageManager');
 
 		// console
-		$container->addDefinition($this->prefix('console.helpers'))
+		$builder->addDefinition($this->prefix('console.helpers'))
 			->setClass('Symfony\Component\Console\Helper\HelperSet');
 
-		$container->addDefinition($this->prefix('console.helper.serviceContainer'))
+		$builder->addDefinition($this->prefix('console.helper.serviceContainer'))
 			->setClass('Kdyby\Console\ContainerHelper')
 			->addTag('console.helper', array('alias' => 'di'));
 
-		$container->addDefinition($this->prefix('console.helper.packageManager'))
+		$builder->addDefinition($this->prefix('console.helper.packageManager'))
 			->setClass('Kdyby\Console\PackageManagerHelper')
 			->addTag('console.helper', array('alias' => 'pm'));
 
-		$container->addDefinition($this->prefix('console.helper.ormEntityManager'))
+		$builder->addDefinition($this->prefix('console.helper.ormEntityManager'))
 			->setClass('Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper', array('@doctrine.orm.entityManager'))
 			->addTag('console.helper', array('alias' => 'em'));
 
-		$container->addDefinition($this->prefix('console.helper.dbalConnection'))
+		$builder->addDefinition($this->prefix('console.helper.dbalConnection'))
 			->setClass('Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper', array('@doctrine.dbal.connection'))
 			->addTag('console.helper', array('alias' => 'db'));
 
-		$container->addDefinition($this->prefix('console.helper.cacheStorage'))
+		$builder->addDefinition($this->prefix('console.helper.cacheStorage'))
 			->setClass('Kdyby\Console\StorageHelper', array($this->prefix('@cacheStorage')))
 			->addTag('console.helper', array('alias' => 'cacheStorage'));
 
-		$container->addDefinition($this->prefix('console.helper.phpFileStorage'))
+		$builder->addDefinition($this->prefix('console.helper.phpFileStorage'))
 			->setClass('Kdyby\Console\StorageHelper', array($this->prefix('@phpFileStorage')))
 			->addTag('console.helper', array('alias' => 'phpFileStorage'));
 
-		$container->addDefinition($this->prefix('console.helper.dialogHelper'))
+		$builder->addDefinition($this->prefix('console.helper.dialogHelper'))
 			->setClass('Symfony\Component\Console\Helper\DialogHelper')
 			->addTag('console.helper', array('alias' => 'dialog'));
 
@@ -83,36 +83,43 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 		$this->addAlias($this->prefix('cacheStorage'), 'cacheStorage');
 
 		// security
-		$container->getDefinition('nette.userStorage')
-			->setClass('Kdyby\Security\UserStorage', array('@session', $this->prefix('@security.identityDao')));
+		$builder->getDefinition('nette.userStorage')
+			->setClass('Kdyby\Security\UserStorage');
 
-		$container->getDefinition('user')
-			->setClass('Kdyby\Security\User', array('@nette.userStorage', '@container', $this->prefix('@security.identityDao')));
+		$builder->getDefinition('user')
+			->setClass('Kdyby\Security\User');
 
-		$container->addDefinition('nette.authenticator')
+		$builder->addDefinition('nette.authenticator')
 			->setFactory('@user');
 
-		$container->addDefinition($this->prefix('security.identityDao'))
+		$builder->addDefinition($this->prefix('security.identityDao'))
 			->setFactory('@doctrine.registry::getDao', array('Kdyby\Security\Identity'))
 			->setInternal(TRUE);
 
-		$container->addDefinition('nette.authorizator')
+		$builder->addDefinition('nette.authorizator')
 			->setClass('Nette\Security\IAuthorizator')
 			->setFactory($this->prefix('@security.authorizatorFactory::create'));
 
-		$container->addDefinition($this->prefix('security.authorizatorFactory'))
+		$builder->addDefinition($this->prefix('security.authorizatorFactory'))
 			->setClass('Kdyby\Security\AuthorizatorFactory')
 			->setInternal(TRUE);
 
 		// template
-		$container->addDefinition($this->prefix('templateConfigurator'))
+		$builder->addDefinition($this->prefix('templateConfigurator'))
 			->setClass('Kdyby\Templates\TemplateConfigurator');
 
-		$container->addDefinition($this->prefix('editableTemplates'))
+		$builder->addDefinition($this->prefix('editableTemplates'))
 			->setClass('Kdyby\Templates\EditableTemplates', array(1 => $this->prefix('@editableTemplates.storage')));
 
+		// events
+		$builder->addDefinition($this->prefix('eventManager'))
+			->setClass('Kdyby\EventDispatcher\EventManager');
+
+		$builder->getDefinition('application')
+			->addSetup('Kdyby\Application\LifeCycleEvent::register(?, ?);', array('@self', $this->prefix('@eventManager')));
+
 		// cache
-		$container->addDefinition($this->prefix('editableTemplates.storage'))
+		$builder->addDefinition($this->prefix('editableTemplates.storage'))
 			->setClass('Kdyby\Caching\LatteStorage', array('%tempDir%/cache'))
 			->setAutowired(FALSE);
 
@@ -124,35 +131,37 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 
 	public function beforeCompile()
 	{
-		$container = $this->getContainerBuilder();
+		$builder = $this->getContainerBuilder();
 
-		$this->registerConsoleHelpers($container);
-		$this->unifyComponents($container);
+		$this->registerConsoleHelpers($builder);
+		$this->unifyComponents($builder);
 
 		$routes = array();
-		foreach ($container->findByTag('route') as $route => $meta) {
+		foreach ($builder->findByTag('route') as $route => $meta) {
 			$priority = isset($meta['priority']) ? $meta['priority'] : (int)$meta;
 			$routes[$priority][] = $route;
 		}
 
 		krsort($routes);
-		$router = $container->getDefinition('router');
+		$router = $builder->getDefinition('router');
 		foreach (Kdyby\Tools\Arrays::flatMap($routes) as $route) {
 			$router->addSetup('$service[] = $this->getService(?)', array($route));
 		}
+
+		$this->registerEventSubscribers($builder);
 	}
 
 
 
 	/**
-	 * @param \Nette\DI\ContainerBuilder $container
+	 * @param \Nette\DI\ContainerBuilder $builder
 	 */
-	protected function registerConsoleHelpers(ContainerBuilder $container)
+	protected function registerConsoleHelpers(ContainerBuilder $builder)
 	{
 		/** @var \Nette\DI\ServiceDefinition $helpers */
-		$helpers = $container->getDefinition($this->prefix('console.helpers'));
+		$helpers = $builder->getDefinition($this->prefix('console.helpers'));
 
-		foreach ($container->findByTag('console.helper') as $helper => $meta) {
+		foreach ($builder->findByTag('console.helper') as $helper => $meta) {
 			$alias = isset($meta['alias']) ? $meta['alias'] : NULL;
 			$helpers->addSetup('set', array('@' . $helper, $alias));
 		}
@@ -163,13 +172,13 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 	/**
 	 * Unifies component & presenter definitions using tags.
 	 *
-	 * @param \Nette\DI\ContainerBuilder $container
+	 * @param \Nette\DI\ContainerBuilder $builder
 	 */
-	protected function unifyComponents(ContainerBuilder $container)
+	protected function unifyComponents(ContainerBuilder $builder)
 	{
-		foreach ($container->findByTag('component') as $name => $meta) {
+		foreach ($builder->findByTag('component') as $name => $meta) {
 			/** @var \Nette\DI\ServiceDefinition $component */
-			$component = $container->getDefinition($name);
+			$component = $builder->getDefinition($name);
 
 			if (!$component->parameters) {
 				$component->setParameters(array());
@@ -217,6 +226,19 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 
 
 	/**
+	 * @param \Nette\DI\ContainerBuilder $builder
+	 */
+	protected function registerEventSubscribers(ContainerBuilder $builder)
+	{
+		$evm = $builder->getDefinition($this->prefix('eventManager'));
+		foreach ($builder->findByTag('kdyby.eventSubscriber') as $listener => $meta) {
+			$evm->addSetup('addEventSubscriber', array('@' . $listener));
+		}
+	}
+
+
+
+	/**
 	 * @param \Nette\Utils\PhpGenerator\ClassType $class
 	 */
 	public function afterCompile(Code\ClassType $class)
@@ -240,9 +262,9 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 	 */
 	protected function compileConfigurator(Code\ClassType $class)
 	{
-		$container = $this->getContainerBuilder();
+		$builder = $this->getContainerBuilder();
 		/** @var \Nette\DI\ServiceDefinition $def */
-		foreach ($container->getDefinitions() as $name => $def) {
+		foreach ($builder->getDefinitions() as $name => $def) {
 			if ($def->class == 'Nette\DI\NestedAccessor' || $def->class === 'Nette\Callback' || $name === 'container' || !$def->shared) {
 				continue;
 			}

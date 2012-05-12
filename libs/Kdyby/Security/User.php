@@ -13,6 +13,7 @@ namespace Kdyby\Security;
 use Kdyby;
 use Kdyby\Doctrine\Dao;
 use Kdyby\Security\Identity;
+use Kdyby\Doctrine\Registry;
 use Kdyby\Security\SerializableIdentity;
 use Nette;
 use Nette\Application\ForbiddenRequestException;
@@ -32,20 +33,32 @@ use Nette\Security\IUserStorage;
 class User extends Nette\Security\User implements Nette\Security\IAuthenticator
 {
 
-	/** @var \Kdyby\Doctrine\Dao */
-	private $users;
+	/**
+	 * @var \Kdyby\Doctrine\Registry
+	 */
+	private $doctrine;
 
 
 
 	/**
 	 * @param \Nette\Security\IUserStorage $storage
 	 * @param \Nette\DI\Container $context
-	 * @param \Kdyby\Doctrine\Dao $users
+	 * @param \Kdyby\Doctrine\Registry $doctrine
 	 */
-	public function __construct(IUserStorage $storage, Nette\DI\Container $context, Dao $users)
+	public function __construct(IUserStorage $storage, Nette\DI\Container $context, Registry $doctrine)
 	{
 		parent::__construct($storage, $context);
-		$this->users = $users;
+		$this->doctrine = $doctrine;
+	}
+
+
+
+	/**
+	 * @return \Kdyby\Doctrine\Dao
+	 */
+	public function getDao()
+	{
+		return $this->doctrine->getDao('Nette\Security\Identity');
 	}
 
 
@@ -53,11 +66,14 @@ class User extends Nette\Security\User implements Nette\Security\IAuthenticator
 	/**
 	 * @param array $credentials
 	 *
+	 * @throws \Nette\Security\AuthenticationException
 	 * @return \Nette\Security\IIdentity
 	 */
 	public function authenticate(array $credentials)
 	{
-		$identity = $this->users->fetchOne(new Kdyby\Security\IdentityByNameOrEmailQuery($credentials[self::USERNAME]));
+		/** @var Identity|NULL $identity */
+		$identity = $this->getDao()
+			->fetchOne(new Kdyby\Security\IdentityByNameOrEmailQuery($credentials[self::USERNAME]));
 
 		if (!$identity instanceof Nette\Security\IIdentity) {
 			throw new AuthenticationException('User not found', self::IDENTITY_NOT_FOUND);
@@ -83,7 +99,8 @@ class User extends Nette\Security\User implements Nette\Security\IAuthenticator
 	 */
 	public function register($username, $password)
 	{
-		return $this->users->save(new Identity($username, $password));
+		return $this->getDao()
+			->save(new Identity($username, $password));
 	}
 
 
@@ -125,7 +142,7 @@ class User extends Nette\Security\User implements Nette\Security\IAuthenticator
 	 * @param string $message
 	 *
 	 * @throws \Nette\Application\ForbiddenRequestException
-	 *
+	 * @throws \Kdyby\UnexpectedValueException
 	 * @return bool
 	 */
 	public function protectElement(\Reflector $element, $message = NULL)
