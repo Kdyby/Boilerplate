@@ -90,7 +90,7 @@ class AuditPersister extends Nette\Object
 		$query = $this->platform->modifyLimitQuery(
 			'SELECT ' . $this->getSqlColumnsForClass($class, 'c') .
 			' FROM ' . $this->getTableForClass($class) . ' c ' .
-			' WHERE ' . $this->getSqlWhereIdentifierForClass($class, 'c', $this->config->getRevisionFieldName() . ' <= ?') .
+			' WHERE ' . $this->getSqlWhereIdentifierForClass($class, 'c', $this->config->getFieldName() . ' <= ?') .
 			' ORDER BY c.rev DESC', 1
 		);
 
@@ -114,7 +114,7 @@ class AuditPersister extends Nette\Object
 	public function findRevisionHistory($limit = 20, $offset = 0)
 	{
 		$query = $this->platform->modifyLimitQuery(
-			"SELECT * FROM " . $this->config->getRevisionTableName() . " ORDER BY id DESC", $limit, $offset
+			"SELECT * FROM " . $this->config->getTableName() . " ORDER BY id DESC", $limit, $offset
 		);
 		$revisionsData = $this->conn->fetchAll($query);
 
@@ -140,7 +140,7 @@ class AuditPersister extends Nette\Object
 		foreach ($this->metadataFactory->getAllAudited() AS $class) {
 			$query = 'SELECT ' . $this->getSqlColumnsForClass($class, 'r') .
 				' FROM ' . $this->getTableForClass($class) . ' r ' .
-				' WHERE r.' . $this->config->getRevisionFieldName() . " = ?";
+				' WHERE r.' . $this->config->getFieldName() . " = ?";
 
 			$revisionsData = $this->conn->executeQuery($query, array($revision));
 
@@ -173,7 +173,7 @@ class AuditPersister extends Nette\Object
 	 */
 	public function findRevision($rev)
 	{
-		$query = "SELECT * FROM " . $this->config->getRevisionTableName() . " r WHERE r.id = ?";
+		$query = "SELECT * FROM " . $this->config->getTableName() . " r WHERE r.id = ?";
 		$revisionsData = $this->conn->fetchAll($query, array($rev));
 
 		return count($revisionsData) == 1
@@ -199,9 +199,9 @@ class AuditPersister extends Nette\Object
 
 		$class = $this->em->getClassMetadata($className);
 
-		$query = 'SELECT r.* FROM ' . $this->config->getRevisionTableName() . ' r ' .
+		$query = 'SELECT r.* FROM ' . $this->config->getTableName() . ' r ' .
 			' INNER JOIN ' . $this->getTableForClass($class) . ' c ' .
-			' ON r.id = c.' . $this->config->getRevisionFieldName() .
+			' ON r.id = c.' . $this->config->getFieldName() .
 			' WHERE ' . $this->getSqlWhereIdentifierForClass($class, 'c') .
 			' ORDER BY r.id DESC';
 

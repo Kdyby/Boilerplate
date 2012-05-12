@@ -13,15 +13,14 @@ namespace Kdyby\Doctrine\Audit;
 use Doctrine\Common\EventManager;
 use Doctrine\ORM\EntityManager;
 use Nette;
-use Kdyby\Doctrine\Audit\EventListener\CreateSchemaListener;
-use Kdyby\Doctrine\Audit\EventListener\LogRevisionsListener;
 use Kdyby\Doctrine\Mapping\ClassMetadataFactory;
 
 
 
 /**
  * Audit Manager grants access to metadata and configuration
- * and has a factory method for audit queries.
+ * and has a getter, similar to getRepository() on Entity Manager,
+ * that returns Audit Reader for given class.
  *
  * @author Benjamin Eberlei <eberlei@simplethings.de>
  * @author Filip Procházka <filip.prochazka@kdyby.org>
@@ -42,12 +41,12 @@ class AuditManager extends Nette\Object
 
 	/**
 	 * @param \Kdyby\Doctrine\Audit\AuditConfiguration $config
-	 * @param \Kdyby\Doctrine\Mapping\ClassMetadataFactory $metadataFactory
+	 * @param \Doctrine\ORM\EntityManager $em
 	 */
-    public function __construct(AuditConfiguration $config, ClassMetadataFactory $metadataFactory)
+    public function __construct(AuditConfiguration $config, EntityManager $em)
     {
         $this->config = $config;
-        $this->metadataFactory = $metadataFactory;
+        $this->metadataFactory = $em->getMetadataFactory();
     }
 
 
@@ -63,7 +62,7 @@ class AuditManager extends Nette\Object
 
 
 	/**
-	 * @return AuditConfiguration
+	 * @return \Kdyby\Doctrine\Audit\AuditConfiguration
 	 */
     public function getConfiguration()
     {
@@ -73,23 +72,23 @@ class AuditManager extends Nette\Object
 
 
 	/**
-	 * @param \Doctrine\ORM\EntityManager $em
-	 * @return AuditReader
+	 * @param string $className
+	 *
+	 * @throws \Kdyby\NotImplementedException
 	 */
-    public function createAuditReader(EntityManager $em)
-    {
-        return new AuditReader($em, $this->config, $this->metadataFactory);
-    }
+	public function getAuditReader($className)
+	{
+		throw new \Kdyby\NotImplementedException;
+	}
 
 
 
 	/**
-	 * @param \Doctrine\Common\EventManager $evm
+	 * @throws \Kdyby\NotImplementedException
 	 */
-    public function registerEvents(EventManager $evm)
-    {
-        $evm->addEventSubscriber(new CreateSchemaListener($this));
-        $evm->addEventSubscriber(new LogRevisionsListener($this));
-    }
+	public function getHistory()
+	{
+		throw new \Kdyby\NotImplementedException;
+	}
 
 }

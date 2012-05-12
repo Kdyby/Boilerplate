@@ -36,7 +36,8 @@ class DoctrineExtension extends Kdyby\Config\CompilerExtension
 				'%doctrine.connections%',
 				'%doctrine.entityManagers%',
 				'%doctrine.defaultConnection%',
-				'%doctrine.defaultEntityManager%'
+				'%doctrine.defaultEntityManager%',
+				'%doctrine.auditManagers%',
 			));
 
 		$container->addDefinition($this->prefix('orm.events.discriminatorMapDiscovery'))

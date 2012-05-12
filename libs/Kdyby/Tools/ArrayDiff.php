@@ -21,8 +21,14 @@ use Nette;
  * @author Tim Nagel <tim@nagel.com.au>
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class ArrayDiff
+class ArrayDiff extends Nette\Object
 {
+
+	/**
+	 * @param $oldData
+	 * @param $newData
+	 * @return array
+	 */
     public function diff($oldData, $newData)
     {
         $diff = array();
@@ -43,4 +49,5 @@ class ArrayDiff
 
         return $diff;
     }
+
 }

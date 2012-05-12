@@ -40,6 +40,7 @@ class DoctrinePackage extends Kdyby\Packages\Package
 		$compiler->addExtension('dbal', new DI\DbalExtension());
 		$compiler->addExtension('orm', new DI\OrmExtension($packages));
 		$compiler->addExtension('fixture', new DI\FixtureExtension());
+		$compiler->addExtension('audit', new DI\AuditExtension());
 		$compiler->addExtension('doctrine', new DI\DoctrineExtension());
 	}
 

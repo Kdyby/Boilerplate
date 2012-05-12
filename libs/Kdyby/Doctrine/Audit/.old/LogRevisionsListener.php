@@ -8,7 +8,7 @@
  * For the full copyright and license information, please view the file license.txt that was distributed with this source code.
  */
 
-namespace Kdyby\Doctrine\Audit\EventListener;
+namespace Kdyby\Doctrine\Audit\Listener;
 
 use Kdyby\Doctrine\Audit\AuditManager;
 use Doctrine\Common\EventSubscriber;
@@ -152,7 +152,7 @@ class LogRevisionsListener extends Nette\Object implements EventSubscriber
     {
         if ($this->revisionId === null) {
             $date = date_create("now")->format($this->platform->getDateTimeFormatString());
-            $this->conn->insert($this->config->getRevisionTableName(), array(
+            $this->conn->insert($this->config->getTableName(), array(
                 'timestamp'     => $date,
                 'username'      => $this->config->getCurrentUsername(),
             ));
@@ -166,7 +166,7 @@ class LogRevisionsListener extends Nette\Object implements EventSubscriber
         if (!isset($this->insertRevisionSQL[$class->name])) {
             $tableName = $this->config->getTablePrefix() . $class->table['name'] . $this->config->getTableSuffix();
             $sql = "INSERT INTO " . $tableName . " (" .
-                    $this->config->getRevisionFieldName() . ", " . $this->config->getRevisionTypeFieldName();
+                    $this->config->getFieldName() . ", " . $this->config->getRevisionTypeFieldName();
             foreach ($class->fieldNames AS $field) {
                 $sql .= ', ' . $class->getQuotedColumnName($field, $this->platform);
             }

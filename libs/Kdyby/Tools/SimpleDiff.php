@@ -8,7 +8,7 @@
  * For the full copyright and license information, please view the file license.txt that was distributed with this source code.
  */
 
-namespace Kdyby\Doctrine\Audit\Utils;
+namespace Kdyby\Tools;
 
 use Nette;
 
@@ -23,6 +23,12 @@ use Nette;
  */
 class SimpleDiff extends Nette\Object
 {
+
+	/**
+	 * @param array $old
+	 * @param array $new
+	 * @return array
+	 */
     public function diff(array $old, array $new)
     {
         $maxlen = 0;
@@ -45,6 +51,13 @@ class SimpleDiff extends Nette\Object
             $this->diff(array_slice($old, $omax + $maxlen), array_slice($new, $nmax + $maxlen)));
     }
 
+
+
+	/**
+	 * @param $old
+	 * @param $new
+	 * @return string
+	 */
     public function htmlDiff($old, $new)
     {
         $ret = '';
@@ -57,4 +70,5 @@ class SimpleDiff extends Nette\Object
         }
         return $ret;
     }
+
 }

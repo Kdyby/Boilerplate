@@ -36,6 +36,9 @@ class Registry extends Nette\Object
 	/** @var array */
 	protected $entityManagers;
 
+	/** @var array */
+	protected $auditManagers;
+
 	/** @var string */
 	protected $defaultConnection;
 
@@ -50,12 +53,14 @@ class Registry extends Nette\Object
 	 * @param array $entityManagers
 	 * @param string $defaultConnection
 	 * @param string $defaultEntityManager
+	 * @param array $auditManagers
 	 */
-	public function __construct(Nette\DI\Container $container, array $connections, array $entityManagers, $defaultConnection, $defaultEntityManager)
+	public function __construct(Nette\DI\Container $container, array $connections, array $entityManagers, $defaultConnection, $defaultEntityManager, array $auditManagers = array())
 	{
 		$this->container = $container;
 		$this->connections = $connections;
 		$this->entityManagers = $entityManagers;
+		$this->auditManagers = $auditManagers;
 		$this->defaultConnection = $defaultConnection;
 		$this->defaultEntityManager = $defaultEntityManager;
 	}
@@ -303,6 +308,47 @@ class Registry extends Nette\Object
 		}
 
 		return $this->getEntityManager($entityManagerName)->getClassMetadata($entityName);
+	}
+
+
+
+	/**
+	 * @param string $name
+	 *
+	 * @throws \Kdyby\InvalidArgumentException
+	 * @return \Kdyby\Doctrine\Audit\AuditManager
+	 */
+	public function getAuditManager($name = NULL)
+	{
+		if ($name === NULL) {
+			$name = $this->defaultEntityManager;
+		}
+
+		if (!isset($this->auditManagers[$name])) {
+			throw new Kdyby\InvalidArgumentException('Doctrine AuditManager named "' . $name . '" does not exist.');
+		}
+
+		return $this->container->getService($this->auditManagers[$name]);
+	}
+
+
+
+	/**
+	 * Returns Audit Reader for given entity.
+	 *
+	 * @param string $entityName        The name of the entity.
+	 * @param string $entityManagerName The entity manager name (null for the default one)
+	 *
+	 * @throws \Kdyby\InvalidArgumentException
+	 * @return \Kdyby\Doctrine\Audit\AuditReader
+	 */
+	public function getAuditReader($entityName, $entityManagerName = NULL)
+	{
+		if (!class_exists($entityName = is_object($entityName) ? get_class($entityName) : $entityName)) {
+			throw new Kdyby\InvalidArgumentException("Expected entity name, '$entityName' given");
+		}
+
+		return $this->getAuditManager($entityManagerName)->getAuditReader($entityName);
 	}
 
 

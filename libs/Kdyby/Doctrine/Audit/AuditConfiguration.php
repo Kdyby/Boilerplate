@@ -18,16 +18,10 @@ use Nette;
  * @author Benjamin Eberlei <eberlei@simplethings.de>
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
- * @method string getTablePrefix()
- * @method setTablePrefix(string $prefix)
- * @method string getTableSuffix()
- * @method setTableSuffix(string $suffix)
- * @method string getRevisionFieldName()
- * @method setRevisionFieldName(string $revisionFieldName)
- * @method string getRevisionTypeFieldName()
- * @method setRevisionTypeFieldName(string $revisionTypeFieldName)
- * @method string getRevisionTableName()
- * @method setRevisionTableName(string $revisionTableName)
+ * @method string getPrefix()
+ * @method string getSuffix()
+ * @method string getFieldName()
+ * @method string getTableName()
  * @method string getCurrentUsername()
  * @method setCurrentUsername(string $username)
  */
@@ -36,32 +30,27 @@ class AuditConfiguration extends Nette\Object
 	/**
 	 * @var string
 	 */
-    public $prefix = '';
+    public $prefix;
 
 	/**
 	 * @var string
 	 */
-	public $suffix = '_audit';
+	public $suffix;
 
 	/**
 	 * @var string
 	 */
-	public $revisionFieldName = 'rev';
+	public $fieldName;
 
 	/**
 	 * @var string
 	 */
-	public $revisionTypeFieldName = 'revtype';
+	public $tableName;
 
 	/**
 	 * @var string
 	 */
-	public $revisionTableName = 'revisions';
-
-	/**
-	 * @var string
-	 */
-	public $currentUsername = '';
+	public $currentUsername;
 
 
 
@@ -73,7 +62,7 @@ class AuditConfiguration extends Nette\Object
 	 */
 	public function __call($name, $args)
 	{
-		return \Nette\ObjectMixin::callProperty($this, $name, $args);
+		return Nette\ObjectMixin::callProperty($this, $name, $args);
 	}
 
 }
