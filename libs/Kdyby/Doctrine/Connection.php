@@ -45,10 +45,7 @@ class Connection extends Doctrine\DBAL\Connection
 
 			return TRUE;
 
-		} catch (Kdyby\Doctrine\PDOException $e) {
-			throw $e;
-
-		} catch (\Exception $e) {
+		} catch (\ErrorException $e) {
 			throw new Kdyby\InvalidStateException(
 				"Connection to database could not be established: " . $e->getMessage(), 0, $e
 			);
