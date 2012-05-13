@@ -17,7 +17,7 @@ use Symfony\Component\ClassLoader\UniversalClassLoader;
 require_once __DIR__ . '/vendor/nette/nette/Nette/loader.php';
 
 // require class loader
-require_once __DIR__ . '/vendor/.composer/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 
 // library
