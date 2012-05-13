@@ -24,21 +24,26 @@ use Doctrine\DBAL\DriverManager;
  */
 class ConnectionFactory extends Nette\Object
 {
-	/** @var array */
-    private $typesConfig = array();
 
-	/** @var boolean */
-    private $initialized = false;
+	/**
+	 * @var array
+	 */
+	private $typesConfig = array();
+
+	/**
+	 * @var boolean
+	 */
+	private $initialized = false;
 
 
 
-    /**
-     * @param array $typesConfig
-     */
-    public function __construct(array $typesConfig = NULL)
-    {
-        $this->typesConfig = (array)$typesConfig;
-    }
+	/**
+	 * @param array $typesConfig
+	 */
+	public function __construct(array $typesConfig = NULL)
+	{
+		$this->typesConfig = (array)$typesConfig;
+	}
 
 
 
@@ -52,39 +57,47 @@ class ConnectionFactory extends Nette\Object
 	 *
 	 * @return \Doctrine\DBAL\Connection
 	 */
-    public function createConnection(array $params, Configuration $config = NULL, EventManager $eventManager = NULL, array $mappingTypes = array())
-    {
-        if (!$this->initialized) {
-            $this->initializeTypes();
-            $this->initialized = true;
-        }
+	public function createConnection(array $params, Configuration $config = NULL, EventManager $eventManager = NULL, array $mappingTypes = array())
+	{
+		if (!$this->initialized) {
+			$this->initializeTypes();
+			$this->initialized = true;
+		}
 
-        $connection = DriverManager::getConnection($params, $config, $eventManager);
+		/** @var \Doctrine\DBAL\Connection $connection */
+		$connection = DriverManager::getConnection($params, $config, $eventManager);
+		$platform = $connection->getDatabasePlatform();
 
-        if (!empty($mappingTypes)) {
-            $platform = $connection->getDatabasePlatform();
-            foreach ($mappingTypes as $dbType => $doctrineType) {
-                $platform->registerDoctrineTypeMapping($dbType, $doctrineType);
-            }
-        }
+		if (!empty($mappingTypes)) {
+			foreach ($mappingTypes as $dbType => $doctrineType) {
+				$platform->registerDoctrineTypeMapping($dbType, $doctrineType);
+			}
+		}
 
-        return $connection;
-    }
+		if (!empty($this->typesConfig)) {
+			foreach ($this->typesConfig as $type => $className) {
+				$platform->markDoctrineTypeCommented(Type::getType($type));
+			}
+		}
+
+		return $connection;
+	}
 
 
 
 	/**
 	 * Registers Doctrine DBAL types
 	 */
-    private function initializeTypes()
-    {
-        foreach ($this->typesConfig as $type => $className) {
-            if (Type::hasType($type)) {
-                Type::overrideType($type, $className);
-            } else {
-                Type::addType($type, $className);
-            }
-        }
-    }
+	private function initializeTypes()
+	{
+		foreach ($this->typesConfig as $type => $className) {
+			if (Type::hasType($type)) {
+				Type::overrideType($type, $className);
+
+			} else {
+				Type::addType($type, $className);
+			}
+		}
+	}
 
 }
