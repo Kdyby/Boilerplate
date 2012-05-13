@@ -21,17 +21,14 @@ use Kdyby;
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
  * @ORM\Entity(readOnly=TRUE)
- * @ORM\Table(name="audit_revisions", indexes={
- * @ORM\Index(name="entity_idx", columns={"className", "entityId"})
+ * @ORM\Table(name="db_audit_revisions", indexes={
+ * 	@ORM\Index(name="entity_idx", columns={"className", "entityId"})
  * })
  */
 class Revision extends Kdyby\Doctrine\Entities\IdentifiedEntity
 {
-
 	const TYPE_INSERT = 1;
-
 	const TYPE_UPDATE = 2;
-
 	const TYPE_DELETE = 3;
 
 	/**

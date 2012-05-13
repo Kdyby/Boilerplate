@@ -48,6 +48,7 @@ class FrameworkPackage extends Kdyby\Packages\Package
 		return array_merge(parent::getEntityNamespaces(), array(
 			'Kdyby\\Security',
 			'Kdyby\\Doctrine\\Entities',
+			'Kdyby\\Doctrine\\Audit',
 			'Kdyby\\Domain',
 			'Kdyby\\Media',
 			'Kdyby\\Templates',
