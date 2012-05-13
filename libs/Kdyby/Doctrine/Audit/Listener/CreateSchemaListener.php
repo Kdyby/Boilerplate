@@ -116,7 +116,11 @@ class CreateSchemaListener extends Nette\Object implements EventSubscriber
 
 		$schema = $eventArgs->getSchema();
 		$entityTable = $eventArgs->getClassTable();
-		$revisionTable = $schema->createTable($this->getClassAuditTableName($class));
+		if ($schema->hasTable($revisionTableName = $this->getClassAuditTableName($class))) {
+			return;
+		}
+
+		$revisionTable = $schema->createTable($revisionTableName);
 		foreach ($entityTable->getColumns() AS $column) {
 			/* @var $column \Doctrine\DBAL\Schema\Column */
 			$revisionTable->addColumn($column->getName(), $column->getType()->getName(), array_merge(

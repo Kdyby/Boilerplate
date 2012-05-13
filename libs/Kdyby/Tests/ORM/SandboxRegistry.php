@@ -83,6 +83,9 @@ class SandboxRegistry extends Kdyby\Doctrine\Registry
 		} catch (Doctrine\ORM\ORMException $e) {
 			throw $e;
 
+		} catch (Doctrine\DBAL\Schema\SchemaException $e) {
+			throw $e;
+
 		} catch (\Exception $e) {
 			Nette\Diagnostics\Debugger::log($e);
 			$configFile = $this->currentTest->getContext()->expand('%appDir%/config.orm.neon');
