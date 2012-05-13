@@ -10,20 +10,21 @@
 
 namespace Kdyby\EventDispatcher;
 
+use Doctrine;
 use Kdyby;
 use Nette;
 
 
 
 /**
+ * An EventSubscriber knows himself what events he is interested in.
+ * If an EventSubscriber is added to an EventManager, the manager invokes
+ * {@link getSubscribedEvents} and registers the subscriber as a listener for all
+ * returned events.
+ *
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-interface EventSubscriber
+interface EventSubscriber extends Doctrine\Common\EventSubscriber
 {
-
-	/**
-	 * @return array
-	 */
-	function getSubscribedEvents();
 
 }
