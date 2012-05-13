@@ -10,13 +10,16 @@
 
 namespace Kdyby\Doctrine\Audit\Listener;
 
-use Kdyby\Doctrine\Schema;
-use Kdyby\Doctrine\Audit\AuditManager;
+use Doctrine;
+use Doctrine\Common\Annotations\Reader;
 use Doctrine\Common\EventSubscriber;
+use Doctrine\ORM\Events as ORMEvents;
 use Doctrine\ORM\Tools\Event\GenerateSchemaTableEventArgs;
 use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
 use Doctrine\ORM\Tools\ToolEvents;
 use Doctrine\ORM\Mapping\ClassMetadata;
+use Kdyby\Doctrine\Schema;
+use Kdyby\Doctrine\Audit\AuditManager;
 use Nette;
 
 
@@ -37,15 +40,22 @@ class CreateSchemaListener extends Nette\Object implements EventSubscriber
      */
     private $metadataFactory;
 
+	/**
+	 * @var \Doctrine\Common\Annotations\Reader
+	 */
+	private $reader;
+
 
 
 	/**
 	 * @param \Kdyby\Doctrine\Audit\AuditManager $auditManager
+	 * @param \Doctrine\Common\Annotations\Reader $reader
 	 */
-    public function __construct(AuditManager $auditManager)
+    public function __construct(AuditManager $auditManager, Reader $reader)
     {
         $this->config = $auditManager->getConfiguration();
         $this->metadataFactory = $auditManager->getMetadataFactory();
+		$this->reader = $reader;
     }
 
 
@@ -57,6 +67,7 @@ class CreateSchemaListener extends Nette\Object implements EventSubscriber
     {
         return array(
             ToolEvents::postGenerateSchemaTable,
+			ORMEvents::loadClassMetadata,
 			Schema\SchemaTool::onCreateSchemaSql,
 			Schema\SchemaTool::onUpdateSchemaSql,
 			Schema\SchemaTool::onDropSchemaSql,
@@ -66,11 +77,38 @@ class CreateSchemaListener extends Nette\Object implements EventSubscriber
 
 
 	/**
+	 * @param \Doctrine\ORM\Event\LoadClassMetadataEventArgs $args
+	 */
+	public function loadClassMetadata(Doctrine\ORM\Event\LoadClassMetadataEventArgs $args)
+	{
+		/** @var \Kdyby\Doctrine\Mapping\ClassMetadata $meta */
+		$meta = $args->getClassMetadata();
+		$meta->setAudited($this->isEntityAudited($meta->name));
+	}
+
+
+
+	/**
+	 * @param string $className
+	 *
+	 * @return string|NULL
+	 */
+	private function isEntityAudited($className)
+	{
+		return (bool)$this->reader->getClassAnnotation(
+			Nette\Reflection\ClassType::from($className),
+			'Kdyby\Doctrine\Audit\AuditedEntity'
+		);
+	}
+
+
+
+	/**
 	 * @param \Doctrine\ORM\Tools\Event\GenerateSchemaTableEventArgs $eventArgs
 	 */
     public function postGenerateSchemaTable(GenerateSchemaTableEventArgs $eventArgs)
     {
-        $class = $eventArgs->getClassMetadata();
+		$class = $eventArgs->getClassMetadata();
         if (!$this->metadataFactory->isAudited($class->name)) {
 			return;
 		}

@@ -63,7 +63,10 @@ class ClassMetadata extends Doctrine\ORM\Mapping\ClassMetadata
 	 */
 	public function __sleep()
 	{
-		return parent::__sleep() + array('auditChanges');
+		return array_merge(
+			parent::__sleep(),
+			array('auditChanges')
+		);
 	}
 
 }

@@ -116,6 +116,10 @@ class PartialSchemaComparator extends Nette\Object
 					$tables[] = Strings::lower($assoc['joinTable']['name']);
 				}
 			}
+
+			if ($class->isAudited()) {
+				$tables[] = Strings::lower($class->getTableName()) . '_audit'; // TODO: from configurator
+			}
 		}
 
 		return array_unique($tables);
