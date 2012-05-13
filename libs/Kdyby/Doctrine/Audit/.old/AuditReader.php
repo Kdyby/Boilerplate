@@ -25,91 +25,97 @@ use Kdyby\Doctrine\Mapping\ClassMetadataFactory;
  */
 class AuditReader extends Nette\Object
 {
+
 	/**
 	 * @var \Kdyby\Doctrine\Audit\AuditPersister
 	 */
-    private $persister;
+	private $persister;
 
 
 
 	/**
 	 * @param \Kdyby\Doctrine\Audit\AuditPersister $persister
 	 */
-    public function __construct(AuditPersister $persister)
-    {
-        $this->persister = $persister;
-    }
+	public function __construct(AuditPersister $persister)
+	{
+		$this->persister = $persister;
+	}
 
 
 
-    /**
-     * Find a class at the specific revision.
-     *
-     * This method does not require the revision to be exact but it also searches for an earlier revision
-     * of this entity and always returns the latest revision below or equal the given revision
-     *
-     * @param string $className
-     * @param mixed $id
-     * @param int $revision
-     * @return object
-     */
-    public function find($className, $id, $revision)
-    {
+	/**
+	 * Find a class at the specific revision.
+	 *
+	 * This method does not require the revision to be exact but it also searches for an earlier revision
+	 * of this entity and always returns the latest revision below or equal the given revision
+	 *
+	 * @param string $className
+	 * @param mixed $id
+	 * @param int $revision
+	 *
+	 * @return object
+	 */
+	public function find($className, $id, $revision)
+	{
 
-    }
-
-
-
-    /**
-     * Return a list of all revisions.
-     *
-     * @param int $limit
-     * @param int $offset
-     * @return Revision[]
-     */
-    public function findRevisionHistory($limit = 20, $offset = 0)
-    {
-
-    }
+	}
 
 
 
-    /**
-     * Return a list of ChangedEntity instances created at the given revision.
-     *
-     * @param int $revision
-     * @return ChangedEntity[]
-     */
-    public function findEntitiesChangedAtRevision($revision)
-    {
+	/**
+	 * Return a list of all revisions.
+	 *
+	 * @param int $limit
+	 * @param int $offset
+	 *
+	 * @return Revision[]
+	 */
+	public function findRevisionHistory($limit = 20, $offset = 0)
+	{
 
-    }
-
-
-
-    /**
-     * Return the revision object for a particular revision.
-     *
-     * @param  int $rev
-     * @return Revision
-     */
-    public function findRevision($rev)
-    {
-
-    }
+	}
 
 
 
-    /**
-     * Find all revisions that were made of entity class with given id.
-     *
-     * @param string $className
-     * @param mixed $id
-     * @return Revision[]
-     */
-    public function findRevisions($className, $id)
-    {
+	/**
+	 * Return a list of ChangedEntity instances created at the given revision.
+	 *
+	 * @param int $revision
+	 *
+	 * @return ChangedEntity[]
+	 */
+	public function findEntitiesChangedAtRevision($revision)
+	{
 
-    }
+	}
+
+
+
+	/**
+	 * Return the revision object for a particular revision.
+	 *
+	 * @param  int $rev
+	 *
+	 * @return Revision
+	 */
+	public function findRevision($rev)
+	{
+
+	}
+
+
+
+	/**
+	 * Find all revisions that were made of entity class with given id.
+	 *
+	 * @param string $className
+	 * @param mixed $id
+	 *
+	 * @return Revision[]
+	 */
+	public function findRevisions($className, $id)
+	{
+
+	}
 
 }

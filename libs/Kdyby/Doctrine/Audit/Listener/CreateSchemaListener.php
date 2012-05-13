@@ -30,15 +30,16 @@ use Nette;
  */
 class CreateSchemaListener extends Nette\Object implements EventSubscriber
 {
-    /**
-     * @var \Kdyby\Doctrine\Audit\AuditConfiguration
-     */
-    private $config;
 
-    /**
-     * @var \Kdyby\Doctrine\Mapping\ClassMetadataFactory
-     */
-    private $metadataFactory;
+	/**
+	 * @var \Kdyby\Doctrine\Audit\AuditConfiguration
+	 */
+	private $config;
+
+	/**
+	 * @var \Kdyby\Doctrine\Mapping\ClassMetadataFactory
+	 */
+	private $metadataFactory;
 
 	/**
 	 * @var \Doctrine\Common\Annotations\Reader
@@ -51,28 +52,28 @@ class CreateSchemaListener extends Nette\Object implements EventSubscriber
 	 * @param \Kdyby\Doctrine\Audit\AuditManager $auditManager
 	 * @param \Doctrine\Common\Annotations\Reader $reader
 	 */
-    public function __construct(AuditManager $auditManager, Reader $reader)
-    {
-        $this->config = $auditManager->getConfiguration();
-        $this->metadataFactory = $auditManager->getMetadataFactory();
+	public function __construct(AuditManager $auditManager, Reader $reader)
+	{
+		$this->config = $auditManager->getConfiguration();
+		$this->metadataFactory = $auditManager->getMetadataFactory();
 		$this->reader = $reader;
-    }
+	}
 
 
 
 	/**
 	 * @return array
 	 */
-    public function getSubscribedEvents()
-    {
-        return array(
-            ToolEvents::postGenerateSchemaTable,
+	public function getSubscribedEvents()
+	{
+		return array(
+			ToolEvents::postGenerateSchemaTable,
 			ORMEvents::loadClassMetadata,
 			Schema\SchemaTool::onCreateSchemaSql,
 			Schema\SchemaTool::onUpdateSchemaSql,
 			Schema\SchemaTool::onDropSchemaSql,
-        );
-    }
+		);
+	}
 
 
 
@@ -106,10 +107,10 @@ class CreateSchemaListener extends Nette\Object implements EventSubscriber
 	/**
 	 * @param \Doctrine\ORM\Tools\Event\GenerateSchemaTableEventArgs $eventArgs
 	 */
-    public function postGenerateSchemaTable(GenerateSchemaTableEventArgs $eventArgs)
-    {
+	public function postGenerateSchemaTable(GenerateSchemaTableEventArgs $eventArgs)
+	{
 		$class = $eventArgs->getClassMetadata();
-        if (!$this->metadataFactory->isAudited($class->name)) {
+		if (!$this->metadataFactory->isAudited($class->name)) {
 			return;
 		}
 
@@ -131,7 +132,7 @@ class CreateSchemaListener extends Nette\Object implements EventSubscriber
 		$pkColumns = $entityTable->getPrimaryKey()->getColumns();
 		$pkColumns[] = $this->config->fieldName;
 		$revisionTable->setPrimaryKey($pkColumns);
-    }
+	}
 
 
 
@@ -200,6 +201,7 @@ class CreateSchemaListener extends Nette\Object implements EventSubscriber
 
 	/**
 	 * @param \Doctrine\ORM\Mapping\ClassMetadata $class
+	 *
 	 * @return string
 	 */
 	private function getClassAuditTableName(ClassMetadata $class)

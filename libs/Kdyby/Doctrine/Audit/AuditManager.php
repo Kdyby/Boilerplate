@@ -27,15 +27,16 @@ use Kdyby\Doctrine\Mapping\ClassMetadataFactory;
  */
 class AuditManager extends Nette\Object
 {
+
 	/**
 	 * @var \Kdyby\Doctrine\Audit\AuditConfiguration
 	 */
-    private $config;
+	private $config;
 
 	/**
 	 * @var \Kdyby\Doctrine\Mapping\ClassMetadataFactory
 	 */
-    private $metadataFactory;
+	private $metadataFactory;
 
 
 
@@ -43,31 +44,31 @@ class AuditManager extends Nette\Object
 	 * @param \Kdyby\Doctrine\Audit\AuditConfiguration $config
 	 * @param \Doctrine\ORM\EntityManager $em
 	 */
-    public function __construct(AuditConfiguration $config, EntityManager $em)
-    {
-        $this->config = $config;
-        $this->metadataFactory = $em->getMetadataFactory();
-    }
+	public function __construct(AuditConfiguration $config, EntityManager $em)
+	{
+		$this->config = $config;
+		$this->metadataFactory = $em->getMetadataFactory();
+	}
 
 
 
 	/**
 	 * @return \Kdyby\Doctrine\Mapping\ClassMetadataFactory
 	 */
-    public function getMetadataFactory()
-    {
-        return $this->metadataFactory;
-    }
+	public function getMetadataFactory()
+	{
+		return $this->metadataFactory;
+	}
 
 
 
 	/**
 	 * @return \Kdyby\Doctrine\Audit\AuditConfiguration
 	 */
-    public function getConfiguration()
-    {
-        return $this->config;
-    }
+	public function getConfiguration()
+	{
+		return $this->config;
+	}
 
 
 

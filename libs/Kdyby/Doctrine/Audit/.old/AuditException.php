@@ -23,12 +23,13 @@ class AuditException extends \Exception
 
 	/**
 	 * @param $className
+	 *
 	 * @return AuditException
 	 */
-    static public function notAudited($className)
-    {
-        return new self("Class '" . $className . "' is not audited.");
-    }
+	static public function notAudited($className)
+	{
+		return new self("Class '" . $className . "' is not audited.");
+	}
 
 
 
@@ -36,23 +37,25 @@ class AuditException extends \Exception
 	 * @param $className
 	 * @param $id
 	 * @param $revision
+	 *
 	 * @return AuditException
 	 */
-    static public function noRevisionFound($className, $id, $revision)
-    {
-        return new self("No revision of class '" . $className . "' (".implode(", ", $id).") was found ".
-            "at revision " . $revision . " or before. The entity did not exist at the specified revision yet.");
-    }
+	static public function noRevisionFound($className, $id, $revision)
+	{
+		return new self("No revision of class '" . $className . "' (" . implode(", ", $id) . ") was found " .
+			"at revision " . $revision . " or before. The entity did not exist at the specified revision yet.");
+	}
 
 
 
 	/**
 	 * @param $rev
+	 *
 	 * @return AuditException
 	 */
-    static public function invalidRevision($rev)
-    {
-        return new self("No revision '".$rev."' exists.");
-    }
+	static public function invalidRevision($rev)
+	{
+		return new self("No revision '" . $rev . "' exists.");
+	}
 
 }

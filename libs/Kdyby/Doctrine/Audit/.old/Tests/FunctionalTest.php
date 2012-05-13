@@ -34,246 +34,282 @@ use Doctrine\ORM\Mapping AS ORM;
 
 class FunctionalTest extends \PHPUnit_Framework_TestCase
 {
-    /**
-     * @var EntityManager
-     */
-    private $em = null;
 
-    /**
-     * @var AuditManager
-     */
-    private $auditManager = null;
+	/**
+	 * @var EntityManager
+	 */
+	private $em = null;
 
-    public function testAuditable()
-    {
-        $user = new UserAudit("beberlei");
-        $article = new ArticleAudit("test", "yadda!", $user);
+	/**
+	 * @var AuditManager
+	 */
+	private $auditManager = null;
 
-        $this->em->persist($user);
-        $this->em->persist($article);
-        $this->em->flush();
 
-        $this->assertEquals(1, count($this->em->getConnection()->fetchAll('SELECT id FROM revisions')));
-        $this->assertEquals(1, count($this->em->getConnection()->fetchAll('SELECT * FROM UserAudit_audit')));
-        $this->assertEquals(1, count($this->em->getConnection()->fetchAll('SELECT * FROM ArticleAudit_audit')));
 
-        $article->setText("oeruoa");
+	public function testAuditable()
+	{
+		$user = new UserAudit("beberlei");
+		$article = new ArticleAudit("test", "yadda!", $user);
 
-        $this->em->flush();
+		$this->em->persist($user);
+		$this->em->persist($article);
+		$this->em->flush();
 
-        $this->assertEquals(2, count($this->em->getConnection()->fetchAll('SELECT id FROM revisions')));
-        $this->assertEquals(2, count($this->em->getConnection()->fetchAll('SELECT * FROM ArticleAudit_audit')));
+		$this->assertEquals(1, count($this->em->getConnection()->fetchAll('SELECT id FROM revisions')));
+		$this->assertEquals(1, count($this->em->getConnection()->fetchAll('SELECT * FROM UserAudit_audit')));
+		$this->assertEquals(1, count($this->em->getConnection()->fetchAll('SELECT * FROM ArticleAudit_audit')));
 
-        $this->em->remove($user);
-        $this->em->remove($article);
-        $this->em->flush();
+		$article->setText("oeruoa");
 
-        $this->assertEquals(3, count($this->em->getConnection()->fetchAll('SELECT id FROM revisions')));
-        $this->assertEquals(2, count($this->em->getConnection()->fetchAll('SELECT * FROM UserAudit_audit')));
-        $this->assertEquals(3, count($this->em->getConnection()->fetchAll('SELECT * FROM ArticleAudit_audit')));
-    }
+		$this->em->flush();
 
-    public function testFind()
-    {
-        $user = new UserAudit("beberlei");
+		$this->assertEquals(2, count($this->em->getConnection()->fetchAll('SELECT id FROM revisions')));
+		$this->assertEquals(2, count($this->em->getConnection()->fetchAll('SELECT * FROM ArticleAudit_audit')));
 
-        $this->em->persist($user);
-        $this->em->flush();
+		$this->em->remove($user);
+		$this->em->remove($article);
+		$this->em->flush();
 
-        $reader = $this->auditManager->createAuditReader($this->em);
-        $auditUser = $reader->find(get_class($user), $user->getId(), 1);
+		$this->assertEquals(3, count($this->em->getConnection()->fetchAll('SELECT id FROM revisions')));
+		$this->assertEquals(2, count($this->em->getConnection()->fetchAll('SELECT * FROM UserAudit_audit')));
+		$this->assertEquals(3, count($this->em->getConnection()->fetchAll('SELECT * FROM ArticleAudit_audit')));
+	}
 
-        $this->assertInstanceOf(get_class($user), $auditUser, "Audited User is also a User instance.");
-        $this->assertEquals($user->getId(), $auditUser->getId(), "Ids of audited user and real user should be the same.");
-        $this->assertEquals($user->getName(), $auditUser->getName(), "Name of audited user and real user should be the same.");
-        $this->assertFalse($this->em->contains($auditUser), "Audited User should not be in the identity map.");
-        $this->assertNotSame($user, $auditUser, "User and Audited User instances are not the same.");
-    }
 
-    public function testFindNoRevisionFound()
-    {
-        $reader = $this->auditManager->createAuditReader($this->em);
 
-        $this->setExpectedException("Kdyby\Doctrine\Audit\AuditException", "No revision of class 'Kdyby\Doctrine\Audit\Tests\UserAudit' (1) was found at revision 1 or before. The entity did not exist at the specified revision yet.");
-        $auditUser = $reader->find("Kdyby\Doctrine\Audit\Tests\UserAudit", 1, 1);
-    }
+	public function testFind()
+	{
+		$user = new UserAudit("beberlei");
 
-    public function testFindNotAudited()
-    {
-        $reader = $this->auditManager->createAuditReader($this->em);
+		$this->em->persist($user);
+		$this->em->flush();
 
-        $this->setExpectedException("Kdyby\Doctrine\Audit\AuditException", "Class 'stdClass' is not audited.");
-        $auditUser = $reader->find("stdClass", 1, 1);
-    }
+		$reader = $this->auditManager->createAuditReader($this->em);
+		$auditUser = $reader->find(get_class($user), $user->getId(), 1);
 
-    public function testFindRevisionHistory()
-    {
-        $user = new UserAudit("beberlei");
+		$this->assertInstanceOf(get_class($user), $auditUser, "Audited User is also a User instance.");
+		$this->assertEquals($user->getId(), $auditUser->getId(), "Ids of audited user and real user should be the same.");
+		$this->assertEquals($user->getName(), $auditUser->getName(), "Name of audited user and real user should be the same.");
+		$this->assertFalse($this->em->contains($auditUser), "Audited User should not be in the identity map.");
+		$this->assertNotSame($user, $auditUser, "User and Audited User instances are not the same.");
+	}
 
-        $this->em->persist($user);
-        $this->em->flush();
 
-        $article = new ArticleAudit("test", "yadda!", $user);
 
-        $this->em->persist($article);
-        $this->em->flush();
+	public function testFindNoRevisionFound()
+	{
+		$reader = $this->auditManager->createAuditReader($this->em);
 
-        $reader = $this->auditManager->createAuditReader($this->em);
-        $revisions = $reader->findRevisionHistory();
+		$this->setExpectedException("Kdyby\Doctrine\Audit\AuditException", "No revision of class 'Kdyby\Doctrine\Audit\Tests\UserAudit' (1) was found at revision 1 or before. The entity did not exist at the specified revision yet.");
+		$auditUser = $reader->find("Kdyby\Doctrine\Audit\Tests\UserAudit", 1, 1);
+	}
 
-        $this->assertEquals(2, count($revisions));
-        $this->assertContainsOnly('Kdyby\Doctrine\Audit\Revision', $revisions);
 
-        $this->assertEquals(2, $revisions[0]->getRev());
-        $this->assertInstanceOf('DateTime', $revisions[0]->getTimestamp());
-        $this->assertEquals('beberlei', $revisions[0]->getAuthor());
 
-        $this->assertEquals(1, $revisions[1]->getRev());
-        $this->assertInstanceOf('DateTime', $revisions[1]->getTimestamp());
-        $this->assertEquals('beberlei', $revisions[1]->getAuthor());
-    }
+	public function testFindNotAudited()
+	{
+		$reader = $this->auditManager->createAuditReader($this->em);
 
-    public function testFindEntitesChangedAtRevision()
-    {
-        $user = new UserAudit("beberlei");
-        $article = new ArticleAudit("test", "yadda!", $user);
+		$this->setExpectedException("Kdyby\Doctrine\Audit\AuditException", "Class 'stdClass' is not audited.");
+		$auditUser = $reader->find("stdClass", 1, 1);
+	}
 
-        $this->em->persist($user);
-        $this->em->persist($article);
-        $this->em->flush();
 
-        $reader = $this->auditManager->createAuditReader($this->em);
-        $changedEntities = $reader->findEntitesChangedAtRevision(1);
 
-        $this->assertEquals(2, count($changedEntities));
-        $this->assertContainsOnly('Kdyby\Doctrine\Audit\ChangedEntity', $changedEntities);
+	public function testFindRevisionHistory()
+	{
+		$user = new UserAudit("beberlei");
 
-        $this->assertEquals('Kdyby\Doctrine\Audit\Tests\ArticleAudit', $changedEntities[0]->getClassName());
-        $this->assertEquals('INS', $changedEntities[0]->getRevisionType());
-        $this->assertEquals(array('id' => 1), $changedEntities[0]->getId());
-        $this->assertInstanceOf('Kdyby\Doctrine\Audit\Tests\ArticleAudit', $changedEntities[0]->getEntity());
+		$this->em->persist($user);
+		$this->em->flush();
 
-        $this->assertEquals('Kdyby\Doctrine\Audit\Tests\UserAudit', $changedEntities[1]->getClassName());
-        $this->assertEquals('INS', $changedEntities[1]->getRevisionType());
-        $this->assertEquals(array('id' => 1), $changedEntities[1]->getId());
-        $this->assertInstanceOf('Kdyby\Doctrine\Audit\Tests\UserAudit', $changedEntities[1]->getEntity());
-    }
+		$article = new ArticleAudit("test", "yadda!", $user);
 
-    public function testFindRevisions()
-    {
-        $user = new UserAudit("beberlei");
+		$this->em->persist($article);
+		$this->em->flush();
 
-        $this->em->persist($user);
-        $this->em->flush();
+		$reader = $this->auditManager->createAuditReader($this->em);
+		$revisions = $reader->findRevisionHistory();
 
-        $user->setName("beberlei2");
-        $this->em->flush();
+		$this->assertEquals(2, count($revisions));
+		$this->assertContainsOnly('Kdyby\Doctrine\Audit\Revision', $revisions);
 
-        $reader = $this->auditManager->createAuditReader($this->em);
-        $revisions = $reader->findRevisions(get_class($user), $user->getId());
+		$this->assertEquals(2, $revisions[0]->getRev());
+		$this->assertInstanceOf('DateTime', $revisions[0]->getTimestamp());
+		$this->assertEquals('beberlei', $revisions[0]->getAuthor());
 
-        $this->assertEquals(2, count($revisions));
-        $this->assertContainsOnly('Kdyby\Doctrine\Audit\Revision', $revisions);
+		$this->assertEquals(1, $revisions[1]->getRev());
+		$this->assertInstanceOf('DateTime', $revisions[1]->getTimestamp());
+		$this->assertEquals('beberlei', $revisions[1]->getAuthor());
+	}
 
-        $this->assertEquals(2, $revisions[0]->getRev());
-        $this->assertInstanceOf('DateTime', $revisions[0]->getTimestamp());
-        $this->assertEquals('beberlei', $revisions[0]->getAuthor());
 
-        $this->assertEquals(1, $revisions[1]->getRev());
-        $this->assertInstanceOf('DateTime', $revisions[1]->getTimestamp());
-        $this->assertEquals('beberlei', $revisions[1]->getAuthor());
-    }
 
-    public function setUp()
-    {
-        $config = new \Doctrine\ORM\Configuration();
-        $config->setMetadataCacheImpl(new \Doctrine\Common\Cache\ArrayCache);
-        $config->setQueryCacheImpl(new \Doctrine\Common\Cache\ArrayCache);
-        $config->setProxyDir(sys_get_temp_dir());
-        $config->setProxyNamespace('Kdyby\Doctrine\Audit\Tests\Proxies');
-        $config->setMetadataDriverImpl($config->newDefaultAnnotationDriver());
+	public function testFindEntitesChangedAtRevision()
+	{
+		$user = new UserAudit("beberlei");
+		$article = new ArticleAudit("test", "yadda!", $user);
 
-        $conn = array(
-            'driver' => 'pdo_sqlite',
-            'memory' => true,
-        );
+		$this->em->persist($user);
+		$this->em->persist($article);
+		$this->em->flush();
 
-        $auditConfig = new AuditConfiguration();
-        $auditConfig->setCurrentUsername("beberlei");
-        $auditConfig->setAuditedEntityClasses(array('Kdyby\Doctrine\Audit\Tests\ArticleAudit', 'Kdyby\Doctrine\Audit\Tests\UserAudit'));
+		$reader = $this->auditManager->createAuditReader($this->em);
+		$changedEntities = $reader->findEntitesChangedAtRevision(1);
 
-        $this->auditManager = new AuditManager($auditConfig);
-        $this->auditManager->registerEvents($evm = new EventManager());
+		$this->assertEquals(2, count($changedEntities));
+		$this->assertContainsOnly('Kdyby\Doctrine\Audit\ChangedEntity', $changedEntities);
 
-        #$config->setSQLLogger(new \Doctrine\DBAL\Logging\EchoSQLLogger());
+		$this->assertEquals('Kdyby\Doctrine\Audit\Tests\ArticleAudit', $changedEntities[0]->getClassName());
+		$this->assertEquals('INS', $changedEntities[0]->getRevisionType());
+		$this->assertEquals(array('id' => 1), $changedEntities[0]->getId());
+		$this->assertInstanceOf('Kdyby\Doctrine\Audit\Tests\ArticleAudit', $changedEntities[0]->getEntity());
 
-        $this->em = \Doctrine\ORM\EntityManager::create($conn, $config, $evm);
+		$this->assertEquals('Kdyby\Doctrine\Audit\Tests\UserAudit', $changedEntities[1]->getClassName());
+		$this->assertEquals('INS', $changedEntities[1]->getRevisionType());
+		$this->assertEquals(array('id' => 1), $changedEntities[1]->getId());
+		$this->assertInstanceOf('Kdyby\Doctrine\Audit\Tests\UserAudit', $changedEntities[1]->getEntity());
+	}
 
-        $schemaTool = new \Doctrine\ORM\Tools\SchemaTool($this->em);
-        $schemaTool->createSchema(array(
-            $this->em->getClassMetadata('Kdyby\Doctrine\Audit\Tests\ArticleAudit'),
-            $this->em->getClassMetadata('Kdyby\Doctrine\Audit\Tests\UserAudit'),
-        ));
-    }
+
+
+	public function testFindRevisions()
+	{
+		$user = new UserAudit("beberlei");
+
+		$this->em->persist($user);
+		$this->em->flush();
+
+		$user->setName("beberlei2");
+		$this->em->flush();
+
+		$reader = $this->auditManager->createAuditReader($this->em);
+		$revisions = $reader->findRevisions(get_class($user), $user->getId());
+
+		$this->assertEquals(2, count($revisions));
+		$this->assertContainsOnly('Kdyby\Doctrine\Audit\Revision', $revisions);
+
+		$this->assertEquals(2, $revisions[0]->getRev());
+		$this->assertInstanceOf('DateTime', $revisions[0]->getTimestamp());
+		$this->assertEquals('beberlei', $revisions[0]->getAuthor());
+
+		$this->assertEquals(1, $revisions[1]->getRev());
+		$this->assertInstanceOf('DateTime', $revisions[1]->getTimestamp());
+		$this->assertEquals('beberlei', $revisions[1]->getAuthor());
+	}
+
+
+
+	public function setUp()
+	{
+		$config = new \Doctrine\ORM\Configuration();
+		$config->setMetadataCacheImpl(new \Doctrine\Common\Cache\ArrayCache);
+		$config->setQueryCacheImpl(new \Doctrine\Common\Cache\ArrayCache);
+		$config->setProxyDir(sys_get_temp_dir());
+		$config->setProxyNamespace('Kdyby\Doctrine\Audit\Tests\Proxies');
+		$config->setMetadataDriverImpl($config->newDefaultAnnotationDriver());
+
+		$conn = array(
+			'driver' => 'pdo_sqlite',
+			'memory' => true,
+		);
+
+		$auditConfig = new AuditConfiguration();
+		$auditConfig->setCurrentUsername("beberlei");
+		$auditConfig->setAuditedEntityClasses(array('Kdyby\Doctrine\Audit\Tests\ArticleAudit', 'Kdyby\Doctrine\Audit\Tests\UserAudit'));
+
+		$this->auditManager = new AuditManager($auditConfig);
+		$this->auditManager->registerEvents($evm = new EventManager());
+
+		#$config->setSQLLogger(new \Doctrine\DBAL\Logging\EchoSQLLogger());
+
+		$this->em = \Doctrine\ORM\EntityManager::create($conn, $config, $evm);
+
+		$schemaTool = new \Doctrine\ORM\Tools\SchemaTool($this->em);
+		$schemaTool->createSchema(array(
+			$this->em->getClassMetadata('Kdyby\Doctrine\Audit\Tests\ArticleAudit'),
+			$this->em->getClassMetadata('Kdyby\Doctrine\Audit\Tests\UserAudit'),
+		));
+	}
 }
+
+
 
 /**
  * @ORM\Entity
  */
 class ArticleAudit
 {
-    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue */
-    private $id;
 
-    /** @ORM\Column(type="string") */
-    private $title;
+	/** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue */
+	private $id;
 
-    /** @ORM\Column(type="text") */
-    private $text;
+	/** @ORM\Column(type="string") */
+	private $title;
 
-    /** @ORM\ManyToOne(targetEntity="UserAudit") */
-    private $author;
+	/** @ORM\Column(type="text") */
+	private $text;
 
-    function __construct($title, $text, $author)
-    {
-        $this->title = $title;
-        $this->text = $text;
-        $this->author = $author;
-    }
+	/** @ORM\ManyToOne(targetEntity="UserAudit") */
+	private $author;
 
-    public function setText($text)
-    {
-        $this->text = $text;
-    }
+
+
+	function __construct($title, $text, $author)
+	{
+		$this->title = $title;
+		$this->text = $text;
+		$this->author = $author;
+	}
+
+
+
+	public function setText($text)
+	{
+		$this->text = $text;
+	}
 }
+
+
 
 /**
  * @ORM\Entity
  */
 class UserAudit
 {
-    /** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue */
-    private $id;
-    /** @ORM\Column(type="string") */
-    private $name;
 
-    function __construct($name)
-    {
-        $this->name = $name;
-    }
+	/** @ORM\Id @ORM\Column(type="integer") @ORM\GeneratedValue */
+	private $id;
 
-    public function setName($name)
-    {
-        $this->name = $name;
-    }
+	/** @ORM\Column(type="string") */
+	private $name;
 
-    public function getId()
-    {
-        return $this->id;
-    }
 
-    public function getName()
-    {
-        return $this->name;
-    }
+
+	function __construct($name)
+	{
+		$this->name = $name;
+	}
+
+
+
+	public function setName($name)
+	{
+		$this->name = $name;
+	}
+
+
+
+	public function getId()
+	{
+		return $this->id;
+	}
+
+
+
+	public function getName()
+	{
+		return $this->name;
+	}
 }

@@ -22,13 +22,16 @@ use Kdyby;
  *
  * @ORM\Entity(readOnly=TRUE)
  * @ORM\Table(name="audit_revisions", indexes={
- * 	@ORM\Index(name="entity_idx", columns={"className", "entityId"})
+ * @ORM\Index(name="entity_idx", columns={"className", "entityId"})
  * })
  */
 class Revision extends Kdyby\Doctrine\Entities\IdentifiedEntity
 {
+
 	const TYPE_INSERT = 1;
+
 	const TYPE_UPDATE = 2;
+
 	const TYPE_DELETE = 3;
 
 	/**
@@ -82,15 +85,15 @@ class Revision extends Kdyby\Doctrine\Entities\IdentifiedEntity
 	 * @param string $author
 	 * @param string $message
 	 */
-    public function __construct($className, $id, $type = self::TYPE_INSERT, $author = NULL, $message = NULL)
-    {
+	public function __construct($className, $id, $type = self::TYPE_INSERT, $author = NULL, $message = NULL)
+	{
 		$this->className = $className;
 		$this->entityId = $id;
 		$this->type = $type;
-        $this->createdAt = new \DateTime;
-        $this->author = $author;
+		$this->createdAt = new \DateTime;
+		$this->author = $author;
 		$this->message = $message;
-    }
+	}
 
 
 
@@ -156,7 +159,9 @@ class Revision extends Kdyby\Doctrine\Entities\IdentifiedEntity
 
 	/**
 	 * @internal
+	 *
 	 * @param object $entity
+	 *
 	 * @throws \Kdyby\InvalidStateException
 	 */
 	public function injectEntity($entity)

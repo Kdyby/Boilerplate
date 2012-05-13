@@ -20,25 +20,26 @@ use Nette;
  */
 class ChangedEntity extends Nette\Object
 {
+
 	/**
 	 * @var string
 	 */
-    private $className;
+	private $className;
 
 	/**
 	 * @var array
 	 */
-    private $id;
+	private $id;
 
 	/**
 	 * @var string
 	 */
-    private $revType;
+	private $revType;
 
 	/**
 	 * @var object
 	 */
-    private $entity;
+	private $entity;
 
 
 
@@ -48,53 +49,53 @@ class ChangedEntity extends Nette\Object
 	 * @param string $revType
 	 * @param object $entity
 	 */
-    public function __construct($className, array $id, $revType, $entity)
-    {
-        $this->className = $className;
-        $this->id = $id;
-        $this->revType = $revType;
-        $this->entity = $entity;
-    }
+	public function __construct($className, array $id, $revType, $entity)
+	{
+		$this->className = $className;
+		$this->id = $id;
+		$this->revType = $revType;
+		$this->entity = $entity;
+	}
 
 
 
-    /**
-     * @return string
-     */
-    public function getClassName()
-    {
-        return $this->className;
-    }
+	/**
+	 * @return string
+	 */
+	public function getClassName()
+	{
+		return $this->className;
+	}
 
 
 
-    /**
-     *
-     * @return array
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
+	/**
+	 *
+	 * @return array
+	 */
+	public function getId()
+	{
+		return $this->id;
+	}
 
 
 
-    /**
-     * @return string
-     */
-    public function getRevisionType()
-    {
-        return $this->revType;
-    }
+	/**
+	 * @return string
+	 */
+	public function getRevisionType()
+	{
+		return $this->revType;
+	}
 
 
 
-    /**
-     * @return object
-     */
-    public function getEntity()
-    {
-        return $this->entity;
-    }
+	/**
+	 * @return object
+	 */
+	public function getEntity()
+	{
+		return $this->entity;
+	}
 
 }

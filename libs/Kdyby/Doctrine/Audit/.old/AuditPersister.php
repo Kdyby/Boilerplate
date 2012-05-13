@@ -89,9 +89,9 @@ class AuditPersister extends Nette\Object
 
 		$query = $this->platform->modifyLimitQuery(
 			'SELECT ' . $this->getSqlColumnsForClass($class, 'c') .
-			' FROM ' . $this->getTableForClass($class) . ' c ' .
-			' WHERE ' . $this->getSqlWhereIdentifierForClass($class, 'c', $this->config->getFieldName() . ' <= ?') .
-			' ORDER BY c.rev DESC', 1
+				' FROM ' . $this->getTableForClass($class) . ' c ' .
+				' WHERE ' . $this->getSqlWhereIdentifierForClass($class, 'c', $this->config->getFieldName() . ' <= ?') .
+				' ORDER BY c.rev DESC', 1
 		);
 
 		if ($revisionData = $this->conn->fetchAll($query, $values)) {
@@ -282,6 +282,7 @@ class AuditPersister extends Nette\Object
 
 	/**
 	 * @param array $revision
+	 *
 	 * @return \Kdyby\Doctrine\Audit\Revision
 	 */
 	private function createRevision(array $revision)

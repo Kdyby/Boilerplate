@@ -27,10 +27,11 @@ use Nette;
  */
 class AuditConfiguration extends Nette\Object
 {
+
 	/**
 	 * @var string
 	 */
-    public $prefix;
+	public $prefix;
 
 	/**
 	 * @var string
