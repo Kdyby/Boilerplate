@@ -20,13 +20,15 @@ use Nette;
  *
  * @method string getPrefix()
  * @method string getSuffix()
- * @method string getFieldName()
  * @method string getTableName()
  * @method string getCurrentUser()
  * @method setCurrentUser(string $username)
  */
 class AuditConfiguration extends Nette\Object
 {
+
+	const REVISION_ID = '_revision';
+	const REVISION_PREVIOUS = '_revision_previous';
 
 	/**
 	 * @var string
@@ -37,11 +39,6 @@ class AuditConfiguration extends Nette\Object
 	 * @var string
 	 */
 	public $suffix;
-
-	/**
-	 * @var string
-	 */
-	public $fieldName;
 
 	/**
 	 * @var string

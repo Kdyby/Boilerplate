@@ -11,6 +11,7 @@
 namespace Kdyby\Doctrine\Audit\Listener;
 
 use Doctrine;
+use Doctrine\DBAL\Platforms;
 use Doctrine\DBAL\Events as DbalEvents;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Kdyby;
@@ -64,15 +65,33 @@ class CurrentUserListener extends Nette\Object implements Kdyby\EventDispatcher\
 
 	/**
 	 * @param \Doctrine\DBAL\Event\ConnectionEventArgs $args
+	 *
+	 * @throws \Kdyby\NotSupportedException
 	 */
 	public function postConnect(ConnectionEventArgs $args)
 	{
 		// set current user to configuration
 		$this->config->setCurrentUser($this->user->getId());
 
+		$conn = $args->getConnection();
+		if ($conn->getDatabasePlatform() instanceof Platforms\MySqlPlatform) {
+			$variableSql = 'SET @kdyby_current_user = ?';
+
+		} elseif ($conn->getDatabasePlatform() instanceof Platforms\SqlitePlatform) {
+			/** @var \Doctrine\DBAL\Schema\SqliteSchemaManager $sm */
+			$sm = $conn->getSchemaManager();
+			if (!$sm->tablesExist('db_session_variables')) {
+				$conn->exec('CREATE TEMPORARY TABLE db_session_variables (name TEXT, value TEXT)');
+			}
+
+			$variableSql = "INSERT INTO db_session_variables (name, value) VALUES ('kdyby_current_user', ?)";
+
+		} else {
+			throw new Kdyby\NotSupportedException("Sorry, but your platform is not supported.");
+		}
+
 		// pass current user to database
-		$args->getConnection()
-			->executeQuery("SET @kdyby_current_user = ?", array(
+		$conn->executeQuery($variableSql, array(
 				$this->config->getCurrentUser()
 			));
 	}

@@ -32,7 +32,6 @@ class AuditExtension extends Kdyby\Config\CompilerExtension
 	public $auditDefaults = array(
 		'prefix' => '',
 		'suffix' => '_audit',
-		'fieldName' => 'rev',
 		'tableName' => 'revisions',
 	);
 
@@ -74,9 +73,7 @@ class AuditExtension extends Kdyby\Config\CompilerExtension
 			->setClass('Kdyby\Doctrine\Audit\AuditConfiguration')
 			->addSetup('$prefix', array($config['prefix']))
 			->addSetup('$suffix', array($config['suffix']))
-			->addSetup('$fieldName', array($config['fieldName']))
 			->addSetup('$tableName', array($config['tableName']));
-//			->addSetup('$currentUser', array(new Statement('@user::getId')));
 
 		$this->managers[$name] = $manager = $this->prefix($name . '.manager');
 		$builder->addDefinition($manager)
@@ -87,7 +84,7 @@ class AuditExtension extends Kdyby\Config\CompilerExtension
 			->addTag('doctrine.eventSubscriber');
 
 		$builder->addDefinition($this->prefix($name . '.listener.currentUser'))
-			->setClass('Kdyby\Doctrine\Audit\Listener\CurrentUserListener')
+			->setClass('Kdyby\Doctrine\Audit\Listener\CurrentUserListener', array('@' . $configurator))
 			->addTag('doctrine.eventSubscriber');
 	}
 

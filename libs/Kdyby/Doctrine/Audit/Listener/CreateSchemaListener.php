@@ -13,13 +13,19 @@ namespace Kdyby\Doctrine\Audit\Listener;
 use Doctrine;
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\Common\EventSubscriber;
+use Doctrine\DBAL\Schema;
 use Doctrine\ORM\Events as ORMEvents;
 use Doctrine\ORM\Tools\Event\GenerateSchemaTableEventArgs;
 use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
 use Doctrine\ORM\Tools\ToolEvents;
 use Doctrine\ORM\Mapping\ClassMetadata;
-use Kdyby\Doctrine\Schema;
+use Kdyby\Doctrine\Type;
+use Kdyby\Doctrine\Schema\SchemaTool;
+use Kdyby\Doctrine\Schema\CreateSchemaSqlEventArgs;
+use Kdyby\Doctrine\Schema\UpdateSchemaSqlEventArgs;
+use Kdyby\Doctrine\Schema\DropSchemaSqlEventArgs;
 use Kdyby\Doctrine\Audit\AuditManager;
+use Kdyby\Doctrine\Audit\AuditConfiguration;
 use Nette;
 
 
@@ -69,9 +75,9 @@ class CreateSchemaListener extends Nette\Object implements EventSubscriber
 		return array(
 			ToolEvents::postGenerateSchemaTable,
 			ORMEvents::loadClassMetadata,
-			Schema\SchemaTool::onCreateSchemaSql,
-			Schema\SchemaTool::onUpdateSchemaSql,
-			Schema\SchemaTool::onDropSchemaSql,
+			SchemaTool::onCreateSchemaSql,
+			SchemaTool::onUpdateSchemaSql,
+			SchemaTool::onDropSchemaSql,
 		);
 	}
 
@@ -130,12 +136,31 @@ class CreateSchemaListener extends Nette\Object implements EventSubscriber
 		}
 
 		// revision id
-		$revisionTable->addColumn($this->config->fieldName, 'integer');
+		$revisionTable->addColumn(AuditConfiguration::REVISION_ID, 'integer', array('notnull' => TRUE));
+		$revisionTable->addColumn(AuditConfiguration::REVISION_PREVIOUS, 'integer', array('notnull' => FALSE));
 
-		// foreing keys
+		// primary
 		$pkColumns = $entityTable->getPrimaryKey()->getColumns();
-		$pkColumns[] = $this->config->fieldName;
+		$pkColumns[] = AuditConfiguration::REVISION_ID;
 		$revisionTable->setPrimaryKey($pkColumns);
+
+		// revision fk
+		$revisionTable->addForeignKeyConstraint( // todo: config/constants
+			new Schema\Table('db_audit_revisions', array(
+				new Schema\Column('id', Type::getType('integer'))
+			)),
+			array(AuditConfiguration::REVISION_ID),
+			array('id')
+		);
+
+		// previous revision index & fk
+		$revisionTable->addIndex(array(AuditConfiguration::REVISION_ID), 'idx_rev_id');
+		$revisionTable->addIndex(array(AuditConfiguration::REVISION_PREVIOUS), 'idx_previous_rev');
+		$revisionTable->addForeignKeyConstraint(
+			$revisionTable,
+			array(AuditConfiguration::REVISION_PREVIOUS),
+			array(AuditConfiguration::REVISION_ID)
+		);
 	}
 
 
@@ -143,7 +168,7 @@ class CreateSchemaListener extends Nette\Object implements EventSubscriber
 	/**
 	 * @param \Kdyby\Doctrine\Schema\CreateSchemaSqlEventArgs $args
 	 */
-	public function onCreateSchemaSql(Schema\CreateSchemaSqlEventArgs $args)
+	public function onCreateSchemaSql(CreateSchemaSqlEventArgs $args)
 	{
 		$sqls = $args->getSqls();
 
@@ -164,7 +189,7 @@ class CreateSchemaListener extends Nette\Object implements EventSubscriber
 	/**
 	 * @param \Kdyby\Doctrine\Schema\UpdateSchemaSqlEventArgs $args
 	 */
-	public function onUpdateSchemaSql(Schema\UpdateSchemaSqlEventArgs $args)
+	public function onUpdateSchemaSql(UpdateSchemaSqlEventArgs $args)
 	{
 		$sqls = $args->getSqls();
 
@@ -185,7 +210,7 @@ class CreateSchemaListener extends Nette\Object implements EventSubscriber
 	/**
 	 * @param \Kdyby\Doctrine\Schema\DropSchemaSqlEventArgs $args
 	 */
-	public function onDropSchemaSql(Schema\DropSchemaSqlEventArgs $args)
+	public function onDropSchemaSql(DropSchemaSqlEventArgs $args)
 	{
 		$sqls = $args->getSqls();
 
