@@ -23,6 +23,7 @@ use Nette\Utils\PhpGenerator as Code;
  *
  * @ORM\Entity()
  * @ORM\Table(name="templates")
+ * @Kdyby\Doctrine\Audit\AuditedEntity()
  */
 class TemplateSource extends Kdyby\Doctrine\Entities\IdentifiedEntity
 {
