@@ -167,7 +167,7 @@ class LogRevisionsListener extends Nette\Object implements EventSubscriber
 			$date = date_create("now")->format($this->platform->getDateTimeFormatString());
 			$this->conn->insert($this->config->getTableName(), array(
 				'timestamp' => $date,
-				'username' => $this->config->getCurrentUsername(),
+				'username' => $this->config->getCurrentUser(),
 			));
 			$this->revisionId = $this->conn->lastInsertId();
 		}

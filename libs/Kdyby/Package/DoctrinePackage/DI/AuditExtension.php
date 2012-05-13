@@ -82,9 +82,12 @@ class AuditExtension extends Kdyby\Config\CompilerExtension
 		$builder->addDefinition($manager)
 			->setClass('Kdyby\Doctrine\Audit\AuditManager', array('@' . $configurator, '@' . $emId));
 
-		$schemaListenerName = $this->prefix($name . '.listener.createSchema');
-		$builder->addDefinition($schemaListenerName)
+		$builder->addDefinition($this->prefix($name . '.listener.createSchema'))
 			->setClass('Kdyby\Doctrine\Audit\Listener\CreateSchemaListener', array('@' . $manager))
+			->addTag('doctrine.eventSubscriber');
+
+		$builder->addDefinition($this->prefix($name . '.listener.currentUser'))
+			->setClass('Kdyby\Doctrine\Audit\Listener\CurrentUserListener')
 			->addTag('doctrine.eventSubscriber');
 	}
 

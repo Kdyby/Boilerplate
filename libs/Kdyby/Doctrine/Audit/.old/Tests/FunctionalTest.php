@@ -216,7 +216,7 @@ class FunctionalTest extends \PHPUnit_Framework_TestCase
 		);
 
 		$auditConfig = new AuditConfiguration();
-		$auditConfig->setCurrentUsername("beberlei");
+		$auditConfig->setCurrentUser("beberlei");
 		$auditConfig->setAuditedEntityClasses(array('Kdyby\Doctrine\Audit\Tests\ArticleAudit', 'Kdyby\Doctrine\Audit\Tests\UserAudit'));
 
 		$this->auditManager = new AuditManager($auditConfig);

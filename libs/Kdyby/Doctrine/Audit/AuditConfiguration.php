@@ -22,8 +22,8 @@ use Nette;
  * @method string getSuffix()
  * @method string getFieldName()
  * @method string getTableName()
- * @method string getCurrentUsername()
- * @method setCurrentUsername(string $username)
+ * @method string getCurrentUser()
+ * @method setCurrentUser(string $username)
  */
 class AuditConfiguration extends Nette\Object
 {
@@ -51,7 +51,7 @@ class AuditConfiguration extends Nette\Object
 	/**
 	 * @var string
 	 */
-	public $currentUsername;
+	public $currentUser;
 
 
 

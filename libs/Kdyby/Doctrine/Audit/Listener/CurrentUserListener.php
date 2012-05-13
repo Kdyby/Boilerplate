@@ -11,11 +11,11 @@
 namespace Kdyby\Doctrine\Audit\Listener;
 
 use Doctrine;
-use Doctrine\Common\Annotations\Reader;
-use Doctrine\DBAL\Events as DBALEvents;
+use Doctrine\DBAL\Events as DbalEvents;
 use Doctrine\DBAL\Event\ConnectionEventArgs;
 use Kdyby;
-use Kdyby\Application\Event\LifeCycleEventArgs;
+use Kdyby\Doctrine\Audit\AuditConfiguration;
+use Kdyby\Security\User;
 use Nette;
 
 
@@ -27,24 +27,37 @@ class CurrentUserListener extends Nette\Object implements Kdyby\EventDispatcher\
 {
 
 	/**
-	 * @return array
+	 * @var \Kdyby\Security\User
 	 */
-	public function getSubscribedEvents()
+	private $user;
+
+	/**
+	 * @var \Kdyby\Doctrine\Audit\AuditConfiguration
+	 */
+	private $config;
+
+
+
+	/**
+	 * @param \Kdyby\Doctrine\Audit\AuditConfiguration $config
+	 * @param \Kdyby\Security\User $user
+	 */
+	public function __construct(AuditConfiguration $config, User $user)
 	{
-		return array(
-			Kdyby\Application\LifeCycleEvent::onStartup,
-			DBALEvents::postConnect
-		);
+		$this->user = $user;
+		$this->config = $config;
 	}
 
 
 
 	/**
-	 * @param \Kdyby\Application\Event\LifeCycleEventArgs $args
+	 * @return array
 	 */
-	public function onStartup(LifeCycleEventArgs $args)
+	public function getSubscribedEvents()
 	{
-		
+		return array(
+			DbalEvents::postConnect
+		);
 	}
 
 
@@ -54,8 +67,14 @@ class CurrentUserListener extends Nette\Object implements Kdyby\EventDispatcher\
 	 */
 	public function postConnect(ConnectionEventArgs $args)
 	{
-		$conn = $args->getConnection();
-//		$conn->exec("");
+		// set current user to configuration
+		$this->config->setCurrentUser($this->user->getId());
+
+		// pass current user to database
+		$args->getConnection()
+			->executeQuery("SET @kdyby_current_user = ?", array(
+				$this->config->getCurrentUser()
+			));
 	}
 
 }
