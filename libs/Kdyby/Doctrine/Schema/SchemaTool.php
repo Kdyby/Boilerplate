@@ -80,7 +80,7 @@ class SchemaTool extends Doctrine\ORM\Tools\SchemaTool
 			$sqls = $eventArgs->getSqls();
 		}
 
-		return $this->queries($sqls);
+		return $sqls;
 	}
 
 
@@ -98,7 +98,7 @@ class SchemaTool extends Doctrine\ORM\Tools\SchemaTool
 			$sqls = $eventArgs->getSqls();
 		}
 
-		return $this->queries($sqls);
+		return $sqls;
 	}
 
 
@@ -117,7 +117,7 @@ class SchemaTool extends Doctrine\ORM\Tools\SchemaTool
 			$sqls = $eventArgs->getSqls();
 		}
 
-		return $this->queries($sqls);
+		return $sqls;
 	}
 
 
@@ -137,20 +137,7 @@ class SchemaTool extends Doctrine\ORM\Tools\SchemaTool
 			$sqls = $eventArgs->getSqls();
 		}
 
-		return $this->queries($sqls);
-	}
-
-
-
-	/**
-	 * @param array $sqls
-	 * @return array
-	 */
-	private static function queries(array $sqls)
-	{
-		return array_map(function ($sql) {
-			return (string)$sql;
-		}, $sqls);
+		return $sqls;
 	}
 
 }
