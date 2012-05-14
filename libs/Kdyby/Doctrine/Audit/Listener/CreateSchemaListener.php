@@ -12,20 +12,21 @@ namespace Kdyby\Doctrine\Audit\Listener;
 
 use Doctrine;
 use Doctrine\Common\Annotations\Reader;
-use Doctrine\Common\EventSubscriber;
 use Doctrine\DBAL\Schema;
+use Doctrine\DBAL\Platforms;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Events as ORMEvents;
 use Doctrine\ORM\Tools\Event\GenerateSchemaTableEventArgs;
-use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
 use Doctrine\ORM\Tools\ToolEvents;
 use Doctrine\ORM\Mapping\ClassMetadata;
+use Kdyby\Doctrine\Audit\AuditManager;
+use Kdyby\Doctrine\Audit\AuditConfiguration;
+use Kdyby\Doctrine\Audit\TriggersGenerator\MysqlTriggersGenerator;
 use Kdyby\Doctrine\Type;
 use Kdyby\Doctrine\Schema\SchemaTool;
 use Kdyby\Doctrine\Schema\CreateSchemaSqlEventArgs;
 use Kdyby\Doctrine\Schema\UpdateSchemaSqlEventArgs;
 use Kdyby\Doctrine\Schema\DropSchemaSqlEventArgs;
-use Kdyby\Doctrine\Audit\AuditManager;
-use Kdyby\Doctrine\Audit\AuditConfiguration;
 use Nette;
 
 
@@ -34,7 +35,7 @@ use Nette;
  * @author Benjamin Eberlei <eberlei@simplethings.de>
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class CreateSchemaListener extends Nette\Object implements EventSubscriber
+class CreateSchemaListener extends Nette\Object implements Doctrine\Common\EventSubscriber
 {
 
 	/**
@@ -163,18 +164,8 @@ class CreateSchemaListener extends Nette\Object implements EventSubscriber
 	 */
 	public function onCreateSchemaSql(CreateSchemaSqlEventArgs $args)
 	{
-		$sqls = $args->getSqls();
-
-		foreach ($args->getClasses() as $class) {
-			if (!$this->metadataFactory->isAudited($class->name)) {
-				continue;
-			}
-
-			$prefix = $this->getClassAuditTriggerPrefix($class);
-			//$sqls[] = 'DROP TRIGGER IF EXISTS ' . $prefix . '_';
-		}
-
-		$args->setSqls($sqls);
+		$sqls = $this->generateTriggers($args->getEntityManager(), $args->getClasses());
+		$args->addSqls($sqls);
 	}
 
 
@@ -184,18 +175,37 @@ class CreateSchemaListener extends Nette\Object implements EventSubscriber
 	 */
 	public function onUpdateSchemaSql(UpdateSchemaSqlEventArgs $args)
 	{
-		$sqls = $args->getSqls();
+		$sqls = $this->generateTriggers($args->getEntityManager(), $args->getClasses());
+		$args->addSqls($sqls);
+	}
 
-		foreach ($args->getClasses() as $class) {
+
+
+	/**
+	 * @param \Doctrine\ORM\EntityManager $em
+	 * @param array $classes
+	 *
+	 * @return array
+	 */
+	private function generateTriggers(EntityManager $em, array $classes)
+	{
+		$connection = $em->getConnection();
+		$platform = $connection->getDatabasePlatform();
+		if (!$platform instanceof Platforms\MySqlPlatform) {
+			return array();
+		}
+
+		$sqls = array();
+		foreach ($classes as $class) {
 			if (!$this->metadataFactory->isAudited($class->name)) {
 				continue;
 			}
 
-			$prefix = $this->getClassAuditTriggerPrefix($class);
-			//$sqls[] = 'DROP TRIGGER IF EXISTS ' . $prefix . '_';
+			$generator = new MysqlTriggersGenerator($em);
+			$sqls = array_merge($sqls, $generator->generate($class));
 		}
 
-		$args->setSqls($sqls);
+		return $sqls;
 	}
 
 
@@ -205,18 +215,21 @@ class CreateSchemaListener extends Nette\Object implements EventSubscriber
 	 */
 	public function onDropSchemaSql(DropSchemaSqlEventArgs $args)
 	{
-		$sqls = $args->getSqls();
+		$platform = $args->getEntityManager()->getConnection()->getDatabasePlatform();
+		if (!$platform instanceof Platforms\MySqlPlatform) {
+			return;
+		}
 
+		$sqls = array();
 		foreach ($args->getClasses() as $class) {
 			if (!$this->metadataFactory->isAudited($class->name)) {
 				continue;
 			}
 
-			$prefix = $this->getClassAuditTriggerPrefix($class);
 			//$sqls[] = 'DROP TRIGGER IF EXISTS ' . $prefix . '_';
 		}
 
-		$args->setSqls($sqls);
+		$args->addSqls($sqls);
 	}
 
 
@@ -229,16 +242,6 @@ class CreateSchemaListener extends Nette\Object implements EventSubscriber
 	private function getClassAuditTableName(ClassMetadata $class)
 	{
 		return $this->config->prefix . $class->getTableName() . $this->config->suffix;
-	}
-
-
-
-	/**
-	 * @param \Doctrine\ORM\Mapping\ClassMetadata $class
-	 */
-	private function getClassAuditTriggerPrefix(ClassMetadata $class)
-	{
-		return $this->getClassAuditTableName($class) . '_audit';
 	}
 
 }
