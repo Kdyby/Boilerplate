@@ -85,9 +85,11 @@ class CreateSchemaSqlEventArgs extends Doctrine\Common\EventArgs
 	/**
 	 * @param array $sqls
 	 */
-	public function setSqls(array $sqls)
+	public function addSqls(array $sqls)
 	{
-		$this->sqls = $sqls;
+		$this->sqls = array_merge($this->sqls, array_map(function ($sql) {
+			return (string)$sql;
+		}, $sqls));
 	}
 
 
