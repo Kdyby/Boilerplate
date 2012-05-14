@@ -14,6 +14,7 @@ use Doctrine\ORM\EntityManager;
 use Kdyby;
 use Kdyby\Packages\Package;
 use Nette;
+use Nette\Utils\Strings;
 use Symfony\Component\Console\Output;
 
 
@@ -78,13 +79,12 @@ class CreatePackageSchema extends Nette\Object
 
 			$comparator = new PartialSchemaComparator($this->entityManager);
 			foreach ($comparator->compare($metadata) as $query) {
-				$this->message('<comment>-></comment> ' . $query);
+				$this->message('<comment>-></comment> ' . Strings::replace($query, array('~[\n\r\t ]+~' => ' ')));
 
 				if ($commit) {
 					$connection->executeQuery($query);
 				}
 			}
-
 
 			if (isset($query)) {
 				$time = number_format((microtime(TRUE) - $start) * 1000, 1, '.', ' ');

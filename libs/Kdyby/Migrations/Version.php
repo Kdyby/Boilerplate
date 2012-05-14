@@ -230,7 +230,7 @@ class Version extends Nette\Object
 
 			foreach ($this->sql as $sql) {
 				list($query, $params, $types) = $sql;
-				$this->message('<comment>-></comment> ' . $query);
+				$this->message('<comment>-></comment> ' . Strings::replace($query, array('~[\n\r\t ]+~' => ' ')));
 
 				if ($commit) {
 					$connection->executeQuery($query, $params, $types);

@@ -16,6 +16,7 @@ use Kdyby;
 use Kdyby\Doctrine\Schema\SchemaTool;
 use Kdyby\Packages\Package;
 use Nette;
+use Nette\Utils\Strings;
 use Symfony\Component\Console\Output;
 
 
@@ -80,7 +81,7 @@ class DropPackageSchema extends Nette\Object
 
 			$schemaTool = new SchemaTool($this->entityManager);
 			foreach ($schemaTool->getDropSchemaSQL($metadata) as $query) {
-				$this->message('<comment>-></comment> ' . $query);
+				$this->message('<comment>-></comment> ' . Strings::replace($query, array('~[\n\r\t ]+~' => ' ')));
 
 				if ($commit) {
 					$connection->executeQuery($query);
