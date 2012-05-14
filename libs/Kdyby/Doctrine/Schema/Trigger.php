@@ -62,14 +62,14 @@ class Trigger extends Nette\Object
 	/**
 	 * @param string $table
 	 * @param string $name
-	 * @param string $action
 	 * @param string $when
+	 * @param string $action
 	 */
-	public function __construct($table, $name, $action = self::ACTION_UPDATE, $when = self::DO_BEFORE)
+	public function __construct($table, $name, $when = self::DO_BEFORE, $action = self::ACTION_UPDATE)
 	{
 		$this->table = $table;
-		$this->action = $action;
-		$this->when = $when;
+		$this->action = strtoupper($action);
+		$this->when = strtoupper($when);
 		$this->setName($name);
 	}
 
