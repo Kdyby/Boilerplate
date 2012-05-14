@@ -45,6 +45,9 @@ class DbalExtension extends Kdyby\Config\CompilerExtension
 		'wrapperClass' => 'Kdyby\Doctrine\Connection',
 		'logging' => TRUE,
 		'platformService' => NULL,
+		'mappingTypes' => array(
+			'enum' => 'enum'
+		)
 	);
 
 	/**
@@ -63,7 +66,8 @@ class DbalExtension extends Kdyby\Config\CompilerExtension
 	 */
 	protected $defaultTypes = array(
 		Kdyby\Doctrine\Type::CALLBACK => 'Kdyby\Doctrine\Types\Callback',
-		Kdyby\Doctrine\Type::PASSWORD => 'Kdyby\Doctrine\Types\Password'
+		Kdyby\Doctrine\Type::PASSWORD => 'Kdyby\Doctrine\Types\Password',
+		Kdyby\Doctrine\Type::ENUM => 'Kdyby\Doctrine\Types\Enum',
 	);
 
 
@@ -157,20 +161,15 @@ class DbalExtension extends Kdyby\Config\CompilerExtension
 			->setClass('Kdyby\Package\DoctrinePackage\ConnectionFactory', array('%doctrine.dbal.connectionFactory.types%'))
 			->setInternal(TRUE);
 
-		$mappingTypes = array();
-		if (isset($config['mappingTypes'])) {
-			Validators::assertField($config, 'mappingTypes', 'array');
-			$mappingTypes = $config['mappingTypes'];
-		}
-
 		// connection
+		Validators::assertField($options, 'mappingTypes', 'array');
 		$connection = $container->addDefinition($connectionName)
 			->setClass('Doctrine\DBAL\Connection')
 			->setFactory('@' . $connectionName . '.factory::createConnection', array(
 				$options,
 				'@' . $connectionName . '.configuration',
 				'@' . $connectionName . '.eventManager',
-				$mappingTypes
+				$options['mappingTypes']
 			));
 
 		if ($options['logging']) {

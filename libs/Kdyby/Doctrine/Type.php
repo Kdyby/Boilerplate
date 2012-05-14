@@ -24,6 +24,7 @@ abstract class Type extends Doctrine\DBAL\Types\Type
 
 	const CALLBACK = 'callback';
 	const PASSWORD = 'password';
+	const ENUM = 'enum';
 
 	// todo: texy, image, ...
 
