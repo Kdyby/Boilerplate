@@ -36,6 +36,11 @@ class ClassMetadata extends Doctrine\ORM\Mapping\ClassMetadata
 	 */
 	public $auditChanges = FALSE;
 
+	/**
+	 * @var array
+	 */
+	public $auditRelations = array();
+
 
 
 	/**
@@ -65,7 +70,7 @@ class ClassMetadata extends Doctrine\ORM\Mapping\ClassMetadata
 	{
 		return array_merge(
 			parent::__sleep(),
-			array('auditChanges')
+			array('auditChanges', 'auditRelations')
 		);
 	}
 

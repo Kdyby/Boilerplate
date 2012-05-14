@@ -90,22 +90,15 @@ class CreateSchemaListener extends Nette\Object implements EventSubscriber
 	{
 		/** @var \Kdyby\Doctrine\Mapping\ClassMetadata $meta */
 		$meta = $args->getClassMetadata();
-		$meta->setAudited($this->isEntityAudited($meta->name));
-	}
 
+		/** @var \Kdyby\Doctrine\Audit\AuditedEntity $audited */
+		$classRefl = Nette\Reflection\ClassType::from($meta->name);
+		$audited = $this->reader->getClassAnnotation($classRefl, 'Kdyby\Doctrine\Audit\AuditedEntity');
 
-
-	/**
-	 * @param string $className
-	 *
-	 * @return string|NULL
-	 */
-	private function isEntityAudited($className)
-	{
-		return (bool)$this->reader->getClassAnnotation(
-			Nette\Reflection\ClassType::from($className),
-			'Kdyby\Doctrine\Audit\AuditedEntity'
-		);
+		if ($audited) {
+			$meta->setAudited((bool)$audited);
+			$meta->auditRelations = $audited->related;
+		}
 	}
 
 

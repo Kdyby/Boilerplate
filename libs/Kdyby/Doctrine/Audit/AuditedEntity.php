@@ -18,9 +18,16 @@ use Nette;
 
 /**
  * @Annotation
+ * @Target("CLASS")
+ *
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class AuditedEntity extends Annotation
 {
+
+	/**
+	 * @var array<string>
+	 */
+	public $related = array();
 
 }
