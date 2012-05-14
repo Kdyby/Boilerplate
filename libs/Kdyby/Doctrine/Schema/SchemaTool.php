@@ -39,6 +39,16 @@ class SchemaTool extends Doctrine\ORM\Tools\SchemaTool
 	 */
 	private $em;
 
+	/**
+	 * @var \Doctrine\DBAL\Platforms\AbstractPlatform
+	 */
+	private $platform;
+
+	/**
+	 * @var \Doctrine\DBAL\Schema\AbstractSchemaManager
+	 */
+	private $sm;
+
 
 
 	/**
@@ -48,6 +58,8 @@ class SchemaTool extends Doctrine\ORM\Tools\SchemaTool
 	{
 		parent::__construct($em);
 		$this->em = $em;
+		$this->sm = $em->getConnection()->getSchemaManager();
+		$this->platform = $em->getConnection()->getDatabasePlatform();
 		$this->evm = $em->getEventManager();
 	}
 
@@ -59,15 +71,16 @@ class SchemaTool extends Doctrine\ORM\Tools\SchemaTool
 	 */
 	public function getCreateSchemaSql(array $classes)
 	{
-		$sqls = parent::getCreateSchemaSql($classes);
+		$schema = $this->getSchemaFromMetadata($classes);
+		$sqls = $schema->toSql($this->platform);
 
 		if ($this->evm->hasListeners(static::onCreateSchemaSql)) {
-			$eventArgs = new CreateSchemaSqlEventArgs($this->em, $classes, $sqls);
+			$eventArgs = new CreateSchemaSqlEventArgs($this->em, $classes, $sqls, $schema);
 			$this->evm->dispatchEvent(static::onCreateSchemaSql, $eventArgs);
 			$sqls = $eventArgs->getSqls();
 		}
 
-		return $sqls;
+		return $this->queries($sqls);
 	}
 
 
@@ -85,7 +98,7 @@ class SchemaTool extends Doctrine\ORM\Tools\SchemaTool
 			$sqls = $eventArgs->getSqls();
 		}
 
-		return $sqls;
+		return $this->queries($sqls);
 	}
 
 
@@ -104,7 +117,7 @@ class SchemaTool extends Doctrine\ORM\Tools\SchemaTool
 			$sqls = $eventArgs->getSqls();
 		}
 
-		return $sqls;
+		return $this->queries($sqls);
 	}
 
 
@@ -114,7 +127,7 @@ class SchemaTool extends Doctrine\ORM\Tools\SchemaTool
 	 * @param bool $saveMode
 	 * @return array
 	 */
-	public function getUpdateSchemaSql(array $classes, $saveMode = false)
+	public function getUpdateSchemaSql(array $classes, $saveMode = FALSE)
 	{
 		$sqls = parent::getUpdateSchemaSql($classes, $saveMode);
 
@@ -124,7 +137,20 @@ class SchemaTool extends Doctrine\ORM\Tools\SchemaTool
 			$sqls = $eventArgs->getSqls();
 		}
 
-		return $sqls;
+		return $this->queries($sqls);
+	}
+
+
+
+	/**
+	 * @param array $sqls
+	 * @return array
+	 */
+	private static function queries(array $sqls)
+	{
+		return array_map(function ($sql) {
+			return (string)$sql;
+		}, $sqls);
 	}
 
 }
