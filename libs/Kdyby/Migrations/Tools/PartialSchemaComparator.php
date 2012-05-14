@@ -15,6 +15,7 @@ use Doctrine\ORM\EntityManager;
 use Kdyby;
 use Kdyby\Doctrine\Schema\SchemaTool;
 use Kdyby\Packages\Package;
+use Kdyby\Doctrine\Schema\UpdateSchemaSqlEventArgs;
 use Nette;
 use Nette\Utils\Strings;
 
@@ -96,7 +97,16 @@ class PartialSchemaComparator extends Nette\Object
 			}
 		}
 
-		return $schemaDiff->toSql($this->platform);
+		$sqls = $schemaDiff->toSql($this->platform);
+
+		$evm = $this->entityManager->getEventManager();
+		if ($evm->hasListeners(SchemaTool::onUpdateSchemaSql)) {
+			$eventArgs = new UpdateSchemaSqlEventArgs($this->entityManager, $metadata, $sqls);
+			$evm->dispatchEvent(SchemaTool::onUpdateSchemaSql, $eventArgs);
+			$sqls = $eventArgs->getSqls();
+		}
+
+		return $sqls;
 	}
 
 
