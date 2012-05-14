@@ -25,14 +25,23 @@ use Kdyby;
  * 	@ORM\Index(name="entity_idx", columns={"className", "entityId"})
  * })
  */
-class Revision extends Kdyby\Doctrine\Entities\IdentifiedEntity
+class Revision extends Kdyby\Doctrine\Entities\BaseEntity
 {
-	const TYPE_INSERT = 1;
-	const TYPE_UPDATE = 2;
-	const TYPE_DELETE = 3;
+	const TYPE_INSERT = 'INS';
+	const TYPE_UPDATE = 'UPD';
+	const TYPE_DELETE = 'DEL';
+	const TYPE_REVERT = 'REV';
 
 	/**
-	 * @ORM\Column(type="smallint")
+	 * @ORM\Id
+	 * @ORM\Column(type="bigint")
+	 * @ORM\GeneratedValue
+	 * @var integer
+	 */
+	private $id;
+
+	/**
+	 * @ORM\Column(type="string", length=3)
 	 * @var integer
 	 */
 	protected $type = self::TYPE_INSERT;
@@ -53,7 +62,7 @@ class Revision extends Kdyby\Doctrine\Entities\IdentifiedEntity
 	 * @ORM\Column(type="text", nullable=TRUE)
 	 * @var string
 	 */
-	private $message;
+	private $comment;
 
 	/**
 	 * @ORM\Column(type="datetime")
@@ -80,16 +89,16 @@ class Revision extends Kdyby\Doctrine\Entities\IdentifiedEntity
 	 * @param integer $id
 	 * @param int $type
 	 * @param string $author
-	 * @param string $message
+	 * @param string $comment
 	 */
-	public function __construct($className, $id, $type = self::TYPE_INSERT, $author = NULL, $message = NULL)
+	public function __construct($className, $id, $type = self::TYPE_INSERT, $author = NULL, $comment = NULL)
 	{
 		$this->className = $className;
 		$this->entityId = $id;
 		$this->type = $type;
 		$this->createdAt = new \DateTime;
 		$this->author = $author;
-		$this->message = $message;
+		$this->comment = $comment;
 	}
 
 
@@ -137,9 +146,9 @@ class Revision extends Kdyby\Doctrine\Entities\IdentifiedEntity
 	/**
 	 * @return string
 	 */
-	public function getMessage()
+	public function getComment()
 	{
-		return $this->message;
+		return $this->comment;
 	}
 
 

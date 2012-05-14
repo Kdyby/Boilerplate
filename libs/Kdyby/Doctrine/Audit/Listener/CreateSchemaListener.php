@@ -130,8 +130,8 @@ class CreateSchemaListener extends Nette\Object implements Doctrine\Common\Event
 		}
 
 		// revision id
-		$revisionTable->addColumn(AuditConfiguration::REVISION_ID, 'integer', array('notnull' => TRUE));
-		$revisionTable->addColumn(AuditConfiguration::REVISION_PREVIOUS, 'integer', array('notnull' => FALSE));
+		$revisionTable->addColumn(AuditConfiguration::REVISION_ID, 'bigint', array('notnull' => TRUE));
+		$revisionTable->addColumn(AuditConfiguration::REVISION_PREVIOUS, 'bigint', array('notnull' => FALSE));
 
 		// primary
 		$pkColumns = $entityTable->getPrimaryKey()->getColumns();
@@ -153,6 +153,14 @@ class CreateSchemaListener extends Nette\Object implements Doctrine\Common\Event
 		$revisionTable->addForeignKeyConstraint(
 			$revisionTable,
 			array(AuditConfiguration::REVISION_PREVIOUS),
+			array(AuditConfiguration::REVISION_ID)
+		);
+
+		// entity table's current revision
+		$entityTable->addColumn(AuditConfiguration::REVISION_ID, 'bigint', array('notnull' => FALSE));
+		$entityTable->addForeignKeyConstraint(
+			$revisionTable,
+			array(AuditConfiguration::REVISION_ID),
 			array(AuditConfiguration::REVISION_ID)
 		);
 	}
