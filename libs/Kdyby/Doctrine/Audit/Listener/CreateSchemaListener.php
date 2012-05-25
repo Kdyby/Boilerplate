@@ -19,6 +19,7 @@ use Doctrine\ORM\Events as ORMEvents;
 use Doctrine\ORM\Tools\Event\GenerateSchemaTableEventArgs;
 use Doctrine\ORM\Tools\ToolEvents;
 use Doctrine\ORM\Mapping\ClassMetadata;
+use Kdyby;
 use Kdyby\Doctrine\Audit\AuditManager;
 use Kdyby\Doctrine\Audit\AuditConfiguration;
 use Kdyby\Doctrine\Audit\TriggersGenerator\MysqlTriggersGenerator;
@@ -91,6 +92,9 @@ class CreateSchemaListener extends Nette\Object implements Doctrine\Common\Event
 	{
 		/** @var \Kdyby\Doctrine\Mapping\ClassMetadata $meta */
 		$meta = $args->getClassMetadata();
+		if ($meta->rootEntityName && $meta->rootEntityName !== $meta->name) {
+			$meta = $args->getEntityManager()->getClassMetadata($meta->rootEntityName);
+		}
 
 		/** @var \Kdyby\Doctrine\Audit\AuditedEntity $audited */
 		$classRefl = Nette\Reflection\ClassType::from($meta->name);
@@ -98,7 +102,7 @@ class CreateSchemaListener extends Nette\Object implements Doctrine\Common\Event
 
 		if ($audited) {
 			$meta->setAudited((bool)$audited);
-			$meta->auditRelations = $audited->related;
+			$meta->auditRelations = array_merge((array)$meta->auditRelations, (array)$audited->related);
 		}
 	}
 
@@ -106,19 +110,39 @@ class CreateSchemaListener extends Nette\Object implements Doctrine\Common\Event
 
 	/**
 	 * @param \Doctrine\ORM\Tools\Event\GenerateSchemaTableEventArgs $eventArgs
+	 *
+	 * @throws \Kdyby\NotImplementedException
 	 */
 	public function postGenerateSchemaTable(GenerateSchemaTableEventArgs $eventArgs)
 	{
+		/** @var \Kdyby\Doctrine\Mapping\ClassMetadata $class */
 		$class = $eventArgs->getClassMetadata();
 		if (!$this->metadataFactory->isAudited($class->name)) {
 			return;
 		}
 
-		$schema = $eventArgs->getSchema();
-		$entityTable = $eventArgs->getClassTable();
-		if ($schema->hasTable($revisionTableName = $this->getClassAuditTableName($class))) {
-			return;
+		if ($class->auditRelations) {
+			throw new Kdyby\NotImplementedException("Sorry bro.");
 		}
+
+		$schema = $eventArgs->getSchema();
+		if (!$schema->hasTable($revisionTableName = $this->getClassAuditTableName($class))) {
+			$this->doCreateRevisionTable($eventArgs->getClassTable(), $schema, $revisionTableName);
+		}
+	}
+
+
+
+	/**
+	 * @param \Doctrine\DBAL\Schema\Table $entityTable
+	 * @param \Doctrine\DBAL\Schema\Schema $schema
+	 * @param string $revisionTableName
+	 */
+	private function doCreateRevisionTable(Schema\Table $entityTable, Schema\Schema $schema, $revisionTableName)
+	{
+		$historyTable = new Schema\Table('db_audit_revisions', array(
+			new Schema\Column('id', Type::getType('integer'))
+		));
 
 		$revisionTable = $schema->createTable($revisionTableName);
 		foreach ($entityTable->getColumns() AS $column) {
@@ -140,9 +164,7 @@ class CreateSchemaListener extends Nette\Object implements Doctrine\Common\Event
 
 		// revision fk
 		$revisionTable->addForeignKeyConstraint( // todo: config/constants
-			new Schema\Table('db_audit_revisions', array(
-				new Schema\Column('id', Type::getType('integer'))
-			)),
+			$historyTable,
 			array(AuditConfiguration::REVISION_ID),
 			array('id')
 		);
@@ -155,14 +177,6 @@ class CreateSchemaListener extends Nette\Object implements Doctrine\Common\Event
 			array(AuditConfiguration::REVISION_PREVIOUS),
 			array(AuditConfiguration::REVISION_ID)
 		);
-
-		// entity table's current revision
-		$entityTable->addColumn(AuditConfiguration::REVISION_ID, 'bigint', array('notnull' => FALSE));
-		$entityTable->addForeignKeyConstraint(
-			$revisionTable,
-			array(AuditConfiguration::REVISION_ID),
-			array(AuditConfiguration::REVISION_ID)
-		);
 	}
 
 
@@ -172,8 +186,11 @@ class CreateSchemaListener extends Nette\Object implements Doctrine\Common\Event
 	 */
 	public function onCreateSchemaSql(CreateSchemaSqlEventArgs $args)
 	{
-		$sqls = $this->generateTriggers($args->getEntityManager(), $args->getClasses());
-		$args->addSqls($sqls);
+		$args->addSqls($this->generateTriggers(
+			$args->getEntityManager(),
+			$args->getClasses(),
+			$args->getTargetSchema()
+		));
 	}
 
 
@@ -183,8 +200,11 @@ class CreateSchemaListener extends Nette\Object implements Doctrine\Common\Event
 	 */
 	public function onUpdateSchemaSql(UpdateSchemaSqlEventArgs $args)
 	{
-		$sqls = $this->generateTriggers($args->getEntityManager(), $args->getClasses());
-		$args->addSqls($sqls);
+		$args->addSqls($this->generateTriggers(
+			$args->getEntityManager(),
+			$args->getClasses(),
+			$args->getTargetSchema()
+		));
 	}
 
 
@@ -192,10 +212,11 @@ class CreateSchemaListener extends Nette\Object implements Doctrine\Common\Event
 	/**
 	 * @param \Doctrine\ORM\EntityManager $em
 	 * @param array $classes
+	 * @param \Doctrine\DBAL\Schema\Schema $targetSchema
 	 *
 	 * @return array
 	 */
-	private function generateTriggers(EntityManager $em, array $classes)
+	private function generateTriggers(EntityManager $em, array $classes,Schema\Schema $targetSchema)
 	{
 		$connection = $em->getConnection();
 		$platform = $connection->getDatabasePlatform();
@@ -209,8 +230,11 @@ class CreateSchemaListener extends Nette\Object implements Doctrine\Common\Event
 				continue;
 			}
 
-			$generator = new MysqlTriggersGenerator($em);
-			$sqls = array_merge($sqls, $generator->generate($class));
+			$generator = new MysqlTriggersGenerator($em, $this->config);
+			foreach ($generator->generate($class, $targetSchema) as $trigger) {
+				$sqls[] = $trigger->getDropSql();
+				$sqls[] = (string)$trigger;
+			}
 		}
 
 		return $sqls;

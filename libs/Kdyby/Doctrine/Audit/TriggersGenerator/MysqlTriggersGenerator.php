@@ -11,8 +11,10 @@
 namespace Kdyby\Doctrine\Audit\TriggersGenerator;
 
 use Doctrine;
+use Doctrine\DBAL\Schema\Schema;
 use Doctrine\ORM\EntityManager;
 use Kdyby;
+use Kdyby\Doctrine\Audit\AuditConfiguration;
 use Kdyby\Doctrine\Mapping\ClassMetadata;
 use Kdyby\Doctrine\Schema\Trigger;
 use Nette;
@@ -31,6 +33,11 @@ class MysqlTriggersGenerator extends Nette\Object
 	private $em;
 
 	/**
+	 * @var \Kdyby\Doctrine\Audit\AuditConfiguration
+	 */
+	private $config;
+
+	/**
 	 * @var \Doctrine\DBAL\Connection
 	 */
 	private $conn;
@@ -44,10 +51,12 @@ class MysqlTriggersGenerator extends Nette\Object
 
 	/**
 	 * @param \Doctrine\ORM\EntityManager $entityManager
+	 * @param \Kdyby\Doctrine\Audit\AuditConfiguration $config
 	 */
-	public function __construct(EntityManager $entityManager)
+	public function __construct(EntityManager $entityManager, AuditConfiguration $config)
 	{
 		$this->em = $entityManager;
+		$this->config = $config;
 		$this->conn = $entityManager->getConnection();
 		$this->platform = $this->conn->getDatabasePlatform();
 	}
@@ -56,23 +65,66 @@ class MysqlTriggersGenerator extends Nette\Object
 
 	/**
 	 * @param \Kdyby\Doctrine\Mapping\ClassMetadata $class
-	 * @return array
+	 * @param \Doctrine\DBAL\Schema\Schema $targetSchema
+	 *
+	 * @throws \Kdyby\NotImplementedException
+	 * @return Trigger[]
 	 */
-	public function generate(ClassMetadata $class)
+	public function generate(ClassMetadata $class, Schema $targetSchema)
 	{
+		if ($class->auditRelations) {
+			throw new Kdyby\NotImplementedException("Sorry bro.");
+		}
+
 		$triggers = array();
-//			$platform = $connection->getDatabasePlatform();
-//			$quotedTable = $class->getQuotedTableName($platform);
-//			$auditTable = $platform->quoteIdentifier($this->getClassAuditTableName($class));
+		$entityTable = $class->getTableName();
+		$auditTable = $this->config->prefix . $class->getTableName() . $this->config->suffix;
+		$idCol = $class->getSingleIdentifierColumnName();
 
 		// before insert
-		$triggers[] = $afterInsert = new Trigger($class->getTableName(), 'audit', Trigger::DO_AFTER, Trigger::ACTION_INSERT);
+		$triggers[] = $ai = Trigger::afterInsert($class->getTableName(), 'audit')
+			->declare('audit_revision', 'BIGINT')
+			->insert('db_audit_revisions', array(
+				'type' => 'INS',
+				'className' => $class->name,
+				'entityId%sql' => "NEW.`$idCol`",
+				'createdAt%sql' => 'NOW()',
+				'author%sql' => '@kdyby_current_user',
+				'comment%sql' => '@kdyby_action_comment'
+			))
+			->set('audit_revision', 'LAST_INSERT_ID()')
+			->insertSelect($auditTable, $targetSchema->getTable($entityTable), array(
+				'values' => array('_revision%sql' => '@audit_revision'),
+				'where' => "`$idCol` = NEW.`$idCol`"
+			));
+
+		$versionUpdate = function (Trigger $trigger, $action) use ($class, $idCol, $targetSchema, $auditTable, $entityTable) {
+			/** @var Schema $targetSchema */
+			return $trigger->declare('audit_revision', 'BIGINT')
+				->insert('db_audit_revisions', array(
+					'type' => $action,
+					'className' => $class->name,
+					'entityId%sql' => "OLD.`$idCol`",
+					'createdAt%sql' => 'NOW()',
+					'author%sql' => '@kdyby_current_user',
+					'comment%sql' => '@kdyby_action_comment'
+				))
+				->set('audit_revision', 'LAST_INSERT_ID()')
+				->set('audit_revision_previous', '(SELECT MAX(_revision) FROM `' . $auditTable . "` WHERE `$idCol` = OLD.`$idCol`)")
+				->insertSelect($auditTable, $targetSchema->getTable($entityTable), array(
+					'values' => array(
+						'_revision%sql' => '@audit_revision',
+						'_revision_previous%sql' => '@audit_revision_previous'
+					),
+					'where' => "`$idCol` = OLD.`$idCol`"
+				));
+		};
 
 		// before update
-		$triggers[] = $beforeUpdate = new Trigger($class->getTableName(), 'audit', Trigger::DO_BEFORE, Trigger::ACTION_UPDATE);
+		$triggers[] = $bu = $versionUpdate(Trigger::beforeUpdate($class->getTableName(), 'audit'), 'UPD');
 
 		// before delete
-		$triggers[] = $beforeDelete = new Trigger($class->getTableName(), 'audit', Trigger::DO_BEFORE, Trigger::ACTION_DELETE);
+		$triggers[] = $bd = $versionUpdate(Trigger::beforeDelete($class->getTableName(), 'audit'), 'DEL');
 
 		//$beforeUpdate->add("INSERT INTO $auditTable ");
 

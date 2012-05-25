@@ -34,9 +34,14 @@ class AuditManager extends Nette\Object
 	private $config;
 
 	/**
-	 * @var \Kdyby\Doctrine\Mapping\ClassMetadataFactory
+	 * @var \Doctrine\ORM\EntityManager
 	 */
-	private $metadataFactory;
+	private $em;
+
+	/**
+	 * @var \Kdyby\Doctrine\Audit\ChangeLog
+	 */
+	private $history;
 
 
 
@@ -47,7 +52,7 @@ class AuditManager extends Nette\Object
 	public function __construct(AuditConfiguration $config, EntityManager $em)
 	{
 		$this->config = $config;
-		$this->metadataFactory = $em->getMetadataFactory();
+		$this->em = $em;
 	}
 
 
@@ -57,7 +62,7 @@ class AuditManager extends Nette\Object
 	 */
 	public function getMetadataFactory()
 	{
-		return $this->metadataFactory;
+		return $this->em->getMetadataFactory();
 	}
 
 
@@ -86,8 +91,9 @@ class AuditManager extends Nette\Object
 
 	/**
 	 * @throws \Kdyby\NotImplementedException
+	 * @return \Kdyby\Doctrine\Audit\ChangeLog
 	 */
-	public function getHistory()
+	public function getChangeLog()
 	{
 		throw new \Kdyby\NotImplementedException;
 	}
