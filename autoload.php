@@ -28,9 +28,15 @@ $loader->registerNamespaces(array(
 ));
 $loader->register();
 
+// exceptions
+$exceptions = new Kdyby\Loaders\ExceptionsLoader;
+$exceptions->register();
+
 // Doctrine annotations
 AnnotationRegistry::registerLoader(function($class) use ($loader) {
    $loader->loadClass($class);
    return class_exists($class, FALSE);
 });
 AnnotationRegistry::registerFile(__DIR__ . '/vendor/doctrine/orm/lib/Doctrine/ORM/Mapping/Driver/DoctrineAnnotations.php');
+
+unset($loader, $exceptions); // cleanup

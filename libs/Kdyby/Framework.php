@@ -56,4 +56,14 @@ final class Framework
 		return new Packages\PackagesList(static::getDefaultPackages());
 	}
 
+
+
+	/**
+	 * @return array
+	 */
+	public static function findExceptionClasses()
+	{
+		return iterator_to_array(\Nette\Utils\Finder::findFiles('exceptions.php')->in(__DIR__));
+	}
+
 }
