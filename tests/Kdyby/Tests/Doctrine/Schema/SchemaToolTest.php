@@ -90,11 +90,10 @@ class SchemaToolTest extends Kdyby\Tests\OrmTestCase
 		$invoker = function ($eventArgs) use ($test, $eventClass) {
 			/** @var \Kdyby\Tests\OrmTestCase $test */
 			$test->assertInstanceOf($eventClass, $eventArgs);
+			/** @var \Kdyby\Doctrine\Schema\UpdateSchemaSqlEventArgs $eventArgs */
 
 			// modify sqls
-			$sqls = $eventArgs->getSqls();
-			$sqls[] = 'I WAS HERE, FANTOMAS;';
-			$eventArgs->setSqls($sqls);
+			$eventArgs->addSqls(array('I WAS HERE, FANTOMAS;'));
 		};
 
 		$classes = $this->getEntityManager()->getMetadataFactory()->getAllMetadata();
