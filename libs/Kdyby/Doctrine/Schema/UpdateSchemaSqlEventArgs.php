@@ -11,6 +11,7 @@
 namespace Kdyby\Doctrine\Schema;
 
 use Doctrine;
+use Doctrine\DBAL\Schema\Schema;
 use Doctrine\ORM\EntityManager;
 use Kdyby;
 use Nette;
@@ -38,18 +39,25 @@ class UpdateSchemaSqlEventArgs extends Doctrine\Common\EventArgs
 	 */
 	private $sqls;
 
+	/**
+	 * @var \Doctrine\DBAL\Schema\Schema
+	 */
+	private $targetSchema;
+
 
 
 	/**
 	 * @param \Doctrine\ORM\EntityManager $entityManager
 	 * @param \Doctrine\ORM\Mapping\ClassMetadata[] $classes
 	 * @param array $sqls
+	 * @param \Doctrine\DBAL\Schema\Schema $targetSchema
 	 */
-	public function __construct(EntityManager $entityManager, array $classes, array $sqls)
+	public function __construct(EntityManager $entityManager, array $classes, array $sqls, Schema $targetSchema = NULL)
 	{
 		$this->em = $entityManager;
 		$this->classes = $classes;
 		$this->sqls = $sqls;
+		$this->targetSchema = $targetSchema;
 	}
 
 
@@ -92,6 +100,16 @@ class UpdateSchemaSqlEventArgs extends Doctrine\Common\EventArgs
 	public function getSqls()
 	{
 		return $this->sqls;
+	}
+
+
+
+	/**
+	 * @return \Doctrine\DBAL\Schema\Schema
+	 */
+	public function getTargetSchema()
+	{
+		return $this->targetSchema;
 	}
 
 }

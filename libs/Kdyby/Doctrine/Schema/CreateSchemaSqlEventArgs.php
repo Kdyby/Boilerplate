@@ -42,7 +42,7 @@ class CreateSchemaSqlEventArgs extends Doctrine\Common\EventArgs
 	/**
 	 * @var \Doctrine\DBAL\Schema\Schema
 	 */
-	private $schema;
+	private $targetSchema;
 
 
 
@@ -50,14 +50,14 @@ class CreateSchemaSqlEventArgs extends Doctrine\Common\EventArgs
 	 * @param \Doctrine\ORM\EntityManager $entityManager
 	 * @param \Doctrine\ORM\Mapping\ClassMetadata[] $classes
 	 * @param array $sqls
-	 * @param \Doctrine\DBAL\Schema\Schema|null $schema
+	 * @param \Doctrine\DBAL\Schema\Schema $targetSchema
 	 */
-	public function __construct(EntityManager $entityManager, array $classes, array $sqls, Schema $schema = NULL)
+	public function __construct(EntityManager $entityManager, array $classes, array $sqls, Schema $targetSchema = NULL)
 	{
 		$this->em = $entityManager;
 		$this->classes = $classes;
 		$this->sqls = $sqls;
-		$this->schema = $schema;
+		$this->targetSchema = $targetSchema;
 	}
 
 
@@ -107,9 +107,9 @@ class CreateSchemaSqlEventArgs extends Doctrine\Common\EventArgs
 	/**
 	 * @return \Doctrine\DBAL\Schema\Schema
 	 */
-	public function getSchema()
+	public function getTargetSchema()
 	{
-		return $this->schema;
+		return $this->targetSchema;
 	}
 
 }

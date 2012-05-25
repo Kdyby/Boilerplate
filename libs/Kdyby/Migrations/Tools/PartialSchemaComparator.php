@@ -101,7 +101,7 @@ class PartialSchemaComparator extends Nette\Object
 
 		$evm = $this->entityManager->getEventManager();
 		if ($evm->hasListeners(SchemaTool::onUpdateSchemaSql)) {
-			$eventArgs = new UpdateSchemaSqlEventArgs($this->entityManager, $metadata, $sqls);
+			$eventArgs = new UpdateSchemaSqlEventArgs($this->entityManager, $metadata, $sqls, $toSchema);
 			$evm->dispatchEvent(SchemaTool::onUpdateSchemaSql, $eventArgs);
 			$sqls = $eventArgs->getSqls();
 		}

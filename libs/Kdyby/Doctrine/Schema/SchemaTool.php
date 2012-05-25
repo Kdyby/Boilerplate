@@ -129,10 +129,21 @@ class SchemaTool extends Doctrine\ORM\Tools\SchemaTool
 	 */
 	public function getUpdateSchemaSql(array $classes, $saveMode = FALSE)
 	{
-		$sqls = parent::getUpdateSchemaSql($classes, $saveMode);
+		$fromSchema = $this->sm->createSchema();
+		$toSchema = $this->getSchemaFromMetadata($classes);
+
+		$comparator = new Doctrine\DBAL\Schema\Comparator();
+		$schemaDiff = $comparator->compare($fromSchema, $toSchema);
+
+		if ($saveMode) {
+			$sqls = $schemaDiff->toSaveSql($this->platform);
+
+		} else {
+			$sqls = $schemaDiff->toSql($this->platform);
+		}
 
 		if ($this->evm->hasListeners(static::onUpdateSchemaSql)) {
-			$eventArgs = new UpdateSchemaSqlEventArgs($this->em, $classes, $sqls);
+			$eventArgs = new UpdateSchemaSqlEventArgs($this->em, $classes, $sqls, $toSchema);
 			$this->evm->dispatchEvent(static::onUpdateSchemaSql, $eventArgs);
 			$sqls = $eventArgs->getSqls();
 		}
