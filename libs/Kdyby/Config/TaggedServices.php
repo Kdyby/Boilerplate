@@ -103,7 +103,13 @@ class TaggedServices extends Nette\Object implements \Countable, \Iterator
 		}
 
 		$method = Nette\DI\Container::getMethodName($id, FALSE);
-		return $this->container->$method();
+		if (method_exists($this->container, $method)) {
+			return $this->container->$method();
+
+		} else {
+			$factory = $this->container->getService($id);
+			return callback($factory)->invoke();
+		}
 	}
 
 
