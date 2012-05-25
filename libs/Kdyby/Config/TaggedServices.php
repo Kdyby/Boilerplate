@@ -77,15 +77,33 @@ class TaggedServices extends Nette\Object implements \Countable, \Iterator
 
 	/**
 	 * @param mixed $meta
+	 *
 	 * @return object|NULL
 	 */
 	public function findOneByMeta($meta)
 	{
-		if (!$id = array_search($meta, $this->meta)) {
+		if (!$id = array_search($meta, $this->meta, TRUE)) {
 			return NULL;
 		}
 
 		return $this->container->getService($id);
+	}
+
+
+
+	/**
+	 * @param mixed $meta
+	 *
+	 * @return object|NULL
+	 */
+	public function createOneByMeta($meta)
+	{
+		if (!$id = array_search($meta, $this->meta, TRUE)) {
+			return NULL;
+		}
+
+		$method = Nette\DI\Container::getMethodName($id, FALSE);
+		return $this->container->$method();
 	}
 
 
