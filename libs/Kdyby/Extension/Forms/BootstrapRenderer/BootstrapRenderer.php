@@ -90,7 +90,7 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 			}
 
 			$formEl = $form->getElementPrototype();
-			if (stripos('form-', $formEl->class) === FALSE) {
+			if (!$formEl->class || stripos('form-', (string)$formEl->class) === FALSE) {
 				$formEl->addClass('form-horizontal');
 			}
 		}
