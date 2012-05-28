@@ -42,7 +42,7 @@ abstract class IdentifiedEntity extends BaseEntity
 	 */
 	final public function getId()
 	{
-		if ($this instanceof Proxy && !$this->__isInitialized__) {
+		if ($this instanceof Proxy && !$this->__isInitialized__ && !$this->id) {
 			$identifier = $this->getReflection()->getProperty('_identifier');
 			$identifier->setAccessible(TRUE);
 			$id = $identifier->getValue($this);
