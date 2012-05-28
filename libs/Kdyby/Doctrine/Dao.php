@@ -492,6 +492,19 @@ class Dao extends Doctrine\ORM\EntityRepository implements Persistence\IDao, Per
 
 
 
+	/**
+	 * @param string $relation
+	 * @return \Kdyby\Doctrine\Dao
+	 */
+	public function related($relation)
+	{
+		$meta = $this->getClassMetadata();
+		$targetClass = $meta->getAssociationTargetClass($relation);
+		return $this->getEntityManager()->getRepository($targetClass);
+	}
+
+
+
 	/********************* Nette\Object behaviour ****************d*g**/
 
 
