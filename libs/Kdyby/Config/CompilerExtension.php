@@ -21,8 +21,46 @@ use Nette\DI\Container;
  *
  * @method \Nette\DI\ContainerBuilder getContainerBuilder() getContainerBuilder()
  */
-class CompilerExtension extends Nette\Config\CompilerExtension
+class CompilerExtension extends Nette\Config\CompilerExtension implements Kdyby\Packages\IPackageAware
 {
+
+	/**
+	 * @var \Kdyby\Packages\Package
+	 */
+	private $package;
+
+
+
+	/**
+	 * @internal
+	 * @param \Kdyby\Packages\Package $package
+	 */
+	public function setPackage(Kdyby\Packages\Package $package)
+	{
+		$this->package = $package;
+	}
+
+
+
+	/**
+	 * Tries to load default '<compilerExtName>.neon' configuration file
+	 */
+	public function loadConfiguration()
+	{
+		if (!$this->package) {
+			return;
+		}
+
+		$configDir = $this->package->getPath() . '/Resources/config';
+		if (file_exists($configFile = $configDir . '/' . $this->name . '.neon')) {
+			$this->compiler->parseServices(
+				$this->getContainerBuilder(),
+				$this->loadFromFile($configFile)
+			);
+		}
+	}
+
+
 
 	/**
 	 * @param string $alias
