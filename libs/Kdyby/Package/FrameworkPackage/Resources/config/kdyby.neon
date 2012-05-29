@@ -1,0 +1,64 @@
+services:
+  nette.presenterFactory: Kdyby\Application\PresenterManager(@kdyby.packageManager, @container, %appDir%)
+
+  kdyby.packageManager: Kdyby\Packages\PackageManager
+
+  kdyby.console.helpers: Symfony\Component\Console\Helper\HelperSet
+
+  kdyby.console.helper.serviceContainer:
+    class: Kdyby\Console\ContainerHelper
+    tags: {console.helper: {alias: di}}
+
+  kdyby.console.helper.packageManager:
+    class: Kdyby\Console\PackageManagerHelper
+    tags: {console.helper: {alias: pm}}
+
+  kdyby.console.helper.ormEntityManager:
+    class: Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper(@doctrine.orm.entityManager)
+    tags: {console.helper: {alias: em}}
+
+  kdyby.console.helper.dbalConnection:
+    class: Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper(@doctrine.dbal.connection)
+    tags: {console.helper: {alias: db}}
+
+  kdyby.console.helper.cacheStorage:
+    class: Kdyby\Console\StorageHelper(@kdyby.cacheStorage)
+    tags: {console.helper: {alias: cacheStorage}}
+
+  kdyby.console.helper.phpFileStorage:
+    class: Kdyby\Console\StorageHelper(@kdyby.phpFileStorage)
+    tags: {console.helper: {alias: phpFileStorage}}
+
+  kdyby.console.helper.dialogHelper:
+    class: Symfony\Component\Console\Helper\DialogHelper
+    tags: {console.helper: {alias: dialog}}
+
+  kdyby.phpFileStorage: @nette.templateCacheStorage
+  kdyby.cacheStorage: @cacheStorage
+
+  nette.userStorage: Kdyby\Security\UserStorage
+
+  user: Kdyby\Security\User
+
+  nette.authenticator: @user
+
+  nette.authorizator:
+    class: Nette\Security\IAuthorizator
+    factory: @kdyby.security.authorizatorFactory::create()
+
+  kdyby.security.authorizatorFactory:
+    class: Kdyby\Security\AuthorizatorFactory
+
+  kdyby.templateConfigurator:
+    class: Kdyby\Templates\TemplateConfigurator
+
+  kdyby.editableTemplates:
+    class: Kdyby\Templates\EditableTemplates
+    arguments: {1: Kdyby\Caching\LatteStorage("%tempDir%/cache")}
+
+  kdyby.eventManager: Kdyby\EventDispatcher\EventManager
+
+  application:
+    setup:
+      - Kdyby\Application\LifeCycleEvent::register(@self, @kdyby.eventManager)
+

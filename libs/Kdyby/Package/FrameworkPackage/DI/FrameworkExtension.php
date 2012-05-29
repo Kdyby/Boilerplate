@@ -28,6 +28,8 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 
 	public function loadConfiguration()
 	{
+		parent::loadConfiguration();
+
 		$builder = $this->getContainerBuilder();
 
 		// watch for package files to change
@@ -38,90 +40,6 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 		foreach ($this->compiler->getExtensions() as $extension) {
 			$builder->addDependency(ClassType::from($extension)->getFileName());
 		}
-
-		// application
-		$builder->getDefinition('nette.presenterFactory')
-			->setClass('Kdyby\Application\PresenterManager', array('@kdyby.packageManager', '@container', '%appDir%'));
-
-		$builder->addDefinition($this->prefix('packageManager'))
-			->setClass('Kdyby\Packages\PackageManager');
-
-		// console
-		$builder->addDefinition($this->prefix('console.helpers'))
-			->setClass('Symfony\Component\Console\Helper\HelperSet');
-
-		$builder->addDefinition($this->prefix('console.helper.serviceContainer'))
-			->setClass('Kdyby\Console\ContainerHelper')
-			->addTag('console.helper', array('alias' => 'di'));
-
-		$builder->addDefinition($this->prefix('console.helper.packageManager'))
-			->setClass('Kdyby\Console\PackageManagerHelper')
-			->addTag('console.helper', array('alias' => 'pm'));
-
-		$builder->addDefinition($this->prefix('console.helper.ormEntityManager'))
-			->setClass('Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper', array('@doctrine.orm.entityManager'))
-			->addTag('console.helper', array('alias' => 'em'));
-
-		$builder->addDefinition($this->prefix('console.helper.dbalConnection'))
-			->setClass('Doctrine\DBAL\Tools\Console\Helper\ConnectionHelper', array('@doctrine.dbal.connection'))
-			->addTag('console.helper', array('alias' => 'db'));
-
-		$builder->addDefinition($this->prefix('console.helper.cacheStorage'))
-			->setClass('Kdyby\Console\StorageHelper', array($this->prefix('@cacheStorage')))
-			->addTag('console.helper', array('alias' => 'cacheStorage'));
-
-		$builder->addDefinition($this->prefix('console.helper.phpFileStorage'))
-			->setClass('Kdyby\Console\StorageHelper', array($this->prefix('@phpFileStorage')))
-			->addTag('console.helper', array('alias' => 'phpFileStorage'));
-
-		$builder->addDefinition($this->prefix('console.helper.dialogHelper'))
-			->setClass('Symfony\Component\Console\Helper\DialogHelper')
-			->addTag('console.helper', array('alias' => 'dialog'));
-
-		// cache
-		$this->addAlias($this->prefix('phpFileStorage'), 'nette.templateCacheStorage');
-		$this->addAlias($this->prefix('cacheStorage'), 'cacheStorage');
-
-		// security
-		$builder->getDefinition('nette.userStorage')
-			->setClass('Kdyby\Security\UserStorage');
-
-		$builder->getDefinition('user')
-			->setClass('Kdyby\Security\User');
-
-		$builder->addDefinition('nette.authenticator')
-			->setFactory('@user');
-
-		$builder->addDefinition($this->prefix('security.identityDao'))
-			->setFactory('@doctrine.registry::getDao', array('Kdyby\Security\Identity'))
-			->setInternal(TRUE);
-
-		$builder->addDefinition('nette.authorizator')
-			->setClass('Nette\Security\IAuthorizator')
-			->setFactory($this->prefix('@security.authorizatorFactory::create'));
-
-		$builder->addDefinition($this->prefix('security.authorizatorFactory'))
-			->setClass('Kdyby\Security\AuthorizatorFactory')
-			->setInternal(TRUE);
-
-		// template
-		$builder->addDefinition($this->prefix('templateConfigurator'))
-			->setClass('Kdyby\Templates\TemplateConfigurator');
-
-		$builder->addDefinition($this->prefix('editableTemplates'))
-			->setClass('Kdyby\Templates\EditableTemplates', array(1 => $this->prefix('@editableTemplates.storage')));
-
-		// events
-		$builder->addDefinition($this->prefix('eventManager'))
-			->setClass('Kdyby\EventDispatcher\EventManager');
-
-		$builder->getDefinition('application')
-			->addSetup('Kdyby\Application\LifeCycleEvent::register(?, ?);', array('@self', $this->prefix('@eventManager')));
-
-		// cache
-		$builder->addDefinition($this->prefix('editableTemplates.storage'))
-			->setClass('Kdyby\Caching\LatteStorage', array('%tempDir%/cache'))
-			->setAutowired(FALSE);
 
 		// macros
 		$this->addMacro('macros.core', 'Kdyby\Templates\CoreMacros::install');

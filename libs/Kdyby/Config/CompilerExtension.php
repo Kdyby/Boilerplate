@@ -97,7 +97,7 @@ class CompilerExtension extends Nette\Config\CompilerExtension implements Kdyby\
 			->addTag('latte.macro');
 
 		$builder->getDefinition('nette.latte')
-			->addSetup('$this->' . Container::getMethodName($name, FALSE) . '(?->compiler);', array('@self'));
+			->addSetup('$this->' . Container::getMethodName($name, FALSE) . '(?->compiler)', array('@self'));
 
 		return $macro;
 	}
