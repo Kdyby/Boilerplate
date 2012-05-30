@@ -79,7 +79,7 @@ class AssetPackage extends Nette\Object
 	 */
 	public function getFiles()
 	{
-		return Arrays::flatten($this->paths);
+		return array_reverse(Arrays::flatten($this->paths));
 	}
 
 

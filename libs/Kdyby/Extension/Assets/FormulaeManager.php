@@ -132,6 +132,7 @@ class FormulaeManager extends Nette\Object
 			$asset->setTargetPath($options['output']);
 		}
 
+		$options['type'] = strtolower(pathinfo($asset->getTargetPath(), PATHINFO_EXTENSION));
 		$name = $this->assetManager->add($asset, $filters, $options);
 		if (!empty($options['requiredBy'])) {
 			foreach ($options['requiredBy'] as $requiredBy) {
@@ -213,9 +214,66 @@ class FormulaeManager extends Nette\Object
 			Arrays::flatten($this->componentTypes)
 		));
 
-		foreach ($types as $name) {
+		foreach ($this->mergeIntoPackages($types) as $name) {
 			$this->publishAndResolve($name);
 		}
+	}
+
+
+
+	/**
+	 * @param array $types
+	 * @return array
+	 */
+	private function mergeIntoPackages($types)
+	{
+		$merged = array();
+		do {
+			$name = array_shift($types);
+			if (($options = $this->assetManager->getOptions($name)) && !empty($options['name'])) {
+				$assets = array($first = $this->assetManager->get($name));
+
+				foreach ($this->findPackageParts($options['name'], $options['type'], $types) as $name) {
+					$assets[] = $this->assetManager->get($name);
+					$options = array_merge($options, $this->assetManager->getOptions($name));
+				}
+
+				$coll = new Assetic\Asset\AssetCollection($assets);
+				$coll->setTargetPath($first->getTargetPath());
+
+				$merged[] = $this->assetManager->add($coll, array(), $options);
+
+			} else {
+				$merged[] = $name;
+			}
+
+		} while ($types);
+
+		return $merged;
+	}
+
+
+
+	/**
+	 * @param string $packageName
+	 * @param string $type
+	 * @param array $types
+	 *
+	 * @return array
+	 */
+	private function findPackageParts($packageName, $type, array &$types)
+	{
+		$parts = array();
+		foreach ($types as $i => $name) {
+			if (($options = $this->assetManager->getOptions($name)) && !empty($options['name'])) {
+				if ($options['name'] === $packageName && $options['type'] === $type) {
+					$parts[] = $name;
+					unset($types[$i]);
+				}
+			}
+		}
+
+		return $parts;
 	}
 
 
