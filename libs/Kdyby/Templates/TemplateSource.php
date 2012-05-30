@@ -23,6 +23,8 @@ use Nette\Utils\PhpGenerator as Code;
  *
  * @ORM\Entity()
  * @ORM\Table(name="templates")
+ * @ORM\DiscriminatorColumn(name="_type", type="string")
+ * @ORM\DiscriminatorMap({"base" = "TemplateSource"})
  */
 class TemplateSource extends Kdyby\Doctrine\Entities\IdentifiedEntity
 {
