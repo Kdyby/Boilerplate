@@ -203,7 +203,8 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 		$parametrized = static::formatQuery($sql, (array)$params);
 		$s = Nette\Database\Helpers::dumpSql($parametrized);
 		if ($source) {
-			$s .= Nette\Diagnostics\Helpers::editorLink($source[0], $source[1]);
+			$s .= Nette\Diagnostics\Helpers::editorLink($source[0], $source[1])
+				->setText('.../'. basename(dirname($source[0])) . '/' . basename($source[0]));
 		}
 
 		return '<tr><td>' . sprintf('%0.3f', $time * 1000) . '</td>' .
