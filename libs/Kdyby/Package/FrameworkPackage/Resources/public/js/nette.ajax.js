@@ -319,7 +319,7 @@
 		}
 	}, {xhr: null});
 
-	// default ajaxification (can be overriden in init())
+	// default ajaxification (can be overridden in init())
 	$.nette.ext('init', {
 		load: function (rh) {
 			$(this.linkSelector).off('click', rh).on('click', rh);
