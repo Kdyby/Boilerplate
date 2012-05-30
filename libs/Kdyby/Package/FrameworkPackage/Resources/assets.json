@@ -12,11 +12,11 @@
     },
     {
         "name":"nette/forms",
-        "paths":["public/js/netteForms.js"]
+        "paths":["public/js/nette.forms.js"]
     },
     {
         "name":"nette/ajax",
-        "paths":["public/js/jquery.nette.js"],
+        "paths":["public/js/nette.ajax.js", "public/js/nette.ajax.scrollTo.js", "public/js/nette.ajax.spinner.js"],
         "require":{
             "jquery/jquery":"*"
         }
