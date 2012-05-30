@@ -22,11 +22,12 @@ use Kdyby;
  *
  * @ORM\Entity(readOnly=TRUE)
  * @ORM\Table(name="db_audit_revisions", indexes={
- * 	@ORM\Index(name="entity_idx", columns={"className", "entityId"})
+ * @ORM\Index(name="entity_idx", columns={"className", "entityId"})
  * })
  */
 class Revision extends Kdyby\Doctrine\Entities\BaseEntity
 {
+
 	const TYPE_INSERT = 'INS';
 	const TYPE_UPDATE = 'UPD';
 	const TYPE_DELETE = 'DEL';

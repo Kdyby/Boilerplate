@@ -216,7 +216,7 @@ class CreateSchemaListener extends Nette\Object implements Doctrine\Common\Event
 	 *
 	 * @return array
 	 */
-	private function generateTriggers(EntityManager $em, array $classes,Schema\Schema $targetSchema)
+	private function generateTriggers(EntityManager $em, array $classes, Schema\Schema $targetSchema)
 	{
 		$connection = $em->getConnection();
 		$platform = $connection->getDatabasePlatform();

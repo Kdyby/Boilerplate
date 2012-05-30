@@ -92,8 +92,8 @@ class CurrentUserListener extends Nette\Object implements Kdyby\EventDispatcher\
 
 		// pass current user to database
 		$conn->executeQuery($variableSql, array(
-				$this->config->getCurrentUser()
-			));
+			$this->config->getCurrentUser()
+		));
 	}
 
 }

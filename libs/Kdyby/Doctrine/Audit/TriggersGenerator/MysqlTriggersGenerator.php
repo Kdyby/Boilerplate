@@ -126,49 +126,6 @@ class MysqlTriggersGenerator extends Nette\Object
 		// before delete
 		$triggers[] = $bd = $versionUpdate(Trigger::beforeDelete($class->getTableName(), 'audit'), 'DEL');
 
-		//$beforeUpdate->add("INSERT INTO $auditTable ");
-
-//		$sqls[] = <<<TRG
-//DROP TRIGGER IF EXISTS $triggerName;
-//DELIMITER //
-//CREATE TRIGGER $triggerName BEFORE INSERT ON $quotedTable
-//  FOR EACH ROW BEGIN
-//    DECLARE `var-id` int(10) unsigned;
-//    DECLARE `var-title` varchar(45);
-//    DECLARE `var-body` text;
-//    DECLARE `var-_revision` BIGINT UNSIGNED;
-//    DECLARE revisionCursor CURSOR FOR SELECT `id`, `title`, `body` FROM $auditTable WHERE `_revision`=`var-_revision` LIMIT 1;
-//
-//    IF NEW.`_revision` IS NULL THEN
-//      INSERT INTO $auditTable (`_revision_comment`, `_revision_user_id`, `_revision_timestamp`) VALUES (NEW.`_revision_comment`, @auth_uid, NOW());
-//      SET NEW.`_revision` = LAST_INSERT_ID();
-//    ELSE
-//      SET `var-_revision`=NEW.`_revision`;
-//      OPEN revisionCursor;
-//      FETCH revisionCursor INTO `var-id`, `var-title`, `var-body`;
-//      CLOSE revisionCursor;
-//
-//      SET NEW.`id` = `var-id`, NEW.`title` = `var-title`, NEW.`body` = `var-body`;
-//    END IF;
-//
-//    SET NEW.`_revision_comment` = NULL;
-//  END //
-//DELIMITER ;
-//TRG;
-//
-//		// after insert
-//		$triggerName = $platform->quoteIdentifier($prefix . '_ai');
-//		$sqls[] = <<<TRG
-//DROP TRIGGER IF EXISTS $triggerName;
-//DELIMITER //
-//CREATE TRIGGER $triggerName AFTER INSERT ON $quotedTable
-//  FOR EACH ROW BEGIN
-//    UPDATE $auditTable SET `id` = NEW.`id`, `title` = NEW.`title`, `body` = NEW.`body`, `_revision_action`='INSERT' WHERE `_revision`=NEW.`_revision` AND `_revision_action` IS NULL;
-//--    INSERT INTO `_revhistory_mytable` VALUES (NEW.`id`, NEW.`_revision`, @auth_uid, NOW());
-//  END //
-//DELIMITER ;
-//TRG;
-
 		return $triggers;
 	}
 
