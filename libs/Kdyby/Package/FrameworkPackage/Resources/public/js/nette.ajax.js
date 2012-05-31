@@ -337,3 +337,8 @@
 	});
 
 })(jQuery);
+
+// init
+jQuery(document).ready(function () {
+	$.nette.init();
+});
