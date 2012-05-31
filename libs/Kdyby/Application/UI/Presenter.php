@@ -41,6 +41,17 @@ abstract class Presenter extends Nette\Application\UI\Presenter
 
 
 	/**
+	 * Add namespace into payload.
+	 */
+	protected function startup()
+	{
+		parent::startup();
+		$this->payload->kdyby = (object)array();
+	}
+
+
+
+	/**
 	 * @return \Kdyby\Doctrine\Registry
 	 */
 	public function getDoctrine()
