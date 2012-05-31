@@ -327,13 +327,21 @@
 			$forms.off('submit', rh).on('submit', rh);
 			$forms.off('click', ':image', rh).on('click', ':image', rh);
 			$forms.off('click', ':submit', rh).on('click', ':submit', rh);
+
+			var buttonSelector = this.buttonSelector;
+			$(buttonSelector).each(function () {
+				$(this).closest('form')
+					.off('click', buttonSelector, rh)
+					.on('click', buttonSelector, rh);
+			});
 		},
 		success: function () {
 			$.nette.load();
 		}
 	}, {
 		linkSelector: 'a.ajax',
-		formSelector: 'form.ajax'
+		formSelector: 'form.ajax',
+		buttonSelector: 'input.ajax:submit'
 	});
 
 })(jQuery);
