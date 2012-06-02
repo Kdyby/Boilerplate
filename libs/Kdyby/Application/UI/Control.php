@@ -21,9 +21,11 @@ use Nette\Utils\Strings;
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
  * @property \Nette\Templating\FileTemplate|\stdClass $template
+ * @property-read \Nette\Templating\FileTemplate|\stdClass $template
  * @method \Nette\Templating\FileTemplate|\stdClass getTemplate() getTemplate()
  *
  * @property \Kdyby\Application\UI\Presenter $presenter
+ * @property-read \Kdyby\Application\UI\Presenter $presenter
  * @method \Kdyby\Application\UI\Presenter getPresenter() getPresenter(bool $need = TRUE)
  */
 abstract class Control extends Nette\Application\UI\Control
