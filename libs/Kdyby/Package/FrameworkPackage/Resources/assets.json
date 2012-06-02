@@ -16,7 +16,12 @@
     },
     {
         "name":"nette/ajax",
-        "paths":["public/js/nette.ajax.js", "public/js/nette.ajax.scrollTo.js", "public/js/nette.ajax.spinner.js"],
+        "paths":[
+            "public/js/nette.ajax.js",
+            "public/js/nette.ajax.scrollTo.js",
+            "public/js/nette.ajax.spinner.js",
+            "public/js/nette.ajax.codeEditor.js"
+        ],
         "require":{
             "jquery/jquery":"*"
         }

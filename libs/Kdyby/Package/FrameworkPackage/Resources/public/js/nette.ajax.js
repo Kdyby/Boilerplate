@@ -39,63 +39,80 @@
 			},
 			explicitNoAjax: false,
 			requestHandler: function (e) {
-				e.stopPropagation();
-
 				// thx to @vrana
 				var explicitNoAjax = e.button || e.ctrlKey || e.shiftKey || e.altKey || e.metaKey;
 
-				var $el = $(this), $form, isForm = $el.is('form'), isSubmit = $el.is(':submit'), isImage = $el.is(':image'), data = {};
+				inner.self.submit($(this), e, {}, explicitNoAjax);
+			}
+		};
 
-				if (isForm || isSubmit || isImage) {
-					if (isSubmit) {
-						$form = $el.closest('form');
-						data[$el.attr('name')] = $el.val() || '';
-					} else if (isImage) {
-						$form = $el.closest('form');
+		/**
+		 * Submits given element with optionally given event.
+		 *
+		 * @param {object} Selected element, that raised the event
+		 * @param {object|null} Event that should be overridden
+		 * @param {object|null} Options for ajax event
+		 * @param {bool|null} Whether or to use ajax
+		 */
+		this.submit = function ($el, e, settings, explicitNoAjax) {
+			explicitNoAjax = explicitNoAjax || false;
+			settings = settings || {};
+
+			if (e) e.stopPropagation();
+
+			var $form, isForm = $el.is('form'), isSubmit = $el.is(':submit'), isImage = $el.is(':image'), data = {};
+
+			if (isForm || isSubmit || isImage) {
+				if (isSubmit) {
+					$form = $el.closest('form');
+					data[$el.attr('name')] = $el.val() || '';
+				} else if (isImage) {
+					$form = $el.closest('form');
+					if (e) {
 						var offset = $el.offset();
 						data[$el.attr('name') + '.x'] = e.pageX - offset.left;
 						data[$el.attr('name') + '.y'] = e.pageY - offset.top;
-					} else if (isForm) {
-						$form = $el;
-					} else {
-						return;
 					}
+				} else if (isForm) {
+					$form = $el;
+				} else {
+					return;
+				}
 
-					if (explicitNoAjax && isSubmit) {
-						inner.explicitNoAjax = true;
-						return;
-					} else if (isForm && inner.explicitNoAjax) {
-						inner.explicitNoAjax = false;
-						return;
-					}
+				if (explicitNoAjax && isSubmit) {
+					inner.explicitNoAjax = true;
+					return;
+				} else if (isForm && inner.explicitNoAjax) {
+					inner.explicitNoAjax = false;
+					return;
+				}
 
-					if ($form.get(0).onsubmit && !$form.get(0).onsubmit()) return null;
+				if ($form.get(0).onsubmit && !$form.get(0).onsubmit()) return null;
 
-					var values = $form.serializeArray();
-					for (var i = 0; i < values.length; i++) {
-						var name = values[i].name;
-						if (name in data) {
-							var val = data[name];
-							if (!(val instanceof Array)) {
-								val = [val];
-							}
-							val.push(values[i].value);
-							data[name] = val;
-						} else {
-							data[name] = values[i].value;
+				var values = $form.serializeArray();
+				for (var i = 0; i < values.length; i++) {
+					var name = values[i].name;
+					if (name in data) {
+						var val = data[name];
+						if (!(val instanceof Array)) {
+							val = [val];
 						}
+						val.push(values[i].value);
+						data[name] = val;
+					} else {
+						data[name] = values[i].value;
 					}
-				} else if (explicitNoAjax) return;
+				}
+			} else if (explicitNoAjax) return;
 
-				// thx to @vrana
-				if (/:|^#/.test($form ? $form.attr('action') : $el.attr('href'))) return;
+			// thx to @vrana
+			if (/:|^#/.test($form ? $form.attr('action') : $el.attr('href'))) return;
 
-				inner.self.ajax({
-					url: $form ? $form.attr('action') : this.href,
-					data: data,
-					type: $form ? $form.attr('method') : 'get'
-				}, this, e);
-			}
+			inner.self.ajax($.extend({
+				url:$form ? $form.attr('action') : this.href,
+				data:data,
+				type:$form ? $form.attr('method') : 'get'
+			}, settings), this, e);
 		};
 
 		/**
@@ -113,7 +130,7 @@
 			if (inner.initialized) throw 'Cannot manipulate nette-ajax extensions after initialization.';
 
 			if (callbacks === undefined) {
-				inner.extensions[name];
+				return inner.extensions[name];
 			} else if (!callbacks) {
 				inner.extensions[name] = undefined;
 			} else if (inner.extensions[name]) {
@@ -200,7 +217,7 @@
 				settings = $.extend({
 					beforeSend: function (xhr) {
 						if (inner.fire('before', ui)) {
-							e.preventDefault();
+							if (e) e.preventDefault();
 							inner.fire('start', xhr);
 						} else return false;
 					}
@@ -347,6 +364,6 @@
 })(jQuery);
 
 // init
-jQuery(document).ready(function () {
+jQuery(window).load(function () {
 	$.nette.init();
 });
