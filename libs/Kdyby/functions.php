@@ -48,6 +48,17 @@ CSS;
 }
 
 
+/**
+ * @param string $message
+ */
+function l($message) {
+	$message = array_map(function ($message) {
+		return !is_scalar($message) ? Nette\Utils\Json::encode($message) : $message;
+	}, func_get_args());
+
+	Nette\Diagnostics\Debugger::log(implode(', ', $message));
+}
+
 
 /**
  * Bar dump shortcut.
