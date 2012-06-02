@@ -189,7 +189,7 @@ class Form extends Kdyby\Application\UI\Form implements IObjectContainer
 
 		if ($redirect) {
 			if ($valid || ($valid = $this->isValid())){
-				$this->persistEntities();
+				$this->persistEntities($this->autoFlush);
 			}
 
 			$this->getPresenter()->terminate();
@@ -209,7 +209,7 @@ class Form extends Kdyby\Application\UI\Form implements IObjectContainer
 		}
 
 		if ($valid) {
-			$this->persistEntities();
+			$this->persistEntities($this->autoFlush);
 		}
 
 		if ($redirect) {
@@ -240,8 +240,11 @@ class Form extends Kdyby\Application\UI\Form implements IObjectContainer
 
 
 	/**
+	 * Crawls mapped component, persists all entities and optionally flushes them.
+	 *
+	 * @param bool $flush
 	 */
-	protected function persistEntities()
+	public function persistEntities($flush = FALSE)
 	{
 		$entities = $this->mapper ? $this->mapper->getEntities() : array();
 		foreach ($this->getComponents(TRUE, 'Kdyby\Doctrine\Forms\EntityContainer') as $container) {
@@ -256,7 +259,7 @@ class Form extends Kdyby\Application\UI\Form implements IObjectContainer
 			$em->persist($entity);
 		}
 
-		if ($this->autoFlush === TRUE) {
+		if ($flush) {
 			$em->flush();
 		}
 	}
