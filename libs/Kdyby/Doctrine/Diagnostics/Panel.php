@@ -409,8 +409,7 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 		}
 
 		$dump = Nette\Diagnostics\BlueScreen::highlightFile($file, $errorLine);
-		return '<p><b>File:</b> ' . Nette\Diagnostics\Helpers::editorLink($file, $errorLine) . '</p>' .
-			'<pre>' . $dump . '</pre>';
+		return '<p><b>File:</b> ' . Nette\Diagnostics\Helpers::editorLink($file, $errorLine) . '</p>' . $dump;
 	}
 
 
