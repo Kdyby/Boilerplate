@@ -112,6 +112,7 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel, Doctrin
 			&& strpos($file, '/Doctrine/DBAL/') === FALSE
 			&& strpos($file, "/Kdyby/Doctrine/") === FALSE
 			&& strpos($file, "/Kdyby/Tests/") === FALSE
+			&& strpos($file, "/Kdyby/Tools/") === FALSE
 			&& stripos($file, "/phpunit") === FALSE;
 	}
 
