@@ -44,11 +44,13 @@ class CompilerExtension extends Nette\Config\CompilerExtension implements Kdyby\
 
 	/**
 	 * Tries to load default '<compilerExtName>.neon' configuration file
+	 *
+	 * @return \Nette\DI\ContainerBuilder
 	 */
 	public function loadConfiguration()
 	{
 		if (!$this->package) {
-			return;
+			return $this->getContainerBuilder();
 		}
 
 		$configDir = $this->package->getPath() . '/Resources/config';
@@ -58,6 +60,8 @@ class CompilerExtension extends Nette\Config\CompilerExtension implements Kdyby\
 				$this->loadFromFile($configFile)
 			);
 		}
+
+		return $this->getContainerBuilder();
 	}
 
 
