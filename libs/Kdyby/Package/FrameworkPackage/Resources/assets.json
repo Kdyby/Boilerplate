@@ -12,15 +12,15 @@
     },
     {
         "name":"nette/forms",
-        "paths":["public/js/nette.forms.js"]
+        "paths":["public/js/nette/nette.forms.js"]
     },
     {
         "name":"nette/ajax",
         "paths":[
-            "public/js/nette.ajax.js",
-            "public/js/nette.ajax.scrollTo.js",
-            "public/js/nette.ajax.spinner.js",
-            "public/js/nette.ajax.codeEditor.js"
+            "public/js/nette/nette.ajax.js",
+            "public/js/nette/nette.ajax.scrollTo.js",
+            "public/js/nette/nette.ajax.spinner.js",
+            "public/js/nette/nette.ajax.codeEditor.js"
         ],
         "require":{
             "jquery/jquery":"*"
