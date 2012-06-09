@@ -20,7 +20,7 @@ use Nette\Utils\Validators;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class AssetsExtension extends Kdyby\Config\CompilerExtension
+class AssetsExtension extends Nette\Config\CompilerExtension
 {
 	/** @var array */
 	public $asseticDefaults = array(
