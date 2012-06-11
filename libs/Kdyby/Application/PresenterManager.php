@@ -136,6 +136,18 @@ class PresenterManager extends Nette\Application\PresenterFactory implements Net
 			$presenter->setContext($this->container);
 		}
 
+		foreach (array_reverse(get_class_methods($presenter)) as $method) {
+			if (substr($method, 0, 6) === 'inject') {
+				$this->container->callMethod(array($presenter, $method));
+			}
+		}
+
+		if ($presenter instanceof Nette\Application\UI\Presenter && $presenter->invalidLinkMode === NULL) {
+			$presenter->invalidLinkMode = $this->container->parameters['debugMode']
+				? UI\Presenter::INVALID_LINK_WARNING
+				: UI\Presenter::INVALID_LINK_SILENT;
+		}
+
 		return $presenter;
 	}
 
