@@ -12,7 +12,9 @@ namespace Kdyby\Application\UI;
 
 use Kdyby;
 use Nette;
+use Nette\Forms\Controls\RadioList;
 use Nette\Forms\ISubmitterControl;
+use Nette\Utils\Html;
 
 
 
@@ -174,3 +176,29 @@ class Form extends Nette\Application\UI\Form
 Kdyby\Forms\Controls\CheckboxList::register();
 Kdyby\Forms\Controls\DateTimeInput::register();
 Kdyby\Forms\Containers\Replicator::register();
+
+// radio list helper
+RadioList::extensionMethod('getItemsOuterLabel', function (RadioList $_this) {
+	$items = array();
+	foreach ($_this->items as $key => $value) {
+		$html = $_this->getControl($key);
+		$html[1]->addClass('radio');
+
+		$items[$key] = $html[1] // label
+			->add($html[0]); // control
+	}
+
+	return $items;
+});
+
+// radio list helper
+RadioList::extensionMethod('getFirstItemLabel', function (RadioList $_this) {
+	$items = $_this->items;
+	$first = key($items);
+
+	$html = $_this->getControl($first);
+	$html[1]->addClass('control-label');
+	$html[1]->setText($_this->caption);
+
+	return $html[1];
+});
