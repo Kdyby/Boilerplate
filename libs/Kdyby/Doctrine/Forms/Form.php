@@ -108,15 +108,10 @@ class Form extends Kdyby\Application\UI\Form implements IObjectContainer
 
 
 	/**
-	 * @throws \Kdyby\InvalidStateException
 	 * @return null|object
 	 */
 	public function getEntity()
 	{
-		if (!$this->entity) {
-			throw new Kdyby\InvalidStateException("No entity was provided.");
-		}
-
 		return $this->entity;
 	}
 
@@ -169,9 +164,11 @@ class Form extends Kdyby\Application\UI\Form implements IObjectContainer
 			if (!$button->getValidationScope() || ($valid = $this->isValid())) {
 				/** @var \Kdyby\Doctrine\Forms\EntityContainer $buttonContainer */
 				$buttonContainer = $button->getParent();
-				$clickedEntity = $this->getEntity();
 				if ($buttonContainer instanceof IObjectContainer && method_exists($buttonContainer, 'getEntity')) {
 					$clickedEntity = $buttonContainer->getEntity();
+
+				} else {
+					$clickedEntity = $this->getEntity();
 				}
 
 				if ($clickedEntity){
