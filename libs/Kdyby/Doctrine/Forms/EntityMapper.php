@@ -207,20 +207,53 @@ class EntityMapper extends Nette\Object
 	public function load()
 	{
 		foreach ($this->entities as $entity) {
-			$class = $this->getMeta($entity);
 			$container = $this->getComponent($entity);
-
-			$values = new Nette\ArrayHash;
-			foreach ($container->getControls() as $control) {
-				if ($class->hasField($field = $this->getControlField($control))) {
-					$value = Objects::getProperty($entity, $field);
-					$values[$field] = $this->sanitizeValue($class, $field, $value);
-				}
-			}
-
-			$container->onLoad($values, $entity);
-			$container->setValues($values);
+			$this->loadContainer($container, $entity);
 		}
+	}
+
+
+
+	/**
+	 * @param \Nette\Forms\Container $component
+	 */
+	public function loadComponent(Nette\Forms\Container $component)
+	{
+		if ($component instanceof IObjectContainer) {
+			/** @var \Kdyby\Doctrine\Forms\IObjectContainer $component */
+			$this->loadContainer($component);
+		}
+
+		foreach ($component->getComponents(TRUE, 'Kdyby\Doctrine\Forms\IObjectContainer') as $container) {
+			$this->loadContainer($container);
+		}
+	}
+
+
+
+	/**
+	 * @param \Kdyby\Doctrine\Forms\IObjectContainer $container
+	 * @param object $entity
+	 */
+	private function loadContainer(IObjectContainer $container, $entity = NULL)
+	{
+		if ($entity === NULL && $container instanceof EntityContainer) {
+			/** @var \Kdyby\Doctrine\Forms\EntityContainer $container */
+			$entity = $container->getEntity();
+		}
+
+		$class = $this->getMeta($entity);
+
+		$values = new Nette\ArrayHash;
+		foreach ($container->getControls() as $control) {
+			if ($class->hasField($field = $this->getControlField($control))) {
+				$value = Objects::getProperty($entity, $field);
+				$values[$field] = $this->sanitizeValue($class, $field, $value);
+			}
+		}
+
+		$container->onLoad($values, $entity);
+		$container->setValues($values);
 	}
 
 
