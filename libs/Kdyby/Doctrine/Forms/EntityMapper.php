@@ -219,12 +219,12 @@ class EntityMapper extends Nette\Object
 	 */
 	public function loadComponent(Nette\Forms\Container $component)
 	{
-		if ($component instanceof IObjectContainer) {
-			/** @var \Kdyby\Doctrine\Forms\IObjectContainer $component */
+		if ($component instanceof EntityContainer) {
+			/** @var \Kdyby\Doctrine\Forms\EntityContainer $component */
 			$this->loadContainer($component);
 		}
 
-		foreach ($component->getComponents(TRUE, 'Kdyby\Doctrine\Forms\IObjectContainer') as $container) {
+		foreach ($component->getComponents(TRUE, 'Kdyby\Doctrine\Forms\EntityContainer') as $container) {
 			$this->loadContainer($container);
 		}
 	}
