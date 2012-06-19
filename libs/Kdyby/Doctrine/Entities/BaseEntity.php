@@ -380,7 +380,6 @@ abstract class BaseEntity extends Nette\Object implements \Serializable
 
 		} while ($class = $class->getParentClass());
 
-		bd($data, get_called_class() . '->' . __FUNCTION__ . '()');
 		return serialize($data);
 	}
 
