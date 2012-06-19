@@ -16,6 +16,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Nette;
 use Nette\Environment;
 use Nette\ObjectMixin;
+use Nette\Reflection\ClassType;
 use Kdyby;
 
 
@@ -27,7 +28,7 @@ use Kdyby;
  *
  * @property-read int $id
  */
-abstract class BaseEntity extends Nette\Object
+abstract class BaseEntity extends Nette\Object implements \Serializable
 {
 
 	/**
@@ -338,5 +339,111 @@ abstract class BaseEntity extends Nette\Object
 		return self::$methods[$class];
 	}
 
+
+
+	/**************************** \Serializable ****************************/
+
+
+
+	/**
+	 * @internal
+	 * @return string
+	 */
+	public function serialize()
+	{
+		$data = array();
+
+		$allowed = FALSE;
+		if (method_exists($this, '__sleep')) {
+			$allowed = (array)$this->__sleep();
+		}
+
+		$class = $this->getReflection();
+
+		do {
+			/** @var \Nette\Reflection\Property $propertyRefl */
+			foreach ($class->getProperties() as $propertyRefl) {
+				if ($allowed !== FALSE && !in_array($propertyRefl->getName(), $allowed)) {
+					continue;
+
+				} elseif ($propertyRefl->isStatic()) {
+					continue;
+				}
+
+				// prefix private properties
+				$prefix = $propertyRefl->isPrivate() ? $propertyRefl->getDeclaringClass()->getName() . '::' : NULL;
+
+				// save value
+				$propertyRefl->setAccessible(TRUE);
+				$data[$prefix . $propertyRefl->getName()] = $propertyRefl->getValue($this);
+			}
+
+		} while ($class = $class->getParentClass());
+
+		bd($data, get_called_class() . '->' . __FUNCTION__ . '()');
+		return serialize($data);
+	}
+
+
+
+	/**
+	 * @internal
+	 *
+	 * @param $serialized
+	 */
+	public function unserialize($serialized)
+	{
+		$data = unserialize($serialized);
+
+		foreach ($data as $target => $value) {
+			if (strpos($target, '::') !== FALSE) {
+				list($class, $name) = explode('::', $target, 2);
+				$propertyRefl = static::getProperty($name, $class);
+
+			} else {
+				$propertyRefl = static::getProperty($target);
+			}
+
+			$propertyRefl->setAccessible(TRUE);
+			$propertyRefl->setValue($this, $value);
+		}
+
+		if (method_exists($this, '__wakeup')) {
+			$this->__wakeup();
+		}
+	}
+
+
+
+	/**
+	 * @var array|\Nette\Reflection\ClassType[]
+	 */
+	private static $classes = array();
+
+
+
+	/**
+	 * @param string $name
+	 * @param string $class
+	 * @return \Nette\Reflection\Property
+	 */
+	private static function getProperty($name, $class = NULL)
+	{
+		if (isset(self::$classes[$class])) {
+			$class = self::$classes[$class];
+
+		} else {
+			if ($class === NULL) {
+				$class = static::getReflection();
+
+			} else {
+				$class = ClassType::from($class);
+			}
+
+			self::$classes[func_get_arg(1)] = $class;
+		}
+
+		return $class->getProperty($name);
+	}
 
 }
