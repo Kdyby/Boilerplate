@@ -19,24 +19,26 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\MappedSuperclass()
  *
- * @property int $id
- * @property string $name
+ * @method string getId()
+ * @method setId(string $name)
+ *
+ * @method string getName()
+ * @method setName(string $name)
  */
 abstract class NamedEntity extends BaseEntity
 {
 
-	/** @ORM\Id() @ORM\Column(type="integer") */
-	private $id;
+	/**
+	 * @ORM\Id
+	 * @ORM\Column(type="integer")
+	 * @ORM\GeneratedValue
+	 * @var integer
+	 */
+	protected $id;
 
-	/** @ORM\Column(type="string") */
-	private $name;
-
-
-
-	public function getId() { return $this->id; }
-	public function setId($id) { $this->id = $id; }
-
-	public function getName() { return $this->name; }
-	public function setName($name) { $this->name = $name; }
+	/**
+	 * @ORM\Column(type="string")
+	 */
+	protected $name;
 
 }
