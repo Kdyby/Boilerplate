@@ -45,7 +45,7 @@ class TemplateSource extends Kdyby\Doctrine\Entities\IdentifiedEntity
 	protected $description;
 
 	/**
-	 * @ORM\Column(type="text")
+	 * @ORM\Column(type="text", nullable=TRUE)
 	 * @var string
 	 */
 	protected $source;
