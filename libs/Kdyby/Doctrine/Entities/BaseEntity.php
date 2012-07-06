@@ -351,98 +351,18 @@ abstract class BaseEntity extends Nette\Object implements \Serializable
 	 */
 	public function serialize()
 	{
-		$data = array();
-
-		$allowed = FALSE;
-		if (method_exists($this, '__sleep')) {
-			$allowed = (array)$this->__sleep();
-		}
-
-		$class = $this->getReflection();
-
-		do {
-			/** @var \Nette\Reflection\Property $propertyRefl */
-			foreach ($class->getProperties() as $propertyRefl) {
-				if ($allowed !== FALSE && !in_array($propertyRefl->getName(), $allowed)) {
-					continue;
-
-				} elseif ($propertyRefl->isStatic()) {
-					continue;
-				}
-
-				// prefix private properties
-				$prefix = $propertyRefl->isPrivate() ? $propertyRefl->getDeclaringClass()->getName() . '::' : NULL;
-
-				// save value
-				$propertyRefl->setAccessible(TRUE);
-				$data[$prefix . $propertyRefl->getName()] = $propertyRefl->getValue($this);
-			}
-
-		} while ($class = $class->getParentClass());
-
-		return serialize($data);
+		return Kdyby\Tools\SerializableMixin::serialize($this);
 	}
 
 
 
 	/**
 	 * @internal
-	 *
-	 * @param $serialized
+	 * @param string $serialized
 	 */
 	public function unserialize($serialized)
 	{
-		$data = unserialize($serialized);
-
-		foreach ($data as $target => $value) {
-			if (strpos($target, '::') !== FALSE) {
-				list($class, $name) = explode('::', $target, 2);
-				$propertyRefl = static::getProperty($name, $class);
-
-			} else {
-				$propertyRefl = static::getProperty($target);
-			}
-
-			$propertyRefl->setAccessible(TRUE);
-			$propertyRefl->setValue($this, $value);
-		}
-
-		if (method_exists($this, '__wakeup')) {
-			$this->__wakeup();
-		}
-	}
-
-
-
-	/**
-	 * @var array|\Nette\Reflection\ClassType[]
-	 */
-	private static $classes = array();
-
-
-
-	/**
-	 * @param string $name
-	 * @param string $class
-	 * @return \Nette\Reflection\Property
-	 */
-	private static function getProperty($name, $class = NULL)
-	{
-		if (isset(self::$classes[$class])) {
-			$class = self::$classes[$class];
-
-		} else {
-			if ($class === NULL) {
-				$class = static::getReflection();
-
-			} else {
-				$class = ClassType::from($class);
-			}
-
-			self::$classes[func_get_arg(1)] = $class;
-		}
-
-		return $class->getProperty($name);
+		Kdyby\Tools\SerializableMixin::unserialize($this, $serialized);
 	}
 
 }
