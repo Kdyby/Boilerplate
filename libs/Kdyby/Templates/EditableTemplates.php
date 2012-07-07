@@ -15,6 +15,7 @@ use Kdyby\Caching\LatteStorage;
 use Kdyby\Doctrine\Registry;
 use Nette;
 use Nette\Caching\Cache;
+use Nette\Caching\IStorage;
 
 
 
@@ -41,16 +42,38 @@ class EditableTemplates extends Nette\Object
 	 */
 	private $storage;
 
+	/**
+	 * @var \Nette\Caching\IStorage
+	 */
+	private $cacheStorage;
+
 
 
 	/**
 	 * @param \Kdyby\Doctrine\Registry $doctrine
 	 * @param \Kdyby\Caching\LatteStorage $storage
+	 * @param \Nette\Caching\IStorage $cacheStorage
 	 */
-	public function __construct(Registry $doctrine, LatteStorage $storage)
+	public function __construct(Registry $doctrine, LatteStorage $storage, IStorage $cacheStorage)
 	{
 		$this->sourcesDao = $doctrine->getDao('Kdyby\Templates\TemplateSource');
 		$this->cache = new Cache($this->storage = $storage, static::CACHE_NS);
+		$this->cacheStorage = $cacheStorage;
+	}
+
+
+
+	/**
+	 * @param TemplateSource $template
+	 */
+	public function refresh(TemplateSource $template)
+	{
+		$this->storage->clean(array(
+			Cache::TAGS => array('dbTemplate#' . $template->getId())
+		));
+		$this->cacheStorage->clean(array(
+			Cache::TAGS => array('dbTemplate#' . $template->getId())
+		));
 	}
 
 
@@ -60,10 +83,6 @@ class EditableTemplates extends Nette\Object
 	 */
 	public function save(TemplateSource $template)
 	{
-		$this->cache->clean(array(
-			Cache::TAGS => array('dbTemplate#' . $template->getId())
-		));
-
 		$this->storage->hint = (string)$template->getId();
 		static $trigger;
 		if (!isset($trigger)) {

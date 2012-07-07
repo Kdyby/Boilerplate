@@ -102,8 +102,8 @@ class TemplateSource extends Kdyby\Doctrine\Entities\IdentifiedEntity
 		$db[Nette\Caching\Cache::FILES][] = self::getReflection()->getFileName();
 		$db[Nette\Caching\Cache::FILES][] = EditableTemplates::getReflection()->getFileName();
 
-		if ($this->getExtends()) {
-			$file = $templates->getTemplateFile($extended = $this->getExtends(), $layoutFile);
+		if ($extended = $this->getExtends()) {
+			$file = $templates->getTemplateFile($extended, $layoutFile);
 
 			$db[Nette\Caching\Cache::FILES][] = $file; // todo: why?
 			$dp[Nette\Caching\Cache::TAGS][] = 'dbTemplate#' . $extended->getId();
@@ -112,7 +112,6 @@ class TemplateSource extends Kdyby\Doctrine\Entities\IdentifiedEntity
 				"\n" . $source;
 
 		} elseif ($layoutFile !== NULL) {
-
 			return '{extends ' . Code\Helpers::dump($layoutFile) . '}{block #content}' .
 				"\n" . $source;
 
