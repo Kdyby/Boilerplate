@@ -30,7 +30,7 @@ class AssetRoute extends Nette\Application\Routers\Route
 	{
 		parent::__construct('<prefix ' . $prefix . '>/<name .*>', array(
 			static::PRESENTER_KEY => 'Nette:Micro',
-			'callback' => callback(new Assets\Responder\AssetResponder($storage), '__invoke'),
+			'callback' => new Assets\Responder\AssetResponder($storage),
 		));
 	}
 
