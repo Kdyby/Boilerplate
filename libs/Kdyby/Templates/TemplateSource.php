@@ -57,7 +57,7 @@ class TemplateSource extends Kdyby\Doctrine\Entities\IdentifiedEntity
 	protected $layout = FALSE;
 
 	/**
-	 * @ORM\ManyToOne(targetEntity="TemplateSource", cascade={"persist"})
+	 * @ORM\ManyToOne(targetEntity="TemplateSource", cascade={"persist"}, fetch="EAGER")
 	 * @ORM\JoinColumn(name="extends_id", referencedColumnName="id")
 	 * @var \Kdyby\Templates\TemplateSource
 	 */
@@ -120,6 +120,21 @@ class TemplateSource extends Kdyby\Doctrine\Entities\IdentifiedEntity
 			return $source;
 
 		}
+	}
+
+
+
+	/**
+	 * @return array
+	 */
+	public function __sleep()
+	{
+		if (($extends = $this->getExtends()) instanceof Doctrine\ORM\Proxy\Proxy && !$extends->__isInitialized()) {
+			/** @var \Doctrine\ORM\Proxy\Proxy $extends */
+			$extends->__load();
+		}
+
+		return array('id', 'name', 'description', 'source', 'layout', 'extends');
 	}
 
 }
