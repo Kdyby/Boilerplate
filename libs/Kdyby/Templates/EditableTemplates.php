@@ -60,6 +60,10 @@ class EditableTemplates extends Nette\Object
 	 */
 	public function save(TemplateSource $template)
 	{
+		$this->cache->clean(array(
+			Cache::TAGS => array('dbTemplate#' . $template->getId())
+		));
+
 		$this->storage->hint = (string)$template->getId();
 		static $trigger;
 		if (!isset($trigger)) {
