@@ -58,7 +58,7 @@ class CacheStorage extends Nette\Object implements Kdyby\Extension\Assets\IStora
 	 */
 	public function __construct(IStorage $storage, $tempDir, Nette\Http\Request $httpRequest)
 	{
-		$this->cache = new Cache($storage, 'Assetic');
+		$this->cache = new Cache($storage, 'Kdyby.Assets');
 		$this->tempDir = $tempDir;
 		$this->baseUrl = rtrim($httpRequest->getUrl()->getBaseUrl(), '/');
 	}
