@@ -13,8 +13,9 @@ namespace Kdyby;
 
 
 /**
+ * The Kdyby Framework (http://kdyby.org)
+ *
  * @author Filip Procházka <filip.prochazka@kdyby.org>
- * @static
  */
 final class Framework
 {
