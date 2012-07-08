@@ -58,7 +58,7 @@ class AssetsExtension extends Nette\Config\CompilerExtension
 
 		} else {
 			$builder->addDefinition($this->prefix('assetStorage'))
-				->setClass('Kdyby\Extension\Assets\Storage\PublicStorage', array('%assets.publicDir%/%assets.prefix%'));
+				->setClass('Kdyby\Extension\Assets\Storage\PublicStorage', array('%assets.publicDir%'));
 		}
 
 		$builder->addDefinition($this->prefix('filterManager'))
