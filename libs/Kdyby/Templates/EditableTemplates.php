@@ -66,7 +66,7 @@ class EditableTemplates extends Nette\Object
 	/**
 	 * @param TemplateSource $template
 	 */
-	public function refresh(TemplateSource $template)
+	public function invalidate(TemplateSource $template)
 	{
 		$this->storage->clean(array(
 			Cache::TAGS => array('dbTemplate#' . $template->getId())
@@ -111,9 +111,7 @@ class EditableTemplates extends Nette\Object
 	 */
 	public function remove(TemplateSource $template)
 	{
-		$this->cache->clean(array(
-			Cache::TAGS => array('dbTemplate#' . $template->getId())
-		));
+		$this->invalidate($template);
 		$this->sourcesDao->delete($template);
 	}
 
