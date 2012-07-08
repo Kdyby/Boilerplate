@@ -14,6 +14,7 @@ use Doctrine;
 use Doctrine\ORM\Mapping as ORM;
 use Kdyby;
 use Nette;
+use Nette\Caching\Cache;
 use Nette\Utils\PhpGenerator as Code;
 
 
@@ -87,26 +88,27 @@ class TemplateSource extends Kdyby\Doctrine\Entities\IdentifiedEntity
 
 	/**
 	 * @param \Kdyby\Templates\EditableTemplates $templates
-	 * @param array $db
+	 * @param array $dp
 	 * @param string $layoutFile
 	 *
 	 * @return string
 	 */
-	public function build(EditableTemplates $templates, array &$db, $layoutFile = NULL)
+	public function build(EditableTemplates $templates, array &$dp, $layoutFile = NULL)
 	{
 		$source = $this->source;
 
-		$dp[Nette\Caching\Cache::TAGS][] = 'dbTemplate#' . $this->getId();
+		$dp[Cache::TAGS] = array('dbTemplate#' . $this->getId());
 
-		// todo: debugging only?
-		$db[Nette\Caching\Cache::FILES][] = self::getReflection()->getFileName();
-		$db[Nette\Caching\Cache::FILES][] = EditableTemplates::getReflection()->getFileName();
+		if (Nette\Diagnostics\Debugger::$productionMode === FALSE) {
+			$dp[Cache::FILES][] = self::getReflection()->getFileName();
+			$dp[Cache::FILES][] = EditableTemplates::getReflection()->getFileName();
+		}
 
 		if ($extended = $this->getExtends()) {
 			$file = $templates->getTemplateFile($extended, $layoutFile);
 
-			$db[Nette\Caching\Cache::FILES][] = $file; // todo: why?
-			$dp[Nette\Caching\Cache::TAGS][] = 'dbTemplate#' . $extended->getId();
+			$dp[Cache::FILES][] = $file; // todo: why?
+			$dp[Cache::TAGS][] = 'dbTemplate#' . $extended->getId();
 
 			return '{extends ' . Code\Helpers::dump($file) . '}' .
 				"\n" . $source;

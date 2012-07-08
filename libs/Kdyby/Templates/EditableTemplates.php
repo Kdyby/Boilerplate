@@ -68,6 +68,7 @@ class EditableTemplates extends Nette\Object
 	 */
 	public function invalidate(TemplateSource $template)
 	{
+		$this->storage->hint = (string)$template->getId();
 		$this->storage->clean(array(
 			Cache::TAGS => array('dbTemplate#' . $template->getId())
 		));
