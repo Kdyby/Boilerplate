@@ -30,6 +30,19 @@ class AnnotationDriver extends Doctrine\ORM\Mapping\Driver\AnnotationDriver
 
 
 	/**
+	 * {@inheritdoc}
+	 *
+	 * @param \Doctrine\Common\Annotations\AnnotationReader $reader The AnnotationReader to use, duck-typed.
+	 * @param string|array $paths One or multiple paths where mapping classes can be found.
+	 */
+	public function __construct(Doctrine\Common\Annotations\Reader $reader, $paths = null)
+	{
+		parent::__construct($reader, $paths);
+	}
+
+
+
+	/**
 	 * @param array $classNames
 	 */
 	public function setClassNames(array $classNames)

@@ -137,7 +137,7 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 
 	public function loadConfiguration()
 	{
-		$container = $this->getContainerBuilder();
+		$container = parent::loadConfiguration();
 		$config = $this->getConfig();
 
 		$this->entityManagers = isset($config['entityManagers']) ? $config['entityManagers'] : array('default' => $config);
@@ -165,8 +165,6 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 			$this->loadOrmEntityManager($entityManager);
 		}
 
-		$this->addAlias('doctrine.orm.metadata.annotationReader', 'annotation.readerCached')
-			->setAutowired(FALSE);
 		$this->addAlias('doctrine.orm.entityManager', 'doctrine.orm.' . $config['defaultEntityManager'] . 'EntityManager');
 	}
 
@@ -379,7 +377,7 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 			$mappingDriverDef->addSetup('addPaths', array(array_values($driverPaths)));
 
 			if ($driverType == 'annotation') {
-				$mappingDriverDef->setClass($this->metadataDriverClasses[$driverType], array('@doctrine.orm.metadata.annotationReader', NULL));
+				$mappingDriverDef->setClass($this->metadataDriverClasses[$driverType], array(1 => NULL));
 
 			} else {
 				$mappingDriverDef->setClass($this->metadataDriverClasses[$driverType], array(NULL));
@@ -602,7 +600,7 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 		// create definition
 		$mappingService = 'doctrine.orm.' . $config['name'] . 'EntityManager.kdybyAnnotation.metadataDriver';
 		$container->addDefinition($mappingService)
-			->setClass($this->metadataDriverClasses['annotation'], array('@doctrine.orm.metadata.annotationReader'))
+			->setClass($this->metadataDriverClasses['annotation'])
 			->addSetup('addPaths', array($paths));
 
 		// add to chain

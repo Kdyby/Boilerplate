@@ -27,7 +27,7 @@ class FixtureExtension extends Kdyby\Config\CompilerExtension
 
 	public function loadConfiguration()
 	{
-		$container = $this->getContainerBuilder();
+		$container = parent::loadConfiguration();
 
 		foreach ($container->parameters['doctrine']['entityManagers'] as $entityManagerName) {
 			$prefix = $entityManagerName . '.dataFixtures';

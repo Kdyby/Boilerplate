@@ -26,31 +26,6 @@ use Nette\Utils\Validators;
 class DoctrineExtension extends Kdyby\Config\CompilerExtension
 {
 
-	public function loadConfiguration()
-	{
-		$container = $this->getContainerBuilder();
-
-		$container->addDefinition($this->prefix('registry'))
-			->setClass('Kdyby\Doctrine\Registry', array(
-				'@container',
-				'%doctrine.connections%',
-				'%doctrine.entityManagers%',
-				'%doctrine.defaultConnection%',
-				'%doctrine.defaultEntityManager%',
-				'%doctrine.auditManagers%',
-			));
-
-		$container->addDefinition($this->prefix('orm.events.discriminatorMapDiscovery'))
-			->setClass('Kdyby\Doctrine\Mapping\DiscriminatorMapDiscoveryListener', array('@doctrine.orm.metadata.annotationReader'))
-			->addTag('doctrine.eventSubscriber');
-
-		$container->addDefinition($this->prefix('orm.events.entityDefaults'))
-			->setClass('Kdyby\Doctrine\Mapping\EntityDefaultsListener')
-			->addTag('doctrine.eventSubscriber');
-	}
-
-
-
 	/**
 	 */
 	public function beforeCompile()

@@ -46,7 +46,7 @@ class AuditExtension extends Kdyby\Config\CompilerExtension
 	 */
 	public function loadConfiguration()
 	{
-		$builder = $this->getContainerBuilder();
+		$builder = parent::loadConfiguration();
 		$config = $this->getConfig($this->auditDefaults);
 
 		$this->managers = array();

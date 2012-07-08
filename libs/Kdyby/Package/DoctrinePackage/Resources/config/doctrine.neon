@@ -1,0 +1,22 @@
+services:
+	doctrine.registry:
+		class: Kdyby\Doctrine\Registry
+		arguments:
+			- @container
+			- %doctrine.connections%
+			- %doctrine.entityManagers%
+			- %doctrine.defaultConnection%
+			- %doctrine.defaultEntityManager%
+			- %doctrine.auditManagers%
+
+	doctrine.orm.events.discriminatorMapDiscovery:
+		class: Kdyby\Doctrine\Mapping\DiscriminatorMapDiscoveryListener
+		tags: [doctrine.eventSubscriber]
+
+	doctrine.orm.events.entityDefaults:
+		class: Kdyby\Doctrine\Mapping\EntityDefaultsListener
+		tags: [doctrine.eventSubscriber]
+
+	doctrine.dao<E>:
+		class: Kdyby\Doctrine\Dao
+		factory: @doctrine.registry::getDao(<E>)

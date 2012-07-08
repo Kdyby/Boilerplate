@@ -26,41 +26,6 @@ class AnnotationExtension extends Kdyby\Config\CompilerExtension
 {
 
 	/**
-	 * annotation:
-	 * 	aliases:
-	 * 		Orm: Doctrine\ORM\Mapping
-	 */
-	public function loadConfiguration()
-	{
-		$builder = $this->getContainerBuilder();
-		$builder->addDefinition($this->prefix('reader'))
-			->setClass('Doctrine\Common\Annotations\AnnotationReader')
-			->addSetup('addGlobalIgnoredName', array('serializationVersion'))
-			->addSetup('addGlobalIgnoredName', array('todo:'))
-			->addSetup('addGlobalIgnoredName', array('see:'))
-			->addSetup('addGlobalIgnoredName', array('persistent'));
-
-		$builder->addDefinition($this->prefix('readerIndexed'))
-			->setClass('Doctrine\Common\Annotations\IndexedReader', array($this->prefix('@reader')))
-			->setInternal(TRUE)
-			->setShared(FALSE);
-
-		$builder->addDefinition($this->prefix('readerCached'))
-			->setClass('Kdyby\Doctrine\Annotations\CachedReader', array(
-				$this->prefix('@readerIndexed'), $this->prefix('@readerCached.cache')
-			))
-			->setInternal(TRUE)
-			->setShared(FALSE);
-
-		$builder->addDefinition($this->prefix('readerCached.cache'))
-			->setClass('Kdyby\Doctrine\Cache', array('@kdyby.cacheStorage'))
-			->setInternal(TRUE)
-			->setShared(FALSE);
-	}
-
-
-
-	/**
 	 * @param \Nette\Utils\PhpGenerator\ClassType $class
 	 */
 	public function afterCompile(Nette\Utils\PhpGenerator\ClassType $class)
