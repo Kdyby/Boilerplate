@@ -25,40 +25,39 @@ use Nette\Caching\IStorage;
 class EditableTemplates extends Nette\Object
 {
 
-	const CACHE_NS = 'Kdyby.EditableTemplates';
-
 	/**
 	 * @var \Kdyby\Doctrine\Dao
 	 */
 	private $sourcesDao;
 
 	/**
-	 * @var \Nette\Caching\Cache
-	 */
-	private $cache;
-
-	/**
 	 * @var \Kdyby\Caching\LatteStorage
 	 */
-	private $storage;
+	private $latteStorage;
 
 	/**
 	 * @var \Nette\Caching\IStorage
 	 */
 	private $cacheStorage;
 
+	/**
+	 * @var string
+	 */
+	private $ns;
+
 
 
 	/**
 	 * @param \Kdyby\Doctrine\Registry $doctrine
-	 * @param \Kdyby\Caching\LatteStorage $storage
+	 * @param \Kdyby\Caching\LatteStorage $latteStorage
 	 * @param \Nette\Caching\IStorage $cacheStorage
 	 */
-	public function __construct(Registry $doctrine, LatteStorage $storage, IStorage $cacheStorage)
+	public function __construct(Registry $doctrine, LatteStorage $latteStorage, IStorage $cacheStorage)
 	{
 		$this->sourcesDao = $doctrine->getDao('Kdyby\Templates\TemplateSource');
-		$this->cache = new Cache($this->storage = $storage, static::CACHE_NS);
+		$this->latteStorage = $latteStorage;
 		$this->cacheStorage = $cacheStorage;
+		$this->ns = 'Kdyby.EditableTemplates' . Cache::NAMESPACE_SEPARATOR;
 	}
 
 
@@ -68,8 +67,7 @@ class EditableTemplates extends Nette\Object
 	 */
 	public function invalidate(TemplateSource $template)
 	{
-		$this->storage->hint = (string)$template->getId();
-		$this->storage->clean(array(
+		$this->latteStorage->clean(array(
 			Cache::TAGS => array('dbTemplate#' . $template->getId())
 		));
 		$this->cacheStorage->clean(array(
@@ -84,7 +82,6 @@ class EditableTemplates extends Nette\Object
 	 */
 	public function save(TemplateSource $template)
 	{
-		$this->storage->hint = (string)$template->getId();
 		static $trigger;
 		if (!isset($trigger)) {
 			$trigger = $template;
@@ -96,7 +93,7 @@ class EditableTemplates extends Nette\Object
 
 		$dp = array();
 		if ($source = $template->build($this, $dp)) {
-			$this->cache->save($template->getId(), $source, $dp);
+			$this->latteStorage->write($this->ns . $template->getId(), $source, $dp);
 		}
 
 		if (isset($trigger) && $trigger === $template) {
@@ -128,22 +125,20 @@ class EditableTemplates extends Nette\Object
 	 */
 	public function getTemplateFile(TemplateSource $template, $layoutFile = NULL)
 	{
-		$this->storage->hint = (string)$template->getId();
-
 		if (!$template->getId()) {
 			$this->save($template);
 		}
 
-		$key = $template->getId();
+		$key = $this->ns . $template->getId();
 		if ($layoutFile !== NULL) {
-			$key .= '#l' . md5(serialize($layoutFile));
+			$key .= '.l' . substr(md5(serialize($layoutFile)), 0, 8);
 		}
 
 		// load or save
-		if (!$cached = $this->cache->load($key)) {
+		if (!$cached = $this->latteStorage->read($key)) {
 			$dp = array();
-			$this->cache->save($key, $template->build($this, $dp, $layoutFile), $dp);
-			$cached = $this->cache->load($key);
+			$this->latteStorage->write($key, $template->build($this, $dp, $layoutFile), $dp);
+			$cached = $this->latteStorage->read($key);
 		}
 
 		if ($cached === NULL) {

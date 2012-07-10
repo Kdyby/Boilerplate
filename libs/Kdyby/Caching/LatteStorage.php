@@ -22,13 +22,6 @@ class LatteStorage extends FileStorage
 {
 
 	/**
-	 * @var string
-	 */
-	public $hint = '0';
-
-
-
-	/**
 	 * Reads cache data from disk.
 	 *
 	 * @param array $meta
@@ -54,12 +47,7 @@ class LatteStorage extends FileStorage
 	 */
 	protected function getCacheFile($key)
 	{
-		return parent::getCacheFile(substr_replace(
-			$key,
-			trim(strtr($this->hint, '\\/@', '.._'), '.') . '-',
-			strpos($key, Nette\Caching\Cache::NAMESPACE_SEPARATOR) + 1,
-			0
-		)) . '.latte';
+		return parent::getCacheFile($key) . '.latte';
 	}
 
 }
