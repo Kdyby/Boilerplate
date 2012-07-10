@@ -28,12 +28,11 @@ class UIFormTestingPresenter extends UI\Presenter
 
 
 	/**
-	 * @param \Nette\DI\Container $context
 	 * @param \Nette\Application\UI\Form $form
 	 */
-	public function __construct(Nette\DI\Container $context, UI\Form $form)
+	public function __construct(UI\Form $form)
 	{
-		$this->setContext($context);
+		parent::__construct();
 		$this->form = $form;
 	}
 

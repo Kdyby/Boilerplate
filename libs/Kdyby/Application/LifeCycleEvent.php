@@ -52,10 +52,10 @@ final class LifeCycleEvent extends Nette\Object
 
 
 	/**
-	 * @param Application $application
+	 * @param \Nette\Application\Application $application
 	 * @param \Kdyby\EventDispatcher\EventManager $eventManager
 	 */
-	public static function register(Application $application, EventManager $eventManager)
+	public static function register(Nette\Application\Application $application, EventManager $eventManager)
 	{
 		$application->onStartup[] = function ($application) use ($eventManager) {
 			/** @var \Kdyby\EventDispatcher\EventManager $eventManager */

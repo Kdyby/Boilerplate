@@ -193,7 +193,8 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 		$post = $form->getMethod() === UI\Form::POST ? $values : array();
 		list($post, $files) = $this->separateFilesFromPost($post);
 
-		$presenter = new Tools\UIFormTestingPresenter($this->getContext(), $form);
+		$presenter = new Tools\UIFormTestingPresenter($form);
+		$this->getContext()->callMethod(array($presenter, 'injectPrimary'));
 		return $presenter->run(new Nette\Application\Request(
 			'presenter',
 			strtoupper($form->getMethod()),

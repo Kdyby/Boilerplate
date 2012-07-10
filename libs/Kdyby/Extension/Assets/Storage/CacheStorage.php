@@ -19,7 +19,7 @@ use Kdyby\Tools\Filesystem;
 use Kdyby\Tools\MimeTypeDetector;
 use Nette;
 use Nette\Caching\Cache;
-use Nette\Caching\Storages\FileStorage;
+use Nette\Caching\IStorage;
 
 
 
@@ -52,11 +52,11 @@ class CacheStorage extends Nette\Object implements Kdyby\Extension\Assets\IStora
 
 
 	/**
-	 * @param \Nette\Caching\Storages\FileStorage $storage
+	 * @param \Nette\Caching\IStorage $storage
 	 * @param string $tempDir
 	 * @param \Nette\Http\Request $httpRequest
 	 */
-	public function __construct(FileStorage $storage, $tempDir, Nette\Http\Request $httpRequest)
+	public function __construct(IStorage $storage, $tempDir, Nette\Http\Request $httpRequest)
 	{
 		$this->cache = new Cache($storage, 'Assetic');
 		$this->tempDir = $tempDir;
