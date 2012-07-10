@@ -60,7 +60,7 @@ final class DefaultHelpers extends Nette\Object
 			return FALSE;
 		} elseif (is_numeric($time)) {
 			$time = (int)$time;
-		} elseif ($time instanceof DateTime) {
+		} elseif ($time instanceof \DateTime) {
 			$time = $time->format('U');
 		} else {
 			$time = strtotime($time);
