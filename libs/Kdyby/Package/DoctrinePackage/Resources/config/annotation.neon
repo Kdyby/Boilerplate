@@ -4,6 +4,7 @@ services:
 		setup:
 			- addGlobalIgnoredName("serializationVersion")
 			- addGlobalIgnoredName("todo:")
+			- addGlobalIgnoredName("see:")
 			- addGlobalIgnoredName("persistent")
 		autowired: FALSE
 
