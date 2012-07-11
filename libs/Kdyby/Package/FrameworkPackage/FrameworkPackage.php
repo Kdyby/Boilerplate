@@ -36,6 +36,7 @@ class FrameworkPackage extends Kdyby\Packages\Package
 		$compiler->addExtension('browser', new Kdyby\Extension\Browser\DI\BrowserExtension());
 		$compiler->addExtension('kdyby', new DI\FrameworkExtension());
 		$compiler->addExtension('migrations', new Kdyby\Migrations\DI\MigrationsExtension());
+		$compiler->addExtension('redis', new Kdyby\Extension\Redis\DI\RedisExtension());
 	}
 
 
