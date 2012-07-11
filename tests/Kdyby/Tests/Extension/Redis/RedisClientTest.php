@@ -60,4 +60,14 @@ class RedisClientTest extends Kdyby\Tests\TestCase
 		$this->assertSame($secret, $this->client->get($key));
 	}
 
+
+
+	public function testLargeData()
+	{
+		$data = str_repeat('Kdyby', 1e6);
+		$this->client->set('large', $data);
+		$this->assertSame($data, $this->client->get('large'));
+	}
+
+
 }
