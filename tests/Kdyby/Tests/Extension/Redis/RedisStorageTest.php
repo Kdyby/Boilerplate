@@ -25,7 +25,6 @@ use Nette\Caching\Cache;
 class RedisStorageTest extends Kdyby\Tests\TestCase
 {
 
-
 	/**
 	 * @var \Kdyby\Extension\Redis\RedisClient
 	 */
