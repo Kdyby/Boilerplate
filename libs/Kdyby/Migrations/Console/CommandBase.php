@@ -10,6 +10,7 @@
 
 namespace Kdyby\Migrations\Console;
 
+use Doctrine;
 use Kdyby;
 use Nette;
 use Nette\Utils\Strings;
@@ -72,6 +73,47 @@ abstract class CommandBase extends Symfony\Component\Console\Command\Command
 				$this->package = $this->packageManager->getPackage($package);
 			} catch (\Exception $e) { }
 		}
+
+		if ($exit = $this->validateSchema($output)) {
+			exit($exit);
+		}
+	}
+
+
+
+	/**
+	 * @param \Symfony\Component\Console\Output\OutputInterface $output
+	 *
+	 * @return int
+	 */
+	protected function validateSchema(OutputInterface $output)
+	{
+		$validator = new Doctrine\ORM\Tools\SchemaValidator($this->entityManager);
+		$errors = $validator->validateMapping();
+
+		$exit = 0;
+		if ($errors) {
+			foreach ($errors AS $className => $errorMessages) {
+				$output->write("<error>[Mapping]  FAIL - The entity-class '" . $className . "' mapping is invalid:</error>\n");
+				foreach ($errorMessages AS $errorMessage) {
+					$output->write('* ' . $errorMessage . "\n");
+				}
+				$output->write("\n");
+			}
+			$exit += 1;
+		}
+
+		return $exit;
+	}
+
+
+
+	/**
+	 * @return \Kdyby\Doctrine\Mapping\ClassMetadata[]
+	 */
+	protected function getAllMetadata()
+	{
+		return $this->entityManager->getMetadataFactory()->getAllMetadata();
 	}
 
 }

@@ -163,14 +163,4 @@ HELP
 		}
 	}
 
-
-
-	/**
-	 * @return \Kdyby\Doctrine\Mapping\ClassMetadata[]
-	 */
-	private function getAllMetadata()
-	{
-		return $this->entityManager->getMetadataFactory()->getAllMetadata();
-	}
-
 }
