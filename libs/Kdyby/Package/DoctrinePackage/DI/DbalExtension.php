@@ -68,6 +68,8 @@ class DbalExtension extends Kdyby\Config\CompilerExtension
 		Kdyby\Doctrine\Type::CALLBACK => 'Kdyby\Doctrine\Types\Callback',
 		Kdyby\Doctrine\Type::PASSWORD => 'Kdyby\Doctrine\Types\Password',
 		Kdyby\Doctrine\Type::ENUM => 'Kdyby\Doctrine\Types\Enum',
+		Kdyby\Doctrine\Type::STRING => 'Kdyby\Doctrine\Types\String',
+		Kdyby\Doctrine\Type::TEXT => 'Kdyby\Doctrine\Types\Text',
 	);
 
 
