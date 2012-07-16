@@ -1,24 +1,30 @@
 {
-	"name": "kdyby/curl-extension",
-	"description": "Curl wrapper for Nette Framework",
-	"keywords": ["nette", "curl", "http"],
+    "name":"kdyby/curl-extension",
+    "description":"Curl wrapper for Nette Framework",
+    "keywords":["nette", "curl", "http"],
     "homepage":"http://kdyby.org",
     "license":["BSD-3", "GPLv2", "GPLv3"],
-	"authors": [
-		{
-			"name": "Filip Procházka",
-			"homepage": "http://hosiplan.com"
-		}
-	],
-	"require": {
-		"php" : ">=5.3.2",
-		"nette/nette" : "2.0.*"
-	},
-    "conflict": {
-        "kdyby/framework": "self.version"
+    "authors":[
+        {
+            "name":"Filip Procházka",
+            "homepage":"http://hosiplan.com"
+        }
+    ],
+    "support":{
+        "email":"hosiplan@kdyby.org",
+        "issues":"https://github.com/kdyby/framework/issues"
     },
-	"autoload": {
-        "psr-0": {"Kdyby\\Extension\\Curl": ""}
+    "require":{
+        "php":">=5.3.2",
+        "nette/nette":"2.0.*"
+    },
+    "conflict":{
+        "kdyby/framework":"self.version"
+    },
+    "autoload":{
+        "psr-0":{
+            "Kdyby\\Extension\\Curl":""
+        }
     },
     "target-dir":"Kdyby/Extension/Curl"
 }
