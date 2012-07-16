@@ -122,7 +122,7 @@ class PartialSchemaComparator extends Nette\Object
 		foreach ($metadata as $class) {
 			$tables[] = Strings::lower($class->getTableName());
 			foreach ($class->getAssociationMappings() as $assoc) {
-				if (isset($assoc['joinTable'])) {
+				if (isset($assoc['joinTable']['name'])) {
 					$tables[] = Strings::lower($assoc['joinTable']['name']);
 				}
 			}
