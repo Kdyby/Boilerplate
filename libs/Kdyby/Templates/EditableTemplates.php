@@ -25,6 +25,8 @@ use Nette\Caching\IStorage;
 class EditableTemplates extends Nette\Object
 {
 
+	const CACHE_NS = "Kdyby.EditableTemplates";
+
 	/**
 	 * @var \Kdyby\Doctrine\Dao
 	 */
@@ -40,11 +42,6 @@ class EditableTemplates extends Nette\Object
 	 */
 	private $cacheStorage;
 
-	/**
-	 * @var string
-	 */
-	private $ns;
-
 
 
 	/**
@@ -52,12 +49,11 @@ class EditableTemplates extends Nette\Object
 	 * @param \Kdyby\Caching\LatteStorage $latteStorage
 	 * @param \Nette\Caching\IStorage $cacheStorage
 	 */
-	public function __construct(Registry $doctrine, LatteStorage $latteStorage, IStorage $cacheStorage)
+	public function __construct(Registry $doctrine, LatteStorage $latteStorage, IStorage $cacheStorage = NULL)
 	{
 		$this->sourcesDao = $doctrine->getDao('Kdyby\Templates\TemplateSource');
 		$this->latteStorage = $latteStorage;
 		$this->cacheStorage = $cacheStorage;
-		$this->ns = 'Kdyby.EditableTemplates' . Cache::NAMESPACE_SEPARATOR;
 	}
 
 
@@ -70,9 +66,12 @@ class EditableTemplates extends Nette\Object
 		$this->latteStorage->clean(array(
 			Cache::TAGS => array('dbTemplate#' . $template->getId())
 		));
-		$this->cacheStorage->clean(array(
-			Cache::TAGS => array('dbTemplate#' . $template->getId())
-		));
+
+		if ($this->cacheStorage !== NULL) {
+			$this->cacheStorage->clean(array(
+				Cache::TAGS => array('dbTemplate#' . $template->getId())
+			));
+		}
 	}
 
 
@@ -93,7 +92,7 @@ class EditableTemplates extends Nette\Object
 
 		$dp = array();
 		if ($source = $template->build($this, $dp)) {
-			$this->latteStorage->write($this->ns . $template->getId(), $source, $dp);
+			$this->latteStorage->write(self::CACHE_NS . Cache::NAMESPACE_SEPARATOR . $template->getId(), $source, $dp);
 		}
 
 		if (isset($trigger) && $trigger === $template) {
@@ -129,7 +128,7 @@ class EditableTemplates extends Nette\Object
 			$this->save($template);
 		}
 
-		$key = $this->ns . $template->getId();
+		$key = self::CACHE_NS . Cache::NAMESPACE_SEPARATOR . $template->getId();
 		if ($layoutFile !== NULL) {
 			$key .= '.l' . substr(md5(serialize($layoutFile)), 0, 8);
 		}
