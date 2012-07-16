@@ -50,7 +50,7 @@ class EditableTemplatesTest extends Kdyby\Tests\OrmTestCase
 			Kdyby\Tools\Filesystem::rmDir(reset($nsDirs));
 		}
 
-		$this->storage = new Kdyby\Caching\LatteStorage($cacheDir);
+		$this->storage = $this->getContext()->createInstance('Kdyby\Caching\LatteStorage', array($cacheDir));
 		$this->templates = new EditableTemplates($this->getDoctrine(), $this->storage);
 
 		$this->dao = $this->getDao('Kdyby\Templates\TemplateSource');
