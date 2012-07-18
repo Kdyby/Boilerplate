@@ -114,6 +114,37 @@ abstract class OrmTestCase extends TestCase
 
 
 
+	/********************* Helpers *********************/
+
+
+	/**
+	 * @param object $entity
+	 * @param array|integer $identity
+	 * @return object
+	 */
+	protected function forceEntityIdentity($entity, $identity)
+	{
+		if ($entity instanceof \PHPUnit_Framework_MockObject_MockObject) {
+			$classParents = class_parents($entity);
+			$class = $this->getMetadata(reset($classParents));
+
+		} else {
+			$class = $this->getMetadata($entity);
+		}
+
+
+		if (!is_array($identity)) {
+			$identity = array(
+				$class->getSingleIdentifierFieldName() => $identity
+			);
+		}
+
+		$class->setIdentifierValues($entity, $identity);
+
+		return $entity;
+	}
+
+
 	/********************* Asserts *********************/
 
 
