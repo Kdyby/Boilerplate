@@ -187,7 +187,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 	{
 		/** @var \PHPUnit_Framework_MockObject_MockObject|\Kdyby\Application\UI\Presenter $presenter */
 		$presenter = $this->getMock('Kdyby\Application\UI\Presenter', (array)$methods, array());
-		$presenter->setContext($this->getContext());
+		$this->getContext()->callMethod(array($presenter, 'injectPrimary'));
 		$component->setParent($presenter, $name);
 		return $presenter;
 	}
