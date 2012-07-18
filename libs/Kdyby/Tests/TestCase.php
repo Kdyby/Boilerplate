@@ -23,10 +23,14 @@ use Nette\ObjectMixin;
 abstract class TestCase extends \PHPUnit_Framework_TestCase
 {
 
-	/** @var \SystemContainer|\Nette\DI\Container */
+	/**
+	 * @var \SystemContainer|\Nette\DI\Container
+	 */
 	private $context;
 
-	/** @var Tools\TempClassGenerator */
+	/**
+	 * @var Tools\TempClassGenerator
+	 */
 	private $tempClassGenerator;
 
 
@@ -65,6 +69,31 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 			$this->markTestSkipped('No internet connection');
 		}
 	}
+
+
+
+	/**
+	 * @param string $neonFile
+	 * @return \Nette\DI\Container|\SystemContainer
+	 */
+	protected function createContainer($neonFile)
+	{
+		// configurator
+		$config = new Nette\Config\Configurator();
+		$config->setDebugMode(TRUE);
+
+		// unique container name & dir
+		$id = uniqid();
+		$config->addParameters(array('container' => array('class' => 'SystemContainer' . $id)));
+		$tempDir = $this->getContext()->expand('%tempDir%/cache/' . $id);
+		@mkdir($tempDir, 0777);
+		$config->setTempDirectory($tempDir);
+		$config->addConfig($neonFile, $config::NONE);
+
+		// create container
+		return $config->createContainer();
+	}
+
 
 
 	/********************* Asserts *********************/
@@ -323,6 +352,18 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 	public function __set($name, $value)
 	{
 		ObjectMixin::set($this, $name, $value);
+	}
+
+
+
+	/**
+	 * @param string $name
+	 * @param array $args
+	 * @return mixed
+	 */
+	public function __call($name, $args)
+	{
+		return ObjectMixin::call($this, $name, $args);
 	}
 
 

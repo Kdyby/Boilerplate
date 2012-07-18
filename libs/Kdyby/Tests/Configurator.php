@@ -11,6 +11,7 @@
 namespace Kdyby\Tests;
 
 use Kdyby;
+use Kdyby\Tools\Filesystem;
 use Nette;
 
 
@@ -87,6 +88,13 @@ class Configurator extends Kdyby\Config\Configurator
 			'tempDir' => $testsDir . '/temp',
 		);
 		$packages = $packages ?: Kdyby\Framework::createPackagesList();
+
+		// cleanup directories
+		Filesystem::cleanDir($params['tempDir'] . '/cache');
+		Filesystem::cleanDir($params['tempDir'] . '/classes');
+		Filesystem::cleanDir($params['tempDir'] . '/entities');
+		Filesystem::cleanDir($params['tempDir'] . '/proxies');
+		Filesystem::rm($params['tempDir'] . '/btfj.dat', FALSE);
 
 		// create container
 		return new static($params, $packages);
