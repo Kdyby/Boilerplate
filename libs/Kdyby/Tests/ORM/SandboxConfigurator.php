@@ -94,13 +94,19 @@ class SandboxConfigurator extends Kdyby\Config\Configurator
 		}
 
 		$entities = $this->entities;
-		foreach ($this->getAnnotationDrivers($manager) as $driver) {
-			$driver->setClassNames($entities);
+		foreach ($entities as $child) {
+			$this->mergeParents($child, $entities, $manager);
 		}
+
+		$this->setClassNames($manager, $entities);
 
 		$allClasses = array();
 		do {
+			$this->mergeParents(reset($entities), $entities, $manager, $allClasses);
+
 			$allClasses[] = $entity = array_shift($entities);
+			$this->setClassNames($manager, $allClasses, $entities);
+
 			$class = $manager->getClassMetadata($entity);
 			/** @var \Kdyby\Doctrine\Mapping\ClassMetadata $class */
 			foreach ($class->getAssociationNames() as $assoc) {
@@ -113,9 +119,46 @@ class SandboxConfigurator extends Kdyby\Config\Configurator
 			}
 
 		} while ($entities = array_diff(array_unique($entities), $allClasses));
+	}
+
+
+
+	/**
+	 * @param \Doctrine\ORM\EntityManager $manager
+	 * @param array $allClasses
+	 * @param array $additional
+	 */
+	private function setClassNames(EntityManager $manager, array $allClasses, array $additional = array())
+	{
+		if ($additional) {
+			$allClasses = array_unique(array_merge($allClasses, $additional));
+		}
 
 		foreach ($this->getAnnotationDrivers($manager) as $driver) {
 			$driver->setClassNames($allClasses);
+		}
+	}
+
+
+
+	/**
+	 * @param object $child
+	 * @param array $entities
+	 * @param \Doctrine\ORM\EntityManager $manager
+	 * @param array $allClasses
+	 */
+	private function mergeParents($child, array &$entities, EntityManager $manager, array $allClasses = NULL)
+	{
+		foreach (class_parents($child) as $entity) {
+			if ($this->getDriver($manager)->isTransient($entity)) {
+				continue;
+			}
+
+			if (in_array($entity, $allClasses ? : $entities)) {
+				continue;
+			}
+
+			array_unshift($entities, $entity);
 		}
 	}
 
@@ -131,6 +174,17 @@ class SandboxConfigurator extends Kdyby\Config\Configurator
 	public function setEntities(array $entities = NULL)
 	{
 		$this->entities = $entities ?: array();
+	}
+
+
+
+	/**
+	 * @param \Doctrine\ORM\EntityManager $em
+	 * @return \Doctrine\ORM\Mapping\Driver\Driver
+	 */
+	private function getDriver(EntityManager $em)
+	{
+		return $em->getConfiguration()->getMetadataDriverImpl();
 	}
 
 
