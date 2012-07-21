@@ -130,7 +130,7 @@ class FactoryGeneratorExtension extends Nette\Config\CompilerExtension
 		// naming
 		$factoryName = $className . 'Factory';
 		$interfaceName = substr_replace($factoryName, 'I', strrpos($factoryName, '\\') + 1, 0);
-		$factoryName .= '_' . Strings::random(5);
+		$factoryName = str_replace('\\', '_', $factoryName) . '_' . Strings::random(5);
 
 		// interface
 		$interface = new Code\ClassType($interfaceName);
@@ -214,7 +214,8 @@ class FactoryGeneratorExtension extends Nette\Config\CompilerExtension
 			$namespaced[$namespace][] = $type;
 		}
 
-		return $namespaced;
+		ksort($namespaced);
+		return array_reverse($namespaced, TRUE);
 	}
 
 
