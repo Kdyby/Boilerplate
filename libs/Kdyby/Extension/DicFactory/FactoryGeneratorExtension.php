@@ -129,17 +129,18 @@ class FactoryGeneratorExtension extends Nette\Config\CompilerExtension
 
 		// naming
 		$factoryName = $className . 'Factory';
-		$interfaceName = substr_replace($factoryName, 'I', strrpos($factoryName, '\\') + 1, 0);
-		$factoryName = str_replace('\\', '_', $factoryName) . '_' . Strings::random(5);
+		$interfaceClass = substr_replace($factoryName, 'I', strrpos($factoryName, '\\') + 1, 0);
+		$factoryClass = str_replace('\\', '_', $factoryName) . '_' .
+			str_replace('.', '_', $serviceName) . '_' . Strings::random(5);
 
 		// interface
-		$interface = new Code\ClassType($interfaceName);
+		$interface = new Code\ClassType($interfaceClass);
 		$interface->setType('interface');
 		$this->generateCreateMethod($className, $def, $interface);
 		$interface->addDocument('Creates instance of ' . $className);
 
 		// class
-		$class = new Code\ClassType($factoryName);
+		$class = new Code\ClassType($factoryClass);
 		$class->setFinal(TRUE);
 		$class->addExtend('\Nette\Object');
 		$class->addImplement('\\' . $interface->name);
