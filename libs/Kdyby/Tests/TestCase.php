@@ -74,13 +74,21 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 
 	/**
 	 * @param string $neonFile
+	 * @param array $extensions
+	 *
 	 * @return \Nette\DI\Container|\SystemContainer
 	 */
-	protected function createContainer($neonFile)
+	protected function createContainer($neonFile, array $extensions = array())
 	{
 		// configurator
 		$config = new Nette\Config\Configurator();
 		$config->setDebugMode(TRUE);
+		$config->onCompile[] = function ($config, Nette\Config\Compiler $compiler) use ($extensions) {
+			/** @var \Nette\Config\CompilerExtension $ext */
+			foreach ($extensions as $name => $ext) {
+				$compiler->addExtension($name, $ext);
+			}
+		};
 
 		// unique container name & dir
 		$id = uniqid();
