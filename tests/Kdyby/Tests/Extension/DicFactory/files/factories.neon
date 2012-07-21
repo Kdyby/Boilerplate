@@ -1,0 +1,26 @@
+services:
+	foo:
+		class: Kdyby\Tests\Extension\DicFactory\Foo
+
+factories:
+	bar: Kdyby\Tests\Extension\DicFactory\Bar
+
+	# overwrite
+	nette.cache:
+		internal: TRUE
+
+	nette.mail:
+		internal: TRUE
+
+	nette.basicForm:
+		internal: TRUE
+
+	nette.latte:
+		internal: TRUE
+
+	nette.template:
+		internal: TRUE
+
+nette:
+	security:
+		frames: null
