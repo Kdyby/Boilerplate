@@ -121,8 +121,9 @@ class FactoryGeneratorExtension extends Nette\Config\CompilerExtension
 
 		} elseif ($def->factory) {
 			$className = $builder->expand($def->factory->entity); // todo
+		}
 
-		} else {
+		if (!isset($className) || !class_exists($className)) {
 			return array(NULL, NULL);
 		}
 
