@@ -663,8 +663,7 @@ class EntityMapper extends Nette\Object
 	public static function registerMapperMethod($name = 'setMapper')
 	{
 		foreach (static::$itemControls as $classType) {
-			$refl = Nette\Reflection\ClassType::from($classType);
-			$refl->setExtensionMethod($name, function (BaseControl $_this, $mapper, $key = 'id') {
+			Nette\ObjectMixin::setExtensionMethod($classType, $name, function (BaseControl $_this, $mapper, $key = 'id') {
 				$form = $_this->getForm();
 				if ($form instanceof Form) {
 					/** @var \Kdyby\Doctrine\Forms\Form $form */
