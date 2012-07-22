@@ -157,24 +157,25 @@ abstract class BaseEntity extends Nette\Object implements \Serializable
 		if ($name === '') {
 			throw Kdyby\MemberAccessException::callWithoutName($this);
 		}
+		$class = get_class($this);
 
 		// event functionality
-		$class = new Nette\Reflection\ClassType($this);
-		if ($class->hasEventProperty($name)) {
-			if (is_array($list = $this->$name) || $list instanceof \Traversable) {
-				foreach ($list as $handler) {
-					callback($handler)->invokeArgs($args);
+		if (preg_match('#^on[A-Z]#', $name) && property_exists($class, $name)) {
+			$rp = new \ReflectionProperty($this, $name);
+			if ($rp->isPublic() && !$rp->isStatic()) {
+				if (is_array($list = $this->$name) || $list instanceof \Traversable) {
+					foreach ($list as $handler) {
+						callback($handler)->invokeArgs($args);
+					}
+				} elseif ($list !== NULL) {
+					throw Kdyby\UnexpectedValueException::invalidEventValue($list, $this, $name);
 				}
-
-			} elseif ($list !== NULL) {
-				throw Kdyby\UnexpectedValueException::invalidEventValue($list, $this, $name);
+				return NULL;
 			}
-
-			return NULL;
 		}
 
 		// extension methods
-		if ($cb = $class->getExtensionMethod($name)) {
+		if ($cb = static::extensionMethod($name)) {
 			/** @var \Nette\Callback $cb */
 			array_unshift($args, $this);
 			return $cb->invokeArgs($args);
