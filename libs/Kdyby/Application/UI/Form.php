@@ -12,6 +12,7 @@ namespace Kdyby\Application\UI;
 
 use Kdyby;
 use Nette;
+use Nette\Forms\Controls\BaseControl;
 use Nette\Forms\Controls\RadioList;
 use Nette\Forms\ISubmitterControl;
 use Nette\Utils\Html;
@@ -21,6 +22,7 @@ use Nette\Utils\Html;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
+ * @property callable $validateThatControlsAreRendered
  * @method \Kdyby\Forms\Controls\CheckboxList addCheckboxList(string $name, string $label = NULL, array $items = NULL)
  * @method \Kdyby\Forms\Controls\DateTimeInput addDate(string $name, string $label = NULL)
  * @method \Kdyby\Forms\Controls\DateTimeInput addTime(string $name, string $label = NULL)
@@ -29,6 +31,14 @@ use Nette\Utils\Html;
  */
 class Form extends Nette\Application\UI\Form
 {
+
+	/**
+	 * When flag is TRUE, iterates over form controls and if some are rendered and some are not, triggers notice.
+	 * @var bool
+	 */
+	public $checkRendered = TRUE;
+
+
 
 	/**
 	 */
@@ -59,9 +69,50 @@ class Form extends Nette\Application\UI\Form
 	{
 		if ($obj instanceof Nette\Application\IPresenter) {
 			$this->attachHandlers();
+
+			$app = $this->getPresenter()->getApplication();
+			$app->onShutdown[] = $this->validateThatControlsAreRendered;
 		}
 
 		parent::attached($obj);
+	}
+
+
+
+	/**
+	 * @internal
+	 */
+	public function validateThatControlsAreRendered()
+	{
+		if (Nette\Diagnostics\Debugger::$productionMode || $this->checkRendered !== TRUE) {
+			return;
+		}
+
+		$notRendered = $rendered = array();
+		foreach ($this->getControls() as $control) {
+			/** @var Nette\Forms\Controls\BaseControl $control */
+			if (!$control instanceof Nette\Forms\Controls\BaseControl) {
+				continue;
+			}
+			if ($control->getOption('rendered', FALSE)) {
+				$rendered[] = $control;
+
+			} else {
+				$notRendered[] = $control;
+			}
+		}
+
+		if ($rendered && $notRendered) {
+			$names = array_map(function (BaseControl $control) {
+				return get_class($control) . '(' . $control->lookupPath('Nette\Forms\Form') . ')';
+			}, $notRendered);
+
+			trigger_error(
+				"Some form controls of " . $this->getUniqueId() .
+					" were not rendered: " . implode(', ', $names),
+				E_USER_NOTICE
+			);
+		}
 	}
 
 
