@@ -23,8 +23,8 @@ class MapReduce extends \IteratorIterator
 
 	/**
 	 * @param \Iterator|\Traversable|array $traversable
-	 * @param callback $filter
-	 * @param callback $mapper
+	 * @param callable $filter
+	 * @param callable $mapper
 	 */
 	public function __construct($traversable, $filter, $mapper)
 	{
