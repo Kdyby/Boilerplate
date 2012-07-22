@@ -13,9 +13,6 @@ use Symfony\Component\ClassLoader\UniversalClassLoader;
 
 
 
-// load Nette Framework first
-require_once __DIR__ . '/vendor/nette/nette/Nette/loader.php';
-
 // require class loader
 require_once __DIR__ . '/vendor/autoload.php';
 
