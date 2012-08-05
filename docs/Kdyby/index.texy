@@ -1,0 +1,28 @@
+Kdyby Framework is set of tools providing mainly bridge between an awesome framework "Nette Framework":https://github.com/nette/nette and great persistence layer "Doctrine ORM":https://github.com/doctrine.
+
+Additionaly to this, Kdyby Framework integrates:
+
+- "Assetic":https://github.com/kriswallsmith/assetic for managing css and javascript files and applying filters, allowing you to painlessly use Less or CoffeeScript.
+- "Symfony Console":https://github.com/symfony/Console
+
+
+Chapters:
+--------
+
+1. Differences from Nette Framework
+   - Form controls
+   - Latte Macros
+   - Security
+2. Packages
+3. Persistence & Doctrine
+    - Entity Form
+5. Migrations
+6. Media
+7. Curl & Browser
+8. ACL - RBAC
+9. Tools
+    - Arrays
+    - Objects
+    - Strings
+    - Filesystem
+    - MimeTypeDetector
