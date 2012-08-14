@@ -190,12 +190,16 @@ class PackagesContainer extends Nette\Object implements \IteratorAggregate, \Arr
 	{
 		$visited = array();
 		foreach ($this->packages as $package) {
-			$package->compile($config, $compiler, $this);
+			$exts = (array)$package->compile($config, $compiler, $this);
+			foreach ($exts as $name => $extension) {
+				$compiler->addExtension($name, $extension);
+			}
 
 			$newExts = array_filter($compiler->getExtensions(), function (CompilerExtension $compilerExt) use ($visited) {
 				return !in_array($compilerExt, $visited)
 					&& $compilerExt instanceof IPackageAware;
 			});
+			$newExts = array_merge($newExts, $exts);
 
 			/** @var \Nette\Config\CompilerExtension|\Kdyby\Packages\IPackageAware $ext */
 			foreach ($newExts as $ext) {

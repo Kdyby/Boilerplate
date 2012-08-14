@@ -172,6 +172,8 @@ abstract class Package extends Nette\Object
 	 * @param \Nette\Config\Configurator $config
 	 * @param \Nette\Config\Compiler $compiler
 	 * @param \Kdyby\Packages\PackagesContainer $packages
+	 *
+	 * @return array|NULL
 	 */
 	public function compile(Nette\Config\Configurator $config, Nette\Config\Compiler $compiler, Kdyby\Packages\PackagesContainer $packages)
 	{
