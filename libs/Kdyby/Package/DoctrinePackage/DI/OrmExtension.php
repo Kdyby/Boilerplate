@@ -232,7 +232,8 @@ class OrmExtension extends Kdyby\Config\CompilerExtension
 			->setClass('Doctrine\ORM\EntityManager')
 			->setFactory('Doctrine\ORM\EntityManager::create', array(
 				'@' . $connectionName,
-				'@' . $entityManagerName . '.configuration'
+				'@' . $entityManagerName . '.configuration',
+				'@' . $entityManagerName . '.eventManager'
 			));
 
 		// event manager
