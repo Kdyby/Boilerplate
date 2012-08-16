@@ -53,9 +53,11 @@ class Replicator extends Container
 
 
 	/**
-	 * @param callback $factory
+	 * @param callable $factory
 	 * @param int $createDefault
 	 * @param bool $forceDefault
+	 *
+	 * @throws \Kdyby\InvalidArgumentException
 	 */
 	public function __construct($factory, $createDefault = 0, $forceDefault = FALSE)
 	{
@@ -66,8 +68,7 @@ class Replicator extends Container
 			$this->factoryCallback = callback($factory);
 		} catch (Nette\InvalidArgumentException $e) {
 			throw new Kdyby\InvalidArgumentException(
-				'Replicator requires callable factory, ' . Kdyby\Tools\Mixed::getType($factory) . ' given.',
-				NULL, $e
+				'Replicator requires callable factory, ' . Kdyby\Tools\Mixed::getType($factory) . ' given.', 0, $e
 			);
 		}
 

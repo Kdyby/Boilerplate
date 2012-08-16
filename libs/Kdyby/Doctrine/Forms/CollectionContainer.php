@@ -47,7 +47,7 @@ class CollectionContainer extends Kdyby\Forms\Containers\Replicator implements I
 
 	/**
 	 * @param \Doctrine\Common\Collections\Collection $collection
-	 * @param callback $factory
+	 * @param callable $factory
 	 * @param \Kdyby\Doctrine\Forms\EntityMapper $mapper
 	 */
 	public function __construct(Collection $collection, $factory, EntityMapper $mapper = NULL)

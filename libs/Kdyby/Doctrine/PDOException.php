@@ -38,7 +38,7 @@ class PDOException extends \PDOException
 	 */
 	public function __construct(\PDOException $previous, Doctrine\DBAL\Connection $connection)
 	{
-		parent::__construct($previous->getMessage(), NULL, $previous);
+		parent::__construct($previous->getMessage(), 0, $previous);
 		$this->code = $previous->getCode(); // passing through constructor causes error
 		$this->connection = $connection;
 	}

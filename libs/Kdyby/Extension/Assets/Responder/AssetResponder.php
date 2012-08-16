@@ -28,9 +28,9 @@ class AssetResponder extends Nette\Object
 
 
 	/**
-	 * @param \Kdyby\Extension\Assets\Storage\CacheStorage $storage
+	 * @param \Kdyby\Extension\Assets\IStorage $storage
 	 */
-	public function __construct(Assets\Storage\CacheStorage $storage)
+	public function __construct(Assets\IStorage $storage)
 	{
 		$this->storage = $storage;
 	}

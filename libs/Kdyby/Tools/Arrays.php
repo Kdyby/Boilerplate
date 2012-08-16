@@ -139,7 +139,7 @@ final class Arrays extends Nette\Object
 
 	/**
 	 * @param array|\Traversable $array
-	 * @param callback $callback
+	 * @param callable $callback
 	 * @return array
 	 */
 	public static function flatMapAssoc($array, $callback)
