@@ -24,7 +24,7 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class CurrentUserListener extends Nette\Object implements Kdyby\EventDispatcher\EventSubscriber
+class CurrentUserListener extends Nette\Object implements Kdyby\Extension\EventDispatcher\EventSubscriber
 {
 
 	/**

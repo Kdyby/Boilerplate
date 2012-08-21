@@ -39,6 +39,7 @@ class EntityDefaultsListener extends Nette\Object implements Doctrine\Common\Eve
 
 	/**
 	 * @param LoadClassMetadataEventArgs $args
+	 * @throws \Kdyby\InvalidStateException
 	 */
 	public function loadClassMetadata(LoadClassMetadataEventArgs $args)
 	{

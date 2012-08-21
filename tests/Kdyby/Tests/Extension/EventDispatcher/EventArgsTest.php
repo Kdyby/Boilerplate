@@ -8,23 +8,24 @@
  * For the full copyright and license information, please view the file license.txt that was distributed with this source code.
  */
 
-namespace Kdyby\EventDispatcher;
+namespace Kdyby\Tests\Extension\EventDispatcher;
 
-use Doctrine;
 use Kdyby;
+use Kdyby\Extension\EventDispatcher\EventArgs;
 use Nette;
 
 
 
 /**
- * An EventSubscriber knows himself what events he is interested in.
- * If an EventSubscriber is added to an EventManager, the manager invokes
- * {@link getSubscribedEvents} and registers the subscriber as a listener for all
- * returned events.
- *
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-interface EventSubscriber extends Doctrine\Common\EventSubscriber
+class EventArgsTest extends Kdyby\Tests\TestCase
 {
+
+	public function testImplementsDoctrineEventArgs()
+	{
+		$args = new EventArgsMock();
+		$this->assertInstanceOf('Doctrine\Common\EventArgs', $args);
+	}
 
 }

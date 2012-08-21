@@ -8,7 +8,7 @@
  * @license http://www.kdyby.org/license
  */
 
-namespace Kdyby\Doctrine;
+namespace Kdyby\Extension\EventDispatcher;
 
 use Doctrine;
 use Kdyby;
@@ -19,7 +19,7 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class EventManager extends Doctrine\Common\EventManager
+class LazyEventManager extends EventManager
 {
 
 	/**
@@ -89,41 +89,6 @@ class EventManager extends Doctrine\Common\EventManager
 	{
 		$this->registerSubscribers();
 		return parent::hasListeners($event);
-	}
-
-
-
-	/**
-	 * @param array|string $events
-	 * @param object $listener
-	 */
-	public function addEventListener($events, $listener)
-	{
-		$this->registerSubscribers();
-		parent::addEventListener($events, $listener);
-	}
-
-
-
-	/**
-	 * @param array|string $events
-	 * @param object $listener
-	 */
-	public function removeEventListener($events, $listener)
-	{
-		$this->registerSubscribers();
-		parent::removeEventListener($events, $listener);
-	}
-
-
-
-	/**
-	 * @param \Doctrine\Common\EventSubscriber $subscriber
-	 */
-	public function addEventSubscriber(Doctrine\Common\EventSubscriber $subscriber)
-	{
-		$this->registerSubscribers();
-		parent::addEventSubscriber($subscriber);
 	}
 
 }

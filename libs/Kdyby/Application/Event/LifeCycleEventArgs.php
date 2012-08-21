@@ -19,7 +19,7 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class LifeCycleEventArgs extends Kdyby\EventDispatcher\EventArgs
+class LifeCycleEventArgs extends Kdyby\Extension\EventDispatcher\EventArgs
 {
 
 	/**

@@ -8,10 +8,12 @@
  * For the full copyright and license information, please view the file license.txt that was distributed with this source code.
  */
 
-namespace Kdyby\Tests\EventDispatcher;
+namespace Kdyby\Tests\Extension\EventDispatcher;
 
+use Doctrine;
 use Kdyby;
-use Kdyby\EventDispatcher\EventArgs;
+use Kdyby\Extension\EventDispatcher\EventArgs;
+use Kdyby\Extension\EventDispatcher\EventSubscriber;
 use Nette;
 
 
@@ -19,7 +21,7 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class EventListenerMock extends Nette\Object implements Kdyby\EventDispatcher\EventSubscriber
+class EventListenerMock extends Nette\Object implements EventSubscriber
 {
 
 	/**

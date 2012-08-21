@@ -8,13 +8,15 @@
  * For the full copyright and license information, please view the file license.txt that was distributed with this source code.
  */
 
-namespace Kdyby\Tests\EventDispatcher;
+namespace Kdyby\Tests\Extension\EventDispatcher;
 
 use Kdyby;
-use Kdyby\EventDispatcher\EventManager;
+use Kdyby\Extension\EventDispatcher\EventManager;
 use Nette;
 
 
+
+require_once __DIR__ . '/EventListenerMock.php';
 
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
@@ -33,14 +35,16 @@ class EventManagerTest extends Kdyby\Tests\TestCase
 	public function setUp()
 	{
 		$this->manager = new EventManager;
-		$this->listener = $this->getMock('Kdyby\Tests\EventDispatcher\EventListenerMock', array('onFoo', 'onBar'));
+		$this->listener = $this->getMockBuilder(__NAMESPACE__ . '\EventListenerMock')
+			->setMethods(array('onFoo', 'onBar'))
+			->getMock();
 	}
 
 
 
 	public function testListenerHasRequiredMethod()
 	{
-		$this->manager->addListener('onFoo', $this->listener);
+		$this->manager->addEventListener('onFoo', $this->listener);
 		$this->assertTrue($this->manager->hasListeners('onFoo'));
 		$this->assertSame(array($this->listener), $this->manager->getListeners());
 	}
@@ -49,12 +53,12 @@ class EventManagerTest extends Kdyby\Tests\TestCase
 
 	public function testRemovingListenerFromSpecificEvent()
 	{
-		$this->manager->addListener('onFoo', $this->listener);
-		$this->manager->addListener('onBar', $this->listener);
+		$this->manager->addEventListener('onFoo', $this->listener);
+		$this->manager->addEventListener('onBar', $this->listener);
 		$this->assertTrue($this->manager->hasListeners('onFoo'));
 		$this->assertTrue($this->manager->hasListeners('onBar'));
 
-		$this->manager->removeListener($this->listener, 'onFoo');
+		$this->manager->removeEventListener('onFoo', $this->listener);
 		$this->assertFalse($this->manager->hasListeners('onFoo'));
 		$this->assertTrue($this->manager->hasListeners('onBar'));
 	}
@@ -63,12 +67,12 @@ class EventManagerTest extends Kdyby\Tests\TestCase
 
 	public function testRemovingListenerCompletely()
 	{
-		$this->manager->addListener('onFoo', $this->listener);
-		$this->manager->addListener('onBar', $this->listener);
+		$this->manager->addEventListener('onFoo', $this->listener);
+		$this->manager->addEventListener('onBar', $this->listener);
 		$this->assertTrue($this->manager->hasListeners('onFoo'));
 		$this->assertTrue($this->manager->hasListeners('onBar'));
 
-		$this->manager->removeListener($this->listener);
+		$this->manager->removeEventListener($this->listener);
 		$this->assertFalse($this->manager->hasListeners('onFoo'));
 		$this->assertFalse($this->manager->hasListeners('onBar'));
 		$this->assertSame(array(), $this->manager->getListeners());
@@ -81,14 +85,14 @@ class EventManagerTest extends Kdyby\Tests\TestCase
 	 */
 	public function testListenerDontHaveRequiredMethodException()
 	{
-		$this->manager->addListener('onNonexisting', $this->listener);
+		$this->manager->addEventListener('onNonexisting', $this->listener);
 	}
 
 
 
 	public function testDispatching()
 	{
-		$this->manager->addSubscriber($this->listener);
+		$this->manager->addEventSubscriber($this->listener);
 		$this->assertTrue($this->manager->hasListeners('onFoo'));
 		$this->assertTrue($this->manager->hasListeners('onBar'));
 
@@ -101,7 +105,7 @@ class EventManagerTest extends Kdyby\Tests\TestCase
 		$this->listener->expects($this->never())
 			->method('onBar');
 
-		$this->manager->dispatch('onFoo', $eventArgs);
+		$this->manager->dispatchEvent('onFoo', $eventArgs);
 	}
 
 }

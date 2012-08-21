@@ -56,7 +56,7 @@ services:
     class: Kdyby\Templates\EditableTemplates
     arguments: {1: Kdyby\Caching\LatteStorage("%tempDir%/cache")}
 
-  kdyby.eventManager: Kdyby\EventDispatcher\EventManager
+  kdyby.eventManager: Kdyby\Extension\EventDispatcher\EventManager
 
   application:
     setup:

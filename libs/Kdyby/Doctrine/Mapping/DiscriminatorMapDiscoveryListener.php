@@ -24,7 +24,7 @@ use Nette\Reflection\ClassType;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class DiscriminatorMapDiscoveryListener extends Nette\Object implements Doctrine\Common\EventSubscriber
+class DiscriminatorMapDiscoveryListener extends Nette\Object implements Kdyby\Extension\EventDispatcher\EventSubscriber
 {
 
 	/** @var \Doctrine\Common\Annotations\Reader */
@@ -105,7 +105,7 @@ class DiscriminatorMapDiscoveryListener extends Nette\Object implements Doctrine
 	/**
 	 * @param string $className
 	 *
-	 * @return string|NULL
+	 * @return object|NULL
 	 */
 	private function getEntryName($className)
 	{

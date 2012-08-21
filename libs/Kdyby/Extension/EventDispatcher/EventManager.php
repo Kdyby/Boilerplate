@@ -8,7 +8,7 @@
  * For the full copyright and license information, please view the file license.txt that was distributed with this source code.
  */
 
-namespace Kdyby\EventDispatcher;
+namespace Kdyby\Extension\EventDispatcher;
 
 use Doctrine;
 use Kdyby;
@@ -31,10 +31,12 @@ class EventManager extends Doctrine\Common\EventManager
 
 
 	/**
-	 * @param string $eventName
-	 * @param EventArgs $eventArgs
+	 * Dispatches an event to all registered listeners.
+	 *
+	 * @param string $eventName The name of the event to dispatch. The name of the event is the name of the method that is invoked on listeners.
+	 * @param Doctrine\Common\EventArgs $eventArgs The event arguments to pass to the event handlers/listeners. If not supplied, the single empty EventArgs instance is used
 	 */
-	public function dispatch($eventName, EventArgs $eventArgs = NULL)
+	public function dispatchEvent($eventName, Doctrine\Common\EventArgs $eventArgs = NULL)
 	{
 		if (!isset($this->listeners[$eventName])) {
 			return;
@@ -55,9 +57,10 @@ class EventManager extends Doctrine\Common\EventManager
 
 
 	/**
-	 * @param string $eventName
+	 * Gets the listeners of a specific event or all listeners.
 	 *
-	 * @return array
+	 * @param string $eventName The name of the event.
+	 * @return array The event listeners for the specified event, or all event listeners.
 	 */
 	public function getListeners($eventName = NULL)
 	{
@@ -75,9 +78,10 @@ class EventManager extends Doctrine\Common\EventManager
 
 
 	/**
-	 * @param string $eventName
+	 * Checks whether an event has any registered listeners.
 	 *
-	 * @return boolean
+	 * @param string $eventName
+	 * @return boolean TRUE if the specified event has any listeners, FALSE otherwise.
 	 */
 	public function hasListeners($eventName)
 	{
@@ -87,52 +91,46 @@ class EventManager extends Doctrine\Common\EventManager
 
 
 	/**
-	 * @param string|array $events
-	 * @param EventSubscriber $listener
+	 * Adds an event listener that listens on the specified events.
+	 *
+	 * @param string|array $events The event(s) to listen on.
+	 * @param EventSubscriber $listener The listener object.
 	 *
 	 * @throws \Kdyby\InvalidStateException
 	 */
-	public function addListener($events, EventSubscriber $listener)
+	public function addEventListener($events, $listener)
 	{
+		$hash = spl_object_hash($listener);
 		foreach ((array)$events as $eventName) {
 			if (!method_exists($listener, $eventName)) {
 				throw new Kdyby\InvalidStateException("Event listener '" . get_class($listener) . "' has no method '" . $eventName . "'");
 			}
 
-			$this->listeners[$eventName][] = $listener;
+			$this->listeners[$eventName][$hash] = $listener;
 		}
 	}
 
 
 
 	/**
-	 * @param EventSubscriber $listener
+	 * Removes an event listener from the specified events.
+	 *
 	 * @param string|array $events
+	 * @param EventSubscriber $listener
 	 */
-	public function removeListener(EventSubscriber $listener, $events = array())
+	public function removeEventListener($events, $listener = NULL)
 	{
-		$events = $events ? : array_keys($this->listeners);
+		if (is_object($events)) {
+			$listener = $events;
+			$events = array();
+		}
 
-		foreach ((array)$events as $eventName) {
-			if (!isset($this->listeners[$eventName])) {
-				continue;
-			}
-
-			$index = array_search($listener, $this->listeners[$eventName], TRUE);
-			if ($index !== FALSE) {
-				unset($this->listeners[$eventName][$index]);
+		$hash = spl_object_hash($listener);
+		foreach ((array)$events ?: array_keys($this->listeners) as $event) {
+			if (isset($this->listeners[$event][$hash])) {
+				unset($this->listeners[$event][$hash]);
 			}
 		}
-	}
-
-
-
-	/**
-	 * @param EventSubscriber $subscriber
-	 */
-	public function addSubscriber(EventSubscriber $subscriber)
-	{
-		$this->addListener($subscriber->getSubscribedEvents(), $subscriber);
 	}
 
 

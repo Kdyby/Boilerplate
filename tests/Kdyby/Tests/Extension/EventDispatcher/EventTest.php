@@ -8,10 +8,10 @@
  * For the full copyright and license information, please view the file license.txt that was distributed with this source code.
  */
 
-namespace Kdyby\Tests\EventDispatcher;
+namespace Kdyby\Tests\Extension\EventDispatcher;
 
 use Kdyby;
-use Kdyby\EventDispatcher\Event;
+use Kdyby\Extension\EventDispatcher\Event;
 use Nette;
 
 
@@ -72,12 +72,12 @@ class EventTest extends Kdyby\Tests\TestCase
 	public function testDispatch_toManager()
 	{
 		// create
-		$evm = new Kdyby\EventDispatcher\EventManager();
+		$evm = new Kdyby\Extension\EventDispatcher\EventManager();
 		$foo = new FooMock();
 		$foo->onMagic = new Event('onMagic', $evm);
 
 		// register
-		$evm->addSubscriber(new LoremListener());
+		$evm->addEventSubscriber(new LoremListener());
 		$foo->onMagic[] = function (FooMock $foo, $int) {
 			echo $int * 3;
 		};
@@ -122,7 +122,7 @@ class FooMock extends Nette\Object
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class LoremListener extends Nette\Object implements Kdyby\EventDispatcher\EventSubscriber
+class LoremListener extends Nette\Object implements Kdyby\Extension\EventDispatcher\EventSubscriber
 {
 
 	/**

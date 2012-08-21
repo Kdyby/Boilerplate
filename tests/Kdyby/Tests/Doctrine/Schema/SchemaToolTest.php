@@ -154,4 +154,26 @@ class TestSubscriber extends Nette\Object implements Doctrine\Common\EventSubscr
 		return $invoker->invokeArgs($args);
 	}
 
+
+
+	public function onCreateSchemaSql()
+	{
+		return $this->__call(__FUNCTION__, func_get_args());
+	}
+
+	public function onDropDatabaseSql()
+	{
+		return $this->__call(__FUNCTION__, func_get_args());
+	}
+
+	public function onDropSchemaSql()
+	{
+		return $this->__call(__FUNCTION__, func_get_args());
+	}
+
+	public function onUpdateSchemaSql()
+	{
+		return $this->__call(__FUNCTION__, func_get_args());
+	}
+
 }

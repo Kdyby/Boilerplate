@@ -11,7 +11,7 @@
 namespace Kdyby\Application;
 
 use Kdyby;
-use Kdyby\EventDispatcher\EventManager;
+use Kdyby\Extension\EventDispatcher\EventManager;
 use Nette\Application\Request;
 use Nette\Application\IResponse;
 use Nette;
@@ -52,48 +52,48 @@ final class LifeCycleEvent extends Nette\Object
 
 
 	/**
-	 * @param \Nette\Application\Application $application
-	 * @param \Kdyby\EventDispatcher\EventManager $eventManager
+	 * @param \Nette\Application\Application $app
+	 * @param \Kdyby\Extension\EventDispatcher\EventManager $evm
 	 */
-	public static function register(Nette\Application\Application $application, EventManager $eventManager)
+	public static function register(Nette\Application\Application $app, EventManager $evm)
 	{
-		$application->onStartup[] = function ($application) use ($eventManager) {
-			/** @var \Kdyby\EventDispatcher\EventManager $eventManager */
-			if ($eventManager->hasListeners(LifeCycleEvent::onStartup)) {
+		$app->onStartup[] = function ($application) use ($evm) {
+			/** @var \Kdyby\Extension\EventDispatcher\EventManager $evm */
+			if ($evm->hasListeners(LifeCycleEvent::onStartup)) {
 				$args = new Event\LifeCycleEventArgs($application);
-				$eventManager->dispatch(LifeCycleEvent::onStartup, $args);
+				$evm->dispatchEvent(LifeCycleEvent::onStartup, $args);
 			}
 		};
 
-		$application->onRequest[] = function ($application, Request $request) use ($eventManager) {
-			/** @var \Kdyby\EventDispatcher\EventManager $eventManager */
-			if ($eventManager->hasListeners(LifeCycleEvent::onRequest)) {
+		$app->onRequest[] = function ($application, Request $request) use ($evm) {
+			/** @var \Kdyby\Extension\EventDispatcher\EventManager $evm */
+			if ($evm->hasListeners(LifeCycleEvent::onRequest)) {
 				$args = new Event\LifeCycleRequestEventArgs($application, $request);
-				$eventManager->dispatch(LifeCycleEvent::onRequest, $args);
+				$evm->dispatchEvent(LifeCycleEvent::onRequest, $args);
 			}
 		};
 
-		$application->onResponse[] = function ($application, IResponse $response) use ($eventManager) {
-			/** @var \Kdyby\EventDispatcher\EventManager $eventManager */
-			if ($eventManager->hasListeners(LifeCycleEvent::onResponse)) {
+		$app->onResponse[] = function ($application, IResponse $response) use ($evm) {
+			/** @var \Kdyby\Extension\EventDispatcher\EventManager $evm */
+			if ($evm->hasListeners(LifeCycleEvent::onResponse)) {
 				$args = new Event\LifeCycleResponseEventArgs($application, $response);
-				$eventManager->dispatch(LifeCycleEvent::onResponse, $args);
+				$evm->dispatchEvent(LifeCycleEvent::onResponse, $args);
 			}
 		};
 
-		$application->onError[] = function ($application, \Exception $exception = NULL) use ($eventManager) {
-			/** @var \Kdyby\EventDispatcher\EventManager $eventManager */
-			if ($eventManager->hasListeners(LifeCycleEvent::onError)) {
+		$app->onError[] = function ($application, \Exception $exception = NULL) use ($evm) {
+			/** @var \Kdyby\Extension\EventDispatcher\EventManager $evm */
+			if ($evm->hasListeners(LifeCycleEvent::onError)) {
 				$args = new Event\LifeCycleEventArgs($application, $exception);
-				$eventManager->dispatch(LifeCycleEvent::onError, $args);
+				$evm->dispatchEvent(LifeCycleEvent::onError, $args);
 			}
 		};
 
-		$application->onShutdown[] = function ($application, \Exception $exception = NULL) use ($eventManager) {
-			/** @var \Kdyby\EventDispatcher\EventManager $eventManager */
-			if ($eventManager->hasListeners(LifeCycleEvent::onShutdown)) {
+		$app->onShutdown[] = function ($application, \Exception $exception = NULL) use ($evm) {
+			/** @var \Kdyby\Extension\EventDispatcher\EventManager $evm */
+			if ($evm->hasListeners(LifeCycleEvent::onShutdown)) {
 				$args = new Event\LifeCycleEventArgs($application, $exception);
-				$eventManager->dispatch(LifeCycleEvent::onShutdown, $args);
+				$evm->dispatchEvent(LifeCycleEvent::onShutdown, $args);
 			}
 		};
 	}

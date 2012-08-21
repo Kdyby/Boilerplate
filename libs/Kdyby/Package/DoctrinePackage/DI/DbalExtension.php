@@ -149,7 +149,7 @@ class DbalExtension extends Kdyby\Config\CompilerExtension
 
 		// event manager
 		$container->addDefinition($connectionName . '.eventManager')
-			->setClass('Kdyby\Doctrine\EventManager')
+			->setClass('Kdyby\Extension\EventDispatcher\LazyEventManager')
 			->addSetup('addSubscribers', array(
 				new Statement('Kdyby\Config\TaggedServices', array('doctrine.eventSubscriber.' . $config['name']))
 			))

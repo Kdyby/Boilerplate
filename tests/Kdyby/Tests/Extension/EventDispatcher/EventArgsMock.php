@@ -8,7 +8,7 @@
  * For the full copyright and license information, please view the file license.txt that was distributed with this source code.
  */
 
-namespace Kdyby\Tests\EventDispatcher;
+namespace Kdyby\Tests\Extension\EventDispatcher;
 
 use Kdyby;
 use Nette;
@@ -18,7 +18,7 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class EventArgsMock extends Kdyby\EventDispatcher\EventArgs
+class EventArgsMock extends Kdyby\Extension\EventDispatcher\EventArgs
 {
 
 }
