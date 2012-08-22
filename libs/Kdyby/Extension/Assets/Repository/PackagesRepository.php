@@ -35,7 +35,7 @@ class PackagesRepository extends Nette\Object implements Kdyby\Extension\Assets\
 	);
 
 	/**
-	 * @var array|\Kdyby\Extension\Assets\AssetPackage[]
+	 * @var array|\Kdyby\Extension\Assets\Repository\AssetPackage[]
 	 */
 	protected $assets = array();
 
