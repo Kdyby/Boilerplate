@@ -151,7 +151,6 @@ class PackageVersionTest extends Kdyby\Tests\TestCase
 	{
 		$package = new PackageVersion($this->mockPackage());
 		$this->setMigrationVersion($package, VersionDatetime::from("20120116140000"));
-		$lastUpdate = $package->getLastUpdate();
 
 		$version = $this->mockVersion();
 		$version->expects($this->atLeastOnce())
@@ -163,7 +162,6 @@ class PackageVersionTest extends Kdyby\Tests\TestCase
 
 		$package->setVersion($version);
 
-		$this->assertEquals($lastUpdate, $package->getLastUpdate());
 		$this->assertEquals($newTime, $package->getMigrationVersion());
 		$this->assertCount(1, $log = $package->getMigrationsLog());
 
