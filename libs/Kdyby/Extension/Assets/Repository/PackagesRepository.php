@@ -137,13 +137,13 @@ class PackagesRepository extends Nette\Object implements Kdyby\Extension\Assets\
 
 	/**
 	 * @internal
+	 *
 	 * @param array $definition
 	 * @param string $definitionFile
 	 *
-	 * @throws \Kdyby\NotSupportedException
-	 * @throws \Kdyby\UnexpectedValueException
-	 * @throws \Kdyby\FileNotFoundException
-	 * @throws \Nette\Utils\AssertionException
+	 * @throws \Kdyby\Extension\Assets\UnexpectedValueException
+	 * @throws \Kdyby\Extension\Assets\FileNotFoundException
+	 * @throws \Kdyby\Extension\Assets\NotSupportedException
 	 * @return \Kdyby\Extension\Assets\Repository\AssetPackage
 	 */
 	public static function createAsset($definition, $definitionFile = NULL)
