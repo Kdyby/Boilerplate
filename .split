@@ -1,0 +1,19 @@
+[libs/Kdyby/Extension/Assets]
+branch = split/assets
+target = git@github.com:Kdyby/AssetsExtension.git
+
+[libs/Kdyby/Extension/Curl]
+branch = split/curl
+target = git@github.com:Kdyby/CurlExtension.git
+
+[libs/Kdyby/Extension/Browser]
+branch = split/browser
+target = git@github.com:Kdyby/BrowserExtension.git
+
+[libs/Kdyby/Extension/Redis]
+branch = split/redis
+target = git@github.com:Kdyby/RedisExtension.git
+
+[libs/Kdyby/Extension/Forms/BootstrapRenderer]
+branch = split/forms-bootstrap-renderer
+target = git@github.com:Kdyby/FormsBootstrapRendererExtension.git
