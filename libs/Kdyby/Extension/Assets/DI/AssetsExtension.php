@@ -22,6 +22,7 @@ use Nette\Utils\Validators;
  */
 class AssetsExtension extends Nette\Config\CompilerExtension
 {
+
 	/** @var array */
 	public $asseticDefaults = array(
 		'publicDir' => '%wwwDir%',
