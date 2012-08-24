@@ -8,10 +8,10 @@
  * For the full copyright and license information, please view the file license.txt that was distributed with this source code.
  */
 
-namespace Kdyby\Tests\Extension\DicFactory;
+namespace Kdyby\Tests\Extension\DI;
 
 use Kdyby;
-use Kdyby\Extension\DicFactory\FactoryGeneratorExtension;
+use Kdyby\Extension\DI\FactoryGeneratorExtension;
 use Nette;
 
 

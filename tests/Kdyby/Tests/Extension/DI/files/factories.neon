@@ -1,9 +1,9 @@
 services:
 	foo:
-		class: Kdyby\Tests\Extension\DicFactory\Foo
+		class: Kdyby\Tests\Extension\DI\Foo
 
 factories:
-	bar: Kdyby\Tests\Extension\DicFactory\Bar
+	bar: Kdyby\Tests\Extension\DI\Bar
 
 	# overwrite
 	nette.cache:
