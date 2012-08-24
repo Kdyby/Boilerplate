@@ -31,23 +31,16 @@ class EventHasCallbackConstraint extends \PHPUnit_Framework_Constraint
 	 */
 	protected $eventName;
 
-	/**
-	 * @var integer|NULL
-	 */
-	protected $count;
-
 
 
 	/**
 	 * @param \Nette\Object $object
-	 * @param string $eventName
-	 * @param int|NULL $count
+	 * @param $eventName
 	 */
-	public function __construct($object, $eventName, $count = NULL)
+	public function __construct($object, $eventName)
 	{
 		$this->object = $object;
 		$this->eventName = $eventName;
-		$this->count = $count;
 	}
 
 
@@ -59,71 +52,27 @@ class EventHasCallbackConstraint extends \PHPUnit_Framework_Constraint
 	 */
 	protected function matches($callback)
 	{
-		$callback = $this->extractCallback($callback);
+		$callback = callback($callback)->getNative();
 
 		if (!$this->object instanceof Nette\Object) {
 			$this->fail($callback, 'Given object does not supports events');
 		}
 
 		if (!property_exists($this->object, $this->eventName)) {
-			$this->fail($callback, 'Object does not have event ' . $this->eventName);
+			$this->fail($callback, 'Object does not have an event ' . $this->eventName);
 		}
 
-		$event = array();
-		foreach ($this->object->{$this->eventName} as $listener) {
-			$event[] = $this->extractCallback($listener);
-		}
-
-		if (empty($event)) {
-			$this->fail($callback, 'Event does not contain listeners');
-		}
-
-		$targets = $this->findSameCallback($event, $callback);
-		if (empty($targets)) {
-			$this->fail($callback, 'Event does not contain given listener');
-		}
-
-		if ($this->count !== NULL && $this->count !== count($targets)) {
-			$this->fail('Listener is not in stack ' . $this->count . ' times');
-		}
-
-		return TRUE;
-	}
-
-
-
-	/**
-	 * @param array $listeners
-	 * @param callable $callback
-	 * @return array
-	 */
-	protected function findSameCallback(array $listeners, $callback)
-	{
-		$comparer = new CallbackEqualsCallbackConstraint($callback);
-		return array_filter($listeners, function ($target) use ($comparer) {
-			try {
-				$comparer->evaluate($target);
+		foreach ($events = $this->object->{$this->eventName} as $listener) {
+			if (callback($listener)->getNative() === $callback) {
 				return TRUE;
-
-			} catch (\PHPUnit_Framework_ExpectationFailedException $e) {
-				return FALSE;
 			}
-		});
-
-	}
-
-
-
-	/**
-	 * @param callable $callback
-	 * @return \Nette\Callback
-	 */
-	protected function extractCallback($callback)
-	{
-		if ($callback instanceof Nette\Callback) {
-			return $this->extractCallback($callback->getNative());
 		}
-		return callback($callback);
+
+		if (count($events) === 0) {
+			$this->fail($callback, 'Event does not contain any listeners');
+		}
+
+		$this->fail($callback, 'Event does not contain given listener');
 	}
 
 

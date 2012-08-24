@@ -111,13 +111,12 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 	 * @param array|\Nette\Callback|\Closure $callback
 	 * @param Nette\Object $object
 	 * @param string $eventName
-	 * @param int|NULL $count
 	 */
-	public function assertEventHasCallback($callback, $object, $eventName, $count = NULL)
+	public function assertEventHasCallback($callback, $object, $eventName)
 	{
 		$this->assertCallable($callback);
 
-		$constraint = new Constraint\EventHasCallbackConstraint($object, $eventName, $count);
+		$constraint = new Constraint\EventHasCallbackConstraint($object, $eventName);
 		self::assertThat($callback, $constraint, NULL);
 	}
 

@@ -22,55 +22,130 @@ use Nette;
 class EventHasCallbackConstraintTest extends Kdyby\Tests\TestCase
 {
 
-	/** @var Kdyby\Tests\Tests\Constraint\ObjectWithEventMock */
-	private $object;
-
-	/** @var string */
-	private $class;
-
-
-
-	public function setup()
+	/**
+	 * @return array
+	 */
+	public function dataContains()
 	{
-		$this->class = 'Kdyby\Tests\Tests\Constraint\ObjectWithEventMock';
+		$object = new ObjectWithEventMock();
+		$class = get_class($object);
 
-		$this->object = new ObjectWithEventMock();
-		$this->object->onEvent[] = array($this->object, 'foo');
-		$this->object->onEvent[] = array($this->class, 'staticFoo');
-		$this->object->onEvent[] = callback($this->object, 'foo');
-		$this->object->onEvent[] = callback($this->class, 'staticFoo');
+		$object->onEvent[] = array($object, 'foo');
+		$object->onEvent[] = array($class, 'staticFoo');
+		$object->onEvent[] = callback($object, 'foo');
+		$object->onEvent[] = callback($class, 'staticFoo');
+
+		return array(
+			array($object, 'onEvent', array($object, 'foo')),
+			array($object, 'onEvent', callback($object, 'foo')),
+			array($object, 'onEvent', array($class, 'staticFoo')),
+			array($object, 'onEvent', callback($class, 'staticFoo')),
+		);
 	}
 
 
 
-	public function testMatchingObjectInArrayCallback()
+	/**
+	 * @dataProvider dataContains
+	 *
+	 * @param \Nette\Object $object
+	 * @param string $eventName
+	 * @param callable $expected
+	 */
+	public function testContains(Nette\Object $object, $eventName, $expected)
 	{
-		$constraint = new EventHasCallbackConstraint($this->object, 'onEvent', 2);
-		$constraint->evaluate(array($this->object, 'foo'));
+		$constraint = new EventHasCallbackConstraint($object, $eventName);
+		$this->assertTrue($constraint->evaluate($expected, "Object has event listener", TRUE));
 	}
 
 
 
-	public function testMatchingClassInArrayCallback()
+	public function testGivenObjectDoesntSupportEventsException()
 	{
-		$constraint = new EventHasCallbackConstraint($this->object, 'onEvent', 2);
-		$constraint->evaluate(array($this->class, 'staticFoo'));
+		try {
+			$object = new \stdClass;
+			$constraint = new EventHasCallbackConstraint($object, 'onEvent');
+			$constraint->evaluate('strtolower');
+
+			$this->fail("Expected exception");
+
+		} catch (\Exception $e) {
+			$this->assertInstanceOf('PHPUnit_Framework_ExpectationFailedException', $e);
+			list($message) = explode("\n", $e->getMessage(), 2);
+			$this->assertSame("Given object does not supports events", $message);
+		}
 	}
 
 
 
-	public function testMatchingObjectInCallback()
+	public function testGivenObjectDoesNotHaveAnEventException()
 	{
-		$constraint = new EventHasCallbackConstraint($this->object, 'onEvent', 2);
-		$constraint->evaluate(callback($this->object, 'foo'));
+		try {
+			$object = new ObjectWithEventMock();
+			$constraint = new EventHasCallbackConstraint($object, 'onNonExistingEvent');
+			$constraint->evaluate('strtolower');
+
+			$this->fail("Expected exception");
+
+		} catch (\Exception $e) {
+			$this->assertInstanceOf('PHPUnit_Framework_ExpectationFailedException', $e);
+			list($message) = explode("\n", $e->getMessage(), 2);
+			$this->assertSame("Object does not have an event onNonExistingEvent", $message);
+		}
 	}
 
 
 
-	public function testMatchingClassInCallback()
+	public function testEventDoesNotContainAnyListeners()
 	{
-		$constraint = new EventHasCallbackConstraint($this->object, 'onEvent', 2);
-		$constraint->evaluate(callback($this->class, 'staticFoo'));
+		try {
+			$object = new ObjectWithEventMock();
+			$constraint = new EventHasCallbackConstraint($object, 'onEvent');
+			$constraint->evaluate('strtolower');
+
+			$this->fail("Expected exception");
+
+		} catch (\Exception $e) {
+			$this->assertInstanceOf('PHPUnit_Framework_ExpectationFailedException', $e);
+			list($message) = explode("\n", $e->getMessage(), 2);
+			$this->assertSame("Event does not contain any listeners", $message);
+		}
 	}
+
+
+
+	public function testEventDoesNotContainGivenListeners()
+	{
+		try {
+			$object = new ObjectWithEventMock();
+			$object->onEvent[] = 'strtoupper';
+			$constraint = new EventHasCallbackConstraint($object, 'onEvent');
+			$constraint->evaluate('strtolower');
+
+			$this->fail("Expected exception");
+
+		} catch (\Exception $e) {
+			$this->assertInstanceOf('PHPUnit_Framework_ExpectationFailedException', $e);
+			list($message) = explode("\n", $e->getMessage(), 2);
+			$this->assertSame("Event does not contain given listener", $message);
+		}
+	}
+
+}
+
+
+
+/**
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
+ */
+class ObjectWithEventMock extends Nette\Object
+{
+
+	/** @var array */
+	public $onEvent = array();
+
+	public function foo() { }
+	public static function staticFoo() { }
+	public function __invoke() { return TRUE; }
 
 }
