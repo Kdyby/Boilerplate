@@ -44,6 +44,7 @@
         },
         "classmap":[
             "libs/Kdyby/Application/exceptions.php",
+            "libs/Kdyby/Doctrine/exceptions.php",
             "libs/Kdyby/Extension/Curl/exceptions.php",
             "libs/Kdyby/Extension/Assets/exceptions.php",
             "libs/Kdyby/exceptions.php"

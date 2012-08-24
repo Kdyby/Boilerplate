@@ -11,6 +11,7 @@
 namespace Kdyby\Doctrine;
 
 use Doctrine;
+use Doctrine\ORM\Query;
 use Kdyby;
 use Nette;
 
@@ -63,6 +64,62 @@ class PDOException extends \PDOException
 	public function __sleep()
 	{
 		return array('message', 'code', 'file', 'line', 'errorInfo');
+	}
+
+}
+
+
+
+/**
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
+ */
+class QueryException extends Kdyby\Persistence\Exception
+{
+
+	/** @var \Doctrine\ORM\Query */
+	private $query;
+
+
+
+	/**
+	 * @param \Exception $previous
+	 * @param \Doctrine\ORM\Query $query
+	 * @param string $message
+	 */
+	public function __construct(\Exception $previous, Query $query = NULL, $message = "")
+	{
+		parent::__construct($message ? : $previous->getMessage(), 0, $previous);
+		$this->query = $query;
+	}
+
+
+
+	/**
+	 * @return \Doctrine\ORM\Query
+	 */
+	public function getQuery()
+	{
+		return $this->query;
+	}
+
+}
+
+
+
+/**
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
+ */
+class SqlException extends QueryException
+{
+
+	/**
+	 * @param \PDOException $previous
+	 * @param \Doctrine\ORM\Query $query
+	 * @param string $message
+	 */
+	public function __construct(\PDOException $previous, Query $query = NULL, $message = "")
+	{
+		parent::__construct($previous, $query, $message);
 	}
 
 }
