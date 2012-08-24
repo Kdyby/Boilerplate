@@ -23,10 +23,6 @@ use Nette\Utils\Finder;
 
 
 
-// functions & exceptions
-require_once __DIR__ . '/../functions.php';
-require_once __DIR__ . '/../exceptions.php';
-
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */

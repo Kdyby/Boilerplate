@@ -41,6 +41,14 @@
     "autoload":{
         "psr-0":{
             "Kdyby":"libs/"
-        }
+        },
+        "classmap":[
+            "libs/Kdyby/Extension/Curl/exceptions.php",
+            "libs/Kdyby/Extension/Assets/exceptions.php",
+            "libs/Kdyby/exceptions.php"
+        ],
+        "files":[
+            "libs/Kdyby/functions.php"
+        ]
     }
 }

@@ -16,14 +16,7 @@ $loader = require_once __DIR__ . '/vendor/autoload.php';
 $loader->add('Kdyby\\Tests', __DIR__ . '/tests');
 $loader->add('Kdyby', __DIR__ . '/libs');
 
-// exceptions
-$exceptions = new Kdyby\Loaders\ExceptionsLoader;
-$exceptions->register();
-
 // Doctrine annotations
-AnnotationRegistry::registerLoader(function($class) use ($loader) {
-   $loader->loadClass($class);
-   return class_exists($class, FALSE);
-});
+AnnotationRegistry::registerLoader(callback('class_exists'));
 
-unset($loader, $exceptions); // cleanup
+unset($loader); // cleanup
