@@ -10,8 +10,36 @@
 
 namespace Kdyby\Application;
 
-use Kdyby;
 use Nette;
+
+
+
+/**
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
+ */
+class BadRequestException extends Nette\Application\BadRequestException
+{
+
+
+	/**
+	 * @return BadRequestException
+	 */
+	public static function notAllowed()
+	{
+		return new static("You're not allowed to see this page.", 403);
+	}
+
+
+
+	/**
+	 * @return BadRequestException
+	 */
+	public static function nonExisting()
+	{
+		return new static("This page does not really exist.", 404);
+	}
+
+}
 
 
 
@@ -32,6 +60,7 @@ class InvalidPresenterException extends Nette\Application\InvalidPresenterExcept
 
 	/**
 	 * @param string $presenter
+	 *
 	 * @return \Kdyby\Application\InvalidPresenterException
 	 */
 	public static function presenterNoModule($presenter)
@@ -43,6 +72,7 @@ class InvalidPresenterException extends Nette\Application\InvalidPresenterExcept
 
 	/**
 	 * @param string $name
+	 *
 	 * @return \Kdyby\Application\InvalidPresenterException
 	 */
 	public static function invalidName($name)
@@ -56,6 +86,7 @@ class InvalidPresenterException extends Nette\Application\InvalidPresenterExcept
 	 * @param string $name
 	 * @param string $class
 	 * @param \Exception $previous = NULL
+	 *
 	 * @return \Kdyby\Application\InvalidPresenterException
 	 */
 	public static function missing($name, $class, \Exception $previous = NULL)
@@ -68,6 +99,7 @@ class InvalidPresenterException extends Nette\Application\InvalidPresenterExcept
 	/**
 	 * @param string $name
 	 * @param string $class
+	 *
 	 * @return \Kdyby\Application\InvalidPresenterException
 	 */
 	public static function doesNotImplementInterface($name, $class)
@@ -80,6 +112,7 @@ class InvalidPresenterException extends Nette\Application\InvalidPresenterExcept
 	/**
 	 * @param string $name
 	 * @param string $class
+	 *
 	 * @return \Kdyby\Application\InvalidPresenterException
 	 */
 	public static function isAbstract($name, $class)
@@ -92,6 +125,7 @@ class InvalidPresenterException extends Nette\Application\InvalidPresenterExcept
 	/**
 	 * @param string $name
 	 * @param string $realName
+	 *
 	 * @return \Kdyby\Application\InvalidPresenterException
 	 */
 	public static function caseSensitive($name, $realName)
