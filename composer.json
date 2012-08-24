@@ -47,6 +47,7 @@
             "libs/Kdyby/Doctrine/exceptions.php",
             "libs/Kdyby/Extension/Curl/exceptions.php",
             "libs/Kdyby/Extension/Assets/exceptions.php",
+            "libs/Kdyby/Migrations/exceptions.php",
             "libs/Kdyby/exceptions.php"
         ],
         "files":[

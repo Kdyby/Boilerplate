@@ -18,6 +18,26 @@ use Nette;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
+class MigrationException extends \Exception
+{
+
+}
+
+
+
+/**
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
+ */
+class AbortException extends MigrationException
+{
+
+}
+
+
+
+/**
+ * @author Filip Procházka <filip.prochazka@kdyby.org>
+ */
 class SkipException extends MigrationException
 {
 
