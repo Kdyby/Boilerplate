@@ -16,6 +16,8 @@ use Nette;
 
 
 /**
+ * @todo: remove
+ *
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
 class ExceptionsLoader extends Nette\Loaders\AutoLoader

@@ -20,7 +20,6 @@ use Nette\DI\Container as NContainer;
 use Nette\Diagnostics\Debugger;
 use Nette\Reflection\ClassType;
 use Nette\Utils\Finder;
-use Symfony;
 
 
 
