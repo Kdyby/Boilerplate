@@ -25,7 +25,10 @@
     "autoload":{
         "psr-0":{
             "Kdyby\\Extension\\Assets":""
-        }
+        },
+        "classmap":[
+            "exceptions.php"
+        ]
     },
     "target-dir":"Kdyby/Extension/Assets"
 }

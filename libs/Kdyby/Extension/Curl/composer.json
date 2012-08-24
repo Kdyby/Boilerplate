@@ -24,7 +24,10 @@
     "autoload":{
         "psr-0":{
             "Kdyby\\Extension\\Curl":""
-        }
+        },
+        "classmap":[
+            "exceptions.php"
+        ]
     },
     "target-dir":"Kdyby/Extension/Curl"
 }
