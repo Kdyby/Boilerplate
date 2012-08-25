@@ -23,8 +23,8 @@
     },
     "autoload":{
         "psr-0":{
-            "Kdyby\\Extension\\Curl\\Forms\\BootstrapRenderer":""
+            "Kdyby\\Extension\\Forms\\BootstrapRenderer":""
         }
     },
-    "target-dir":"Kdyby/Extension/Curl/Forms/BootstrapRenderer"
+    "target-dir":"Kdyby/Extension/Forms/BootstrapRenderer"
 }
