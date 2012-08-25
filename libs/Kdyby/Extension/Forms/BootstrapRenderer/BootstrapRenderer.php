@@ -277,15 +277,14 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 		$controls = $group->getControls();
 
 		// fake group
-		return (object)array(
-			'template' => $group->getOption('template'),
+		return (object)(array(
 			'controls' => array_filter($controls, function (Controls\BaseControl $control) {
 					return !$control->getOption('rendered')
 						&& !$control instanceof Controls\HiddenField;
 				}),
 			'label' => $groupLabel,
 			'description' => $groupDescription,
-		);
+		) + $group->getOptions());
 	}
 
 
