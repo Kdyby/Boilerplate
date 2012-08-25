@@ -14,6 +14,9 @@
 {elseif $mode === "body"}
     {include #body, renderer => $renderer}
 
+{elseif $mode === "controls"}
+    {include #controls, controls => $renderer->findControls()}
+
 {elseif $mode instanceof \Nette\Forms\Container}
     {include #controls, renderer => $renderer, controls => $renderer->findControls($mode)}
 
