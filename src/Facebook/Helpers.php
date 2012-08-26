@@ -5,7 +5,6 @@ namespace Facebook;
 use Nette;
 use Nette\Diagnostics\Debugger;
 use Nette\Utils\Strings;
-use Nette\Utils\Json;
 
 
 
@@ -23,7 +22,7 @@ class Helpers extends Nette\Object
 	 *
 	 * @return boolean true if this is video post
 	 */
-	public static function isVideoPost($path, $method = 'GET')
+	public static function isVideoPost($path, $method = NULL)
 	{
 		if ($method == 'POST' && preg_match("/^(\/)(.+)(\/)(videos)$/", $path)) {
 			return true;

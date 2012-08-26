@@ -79,13 +79,13 @@ class CurlClient extends Nette\Object implements \Facebook\ApiClient
 	 * @throws \Facebook\FacebookApiException
 	 * @return mixed The decoded response object
 	 */
-	public function graph($path, $method = 'GET', array $params = array())
+	public function graph($path, $method = NULL, array $params = array())
 	{
 		if (is_array($method) && empty($params)) {
 			$params = $method;
-			$method = 'GET';
+			$method = NULL;
 		}
-		$params['method'] = $method; // method override as we always do a POST
+		$params['method'] = $method ?: 'GET'; // method override as we always do a POST
 
 		$domainKey = Facebook\Helpers::isVideoPost($path, $method) ? 'graph_video' : 'graph';
 		return $this->callOauth($this->fb->config->createUrl($domainKey, $path), $params);
@@ -129,7 +129,7 @@ class CurlClient extends Nette\Object implements \Facebook\ApiClient
 	 */
 	protected function callOauth(UrlScript $url, $params)
 	{
-		$result = Json::decode($this->oauth($url, $params), true);
+		$result = Json::decode($this->oauth($url, $params), Json::FORCE_ARRAY);
 
 		// results are returned, errors are thrown
 		if (is_array($result) && isset($result['error'])) {

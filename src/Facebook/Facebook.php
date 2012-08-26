@@ -444,16 +444,22 @@ class Facebook extends Nette\Object
 	/**
 	 * Make an API call.
 	 *
-	 * @return mixed The decoded response
+	 * @param string|array $pathOrParams
+	 * @param string $method
+	 * @param array $params
+	 *
+	 * @return \Nette\ArrayHash|NULL The decoded response
 	 */
-	public function api( /* polymorphic */)
+	public function api($pathOrParams, $method = NULL, array $params = array())
 	{
-		$args = func_get_args();
-		if (is_array($args[0])) {
-			return $this->apiClient->restServer($args[0]);
+		if (is_array($pathOrParams)) {
+			$response = $this->apiClient->restServer($pathOrParams); // params
+
+		} else {
+			$response = $this->apiClient->graph($pathOrParams, $method, $params);
 		}
 
-		return call_user_func_array(array($this->apiClient, 'graph'), $args);
+		return $response ? Nette\ArrayHash::from($response) : $response;
 	}
 
 
@@ -491,8 +497,8 @@ class Facebook extends Nette\Object
 	protected function getUserFromAccessToken()
 	{
 		try {
-			$user_info = $this->api('/me');
-			return $user_info['id'];
+			return $this->api('/me')->id;
+
 		} catch (FacebookApiException $e) {
 			return 0;
 		}

@@ -28,7 +28,7 @@ class SignedRequest extends Nette\Object
 
 		// decode the data
 		$sig = Helpers::base64UrlDecode($encoded_sig);
-		$data = Json::decode(Helpers::base64UrlDecode($payload), true);
+		$data = Json::decode(Helpers::base64UrlDecode($payload), Json::FORCE_ARRAY);
 
 		if (strtoupper($data['algorithm']) !== Configuration::SIGNED_REQUEST_ALGORITHM) {
 			Debugger::log('Unknown algorithm. Expected ' . Configuration::SIGNED_REQUEST_ALGORITHM, 'facebook');
