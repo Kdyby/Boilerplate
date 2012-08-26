@@ -515,31 +515,33 @@ class Facebook extends Nette\Object
 	 * either logged in to Facebook or has granted an offline access permission.
 	 *
 	 * @param string $code An authorization code.
-	 * @param null $redirect_uri
+	 * @param null $redirectUri
 	 * @return mixed An access token exchanged for the authorization code, or false if an access token could not be generated.
 	 */
-	protected function getAccessTokenFromCode($code, $redirect_uri = null)
+	protected function getAccessTokenFromCode($code, $redirectUri = null)
 	{
 		if (empty($code)) {
 			return false;
 		}
 
-		if ($redirect_uri === null) {
-			$redirect_uri = $this->getCurrentUrl();
-		}
+		$redirectUri = $redirectUri ?: $this->getCurrentUrl();
 
 		try {
 			// need to circumvent json_decode by calling _oauthRequest
 			// directly, since response isn't JSON format.
-			$access_token_response = $this->apiClient->oauth(
+			$accessToken = $this->apiClient->oauth(
 				$this->config->createUrl('graph', '/oauth/access_token'),
 				array(
 					'client_id' => $this->config->appId,
 					'client_secret' => $this->config->appSecret,
-					'redirect_uri' => $redirect_uri,
+					'redirect_uri' => $redirectUri,
 					'code' => $code
 				)
 			);
+
+			if (empty($accessToken)) {
+				return false;
+			}
 
 		} catch (FacebookApiException $e) {
 			// most likely that user very recently revoked authorization.
@@ -547,12 +549,8 @@ class Facebook extends Nette\Object
 			return false;
 		}
 
-		if (empty($access_token_response)) {
-			return false;
-		}
-
 		$params = array();
-		parse_str($access_token_response, $params);
+		parse_str($accessToken, $params);
 		if (!isset($params['access_token'])) {
 			return false;
 		}
@@ -640,13 +638,11 @@ class Facebook extends Nette\Object
 			return array();
 		}
 
-		$metadata = array();
-		foreach (explode('&', $cookieValue) as $part) {
-			$pair = explode('=', $part, 2);
-			if (!empty($pair[0])) {
-				$metadata[urldecode($pair[0])] = (count($pair) > 1) ? urldecode($pair[1]) : '';
-			}
-		}
+		parse_str($cookieValue, $metadata);
+		array_walk($metadata, function (&$value, &$key) {
+			$value = urldecode($value);
+			$key = urldecode($key);
+		});
 
 		return $metadata;
 	}
