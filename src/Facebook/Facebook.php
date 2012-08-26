@@ -90,16 +90,25 @@ class Facebook extends Nette\Object
 	 */
 	public function __construct(
 		Configuration $config,
-		SessionStorage $session,
-		Nette\Http\Request $httpRequest,
-		Nette\Http\Response $httpResponse,
+		SessionStorage $session = NULL,
+		Nette\Http\Request $httpRequest = NULL,
+		Nette\Http\Response $httpResponse = NULL,
 		ApiClient $client = NULL)
 	{
 		$this->config = $config;
-		$this->session = $session;
-		$this->httpRequest = $httpRequest;
-		$this->httpResponse = $httpResponse;
-		$this->apiClient = $client ?: new Api\CurlClient($this);
+		if (!$this->httpResponse = $httpResponse) {
+			$this->httpResponse = new Nette\Http\Response();
+		}
+		if (!$this->httpRequest = $httpRequest) {
+			$factory = new Nette\Http\RequestFactory();
+			$this->httpRequest = $factory->setEncoding('utf-8')->createHttpRequest();
+		}
+		if (!$this->session = $session) {
+			$this->session = new Nette\Http\Session($this->httpRequest, $this->httpResponse);
+		}
+		if (!$this->apiClient = $client) {
+			$this->apiClient = new Api\CurlClient($this);
+		}
 	}
 
 

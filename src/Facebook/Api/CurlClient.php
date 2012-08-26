@@ -25,6 +25,7 @@ class CurlClient extends Nette\Object implements \Facebook\ApiClient
 		CURLOPT_RETURNTRANSFER => true,
 		CURLOPT_TIMEOUT => 20,
 		CURLOPT_USERAGENT => 'facebook-php-3.2',
+		CURLOPT_HTTPHEADER => array()
 	);
 
 	/**
@@ -156,32 +157,21 @@ class CurlClient extends Nette\Object implements \Facebook\ApiClient
 	 */
 	protected function makeRequest($url, array $params, $ch = null)
 	{
-		if (!$ch) {
-			$ch = curl_init();
-		}
+		$ch = $ch ?: curl_init();
 
 		$opts = $this->curlOptions;
-		if ($this->fb->config->fileUploadSupport) {
-			$opts[CURLOPT_POSTFIELDS] = $params;
-		} else {
-			$opts[CURLOPT_POSTFIELDS] = http_build_query($params, null, '&');
-		}
+		$opts[CURLOPT_POSTFIELDS] = $this->fb->config->fileUploadSupport ? $params : http_build_query($params, null, '&');
 		$opts[CURLOPT_URL] = (string)$url;
 
 		// disable the 'Expect: 100-continue' behaviour. This causes CURL to wait
 		// for 2 seconds if the server does not support this header.
-		if (isset($opts[CURLOPT_HTTPHEADER])) {
-			$existing_headers = $opts[CURLOPT_HTTPHEADER];
-			$existing_headers[] = 'Expect:';
-			$opts[CURLOPT_HTTPHEADER] = $existing_headers;
+		$opts[CURLOPT_HTTPHEADER][] = 'Expect:';
 
-		} else {
-			$opts[CURLOPT_HTTPHEADER] = array('Expect:');
-		}
-
+		// execute request
 		curl_setopt_array($ch, $opts);
 		$result = curl_exec($ch);
 
+		// provide certificate if needed
 		if (curl_errno($ch) == CURLE_SSL_CACERT) {
 			Debugger::log('Invalid or no certificate authority found, using bundled information', 'facebook');
 			curl_setopt($ch, CURLOPT_CAINFO, __DIR__ . '/fb_ca_chain_bundle.crt');
