@@ -19,8 +19,6 @@ interface ApiClient
 	 */
 	function restServer(array $params);
 
-
-
 	/**
 	 * Invoke the Graph API.
 	 *
@@ -31,8 +29,6 @@ interface ApiClient
 	 * @return mixed The decoded response object
 	 */
 	function graph($path, $method = 'GET', array $params = array());
-
-
 
 	/**
 	 * Make a OAuth Request.

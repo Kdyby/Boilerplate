@@ -13,6 +13,7 @@ use Nette\Diagnostics\Debugger;
  * @property string $state
  * @property string $code
  * @property string $access_token
+ * @property string $user
  * @property string $user_id
  * @property-read string $user_id
  */
@@ -24,11 +25,6 @@ class SessionStorage extends Nette\Object
 	// We can set this to a high number because the main session
 	// expiration will trump this.
 	const FBSS_COOKIE_EXPIRE = 31556926; // 1 year
-
-	/**
-	 * @var array
-	 */
-	public $keysWhitelist = array('state', 'code', 'access_token', 'user_id');
 
 	/**
 	 * @var \Nette\Http\SessionSection
@@ -140,11 +136,6 @@ class SessionStorage extends Nette\Object
 	 */
 	public function set($key, $value)
 	{
-		if (!in_array($key, $this->keysWhitelist)) {
-			Debugger::log('Unsupported key passed to setPersistentData.', 'facebook');
-			return;
-		}
-
 		$this->session->$key = $value;
 	}
 
@@ -160,11 +151,6 @@ class SessionStorage extends Nette\Object
 	 */
 	public function get($key, $default = false)
 	{
-		if (!in_array($key, $this->keysWhitelist)) {
-			Debugger::log('Unsupported key passed to get persistent data.', 'facebook');
-			return $default;
-		}
-
 		return isset($this->session->$key) ? $this->session->$key : $default;
 	}
 
@@ -178,11 +164,6 @@ class SessionStorage extends Nette\Object
 	 */
 	public function clear($key)
 	{
-		if (!in_array($key, $this->keysWhitelist)) {
-			Debugger::log('Unsupported key passed to clearPersistentData.', 'facebook');
-			return;
-		}
-
 		unset($this->session->$key);
 	}
 
@@ -195,9 +176,7 @@ class SessionStorage extends Nette\Object
 	 */
 	public function clearAll()
 	{
-		foreach ($this->keysWhitelist as $key) {
-			$this->clear($key);
-		}
+		$this->session->remove();
 //		if ($this->sharedSessionID) {
 //			$this->deleteSharedSessionCookie();
 //		}
