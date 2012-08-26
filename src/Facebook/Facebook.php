@@ -445,12 +445,12 @@ class Facebook extends Nette\Object
 	 * Make an API call.
 	 *
 	 * @param string|array $pathOrParams
-	 * @param string $method
 	 * @param array $params
+	 * @param string $method
 	 *
 	 * @return \Nette\ArrayHash|NULL The decoded response
 	 */
-	public function api($pathOrParams, $method = NULL, array $params = array())
+	public function api($pathOrParams, array $params = array(), $method = NULL)
 	{
 		if (is_array($pathOrParams)) {
 			$response = $this->apiClient->restServer($pathOrParams); // params
