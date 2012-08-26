@@ -463,24 +463,14 @@ class Facebook extends Nette\Object
 	 * and otherwise return false to signal no authorization code was
 	 * discoverable.
 	 *
-	 * @return mixed The authorization code, or false if the authorization
-	 *               code could not be determined.
+	 * @return mixed The authorization code, or false if the authorization code could not be determined.
 	 */
 	protected function getCode()
 	{
-		if (isset($_REQUEST['code'])) {
-			if ($this->session->state !== null &&
-				isset($_REQUEST['state']) &&
-				$this->session->state === $_REQUEST['state']
-			) {
-
-				// CSRF state has done its job, so clear it
-				$this->session->state = null;
-				return $_REQUEST['code'];
-			} else {
-				Debugger::log('CSRF state token does not match one provided.', 'facebook');
-				return false;
-			}
+		$state = $this->getRequest('state');
+		if (($code = $this->getRequest('code')) && $state && $this->session->state === $state) {
+			$this->session->state = NULL;
+			return $code;
 		}
 
 		return false;
