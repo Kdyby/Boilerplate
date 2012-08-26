@@ -300,12 +300,11 @@ class Facebook extends Nette\Object
 	 */
 	public function getUser()
 	{
-		if ($this->user !== null) {
-			// we've already determined this and cached the value.
-			return $this->user;
+		if ($this->user === NULL) {
+			$this->user = $this->getUserFromAvailableData();
 		}
 
-		return $this->user = $this->getUserFromAvailableData();
+		return $this->user;
 	}
 
 
