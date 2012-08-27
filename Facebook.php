@@ -16,6 +16,7 @@ use Nette\Utils\Strings;
  * the file.
  *
  * @property \Kdyby\Extension\Social\Facebook\Configuration $config
+ * @property \Kdyby\Extension\Social\Facebook\SessionStorage $session
  *
  * @author Naitik Shah <naitik@facebook.com>
  */
@@ -53,24 +54,23 @@ class Facebook extends Nette\Object
 	private $httpResponse;
 
 	/**
-	 * The ID of the Facebook user, or 0 if the user is logged out.
-	 *
-	 * @var integer
+	 * The data from the signed_request token.
+	 * @var string
 	 */
-	protected $user;
+	private $signedRequest;
 
 	/**
-	 * The data from the signed_request token.
+	 * The ID of the Facebook user, or 0 if the user is logged out.
+	 * @var integer
 	 */
-	protected $signedRequest;
+	private $user;
 
 	/**
 	 * The OAuth access token received in exchange for a valid authorization
 	 * code.  null means the access token has yet to be determined.
-	 *
 	 * @var string
 	 */
-	protected $accessToken;
+	private $accessToken;
 
 
 
@@ -102,6 +102,16 @@ class Facebook extends Nette\Object
 	public function getConfig()
 	{
 		return $this->config;
+	}
+
+
+
+	/**
+	 * @return SessionStorage
+	 */
+	public function getSession()
+	{
+		return $this->session;
 	}
 
 
@@ -276,8 +286,7 @@ class Facebook extends Nette\Object
 
 
 	/**
-	 * Get the UID of the connected user, or 0
-	 * if the Facebook user is not connected.
+	 * Get the UID of the connected user, or 0 if the Facebook user is not connected.
 	 *
 	 * @return string the UID if available.
 	 */
