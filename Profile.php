@@ -18,6 +18,7 @@ use Nette;
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
  * @property \Nette\ArrayHash $details
+ * @property string $pictureUrl
  */
 class Profile extends Nette\Object
 {
@@ -72,7 +73,12 @@ class Profile extends Nette\Object
 	public function getDetails($key = NULL)
 	{
 		if ($this->details === NULL) {
-			$this->details = $this->facebook->api('/' . $this->profileId);
+			try {
+				$this->details = $this->facebook->api('/' . $this->profileId);
+
+			} catch (FacebookApiException $e) {
+				$this->details = array();
+			}
 		}
 
 		if ($key !== NULL) {
@@ -83,9 +89,32 @@ class Profile extends Nette\Object
 	}
 
 
-	public function getPicture()
-	{
 
+	/**
+	 * @return Profile|NULL
+	 */
+	public function getSignificantOther()
+	{
+		if (!$other = $this->getDetails('significant_other')) {
+			return NULL;
+		}
+
+		return $this->facebook->getProfile($other['id']);
+	}
+
+
+
+	/**
+	 * @return string
+	 */
+	public function getPictureUrl()
+	{
+		try {
+			return $this->facebook->api('/' . $this->profileId . '/picture')->url;
+
+		} catch (FacebookApiException $e) {
+			return NULL;
+		}
 	}
 
 
