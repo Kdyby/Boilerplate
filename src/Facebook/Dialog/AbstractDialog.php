@@ -3,8 +3,6 @@
 namespace Facebook\Dialog;
 
 use Nette;
-use Nette\Application\UI\ISignalReceiver;
-use Nette\Application\UI\Link;
 use Nette\Application\UI\PresenterComponent;
 use Nette\Http\UrlScript;
 use Facebook;
@@ -34,6 +32,11 @@ abstract class AbstractDialog extends PresenterComponent implements Facebook\Dia
 	 * @var string
 	 */
 	protected $display = self::DISPLAY_POPUP;
+
+	/**
+	 * @var bool
+	 */
+	protected $showError = FALSE;
 
 	/**
 	 * @var UrlScript
@@ -72,10 +75,12 @@ abstract class AbstractDialog extends PresenterComponent implements Facebook\Dia
 
 
 
-	/***/
+	/**
+	 * @return bool
+	 */
 	public function getResponse()
 	{
-
+		return TRUE;
 	}
 
 
@@ -85,7 +90,10 @@ abstract class AbstractDialog extends PresenterComponent implements Facebook\Dia
 	 */
 	public function handleResponse()
 	{
-		$this->onResponse($this, $this->getResponse());
+		if ($this->onResponse) {
+			$this->onResponse($this, $this->getResponse());
+		}
+		// $this->presenter->redirect('this');
 	}
 
 
@@ -111,11 +119,18 @@ abstract class AbstractDialog extends PresenterComponent implements Facebook\Dia
 
 
 	/**
+	 * @param string $display
+	 * @param bool $showError
+	 *
 	 * @return string
 	 */
-	public function getUrl()
+	public function getUrl($display = self::DISPLAY_POPUP, $showError = FALSE)
 	{
 		$url = clone $this->currentUrl;
+
+		$this->display = $display;
+		$this->showError = $showError;
+
 		$url->appendQuery($this->getQueryParams());
 		return (string)$url;
 	}
@@ -123,12 +138,14 @@ abstract class AbstractDialog extends PresenterComponent implements Facebook\Dia
 
 
 	/**
+	 * @param string $title
 	 * @param string $display
 	 * @param bool $showError
 	 */
-	public function render($display = null, $showError = false)
+	public function render($title = "click me!", $display = self::DISPLAY_POPUP, $showError = FALSE)
 	{
-		
+		$url = $this->getUrl($display, $showError);
+		echo Nette\Utils\Html::el('a')->target('_blank')->url($url)->setText($title);
 	}
 
 }

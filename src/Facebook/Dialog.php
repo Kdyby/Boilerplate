@@ -23,4 +23,13 @@ interface Dialog
 	const DISPLAY_TOUCH = 'touch';
 	const DISPLAY_WAP = 'wap';
 
+	/**
+	 * Returns url for the dialog window.
+	 *
+	 * @param string $display
+	 * @param bool $showError
+	 * @return string
+	 */
+	function getUrl($display = self::DISPLAY_POPUP, $showError = FALSE);
+
 }
