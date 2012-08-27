@@ -221,17 +221,22 @@ class CurlClient extends Nette\Object implements Facebook\ApiClient
 			}
 		}
 
+		$info = curl_getinfo($ch);
 		if ($result === false) {
 			$e = new Facebook\FacebookApiException(array(
 				'error_code' => curl_errno($ch),
 				'error' => array('message' => curl_error($ch), 'type' => 'CurlException')
 			));
-			if ($this->panel) $this->panel->failure($e, curl_getinfo($ch));
+			if ($this->panel) $this->panel->failure($e, $info);
 			curl_close($ch);
 			throw $e;
 		}
 
-		if ($this->panel) $this->panel->success($result, curl_getinfo($ch));
+		if (!$result && isset($info['redirect_url'])) {
+			$result = Json::encode(array('url' => $info['redirect_url']));
+		}
+
+		if ($this->panel) $this->panel->success($result, $info);
 		curl_close($ch);
 		return $this->cache[$cacheKey] = $result;
 	}

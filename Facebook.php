@@ -117,16 +117,99 @@ class Facebook extends Nette\Object
 
 
 	/**
+	 * @param string $id
+	 * @return Profile
+	 */
+	public function getProfile($id = 'me')
+	{
+		return new Profile($this, $id);
+	}
+
+
+
+	/**
+	 * Make an API call.
+	 *
+	 * @param string|array $pathOrParams
+	 * @param string $method
+	 * @param array $params
+	 *
+	 * @return \Nette\ArrayHash|NULL The decoded response
+	 */
+	public function api($pathOrParams, $method = NULL, array $params = array())
+	{
+		if (is_array($pathOrParams)) {
+			$response = $this->apiClient->restServer($pathOrParams); // params
+
+		} else {
+			$response = $this->apiClient->graph($pathOrParams, $method, $params);
+		}
+
+		return $response ? Nette\ArrayHash::from($response) : $response;
+	}
+
+
+
+	/**
+	 * Get the UID of the connected user, or 0 if the Facebook user is not connected.
+	 *
+	 * @return string the UID if available.
+	 */
+	public function getUser()
+	{
+		if ($this->user === NULL) {
+			$this->user = $this->getUserFromAvailableData();
+		}
+
+		return $this->user;
+	}
+
+
+
+	/**
+	 * @param null $scope
+	 * @return Dialog\LoginDialog
+	 */
+	public function createLoginDialog($scope = NULL)
+	{
+		$dialog = new Dialog\LoginDialog($this);
+		$dialog->setScope($scope);
+		return $dialog;
+	}
+
+
+
+	/**
+	 * @return Dialog\LogoutDialog
+	 */
+	public function createLogoutDialog()
+	{
+		return new Dialog\LogoutDialog($this);
+	}
+
+
+
+	/**
+	 * @return Dialog\LoginStatusDialog
+	 */
+	public function createLoginStatusDialog()
+	{
+		return new Dialog\LoginStatusDialog($this);
+	}
+
+
+
+	/**
 	 * Sets the access token for api calls.  Use this if you get
 	 * your access token by other means and just want the SDK
 	 * to use it.
 	 *
-	 * @param string $access_token an access token.
+	 * @param string $accessToken an access token.
 	 * @return Facebook
 	 */
-	public function setAccessToken($access_token)
+	public function setAccessToken($accessToken)
 	{
-		$this->accessToken = $access_token;
+		$this->accessToken = $accessToken;
 		return $this;
 	}
 
@@ -156,23 +239,21 @@ class Facebook extends Nette\Object
 				return false;
 			}
 
+			parse_str($response, $params);
+			if (!isset($params['access_token'])) {
+				return false;
+			}
+
+			$this->destroySession();
+			$this->session->access_token = $params['access_token'];
+
+			return true;
+
 		} catch (FacebookApiException $e) {
 			// most likely that user very recently revoked authorization.
 			// In any event, we don't have an access token, so say so.
 			return false;
 		}
-
-		$params = array();
-		parse_str($response, $params);
-
-		if (!isset($params['access_token'])) {
-			return false;
-		}
-
-		$this->destroySession();
-		$this->session->access_token = $params['access_token'];
-
-		return true;
 	}
 
 
@@ -285,22 +366,6 @@ class Facebook extends Nette\Object
 
 
 	/**
-	 * Get the UID of the connected user, or 0 if the Facebook user is not connected.
-	 *
-	 * @return string the UID if available.
-	 */
-	public function getUser()
-	{
-		if ($this->user === NULL) {
-			$this->user = $this->getUserFromAvailableData();
-		}
-
-		return $this->user;
-	}
-
-
-
-	/**
 	 * Determines the connected user by first examining any signed
 	 * requests, then considering an authorization code, and then
 	 * falling back to any persistent store storing the user.
@@ -330,71 +395,15 @@ class Facebook extends Nette\Object
 			&& $accessToken !== $this->config->getApplicationAccessToken()
 			&& !($user && $this->session->access_token === $accessToken)
 		) {
-			if ($user = $this->getUserFromAccessToken()) {
-				$this->session->user_id = $user;
+			try {
+				$this->session->user_id = $user = $this->api('/me')->id;
 
-			} else {
+			} catch (FacebookApiException $e) {
 				$this->session->clearAll();
 			}
 		}
 
 		return $user;
-	}
-
-
-
-	/**
-	 * @param null $scope
-	 * @return Dialog\LoginDialog
-	 */
-	public function createLoginDialog($scope = NULL)
-	{
-		$dialog = new Dialog\LoginDialog($this);
-		$dialog->setScope($scope);
-		return $dialog;
-	}
-
-
-
-	/**
-	 * @return Dialog\LogoutDialog
-	 */
-	public function createLogoutDialog()
-	{
-		return new Dialog\LogoutDialog($this);
-	}
-
-
-
-	/**
-	 * @return Dialog\LoginStatusDialog
-	 */
-	public function createLoginStatusDialog()
-	{
-		return new Dialog\LoginStatusDialog($this);
-	}
-
-
-
-	/**
-	 * Make an API call.
-	 *
-	 * @param string|array $pathOrParams
-	 * @param string $method
-	 * @param array $params
-	 *
-	 * @return \Nette\ArrayHash|NULL The decoded response
-	 */
-	public function api($pathOrParams, $method = NULL, array $params = array())
-	{
-		if (is_array($pathOrParams)) {
-			$response = $this->apiClient->restServer($pathOrParams); // params
-
-		} else {
-			$response = $this->apiClient->graph($pathOrParams, $method, $params);
-		}
-
-		return $response ? Nette\ArrayHash::from($response) : $response;
 	}
 
 

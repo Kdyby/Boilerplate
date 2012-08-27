@@ -127,7 +127,7 @@ abstract class AbstractDialog extends PresenterComponent implements Facebook\Dia
 	 *
 	 * @return string
 	 */
-	public function getUrl($display = self::DISPLAY_POPUP, $showError = FALSE)
+	public function getUrl($display = NULL, $showError = FALSE)
 	{
 		$url = clone $this->currentUrl;
 
@@ -141,11 +141,23 @@ abstract class AbstractDialog extends PresenterComponent implements Facebook\Dia
 
 
 	/**
+	 * @throws \Nette\Application\AbortException
+	 */
+	public function open()
+	{
+		$httpResponse = new Nette\Http\Response();
+		$httpResponse->redirect($this->getUrl());
+		throw new Nette\Application\AbortException;
+	}
+
+
+
+	/**
 	 * @param string $display
 	 * @param bool $showError
 	 * @return Html
 	 */
-	public function getControl($display = self::DISPLAY_POPUP, $showError = FALSE)
+	public function getControl($display = NULL, $showError = FALSE)
 	{
 		return Html::el('a')->url($this->getUrl($display, $showError));
 	}
