@@ -566,9 +566,10 @@ class Facebook extends Nette\Object
 	 * Returns the Current URL, stripping it of known FB parameters that should
 	 * not persist.
 	 *
+	 * @internal
 	 * @return \Nette\Http\UrlScript The current URL
 	 */
-	protected function getCurrentUrl()
+	public function getCurrentUrl()
 	{
 		$url = clone $this->httpRequest->url;
 		if ($this->config->trustForwarded && isset($_SERVER['HTTP_X_FORWARDED_HOST'])) {
