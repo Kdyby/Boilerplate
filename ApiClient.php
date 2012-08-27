@@ -1,6 +1,6 @@
 <?php
 
-namespace Facebook;
+namespace Kdyby\Extension\Social\Facebook;
 
 
 
@@ -14,7 +14,7 @@ interface ApiClient
 	 * Invoke the old restserver.php endpoint.
 	 *
 	 * @param array $params Method call object
-	 * @throws \Facebook\FacebookApiException
+	 * @throws \Kdyby\Extension\Social\Facebook\FacebookApiException
 	 * @return mixed The decoded response object
 	 */
 	function restServer(array $params);
@@ -25,7 +25,7 @@ interface ApiClient
 	 * @param string $path The path (required)
 	 * @param string $method The http method (default 'GET')
 	 * @param array $params The query/post data
-	 * @throws \Facebook\FacebookApiException
+	 * @throws \Kdyby\Extension\Social\Facebook\FacebookApiException
 	 * @return mixed The decoded response object
 	 */
 	function graph($path, $method = 'GET', array $params = array());
@@ -37,7 +37,7 @@ interface ApiClient
 	 * @param array $params The query/post data
 	 *
 	 * @return string The decoded response object
-	 * @throws \Facebook\FacebookApiException
+	 * @throws \Kdyby\Extension\Social\Facebook\FacebookApiException
 	 */
 	function oauth($url, array $params);
 

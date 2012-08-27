@@ -1,19 +1,19 @@
 <?php
 
-namespace Facebook\Api;
+namespace Kdyby\Extension\Social\Facebook\Api;
 
 use Nette;
 use Nette\Diagnostics\Debugger;
 use Nette\Http\UrlScript;
 use Nette\Utils\Json;
-use Facebook;
+use Kdyby\Extension\Social\Facebook;
 
 
 
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  */
-class CurlClient extends Nette\Object implements \Facebook\ApiClient
+class CurlClient extends Nette\Object implements Facebook\ApiClient
 {
 
 	/**

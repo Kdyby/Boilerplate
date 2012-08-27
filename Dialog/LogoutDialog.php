@@ -1,9 +1,9 @@
 <?php
 
-namespace Facebook\Dialog;
+namespace Kdyby\Extension\Social\Facebook\Dialog;
 
 use Nette;
-use Facebook;
+use Kdyby\Extension\Social\Facebook;
 
 
 

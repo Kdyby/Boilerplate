@@ -1,8 +1,8 @@
 <?php
 
-namespace Facebook\Diagnostics;
+namespace Kdyby\Extension\Social\Facebook\Diagnostics;
 
-use Facebook;
+use Kdyby\Extension\Social\Facebook;
 use Nette;
 use Nette\Diagnostics\Debugger;
 use Nette\Utils\Html;

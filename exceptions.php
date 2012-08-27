@@ -1,6 +1,6 @@
 <?php
 
-namespace Facebook;
+namespace Kdyby\Extension\Social\Facebook;
 
 
 /**

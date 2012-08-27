@@ -1,11 +1,11 @@
 <?php
 
-namespace Facebook\Dialog;
+namespace Kdyby\Extension\Social\Facebook\Dialog;
 
 use Nette;
 use Nette\Application\UI\PresenterComponent;
 use Nette\Http\UrlScript;
-use Facebook;
+use Kdyby\Extension\Social\Facebook;
 
 
 

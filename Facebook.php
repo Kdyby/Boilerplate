@@ -1,6 +1,6 @@
 <?php
 
-namespace Facebook;
+namespace Kdyby\Extension\Social\Facebook;
 
 use Nette;
 use Nette\Diagnostics\Debugger;
@@ -15,7 +15,7 @@ use Nette\Utils\Strings;
  * implement the four abstract methods listed at the bottom of
  * the file.
  *
- * @property \Facebook\Configuration $config
+ * @property \Kdyby\Extension\Social\Facebook\Configuration $config
  *
  * @author Naitik Shah <naitik@facebook.com>
  */

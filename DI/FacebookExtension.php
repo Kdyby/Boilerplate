@@ -1,6 +1,6 @@
 <?php
 
-namespace Facebook\DI;
+namespace Kdyby\Extension\Social\Facebook\DI;
 
 use Nette;
 use Nette\Utils\Validators;
@@ -36,7 +36,7 @@ class FacebookExtension extends Nette\Config\CompilerExtension
 		Validators::assert($config['domains'], 'array', "api domains");
 
 		$configurator = $builder->addDefinition($this->prefix('config'))
-			->setClass('Facebook\Configuration')
+			->setClass('Kdyby\Extension\Social\Facebook\Configuration')
 			->setArguments(array($config['appId'], $config['appSecret']))
 			->setInternal(TRUE);
 
@@ -45,23 +45,23 @@ class FacebookExtension extends Nette\Config\CompilerExtension
 		}
 
 		$builder->addDefinition($this->prefix('session'))
-			->setClass('Facebook\SessionStorage')
+			->setClass('Kdyby\Extension\Social\Facebook\SessionStorage')
 			->setInternal(TRUE);
 
 		$apiClient = $builder->addDefinition($this->prefix('apiClient'))
-			->setFactory('Facebook\Api\CurlClient')
-			->setClass('Facebook\ApiClient')
+			->setFactory('Kdyby\Extension\Social\Facebook\Api\CurlClient')
+			->setClass('Kdyby\Extension\Social\Facebook\ApiClient')
 			->setInternal(TRUE);
 
 		if ($builder->parameters['debugMode']) {
 			$builder->addDefinition($this->prefix('panel'))
-				->setClass('Facebook\Diagnostics\Panel')
+				->setClass('Kdyby\Extension\Social\Facebook\Diagnostics\Panel')
 				->addSetup('register');
 			$apiClient->addSetup('injectPanel', array($this->prefix('@panel')));
 		}
 
 		$builder->addDefinition($this->prefix('client'))
-			->setClass('Facebook\Facebook')
+			->setClass('Kdyby\Extension\Social\Facebook\Facebook')
 			->addSetup('?->injectFacebook(?)', array($this->prefix('@apiClient'), '@self'));
 	}
 
