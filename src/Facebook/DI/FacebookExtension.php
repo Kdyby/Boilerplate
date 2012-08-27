@@ -48,10 +48,17 @@ class FacebookExtension extends Nette\Config\CompilerExtension
 			->setClass('Facebook\SessionStorage')
 			->setInternal(TRUE);
 
-		$builder->addDefinition($this->prefix('apiClient'))
+		$apiClient = $builder->addDefinition($this->prefix('apiClient'))
 			->setFactory('Facebook\Api\CurlClient')
 			->setClass('Facebook\ApiClient')
 			->setInternal(TRUE);
+
+		if ($builder->parameters['debugMode']) {
+			$builder->addDefinition($this->prefix('panel'))
+				->setClass('Facebook\Diagnostics\Panel')
+				->addSetup('register');
+			$apiClient->addSetup('injectPanel', array($this->prefix('@panel')));
+		}
 
 		$builder->addDefinition($this->prefix('client'))
 			->setClass('Facebook\Facebook')

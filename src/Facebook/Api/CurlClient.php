@@ -33,6 +33,11 @@ class CurlClient extends Nette\Object implements \Facebook\ApiClient
 	 */
 	private $fb;
 
+	/**
+	 * @var \Facebook\Diagnostics\Panel
+	 */
+	private $panel;
+
 
 
 	/**
@@ -41,6 +46,16 @@ class CurlClient extends Nette\Object implements \Facebook\ApiClient
 	public function injectFacebook(Facebook\Facebook $facebook)
 	{
 		$this->fb = $facebook;
+	}
+
+
+
+	/**
+	 * @param \Facebook\Diagnostics\Panel $panel
+	 */
+	public function injectPanel(Facebook\Diagnostics\Panel $panel = NULL)
+	{
+		$this->panel = $panel;
 	}
 
 
@@ -116,6 +131,7 @@ class CurlClient extends Nette\Object implements \Facebook\ApiClient
 			return !is_string($value) ? Json::encode($value) : $value;
 		}, $params);
 
+		if ($this->panel) $this->panel->begin($url, $params);
 		return $this->makeRequest($url, $params);
 	}
 
@@ -201,11 +217,13 @@ class CurlClient extends Nette\Object implements \Facebook\ApiClient
 				'error_code' => curl_errno($ch),
 				'error' => array('message' => curl_error($ch), 'type' => 'CurlException')
 			));
+			if ($this->panel) $this->panel->failure($e, curl_getinfo($ch));
 			curl_close($ch);
 			throw $e;
 		}
-		curl_close($ch);
 
+		if ($this->panel) $this->panel->success($result, curl_getinfo($ch));
+		curl_close($ch);
 		return $result;
 	}
 
