@@ -30,7 +30,7 @@
             "Kdyby\\Extension\\Social\\Facebook":""
         },
         "classmap":[
-            "exceptions.php"
+            "Kdyby/Extension/Social/Facebook/exceptions.php"
         ]
     },
     "target-dir":"Kdyby/Extension/Social/Facebook"
