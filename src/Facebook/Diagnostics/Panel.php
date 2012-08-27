@@ -100,7 +100,8 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel
 			$result = Nette\Utils\Json::decode($result);
 
 		} catch (Nette\Utils\JsonException $e) {
-
+			@parse_str($result, $params);
+			$result = !empty($params) ? $params : $result;
 		}
 
 		$this->current->result = $result;
