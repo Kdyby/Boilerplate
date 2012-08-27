@@ -65,17 +65,12 @@ class Facebook extends Nette\Object
 	protected $signedRequest;
 
 	/**
-	 * A CSRF state variable to assist in the defense against CSRF attacks.
-	 */
-	protected $state;
-
-	/**
 	 * The OAuth access token received in exchange for a valid authorization
 	 * code.  null means the access token has yet to be determined.
 	 *
 	 * @var string
 	 */
-	protected $accessToken = null;
+	protected $accessToken;
 
 
 
@@ -364,9 +359,9 @@ class Facebook extends Nette\Object
 		}
 
 		$params = array_merge(array(
+			'state' => $this->session->state,
 			'client_id' => $this->config->appId,
 			'redirect_uri' => $currentUrl, // possibly overwritten
-			'state' => $this->session->state
 		), $params);
 
 		return $this->config->createUrl(
@@ -463,7 +458,7 @@ class Facebook extends Nette\Object
 	{
 		$state = $this->getRequest('state');
 		if (($code = $this->getRequest('code')) && $state && $this->session->state === $state) {
-			$this->session->state = NULL;
+			$this->session->state = NULL; // CSRF state has done its job, so clear it
 			return $code;
 		}
 
