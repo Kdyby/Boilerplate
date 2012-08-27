@@ -81,6 +81,15 @@ class Facebook extends Nette\Object
 	 */
 	private $accessToken;
 
+	/**
+	 * @var array
+	 */
+	public static $dialogs = array(
+		'login' => 'Kdyby\Extension\Social\Facebook\Dialog\LoginDialog',
+		'loginStatus' => 'Kdyby\Extension\Social\Facebook\Dialog\LoginStatusDialog',
+		'logout' => 'Kdyby\Extension\Social\Facebook\Dialog\LogoutDialog',
+	);
+
 
 
 	/**
@@ -180,34 +189,28 @@ class Facebook extends Nette\Object
 
 
 	/**
-	 * @param null $scope
-	 * @return Dialog\LoginDialog
+	 * @return FacebookControl
 	 */
-	public function createLoginDialog($scope = NULL)
+	public function createControl()
 	{
-		$dialog = new Dialog\LoginDialog($this);
-		$dialog->setScope($scope);
-		return $dialog;
+		return new FacebookControl($this);
 	}
 
 
 
 	/**
-	 * @return Dialog\LogoutDialog
+	 * @param string $name
+	 * @return Dialog
+	 * @throws InvalidArgumentException
 	 */
-	public function createLogoutDialog()
+	public function createDialog($name)
 	{
-		return new Dialog\LogoutDialog($this);
-	}
+		if (!isset(self::$dialogs[$name])) {
+			throw new InvalidArgumentException("Unknown dialog $name.");
+		}
 
-
-
-	/**
-	 * @return Dialog\LoginStatusDialog
-	 */
-	public function createLoginStatusDialog()
-	{
-		return new Dialog\LoginStatusDialog($this);
+		$class = self::$dialogs[$name];
+		return new $class($this);
 	}
 
 
