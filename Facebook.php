@@ -212,8 +212,7 @@ class Facebook extends Nette\Object
 	 * return a valid user access token, or false if one is determined
 	 * to not be available.
 	 *
-	 * @return string A valid user access token, or false if one
-	 *                could not be determined.
+	 * @return string A valid user access token, or false if one could not be determined.
 	 */
 	protected function getUserAccessToken()
 	{
@@ -345,62 +344,24 @@ class Facebook extends Nette\Object
 
 
 	/**
-	 * Get a Login URL for use with redirects. By default, full page redirect is
-	 * assumed. If you are using the generated URL with a window.open() call in
-	 * JavaScript, you can pass in display=popup as part of the $params.
-	 *
-	 * The parameters:
-	 * - redirect_uri: the url to go to after a successful login
-	 * - scope: comma separated list of requested extended perms
-	 *
-	 * @param array $params Provide custom parameters
-	 * @return string The URL for the login flow
+	 * @param null $scope
+	 * @return Dialog\LoginDialog
 	 */
-	public function getLoginUrl($params = array())
+	public function createLoginDialog($scope = NULL)
 	{
-		$this->session->establishCSRFTokenState();
-		$currentUrl = $this->getCurrentUrl();
-
-		// if 'scope' is passed as an array, convert to comma separated list
-		$scopeParams = isset($params['scope']) ? $params['scope'] : null;
-		if ($scopeParams && is_array($scopeParams)) {
-			$params['scope'] = implode(',', $scopeParams);
-		}
-
-		$params = array_merge(array(
-			'state' => $this->session->state,
-			'client_id' => $this->config->appId,
-			'redirect_uri' => $currentUrl, // possibly overwritten
-		), $params);
-
-		return $this->config->createUrl(
-			'www',
-			'dialog/oauth',
-			$params
-		);
+		$dialog = new Dialog\LoginDialog($this);
+		$dialog->setScope($scope);
+		return $dialog;
 	}
 
 
 
 	/**
-	 * Get a Logout URL suitable for use with redirects.
-	 *
-	 * The parameters:
-	 * - next: the url to go to after a successful logout
-	 *
-	 * @param array $params Provide custom parameters
-	 * @return string The URL for the logout flow
+	 * @return Dialog\LogoutDialog
 	 */
-	public function getLogoutUrl($params = array())
+	public function createLogoutDialog()
 	{
-		return $this->config->createUrl(
-			'www',
-			'logout.php',
-			array_merge(array(
-				'next' => $this->getCurrentUrl(),
-				'access_token' => $this->getUserAccessToken(),
-			), $params)
-		);
+		return new Dialog\LogoutDialog($this);
 	}
 
 

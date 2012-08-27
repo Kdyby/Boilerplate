@@ -80,6 +80,8 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel
 			'params' => $params,
 			'result' => NULL,
 			'exception' => NULL,
+			'info' => array(),
+			'time' => 0,
 		);
 	}
 

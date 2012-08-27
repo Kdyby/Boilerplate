@@ -2,10 +2,11 @@
 
 namespace Kdyby\Extension\Social\Facebook\Dialog;
 
+use Kdyby\Extension\Social\Facebook;
 use Nette;
 use Nette\Application\UI\PresenterComponent;
 use Nette\Http\UrlScript;
-use Kdyby\Extension\Social\Facebook;
+use Nette\Utils\Html;
 
 
 
@@ -31,17 +32,17 @@ abstract class AbstractDialog extends PresenterComponent implements Facebook\Dia
 	 * Display mode in which to render the Dialog.
 	 * @var string
 	 */
-	protected $display = self::DISPLAY_POPUP;
+	protected $display;
 
 	/**
 	 * @var bool
 	 */
-	protected $showError = FALSE;
+	protected $showError;
 
 	/**
 	 * @var UrlScript
 	 */
-	private $currentUrl;
+	protected $currentUrl;
 
 
 
@@ -70,7 +71,7 @@ abstract class AbstractDialog extends PresenterComponent implements Facebook\Dia
 			return;
 		}
 
-		$this->currentUrl = new UrlScript($this->link('response!'));
+		$this->currentUrl = new UrlScript($this->link('//response!'));
 	}
 
 
@@ -138,14 +139,27 @@ abstract class AbstractDialog extends PresenterComponent implements Facebook\Dia
 
 
 	/**
+	 * @param string $display
+	 * @param bool $showError
+	 * @return Html
+	 */
+	public function getControl($display = self::DISPLAY_POPUP, $showError = FALSE)
+	{
+		return Html::el('a')->url($this->getUrl($display, $showError));
+	}
+
+
+
+	/**
 	 * @param string $title
 	 * @param string $display
 	 * @param bool $showError
 	 */
 	public function render($title = "click me!", $display = self::DISPLAY_POPUP, $showError = FALSE)
 	{
-		$url = $this->getUrl($display, $showError);
-		echo Nette\Utils\Html::el('a')->target('_blank')->url($url)->setText($title);
+		echo $this->getControl($display, $showError)
+			->setText($title)
+			->target('_blank');
 	}
 
 }
