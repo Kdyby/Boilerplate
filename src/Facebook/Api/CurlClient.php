@@ -38,6 +38,11 @@ class CurlClient extends Nette\Object implements \Facebook\ApiClient
 	 */
 	private $panel;
 
+	/**
+	 * @var array
+	 */
+	private $cache = array();
+
 
 
 	/**
@@ -173,6 +178,10 @@ class CurlClient extends Nette\Object implements \Facebook\ApiClient
 	 */
 	protected function makeRequest($url, array $params, $ch = null)
 	{
+		if (isset($this->cache[$cacheKey = md5(serialize(array($url, $params)))])) {
+			return $this->cache[$cacheKey];
+		}
+
 		$ch = $ch ?: curl_init();
 
 		$opts = $this->curlOptions;
@@ -224,7 +233,7 @@ class CurlClient extends Nette\Object implements \Facebook\ApiClient
 
 		if ($this->panel) $this->panel->success($result, curl_getinfo($ch));
 		curl_close($ch);
-		return $result;
+		return $this->cache[$cacheKey] = $result;
 	}
 
 
