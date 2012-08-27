@@ -52,6 +52,20 @@ class Profile extends Nette\Object
 
 
 	/**
+	 * @return string
+	 */
+	public function getId()
+	{
+		if ($this->profileId === 'me') {
+			return $this->facebook->getUser();
+		}
+
+		return $this->profileId;
+	}
+
+
+
+	/**
 	 * @param string $key
 	 * @return \Nette\ArrayHash|NULL
 	 */

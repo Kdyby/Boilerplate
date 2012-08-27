@@ -25,6 +25,7 @@ use Nette\Utils\Strings;
  *
  * @property \Kdyby\Extension\Social\Facebook\Configuration $config
  * @property \Kdyby\Extension\Social\Facebook\SessionStorage $session
+ * @property \Kdyby\Extension\Social\Facebook\Profile $profile
  *
  * @author Naitik Shah <naitik@facebook.com>
  */
@@ -126,11 +127,15 @@ class Facebook extends Nette\Object
 
 	/**
 	 * @param string $id
-	 * @return Profile
+	 * @return Profile|NULL
 	 */
-	public function getProfile($id = 'me')
+	public function getProfile($id = NULL)
 	{
-		return new Profile($this, $id);
+		if ($id === NULL && !$this->getUser()) {
+			return NULL;
+		}
+
+		return new Profile($this, $id ?: 'me');
 	}
 
 
