@@ -190,7 +190,8 @@ class SessionStorage extends Nette\Object
 	 */
 	public function &__get($name)
 	{
-		return $this->get($name);
+		$value = $this->get($name);
+		return $value;
 	}
 
 

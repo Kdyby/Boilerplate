@@ -50,6 +50,7 @@ class Configuration extends Nette\Object
 		'api' => 'https://api.facebook.com/',
 		'api_video' => 'https://api-video.facebook.com/',
 		'api_read' => 'https://api-read.facebook.com/',
+		'dialog' => 'https://www.facebook.com/dialog/',
 		'graph' => 'https://graph.facebook.com/',
 		'graph_video' => 'https://graph-video.facebook.com/',
 		'www' => 'https://www.facebook.com/',
@@ -206,7 +207,7 @@ class Configuration extends Nette\Object
 	public function createUrl($name, $path = NULL, $params = array())
 	{
 		$url = new UrlScript($this->domains[$name]);
-		$url->setPath(ltrim($path, '/'));
+		$url->setPath('/' . ltrim($path, '/'));
 		$url->appendQuery(array_map(function ($param) {
 			return $param instanceof UrlScript ? (string)$param : $param;
 		}, $params));

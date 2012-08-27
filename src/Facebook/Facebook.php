@@ -89,26 +89,14 @@ class Facebook extends Nette\Object
 	 * @param ApiClient $client
 	 */
 	public function __construct(
-		Configuration $config,
-		SessionStorage $session = NULL,
-		Nette\Http\Request $httpRequest = NULL,
-		Nette\Http\Response $httpResponse = NULL,
-		ApiClient $client = NULL)
+		Configuration $config, SessionStorage $session, ApiClient $client,
+		Nette\Http\Request $httpRequest, Nette\Http\Response $httpResponse)
 	{
 		$this->config = $config;
-		if (!$this->httpResponse = $httpResponse) {
-			$this->httpResponse = new Nette\Http\Response();
-		}
-		if (!$this->httpRequest = $httpRequest) {
-			$factory = new Nette\Http\RequestFactory();
-			$this->httpRequest = $factory->setEncoding('utf-8')->createHttpRequest();
-		}
-		if (!$this->session = $session) {
-			$this->session = new Nette\Http\Session($this->httpRequest, $this->httpResponse);
-		}
-		if (!$this->apiClient = $client) {
-			$this->apiClient = new Api\CurlClient($this);
-		}
+		$this->httpResponse = $httpResponse;
+		$this->httpRequest = $httpRequest;
+		$this->session = $session;
+		$this->apiClient = $client;
 	}
 
 
@@ -445,12 +433,12 @@ class Facebook extends Nette\Object
 	 * Make an API call.
 	 *
 	 * @param string|array $pathOrParams
-	 * @param array $params
 	 * @param string $method
+	 * @param array $params
 	 *
 	 * @return \Nette\ArrayHash|NULL The decoded response
 	 */
-	public function api($pathOrParams, array $params = array(), $method = NULL)
+	public function api($pathOrParams, $method = NULL, array $params = array())
 	{
 		if (is_array($pathOrParams)) {
 			$response = $this->apiClient->restServer($pathOrParams); // params

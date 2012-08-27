@@ -38,7 +38,7 @@ class CurlClient extends Nette\Object implements \Facebook\ApiClient
 	/**
 	 * @param \Facebook\Facebook $facebook
 	 */
-	public function __construct(Facebook\Facebook $facebook)
+	public function injectFacebook(Facebook\Facebook $facebook)
 	{
 		$this->fb = $facebook;
 	}
@@ -86,8 +86,8 @@ class CurlClient extends Nette\Object implements \Facebook\ApiClient
 			$method = NULL;
 		}
 		$params['method'] = $method ?: 'GET'; // method override as we always do a POST
-
 		$domainKey = Facebook\Helpers::isVideoPost($path, $method) ? 'graph_video' : 'graph';
+
 		return $this->callOauth($this->fb->config->createUrl($domainKey, $path), $params);
 	}
 
@@ -160,7 +160,8 @@ class CurlClient extends Nette\Object implements \Facebook\ApiClient
 		$ch = $ch ?: curl_init();
 
 		$opts = $this->curlOptions;
-		$opts[CURLOPT_POSTFIELDS] = $this->fb->config->fileUploadSupport ? $params : http_build_query($params, null, '&');
+		$opts[CURLOPT_POSTFIELDS] = $this->fb->config->fileUploadSupport
+			? $params : http_build_query($params, null, '&');
 		$opts[CURLOPT_URL] = (string)$url;
 
 		// disable the 'Expect: 100-continue' behaviour. This causes CURL to wait
@@ -185,8 +186,7 @@ class CurlClient extends Nette\Object implements \Facebook\ApiClient
 		// operating system.
 		if ($result === false && empty($opts[CURLOPT_IPRESOLVE])) {
 			$matches = array();
-			$regex = '/Failed to connect to ([^:].*): Network is unreachable/';
-			if (preg_match($regex, curl_error($ch), $matches)) {
+			if (preg_match('/Failed to connect to ([^:].*): Network is unreachable/', curl_error($ch), $matches)) {
 				if (strlen(@inet_pton($matches[1])) === 16) {
 					Debugger::log('Invalid IPv6 configuration on server, Please disable or get native IPv6 on your server.', 'facebook');
 					$this->curlOptions[CURLOPT_IPRESOLVE] = CURL_IPRESOLVE_V4;
