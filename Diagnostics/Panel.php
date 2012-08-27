@@ -65,6 +65,10 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel
 	 */
 	public function getPanel()
 	{
+		if (!$this->calls) {
+			return;
+		}
+
 		ob_start();
 		$esc = callback('Nette\Templating\Helpers::escapeHtml');
 		$click = callback('Nette\Diagnostics\Helpers::clickableDump');
