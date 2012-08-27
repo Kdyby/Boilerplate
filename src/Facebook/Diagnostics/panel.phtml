@@ -19,7 +19,7 @@
             <td><?php echo $click($call->params, TRUE); ?></td>
             <td><?php echo $click($call->result ?: $call->exception, TRUE); ?></td>
             <td><?php echo $click($call->info, TRUE); ?></td>
-            <td><?php echo $esc(sprintf('%0.3f', $call->time * 1000)) ?></td>
+            <td><?php echo $esc(number_format($call->time * 1000, 2, '.', ' ')) ?></td>
         </tr>
         <?php endforeach; ?>
 	</table>
