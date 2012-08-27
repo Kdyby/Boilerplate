@@ -1,5 +1,5 @@
 {
-    "name": "kdyby/facebook-sdk",
+    "name": "kdyby/facebook-sdk-extension",
     "description": "Facebook PHP SDK for Nette Framework",
     "keywords": ["nette", "facebook", "sdk"],
     "type": "library",
