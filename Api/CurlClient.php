@@ -11,6 +11,7 @@
 namespace Kdyby\Extension\Social\Facebook\Api;
 
 use Nette;
+use Nette\Utils\Strings;
 use Nette\Diagnostics\Debugger;
 use Nette\Http\UrlScript;
 use Nette\Utils\Json;
@@ -33,7 +34,8 @@ class CurlClient extends Nette\Object implements Facebook\ApiClient
 		CURLOPT_RETURNTRANSFER => true,
 		CURLOPT_TIMEOUT => 20,
 		CURLOPT_USERAGENT => 'facebook-php-3.2',
-		CURLOPT_HTTPHEADER => array()
+		CURLOPT_HTTPHEADER => array(),
+		CURLINFO_HEADER_OUT => true
 	);
 
 	/**
@@ -230,6 +232,10 @@ class CurlClient extends Nette\Object implements Facebook\ApiClient
 		}
 
 		$info = curl_getinfo($ch);
+		if (isset($info['request_header']) && $this->panel) {
+			$info['request_header'] = Strings::split(trim($info['request_header']), '~[\r\n]+~');
+		}
+
 		if ($result === false) {
 			$e = new Facebook\FacebookApiException(array(
 				'error_code' => curl_errno($ch),
