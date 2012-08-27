@@ -10,7 +10,7 @@ use Nette\Diagnostics\Debugger;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
- * @property string $state
+ * @property string $state A CSRF state variable to assist in the defense against CSRF attacks.
  * @property string $code
  * @property string $access_token
  * @property string $user
@@ -117,9 +117,8 @@ class SessionStorage extends Nette\Object
 	 */
 	public function establishCSRFTokenState()
 	{
-		if ($this->state === NULL) {
+		if (!$this->state) {
 			$this->state = md5(uniqid(mt_rand(), TRUE));
-			$this->set('state', $this->state);
 		}
 	}
 
