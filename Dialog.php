@@ -32,4 +32,9 @@ interface Dialog
 	 */
 	function getUrl($display = self::DISPLAY_POPUP, $showError = FALSE);
 
+	/**
+	 * @return Facebook
+	 */
+	function getFacebook();
+
 }

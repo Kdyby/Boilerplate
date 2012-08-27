@@ -13,20 +13,26 @@ use Nette\Utils\Html;
 /**
  * @author Filip Procházka <filip.prochazka@kdyby.org>
  *
- * @method onResponse(AbstractDialog $dialog, $response)
+ * @property Facebook\Facebook $facebook
+ * @method onResponse(AbstractDialog $dialog)
  */
 abstract class AbstractDialog extends PresenterComponent implements Facebook\Dialog
 {
 
 	/**
-	 * @var array of function(AbstractDialog $dialog, $response)
+	 * @var array of function(AbstractDialog $dialog)
 	 */
 	public $onResponse = array();
 
 	/**
-	 * @var \Facebook\Facebook
+	 * @var Facebook\Facebook
 	 */
 	protected $facebook;
+
+	/**
+	 * @var Facebook\Configuration
+	 */
+	protected $config;
 
 	/**
 	 * Display mode in which to render the Dialog.
@@ -47,15 +53,26 @@ abstract class AbstractDialog extends PresenterComponent implements Facebook\Dia
 
 
 	/**
-	 * @param \Facebook\Facebook $facebook
+	 * @param Facebook\Facebook $facebook
 	 */
 	public function __construct(Facebook\Facebook $facebook)
 	{
 		$this->facebook = $facebook;
+		$this->config = $facebook->config;
 		$this->currentUrl = $facebook->getCurrentUrl();
 
 		$this->monitor('Nette\Application\IPresenter');
 		parent::__construct();
+	}
+
+
+
+	/**
+	 * @return Facebook\Facebook
+	 */
+	public function getFacebook()
+	{
+		return $this->facebook;
 	}
 
 
@@ -67,34 +84,19 @@ abstract class AbstractDialog extends PresenterComponent implements Facebook\Dia
 	{
 		parent::attached($obj);
 
-		if (!$obj instanceof Nette\Application\IPresenter) {
-			return;
+		if ($obj instanceof Nette\Application\IPresenter) {
+			$this->currentUrl = new UrlScript($this->link('//response!'));
 		}
-
-		$this->currentUrl = new UrlScript($this->link('//response!'));
 	}
 
 
 
 	/**
-	 * @return bool
-	 */
-	public function getResponse()
-	{
-		return TRUE;
-	}
-
-
-
-	/**
-	 *
 	 */
 	public function handleResponse()
 	{
-		if ($this->onResponse) {
-			$this->onResponse($this, $this->getResponse());
-		}
-		// $this->presenter->redirect('this');
+		$this->onResponse($this);
+		$this->presenter->redirect('this');
 	}
 
 

@@ -367,29 +367,11 @@ class Facebook extends Nette\Object
 
 
 	/**
-	 * Get a login status URL to fetch the status from Facebook.
-	 *
-	 * The parameters:
-	 * - ok_session: the URL to go to if a session is found
-	 * - no_session: the URL to go to if the user is not connected
-	 * - no_user: the URL to go to if the user is not signed into facebook
-	 *
-	 * @param array $params Provide custom parameters
-	 * @return string The URL for the logout flow
+	 * @return Dialog\LoginStatusDialog
 	 */
-	public function getLoginStatusUrl($params = array())
+	public function createLoginStatusDialog()
 	{
-		return $this->config->createUrl(
-			'www',
-			'extern/login_status.php',
-			array_merge(array(
-				'api_key' => $this->config->appId,
-				'no_session' => $this->getCurrentUrl(),
-				'no_user' => $this->getCurrentUrl(),
-				'ok_session' => $this->getCurrentUrl(),
-				'session_version' => 3,
-			), $params)
-		);
+		return new Dialog\LoginStatusDialog($this);
 	}
 
 

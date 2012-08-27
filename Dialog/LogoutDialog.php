@@ -14,6 +14,16 @@ class LogoutDialog extends Facebook\Dialog\AbstractDialog
 {
 
 	/**
+	 */
+	public function handleResponse()
+	{
+		$this->facebook->session->clearAll();
+		parent::handleResponse();
+	}
+
+
+
+	/**
 	 * @return array
 	 */
 	public function getQueryParams()
