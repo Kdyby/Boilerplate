@@ -55,6 +55,9 @@ class LoginDialog extends Facebook\Dialog\AbstractDialog
 		// scope of rights
 		if ($this->scope) {
 			$params['scope'] = $this->scope;
+
+		} elseif ($scope = $this->facebook->config->permissions) {
+			$params['scope'] = implode(',', (array)$scope);
 		}
 
 		return $params;

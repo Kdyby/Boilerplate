@@ -30,7 +30,10 @@ class FacebookExtension extends Nette\Config\CompilerExtension
 		'fileUploadSupport' => FALSE,
 		'trustForwarded' => FALSE,
 		'domains' => array(),
+		'permissions' => array(),
 	);
+
+
 
 	public function loadConfiguration()
 	{
@@ -42,10 +45,14 @@ class FacebookExtension extends Nette\Config\CompilerExtension
 		Validators::assert($config['fileUploadSupport'], 'bool', "file upload support");
 		Validators::assert($config['trustForwarded'], 'bool', "trust forwarded");
 		Validators::assert($config['domains'], 'array', "api domains");
+		Validators::assert($config['permissions'], 'list', "permissions scope");
 
 		$configurator = $builder->addDefinition($this->prefix('config'))
 			->setClass('Kdyby\Extension\Social\Facebook\Configuration')
 			->setArguments(array($config['appId'], $config['appSecret']))
+			->addSetup('$fileUploadSupport', array($config['fileUploadSupport']))
+			->addSetup('$trustForwarded', array($config['trustForwarded']))
+			->addSetup('$permissions', array($config['permissions']))
 			->setInternal(TRUE);
 
 		if ($config['domains']) {

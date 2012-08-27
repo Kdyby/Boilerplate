@@ -125,6 +125,12 @@ class Configuration extends Nette\Object
 	public $trustForwarded = FALSE;
 
 	/**
+	 * The default scope for login dialog.
+	 * @var array
+	 */
+	public $permissions;
+
+	/**
 	 * Maps aliases to Facebook domains.
 	 * @var array
 	 */
