@@ -27,6 +27,14 @@ class LoginDialog extends Facebook\Dialog\AbstractDialog
 
 
 
+	public function handleResponse()
+	{
+		$this->facebook->getUser(); // invoke reading of token
+		parent::handleResponse();
+	}
+
+
+
 	/**
 	 * @param string|array $scope
 	 */
