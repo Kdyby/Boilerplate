@@ -146,4 +146,15 @@ class FacebookControl extends Nette\Application\UI\PresenterComponent
 		return $dialog;
 	}
 
+
+
+	/**
+	 * @param Profile $profile
+	 * @return string
+	 */
+	public function profilePicture(Profile $profile)
+	{
+		return $this->link('profilePicture!', array('id' => $profile->id));
+	}
+
 }
