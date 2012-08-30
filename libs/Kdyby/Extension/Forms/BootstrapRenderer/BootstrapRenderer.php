@@ -63,7 +63,6 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 			$template->registerFilter(new Nette\Latte\Engine());
 		}
 
-		$template->setFile(__DIR__ . '/@form.latte');
 		$this->template = $template;
 	}
 
@@ -98,6 +97,7 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 			}
 		}
 
+		$this->template->setFile(__DIR__ . '/@form.latte');
 		$this->template->form = $this->form;
 		$this->template->_form = $this->form;
 		$this->template->renderer = $this;
@@ -115,7 +115,6 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 			$this->template->setFile(__DIR__ . '/@parts.latte');
 			$this->template->mode = $mode;
 			$this->template->render();
-			$this->template->setFile(__DIR__ . '/@form.latte');
 		}
 	}
 
