@@ -35,7 +35,7 @@ class Replicator extends Container
 	/** @var string */
 	public $containerClass = 'Nette\Forms\Container';
 
-	/** @var callback */
+	/** @var callable */
 	protected $factoryCallback;
 
 	/** @var boolean */
@@ -67,8 +67,9 @@ class Replicator extends Container
 		try {
 			$this->factoryCallback = callback($factory);
 		} catch (Nette\InvalidArgumentException $e) {
+			$type = is_object($factory) ? 'instanceof ' . get_class($factory) : gettype($factory);
 			throw new Kdyby\InvalidArgumentException(
-				'Replicator requires callable factory, ' . Kdyby\Tools\Mixed::getType($factory) . ' given.', 0, $e
+				'Replicator requires callable factory, ' . $type . ' given.', 0, $e
 			);
 		}
 
@@ -79,7 +80,7 @@ class Replicator extends Container
 
 
 	/**
-	 * @param callback $factory
+	 * @param callable $factory
 	 */
 	public function setFactory($factory)
 	{
@@ -219,6 +220,7 @@ class Replicator extends Container
 	 *
 	 * @param string|int $name
 	 *
+	 * @throws \Nette\InvalidArgumentException
 	 * @return \Nette\Forms\Container
 	 */
 	public function createOne($name = NULL)
@@ -230,7 +232,7 @@ class Replicator extends Container
 
 		// Container is overriden, therefore every request for getComponent($name, FALSE) would return container
 		if (isset($this->created[$name])) {
-			throw new Kdyby\InvalidArgumentException("Container with name '$name' already exists.");
+			throw new Nette\InvalidArgumentException("Container with name '$name' already exists.");
 		}
 
 		return $this[$name];
@@ -334,12 +336,13 @@ class Replicator extends Container
 	 * @param \Nette\Forms\Container $container
 	 * @param boolean $cleanUpGroups
 	 *
-	 * @throws \Kdyby\InvalidArgumentException
+	 * @throws \Nette\InvalidArgumentException
+	 * @return void
 	 */
 	public function remove(Container $container, $cleanUpGroups = FALSE)
 	{
 		if (!$container->parent === $this) {
-			throw new Kdyby\InvalidArgumentException('Given component ' . $container->name . ' is not children of ' . $this->name . '.');
+			throw new Nette\InvalidArgumentException('Given component ' . $container->name . ' is not children of ' . $this->name . '.');
 		}
 
 		// to check if form was submitted by this one
