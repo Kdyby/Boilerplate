@@ -97,6 +97,9 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 		@mkdir($tempDir, 0777);
 		$config->setTempDirectory($tempDir);
 
+		// configuration
+		$testsConfig = $this->getContext()->expand('%appDir%/config.neon');
+		$config->addConfig($testsConfig, $config::NONE);
 		if ($neonFile !== NULL) {
 			$config->addConfig($neonFile, $config::NONE);
 		}

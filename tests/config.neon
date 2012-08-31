@@ -1,10 +1,15 @@
 php:
-    date.timezone: Europe/Prague
+	date.timezone: Europe/Prague
+
+
+nette:
+	security:
+		frames: null
 
 
 services:
-    cacheStorage:
-        class: Nette\Caching\Storages\MemoryStorage
+	cacheStorage:
+		class: Nette\Caching\Storages\MemoryStorage
 
-    session:
-        class: Kdyby\Tests\Http\FakeSession
+	session:
+		class: Kdyby\Tests\Http\FakeSession
