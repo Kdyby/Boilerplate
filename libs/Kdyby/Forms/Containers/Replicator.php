@@ -68,7 +68,7 @@ class Replicator extends Container
 			$this->factoryCallback = callback($factory);
 		} catch (Nette\InvalidArgumentException $e) {
 			$type = is_object($factory) ? 'instanceof ' . get_class($factory) : gettype($factory);
-			throw new Kdyby\InvalidArgumentException(
+			throw new Nette\InvalidArgumentException(
 				'Replicator requires callable factory, ' . $type . ' given.', 0, $e
 			);
 		}
