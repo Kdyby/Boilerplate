@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head><link href="bootstrap.min.css" rel="stylesheet" /></head>
+<body>
+
+{**
+ * This one should render all the controls from group "Other",
+ * and therefore, it should not render at all.
+ *}
+
+    <div class="container">
+        {$form->render('begin')}
+
+        {input other-sexy}
+        {input other-heslo}
+        {input other-pass}
+
+        {$form->render('body')}
+        {$form->render('end')}
+	</div>
+
+</body>
+</html>

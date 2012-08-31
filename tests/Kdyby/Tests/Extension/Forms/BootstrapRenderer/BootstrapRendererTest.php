@@ -93,7 +93,7 @@ class BootstrapRendererTest extends Kdyby\Tests\TestCase
 		// create form
 		$form = $this->dataFormComponent();
 		$form->setRenderer(new BootstrapRenderer(clone $template));
-		$template->setParameters(array('form' => $form));
+		$template->setParameters(array('form' => $form, '_form' => $form));
 
 		// render template
 		ob_start();
