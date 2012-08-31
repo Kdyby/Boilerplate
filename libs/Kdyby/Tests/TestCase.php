@@ -78,7 +78,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 	 *
 	 * @return \Nette\DI\Container|\SystemContainer
 	 */
-	protected function createContainer($neonFile, array $extensions = array())
+	protected function createContainer($neonFile = NULL, array $extensions = array())
 	{
 		// configurator
 		$config = new Nette\Config\Configurator();
@@ -96,7 +96,10 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 		$tempDir = $this->getContext()->expand('%tempDir%/cache/' . $id);
 		@mkdir($tempDir, 0777);
 		$config->setTempDirectory($tempDir);
-		$config->addConfig($neonFile, $config::NONE);
+
+		if ($neonFile !== NULL) {
+			$config->addConfig($neonFile, $config::NONE);
+		}
 
 		// create container
 		return $config->createContainer();
