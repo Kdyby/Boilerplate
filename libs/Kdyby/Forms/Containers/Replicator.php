@@ -103,28 +103,7 @@ class Replicator extends Container
 		}
 
 		$this->loadHttpData();
-		if ($this->createDefault > 0) {
-			$this->createDefault();
-		}
-	}
-
-
-
-	/**
-	 * Creates default containers
-	 */
-	protected function createDefault()
-	{
-		if (!$this->getForm()->isSubmitted()) {
-			foreach (range(0, $this->createDefault - 1) as $key) {
-				$this->createOne($key);
-			}
-
-		} elseif ($this->forceDefault) {
-			while (count($this->getContainers()) < $this->createDefault) {
-				$this->createOne();
-			}
-		}
+		$this->createDefault();
 	}
 
 
@@ -241,7 +220,26 @@ class Replicator extends Container
 
 
 	/**
+	 * @param array|\Traversable $values
+	 * @param bool $erase
+	 * @return \Nette\Forms\Container|Replicator
+	 */
+	public function setValues($values, $erase = FALSE)
+	{
+		foreach ($values as $name => $value) {
+			if ((is_array($value) || $value instanceof \Traversable) && !$this->getComponent($name, FALSE)) {
+				$this->createOne($name);
+			}
+		}
+
+		return parent::setValues($values, $erase);
+	}
+
+
+
+	/**
 	 * Loads data received from POST
+	 * @internal
 	 */
 	protected function loadHttpData()
 	{
@@ -249,14 +247,31 @@ class Replicator extends Container
 			return;
 		}
 
-		$values = (array)$this->getHttpData();
-		foreach ($values as $key => $value) {
-			if (is_array($value) && !$this->getComponent($key, FALSE)) {
-				$this->createOne($key);
-			}
+		$this->setValues((array)$this->getHttpData());
+	}
+
+
+
+	/**
+	 * Creates default containers
+	 * @internal
+	 */
+	protected function createDefault()
+	{
+		if (!$this->createDefault) {
+			return;
 		}
 
-		$this->setValues($values);
+		if (!$this->getForm()->isSubmitted()) {
+			foreach (range(0, $this->createDefault - 1) as $key) {
+				$this->createOne($key);
+			}
+
+		} elseif ($this->forceDefault) {
+			while (iterator_count($this->getContainers()) < $this->createDefault) {
+				$this->createOne();
+			}
+		}
 	}
 
 
@@ -278,36 +293,19 @@ class Replicator extends Container
 	 */
 	private function getHttpData()
 	{
-		if ($this->httpPost !== NULL) {
-			return $this->httpPost;
+		if ($this->httpPost === NULL) {
+			$path = explode(self::NAME_SEPARATOR, $this->lookupPath('Nette\Forms\Form'));
+			$this->httpPost = Nette\Utils\Arrays::get($this->getForm()->getHttpData(), $path, NULL);
 		}
 
-		if (($request = $this->getRequest()) && $request->isPost()) {
-			$post = (array)$request->getPost();
-
-			$chain = array();
-			$parent = $this;
-
-			while (!$parent instanceof Nette\Forms\Form) {
-				$chain[] = $parent->getName();
-				$parent = $parent->getParent();
-			}
-
-			while ($chain) {
-				$post = &$post[array_pop($chain)];
-			}
-
-			return $this->httpPost = $post ?: NULL;
-		}
-
-		return NULL;
+		return $this->httpPost;
 	}
 
 
 
 	/**
+	 * @internal
 	 * @param \Nette\Application\Request $request
-	 *
 	 * @return \Kdyby\Forms\Containers\Replicator
 	 */
 	public function setRequest(Nette\Application\Request $request)
@@ -445,7 +443,7 @@ class Replicator extends Container
 		}
 
 		$filled = $this->countFilledWithout($components, array_unique($exceptChildren));
-		return $filled === count($this->getContainers());
+		return $filled === iterator_count($this->getContainers());
 	}
 
 
@@ -459,12 +457,34 @@ class Replicator extends Container
 			return $_this[$name] = new Replicator($factory, $createDefault);
 		});
 
-		SubmitButton::extensionMethod('addRemoveOnClick', function (SubmitButton $_this) {
+		SubmitButton::extensionMethod('addRemoveOnClick', function (SubmitButton $_this, $callback = NULL) {
 			$replicator = $_this->lookup('Kdyby\Forms\Containers\Replicator');
 			$_this->setValidationScope(FALSE);
-			$_this->onClick[] = function (SubmitButton $button) use ($replicator) {
+			$_this->onClick[] = function (SubmitButton $button) use ($replicator, $callback) {
 				/** @var \Kdyby\Forms\Containers\Replicator $replicator */
+				if (is_callable($callback)) {
+					callback($callback)->invoke($replicator, $button->parent);
+				}
 				$replicator->remove($button->parent);
+			};
+			return $_this;
+		});
+
+		SubmitButton::extensionMethod('addCreateOnClick', function (SubmitButton $_this, $allowEmpty = FALSE, $callback = NULL) {
+			$replicator = $_this->lookup('Kdyby\Forms\Containers\Replicator');
+			$_this->onClick[] = function (SubmitButton $button) use ($replicator, $allowEmpty, $callback) {
+				/** @var \Kdyby\Forms\Containers\Replicator $replicator */
+				if (!is_bool($allowEmpty)) {
+					$callback = callback($allowEmpty);
+					$allowEmpty = FALSE;
+				}
+				if ($allowEmpty === FALSE && $replicator->isAllFilled() === FALSE) {
+					return;
+				}
+				$newContainer = $replicator->createOne();
+				if (is_callable($callback)) {
+					callback($callback)->invoke($replicator, $newContainer);
+				}
 			};
 			return $_this;
 		});
