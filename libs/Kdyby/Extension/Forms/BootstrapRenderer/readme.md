@@ -49,7 +49,7 @@ Errors
 
 Body
 
-> Renders all controls, that are not yet rendered.
+> Renders all controls and groups, that are not yet rendered.
 
     {$form->render('body')}
 
@@ -66,19 +66,19 @@ Control
 
 > Renders the container div around the control, its label and input.
 
-    {$form->render($form['name'])}
+    {$form->render($form['controlName'])}
 
 Container
 
 > Renders all the inputs in container, that are not yet rendered.
 
-    {$form->render($form['name'])}
+    {$form->render($form['containerName'])}
 
 Group
 
 > Renders fieldset, legend and all the controls in group, that are not yet rendered.
 
-    {$form->render($form['name'])}
+    {$form->render($form->getGroup('Group name'))}
 
 
 
