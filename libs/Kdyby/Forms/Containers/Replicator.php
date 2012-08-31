@@ -57,7 +57,7 @@ class Replicator extends Container
 	 * @param int $createDefault
 	 * @param bool $forceDefault
 	 *
-	 * @throws \Kdyby\InvalidArgumentException
+	 * @throws \Nette\InvalidArgumentException
 	 */
 	public function __construct($factory, $createDefault = 0, $forceDefault = FALSE)
 	{
