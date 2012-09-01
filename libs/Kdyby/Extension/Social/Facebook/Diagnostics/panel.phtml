@@ -1,0 +1,26 @@
+<style>
+    #nette-debug .nette-facebookApiPanel { min-width: 700px; }
+    #nette-debug table { width:100%; }
+</style>
+
+<h1>Queries: <?php echo $esc(count($this->calls)); ?>, time: <?php echo $esc($totalTime); ?> </h1>
+<div class="nette-inner nette-facebookApiPanel">
+    <table>
+        <tr>
+            <th>Request</th>
+            <th>Time&nbsp;ms</th>
+            <th>Response</th>
+            <th>Parameters</th>
+            <th>Info</th>
+        </tr>
+        <?php foreach($this->calls as $call): ?>
+        <tr>
+            <td><pre class="nette-dump"><span class="php-string"><?php echo $esc($call->url->host . $call->url->path); ?></span></pre></td>
+            <td><?php echo $esc(number_format($call->time * 1000, 2, '.', ' ')) ?></td>
+            <td><?php echo $click($call->result ?: $call->exception, TRUE); ?></td>
+            <td><?php echo $click($call->params, TRUE); ?></td>
+            <td><?php echo $click($call->info, TRUE); ?></td>
+        </tr>
+        <?php endforeach; ?>
+    </table>
+</div>

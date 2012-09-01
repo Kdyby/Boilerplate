@@ -1,0 +1,37 @@
+{
+    "name": "kdyby/facebook-sdk-extension",
+    "description": "Facebook PHP SDK for Nette Framework",
+    "keywords": ["nette", "facebook", "sdk"],
+    "type": "library",
+    "homepage":"http://kdyby.org",
+    "license":["BSD-3", "GPLv2", "GPLv3"],
+    "authors": [
+        {
+            "name":"Filip Procházka",
+            "homepage":"http://hosiplan.com"
+        },
+        {
+            "name":"Facebook",
+            "homepage":"https://github.com/facebook/facebook-php-sdk/contributors"
+        }
+    ],
+    "require": {
+        "php": ">=5.2.0",
+        "ext-curl": "*",
+        "ext-json": "*"
+    },
+    "minimum-stability":"dev",
+    "support":{
+        "email":"hosiplan@kdyby.org",
+        "issues":"https://github.com/kdyby/framework/issues"
+    },
+    "autoload": {
+        "psr-0":{
+            "Kdyby\\Extension\\Social\\Facebook":""
+        },
+        "classmap":[
+            "Kdyby/Extension/Social/Facebook/exceptions.php"
+        ]
+    },
+    "target-dir":"Kdyby/Extension/Social/Facebook"
+}
