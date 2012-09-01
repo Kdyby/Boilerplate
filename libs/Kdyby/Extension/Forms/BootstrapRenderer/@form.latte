@@ -62,8 +62,19 @@
 
                     {label $name /}
 
-                    <div class="controls">
+					<div class="controls">
                         {foreach $renderer->getRadioListItems($control) as $item}
+
+                            {$item->html}
+                        {/foreach}{$error}{$description}
+					</div>
+
+                {elseif $renderer->isCheckboxList($control)}
+
+                    {label $name /}
+
+                    <div class="controls">
+                        {foreach $renderer->getCheckboxListItems($control) as $item}
 
                             {$item->html}
                         {/foreach}{$error}{$description}

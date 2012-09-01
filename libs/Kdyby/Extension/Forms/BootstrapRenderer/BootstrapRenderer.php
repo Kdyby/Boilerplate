@@ -173,12 +173,12 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 
 			$control->setOption('pairContainer', $pair = Html::el('div'));
 			$pair->id = $control->htmlId . '-pair';
-			$pair->class[] = 'control-group';
+			$pair->addClass('control-group');
 			if ($control->getOption('required', FALSE)) {
-				$pair->class[] = 'required';
+				$pair->addClass('required');
 			}
 			if ($control->errors) {
-				$pair->class[] = 'error';
+				$pair->addClass('error');
 			}
 		}
 	}
@@ -268,9 +268,7 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 
 	/**
 	 * @internal
-	 *
 	 * @param \Nette\Forms\ControlGroup $group
-	 *
 	 * @return object
 	 */
 	public function processGroup(Nette\Forms\ControlGroup $group)
@@ -313,9 +311,7 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 
 	/**
 	 * @internal
-	 *
 	 * @param \Nette\Forms\Controls\BaseControl $control
-	 *
 	 * @return string
 	 */
 	public static function getControlName(Controls\BaseControl $control)
@@ -327,9 +323,7 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 
 	/**
 	 * @internal
-	 *
 	 * @param \Nette\Forms\Controls\BaseControl $control
-	 *
 	 * @return \Nette\Utils\Html
 	 */
 	public static function getControlDescription(Controls\BaseControl $control)
@@ -352,9 +346,7 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 
 	/**
 	 * @internal
-	 *
 	 * @param \Nette\Forms\Controls\BaseControl $control
-	 *
 	 * @return \Nette\Utils\Html
 	 */
 	public function getControlError(Controls\BaseControl $control)
@@ -378,9 +370,7 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 
 	/**
 	 * @internal
-	 *
 	 * @param \Nette\Forms\Controls\BaseControl $control
-	 *
 	 * @return string
 	 */
 	public static function getControlTemplate(Controls\BaseControl $control)
@@ -392,9 +382,7 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 
 	/**
 	 * @internal
-	 *
 	 * @param \Nette\Forms\IControl $control
-	 *
 	 * @return bool
 	 */
 	public static function isButton(Nette\Forms\IControl $control)
@@ -406,9 +394,7 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 
 	/**
 	 * @internal
-	 *
 	 * @param \Nette\Forms\IControl $control
-	 *
 	 * @return bool
 	 */
 	public static function isSubmitButton(Nette\Forms\IControl $control = NULL)
@@ -420,9 +406,7 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 
 	/**
 	 * @internal
-	 *
 	 * @param \Nette\Forms\IControl $control
-	 *
 	 * @return bool
 	 */
 	public static function isCheckbox(Nette\Forms\IControl $control)
@@ -434,9 +418,7 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 
 	/**
 	 * @internal
-	 *
 	 * @param \Nette\Forms\IControl $control
-	 *
 	 * @return bool
 	 */
 	public static function isRadioList(Nette\Forms\IControl $control)
@@ -448,9 +430,26 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 
 	/**
 	 * @internal
-	 *
+	 * @param \Nette\Forms\IControl $control
+	 * @return bool
+	 */
+	public static function isCheckboxList(Nette\Forms\IControl $control)
+	{
+		foreach (array('Nette\Forms\Controls\\', 'Kdyby\Forms\Controls\\', '',) as $ns) {
+			if (class_exists($class = $ns . 'CheckboxList', FALSE) && $control instanceof $class) {
+				return TRUE;
+			}
+		}
+
+		return FALSE;
+	}
+
+
+
+	/**
+	 * 
+	 * @internal
 	 * @param \Nette\Forms\Controls\RadioList $control
-	 *
 	 * @return bool
 	 */
 	public static function getRadioListItems(Controls\RadioList $control)
@@ -468,6 +467,34 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 
 			$radio->html = clone $radio->label;
 			$radio->html->insert(0, $radio->input);
+		}
+
+		return $items;
+	}
+
+
+
+	/**
+	 * @internal
+	 * @param \Nette\Forms\Controls\BaseControl $control
+	 * @throws \Nette\InvalidArgumentException
+	 * @return bool
+	 */
+	public static function getCheckboxListItems(Controls\BaseControl $control)
+	{
+		$items = array();
+		foreach ($control->items as $key => $value) {
+			$el = $control->getControl($key);
+			$el[1]->addClass('checkbox')->addClass('inline');
+
+			$items[$key] = $check = (object)array(
+				'input' => $el[0],
+				'label' => $el[1],
+				'caption' => $el[1]->getText(),
+			);
+
+			$check->html = clone $check->label;
+			$check->html->insert(0, $check->input);
 		}
 
 		return $items;
