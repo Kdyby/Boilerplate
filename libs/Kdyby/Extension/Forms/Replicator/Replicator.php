@@ -448,13 +448,29 @@ class Replicator extends Container
 
 
 	/**
+	 * @var bool
+	 */
+	private static $registered = FALSE;
+
+	/**
 	 * @param string $methodName
+	 * @return void
 	 */
 	public static function register($methodName = 'addDynamic')
 	{
+		if (self::$registered) {
+			Container::extensionMethod(self::$registered, function () {
+				throw new Nette\MemberAccessException;
+			});
+		}
+
 		Container::extensionMethod($methodName, function (Container $_this, $name, $factory, $createDefault = 0) {
 			return $_this[$name] = new Replicator($factory, $createDefault);
 		});
+
+		if (self::$registered) {
+			return;
+		}
 
 		SubmitButton::extensionMethod('addRemoveOnClick', function (SubmitButton $_this, $callback = NULL) {
 			$replicator = $_this->lookup(__NAMESPACE__ . '\Replicator');
@@ -487,8 +503,11 @@ class Replicator extends Container
 			};
 			return $_this;
 		});
+
+		self::$registered = $methodName;
 	}
 
 }
 
 class_alias(__NAMESPACE__ . '\Replicator', 'Kdyby\Forms\Containers\Replicator');
+Replicator::register();
