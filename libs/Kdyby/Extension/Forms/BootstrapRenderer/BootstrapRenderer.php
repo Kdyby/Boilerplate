@@ -130,8 +130,8 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 		$control->setOption('rendered', FALSE);
 
 		if ($control->isRequired()) {
-			$control->getLabelPrototype()
-				->addClass('required');
+			$control->getLabelPrototype()->addClass('required');
+			$control->setOption('required', TRUE);
 		}
 
 		$el = $control->getControlPrototype();
@@ -140,6 +140,7 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 				'password' => 'text',
 				'file' => 'text',
 				'submit' => 'button',
+				'button' => 'button btn',
 				'image' => 'imagebutton',
 			)), TRUE);
 		}
@@ -160,6 +161,25 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 
 		if ($control instanceof Nette\Forms\ISubmitterControl) {
 			$el->addClass('btn');
+
+		} else {
+			$label = $control->labelPrototype;
+			if ($control instanceof Controls\Checkbox) {
+				$label->addClass('checkbox');
+
+			} else {
+				$label->addClass('control-label');
+			}
+
+			$control->setOption('pairContainer', $pair = Html::el('div'));
+			$pair->id = $control->htmlId . '-pair';
+			$pair->class[] = 'control-group';
+			if ($control->getOption('required', FALSE)) {
+				$pair->class[] = 'required';
+			}
+			if ($control->errors) {
+				$pair->class[] = 'error';
+			}
 		}
 	}
 
@@ -232,14 +252,12 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 
 
 	/**
+	 * @param \Nette\Forms\Container $container
 	 * @return array
 	 */
 	public function findControls(Nette\Forms\Container $container = NULL)
 	{
-		if ($container === NULL) {
-			$container = $this->form;
-		}
-
+		$container = $container ?: $this->form;
 		$controls = iterator_to_array($container->getControls());
 		return array_filter($controls, function (Controls\BaseControl $control) {
 			return !$control->getOption('rendered');
@@ -439,17 +457,33 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 	{
 		$items = array();
 		foreach ($control->items as $key => $value) {
-			$html = $control->getControl($key);
-			$html[1]->addClass('radio');
+			$el = $control->getControl($key);
+			$el[1]->addClass('radio');
 
-			$items[$key] = (object)array(
-				'input' => $html[0],
-				'label' => $html[1],
-				'caption' => $html[1]->getText()
+			$items[$key] = $radio = (object)array(
+				'input' => $el[0],
+				'label' => $el[1],
+				'caption' => $el[1]->getText(),
 			);
+
+			$radio->html = clone $radio->label;
+			$radio->html->insert(0, $radio->input);
 		}
 
 		return $items;
+	}
+
+
+
+	/**
+	 * @param \Nette\Forms\Controls\BaseControl $control
+	 * @return \Nette\Utils\Html
+	 */
+	public static function getLabelBody(Controls\BaseControl $control)
+	{
+		$label = $control->getLabel();
+		$label->setName(NULL);
+		return $label;
 	}
 
 }

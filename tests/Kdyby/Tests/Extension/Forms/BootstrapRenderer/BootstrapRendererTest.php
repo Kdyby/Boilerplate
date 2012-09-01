@@ -33,7 +33,8 @@ class BootstrapRendererTest extends Kdyby\Tests\TestCase
 
 		$grouped = $form->addContainer('grouped');
 		$grouped->currentGroup = $form->addGroup('Skupina', FALSE);
-		$grouped->addText('name', 'Jméno');
+		$grouped->addText('name', 'Jméno')
+			->getLabelPrototype()->addClass('test');
 		$grouped->addText('email', 'Email')
 			->setType('email');
 		$grouped->addSelect('sex', 'Pohlaví', array(1 => 'Muž', 2 => 'Žena'));

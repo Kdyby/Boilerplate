@@ -24,7 +24,7 @@
 
         {var $controls = $group->controls}
         {if isset($group->template) && $group->template}
-            {include "$group->template", group => $group, controls => $controls, submitters => $submitters, form => $form, _form => $form}
+            {include "$group->template", group => $group, controls => $controls, form => $form, _form => $form}
 
         {else}
             {block #controls}
@@ -36,7 +36,7 @@
             {/if}
 
             {block #control}
-            <div id="{$control->htmlId}-pair" n:class="$control->getOption('required')? required, control-group, $control->errors? error">
+            <div{!$control->getOption('pairContainer')->attributes()}>
                 {var
                     $name = $renderer->getControlName($control),
                     $description = $renderer->getControlDescription($control),
@@ -44,41 +44,34 @@
                 }
 
                 {if $controlTemplate = $renderer->getControlTemplate($control)}
-
-                    <div class="controls">
-                        {include "$controlTemplate", name => $name,
-                            form => $form, _form => $form,
-                            description => $description, error => $error
-                        }
-                    </div>
+                    {include "$controlTemplate", name => $name, description => $description, error => $error, form => $form, _form => $form}
 
                 {elseif $renderer->isButton($control)}
 
                     <div class="controls">
-                        {input $name, class => 'btn'}{$error}{$description}
+                        {input $name}{$error}{$description}
                     </div>
 
                 {elseif $renderer->isCheckbox($control)}
 
                     <div class="controls">
-                        {label $name, class => 'checkbox'}{input $name}{$control->label->getText()}{/label}{$error}{$description}
+                        {label $name}{input $name}{$renderer->getLabelBody($control)}{/label}{$error}{$description}
                     </div>
 
                 {elseif $renderer->isRadioList($control)}
 
-                    {label $name, class => 'control-label' /}
+                    {label $name /}
 
                     <div class="controls">
                         {foreach $renderer->getRadioListItems($control) as $item}
-                            {!$item->label->startTag()}
-                                {$item->input}{$item->caption}
-                            {!$item->label->endTag()}
+
+                            {$item->html}
                         {/foreach}{$error}{$description}
                     </div>
 
                 {else}
 
-                    {label $name, class => 'control-label' /}
+                    {label $name /}
 
                     <div class="controls">
                         {var $prepend = $control->getOption('input-prepend'), $append = $control->getOption('input-append')}
