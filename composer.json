@@ -12,6 +12,8 @@
     ],
     "require":{
         "php":">=5.3.2",
+        "ext-curl":"*",
+        "ext-json":"*",
         "nette/nette":"dev-devel",
         "doctrine/orm":"2.2.*",
         "doctrine/data-fixtures":"v1.0.0-ALPHA2",
