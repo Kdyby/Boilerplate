@@ -30,7 +30,9 @@
         "kdyby/assets-extension":"self.version",
         "kdyby/curl-extension":"self.version",
         "kdyby/browser-extension":"self.version",
-        "kdyby/redis-extension":"self.version"
+        "kdyby/redis-extension":"self.version",
+        "kdyby/forms-replicator":"self.version",
+        "kdyby/bootstrap-form-renderer":"self.version"
     },
     "repositories":[
         {

@@ -17,3 +17,11 @@ target = git@github.com:Kdyby/RedisExtension.git
 [libs/Kdyby/Extension/Forms/BootstrapRenderer]
 branch = split/forms-bootstrap-renderer
 target = git@github.com:Kdyby/FormsBootstrapRendererExtension.git
+
+[libs/Kdyby/Extension/Forms/Replicator]
+branch = split/forms-replicator
+target = git@github.com:Kdyby/ReplicatorExtension.git
+
+[libs/Kdyby/Extension/Social/Facebook]
+branch = split/social-facebook
+target = git@github.com:Kdyby/FacebookSDKExtension.git
