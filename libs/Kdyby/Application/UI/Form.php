@@ -226,7 +226,7 @@ class Form extends Nette\Application\UI\Form
 // extension methods
 Kdyby\Forms\Controls\CheckboxList::register();
 Kdyby\Forms\Controls\DateTimeInput::register();
-Kdyby\Forms\Containers\Replicator::register();
+Kdyby\Extension\Forms\Replicator\Replicator::register();
 
 // radio list helper
 RadioList::extensionMethod('getItemsOuterLabel', function (RadioList $_this) {

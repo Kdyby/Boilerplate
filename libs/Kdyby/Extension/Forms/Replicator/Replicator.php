@@ -10,7 +10,6 @@
 
 namespace Kdyby\Extension\Forms\Replicator;
 
-use Kdyby;
 use Nette;
 use Nette\Forms\Controls\SubmitButton;
 use Nette\Forms\Container;
