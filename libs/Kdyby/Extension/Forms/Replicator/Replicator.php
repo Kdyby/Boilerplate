@@ -3,12 +3,12 @@
 /**
  * This file is part of the Kdyby (http://www.kdyby.org)
  *
- * Copyright (c) 2008, 2012 Filip Procházka (filip.prochazka@kdyby.org)
+ * Copyright (c) 2008, 2012 Filip Procházka (filip@prochazka.su)
  *
  * For the full copyright and license information, please view the file license.txt that was distributed with this source code.
  */
 
-namespace Kdyby\Forms\Containers;
+namespace Kdyby\Extension\Forms\Replicator;
 
 use Kdyby;
 use Nette;
@@ -18,7 +18,7 @@ use Nette\Forms\Container;
 
 
 /**
- * @author Filip Procházka <filip.prochazka@kdyby.org>
+ * @author Filip Procházka <filip@prochazka.su>
  * @author Jan Tvrdík
  *
  * @method \Nette\Application\UI\Form getForm()
@@ -306,7 +306,7 @@ class Replicator extends Container
 	/**
 	 * @internal
 	 * @param \Nette\Application\Request $request
-	 * @return \Kdyby\Forms\Containers\Replicator
+	 * @return Replicator
 	 */
 	public function setRequest(Nette\Application\Request $request)
 	{
@@ -458,10 +458,10 @@ class Replicator extends Container
 		});
 
 		SubmitButton::extensionMethod('addRemoveOnClick', function (SubmitButton $_this, $callback = NULL) {
-			$replicator = $_this->lookup('Kdyby\Forms\Containers\Replicator');
+			$replicator = $_this->lookup(__NAMESPACE__ . '\Replicator');
 			$_this->setValidationScope(FALSE);
 			$_this->onClick[] = function (SubmitButton $button) use ($replicator, $callback) {
-				/** @var \Kdyby\Forms\Containers\Replicator $replicator */
+				/** @var Replicator $replicator */
 				if (is_callable($callback)) {
 					callback($callback)->invoke($replicator, $button->parent);
 				}
@@ -471,9 +471,9 @@ class Replicator extends Container
 		});
 
 		SubmitButton::extensionMethod('addCreateOnClick', function (SubmitButton $_this, $allowEmpty = FALSE, $callback = NULL) {
-			$replicator = $_this->lookup('Kdyby\Forms\Containers\Replicator');
+			$replicator = $_this->lookup(__NAMESPACE__ . '\Replicator');
 			$_this->onClick[] = function (SubmitButton $button) use ($replicator, $allowEmpty, $callback) {
-				/** @var \Kdyby\Forms\Containers\Replicator $replicator */
+				/** @var Replicator $replicator */
 				if (!is_bool($allowEmpty)) {
 					$callback = callback($allowEmpty);
 					$allowEmpty = FALSE;
@@ -491,3 +491,5 @@ class Replicator extends Container
 	}
 
 }
+
+class_alias(__NAMESPACE__ . '\Replicator', 'Kdyby\Forms\Containers\Replicator');
