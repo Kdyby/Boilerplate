@@ -3,7 +3,7 @@
 /**
  * This file is part of the Kdyby (http://www.kdyby.org)
  *
- * Copyright (c) 2008, 2011 Filip Procházka (filip.prochazka@kdyby.org)
+ * Copyright (c) 2008, 2012 Filip Procházka (filip@prochazka.su)
  *
  * For the full copyright and license information, please view the file license.txt that was distributed with this source code.
  */
@@ -13,7 +13,7 @@ namespace Kdyby\Extension\Curl;
 
 
 /**
- * @author Filip Procházka <filip.prochazka@kdyby.org>
+ * @author Filip Procházka <filip@prochazka.su>
  */
 interface Exception
 {
@@ -23,7 +23,7 @@ interface Exception
 
 
 /**
- * @author Filip Procházka <filip.prochazka@kdyby.org>
+ * @author Filip Procházka <filip@prochazka.su>
  */
 class InvalidArgumentException extends \InvalidArgumentException implements Exception
 {
@@ -33,7 +33,7 @@ class InvalidArgumentException extends \InvalidArgumentException implements Exce
 
 
 /**
- * @author Filip Procházka <filip.prochazka@kdyby.org>
+ * @author Filip Procházka <filip@prochazka.su>
  */
 class InvalidStateException extends \RuntimeException implements Exception
 {
@@ -43,7 +43,7 @@ class InvalidStateException extends \RuntimeException implements Exception
 
 
 /**
- * @author Filip Procházka <filip.prochazka@kdyby.org>
+ * @author Filip Procházka <filip@prochazka.su>
  */
 class InvalidUrlException extends \InvalidArgumentException implements Exception
 {
@@ -53,7 +53,7 @@ class InvalidUrlException extends \InvalidArgumentException implements Exception
 
 
 /**
- * @author Filip Procházka <filip.prochazka@kdyby.org>
+ * @author Filip Procházka <filip@prochazka.su>
  */
 class MissingCertificateException extends \RuntimeException implements Exception
 {
@@ -63,7 +63,7 @@ class MissingCertificateException extends \RuntimeException implements Exception
 
 
 /**
- * @author Filip Procházka <filip.prochazka@kdyby.org>
+ * @author Filip Procházka <filip@prochazka.su>
  */
 class FileNotWritableException extends \RuntimeException implements Exception
 {
@@ -73,7 +73,7 @@ class FileNotWritableException extends \RuntimeException implements Exception
 
 
 /**
- * @author Filip Procházka <filip.prochazka@kdyby.org>
+ * @author Filip Procházka <filip@prochazka.su>
  */
 class DirectoryNotWritableException extends \RuntimeException implements Exception
 {
@@ -83,7 +83,7 @@ class DirectoryNotWritableException extends \RuntimeException implements Excepti
 
 
 /**
- * @author Filip Procházka <filip.prochazka@kdyby.org>
+ * @author Filip Procházka <filip@prochazka.su>
  */
 class NotSupportedException extends \LogicException implements Exception
 {
@@ -93,7 +93,7 @@ class NotSupportedException extends \LogicException implements Exception
 
 
 /**
- * @author Filip Procházka <filip.prochazka@kdyby.org>
+ * @author Filip Procházka <filip@prochazka.su>
  */
 class CurlException extends \RuntimeException implements Exception
 {
@@ -149,7 +149,7 @@ class CurlException extends \RuntimeException implements Exception
 
 
 /**
- * @author Filip Procházka <filip.prochazka@kdyby.org>
+ * @author Filip Procházka <filip@prochazka.su>
  */
 class FailedRequestException extends CurlException
 {
@@ -187,7 +187,7 @@ class FailedRequestException extends CurlException
 
 
 /**
- * @author Filip Procházka <filip.prochazka@kdyby.org>
+ * @author Filip Procházka <filip@prochazka.su>
  */
 class BadStatusException extends CurlException
 {

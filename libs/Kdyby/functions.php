@@ -3,7 +3,7 @@
 /**
  * This file is part of the Kdyby (http://www.kdyby.org)
  *
- * Copyright (c) 2008, 2012 Filip Procházka (filip.prochazka@kdyby.org)
+ * Copyright (c) 2008, 2012 Filip Procházka (filip@prochazka.su)
  *
  * For the full copyright and license information, please view the file license.txt that was distributed with this source code.
  */
@@ -17,7 +17,7 @@ use Nette\Diagnostics\Helpers;
 /**
  * Outputs the variable content to file
  *
- * @author Filip Procházka <filip.prochazka@kdyby.org>
+ * @author Filip Procházka <filip@prochazka.su>
  *
  * @param mixed $variable
  * @param int $maxDepth
@@ -63,7 +63,7 @@ function l($message) {
 /**
  * Bar dump shortcut.
  * @see Nette\Diagnostics\Debugger::barDump
- * @author Filip Procházka <filip.prochazka@kdyby.org>
+ * @author Filip Procházka <filip@prochazka.su>
  *
  * @param mixed $var
  * @param string $title
@@ -105,7 +105,7 @@ function dd($var, $maxDepth = 0) {
 
 /**
  * Function prints from where were method/function called
- * @author Filip Procházka <filip.prochazka@kdyby.org>
+ * @author Filip Procházka <filip@prochazka.su>
  *
  * @param int $level
  * @param bool $return

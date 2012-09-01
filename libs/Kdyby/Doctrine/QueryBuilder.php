@@ -12,7 +12,7 @@ use Nette\Utils\Strings;
 
 
 /**
- * @author Filip Procházka <filip.prochazka@kdyby.org>
+ * @author Filip Procházka <filip@prochazka.su>
  */
 class QueryBuilder extends Doctrine\ORM\QueryBuilder
 {

@@ -3,7 +3,7 @@
 /**
  * This file is part of the Kdyby (http://www.kdyby.org)
  *
- * Copyright (c) 2008, 2012 Filip Procházka (filip.prochazka@kdyby.org)
+ * Copyright (c) 2008, 2012 Filip Procházka (filip@prochazka.su)
  *
  * For the full copyright and license information, please view the file license.txt that was distributed with this source code.
  */
@@ -18,7 +18,7 @@ use Nette;
 
 
 /**
- * @author Filip Procházka <filip.prochazka@kdyby.org>
+ * @author Filip Procházka <filip@prochazka.su>
  */
 class NonLockingUniqueInserterTest extends Kdyby\Tests\OrmTestCase
 {
@@ -40,7 +40,7 @@ class NonLockingUniqueInserterTest extends Kdyby\Tests\OrmTestCase
 		$em = $this->getEntityManager();
 
 		$entity = new EntityWithUniqueColumns();
-		$entity->email = "filip.prochazka@kdyby.org";
+		$entity->email = "filip@prochazka.su";
 		$entity->name = "Filip";
 		$entity->address = "Starovičky";
 
@@ -51,7 +51,7 @@ class NonLockingUniqueInserterTest extends Kdyby\Tests\OrmTestCase
 		$em->clear();
 
 		$this->assertEntityValues(get_class($entity), array(
-			'email' => "filip.prochazka@kdyby.org",
+			'email' => "filip@prochazka.su",
 			'name' => "Filip",
 			'address' => "Starovičky",
 		), $entity->id);
@@ -65,12 +65,12 @@ class NonLockingUniqueInserterTest extends Kdyby\Tests\OrmTestCase
 	public function testInValidInsert()
 	{
 		$em = $this->getEntityManager();
-		$em->persist(new EntityWithUniqueColumns(array('email' => 'filip.prochazka@kdyby.org', 'name' => 'Filip')));
+		$em->persist(new EntityWithUniqueColumns(array('email' => 'filip@prochazka.su', 'name' => 'Filip')));
 		$em->flush();
 		$em->clear();
 
 		$entity = new EntityWithUniqueColumns();
-		$entity->email = "filip.prochazka@kdyby.org";
+		$entity->email = "filip@prochazka.su";
 		$entity->name = "Filip";
 		$entity->address = "Starovičky";
 

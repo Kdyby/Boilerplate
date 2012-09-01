@@ -3,7 +3,7 @@
 /**
  * This file is part of the Kdyby (http://www.kdyby.org)
  *
- * Copyright (c) 2008, 2012 Filip Procházka (filip.prochazka@kdyby.org)
+ * Copyright (c) 2008, 2012 Filip Procházka (filip@prochazka.su)
  *
  * For the full copyright and license information, please view the file license.txt that was distributed with this source code.
  */
@@ -18,7 +18,7 @@ use Nette\Http\UrlScript as Url;
 
 
 /**
- * @author Filip Procházka <hosiplan@kdyby.org>
+ * @author Filip Procházka <filip@prochazka.su>
  *
  * @method \Kdyby\Extension\Curl\Request setUrl(string $url)
  * @method \Kdyby\Extension\Curl\Request setMethod(string $url)

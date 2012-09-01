@@ -3,7 +3,7 @@
 /**
  * This file is part of the Kdyby (http://www.kdyby.org)
  *
- * Copyright (c) 2008, 2011 Filip Procházka (filip.prochazka@kdyby.org)
+ * Copyright (c) 2008, 2012 Filip Procházka (filip@prochazka.su)
  *
  * @license http://www.kdyby.org/license
  */
@@ -18,7 +18,7 @@ use Nette;
 
 
 /**
- * @author Filip Procházka <filip.prochazka@kdyby.org>
+ * @author Filip Procházka <filip@prochazka.su>
  */
 class SchemaToolTest extends Kdyby\Tests\OrmTestCase
 {
@@ -106,7 +106,7 @@ class SchemaToolTest extends Kdyby\Tests\OrmTestCase
 
 
 /**
- * @author Filip Procházka <filip.prochazka@kdyby.org>
+ * @author Filip Procházka <filip@prochazka.su>
  */
 class TestSubscriber extends Nette\Object implements Doctrine\Common\EventSubscriber
 {

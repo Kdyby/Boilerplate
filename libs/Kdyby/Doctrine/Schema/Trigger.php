@@ -3,7 +3,7 @@
 /**
  * This file is part of the Kdyby (http://www.kdyby.org)
  *
- * Copyright (c) 2008, 2011 Filip Procházka (filip.prochazka@kdyby.org)
+ * Copyright (c) 2008, 2012 Filip Procházka (filip@prochazka.su)
  *
  * @license http://www.kdyby.org/license
  */
@@ -18,7 +18,7 @@ use Nette\Utils\Strings;
 
 
 /**
- * @author Filip Procházka <filip.prochazka@kdyby.org>
+ * @author Filip Procházka <filip@prochazka.su>
  *
  * @method \Kdyby\Doctrine\Schema\Trigger insert(string $table, array $values)
  * @method \Kdyby\Doctrine\Schema\Trigger insertSelect(string $targetTable, \Doctrine\DBAL\Schema\Table $sourceTable)

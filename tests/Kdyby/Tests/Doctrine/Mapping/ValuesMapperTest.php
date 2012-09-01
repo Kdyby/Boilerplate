@@ -3,7 +3,7 @@
 /**
  * This file is part of the Kdyby (http://www.kdyby.org)
  *
- * Copyright (c) 2008, 2012 Filip Procházka (filip.prochazka@kdyby.org)
+ * Copyright (c) 2008, 2012 Filip Procházka (filip@prochazka.su)
  *
  * For the full copyright and license information, please view the file license.txt that was distributed with this source code.
  */
@@ -20,7 +20,7 @@ use Nette;
 
 
 /**
- * @author Filip Procházka <filip.prochazka@kdyby.org>
+ * @author Filip Procházka <filip@prochazka.su>
  */
 class ValuesMapperTest extends Kdyby\Tests\OrmTestCase
 {
@@ -133,7 +133,7 @@ class ValuesMapperTest extends Kdyby\Tests\OrmTestCase
 
 /**
  * @ORM\MappedSuperclass()
- * @author Filip Procházka <filip.prochazka@kdyby.org>
+ * @author Filip Procházka <filip@prochazka.su>
  */
 class SharedFieldsEntity extends Nette\Object
 {
@@ -152,7 +152,7 @@ class SharedFieldsEntity extends Nette\Object
 
 /**
  * @ORM\Entity()
- * @author Filip Procházka <filip.prochazka@kdyby.org>
+ * @author Filip Procházka <filip@prochazka.su>
  */
 class RootEntity extends SharedFieldsEntity
 {
@@ -191,7 +191,7 @@ class RootEntity extends SharedFieldsEntity
 
 /**
  * @ORM\Entity()
- * @author Filip Procházka <filip.prochazka@kdyby.org>
+ * @author Filip Procházka <filip@prochazka.su>
  */
 class RelatedEntity extends SharedFieldsEntity
 {
