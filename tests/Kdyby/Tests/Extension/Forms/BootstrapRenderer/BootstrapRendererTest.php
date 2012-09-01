@@ -117,6 +117,55 @@ class BootstrapRendererTest extends Kdyby\Tests\TestCase
 
 
 	/**
+	 * @return \Nette\Application\UI\Form
+	 */
+	protected function dataCreateForm()
+	{
+		$form = new Form;
+		$form->addText('name', 'Name');
+		$form->addCheckbox('check', 'Indeed');
+		$form->addUpload('image', 'Image');
+		$form->addRadioList('sex', 'Sex', array(1 => 'Man', 'Woman'));
+		$form->addSelect('day', 'Day', array(1 => 'Monday', 'Tuesday'));
+		$form->addTextArea('desc', 'Description');
+
+		$form['checks'] = new \Kdyby\Forms\Controls\CheckboxList('Regions', array(
+			1 => 'Jihomoravský',
+			2 => 'Severomoravský',
+			3 => 'Slezský',
+		));
+
+		return $form;
+	}
+
+
+
+	/**
+	 * @return array
+	 */
+	public function dataRenderingIndividual()
+	{
+		return $this->findInputOutput('individual/input/*.latte', 'individual/output/*.html');
+	}
+
+
+
+	/**
+	 * @dataProvider dataRenderingIndividual
+	 *
+	 * @param string $latteFile
+	 * @param string $expectedOutput
+	 */
+	public function testRenderingIndividual($latteFile, $expectedOutput)
+	{
+		// create form
+		$form = $this->dataCreateForm();
+		$this->assertTemplateOutput($latteFile, $expectedOutput, $form);
+	}
+
+
+
+	/**
 	 * @param $latteFile
 	 * @param $expectedOutput
 	 * @param \Nette\Application\UI\Form $form
