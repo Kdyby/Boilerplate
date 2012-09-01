@@ -22,9 +22,6 @@
         "kdyby/framework":"self.version"
     },
     "autoload":{
-        "psr-0":{
-            "Kdyby\\Extension\\Forms\\Replicator":""
-        }
-    },
-    "target-dir":"Kdyby/Extension/Forms/Replicator"
+        "files":["Replicator.php"]
+    }
 }
