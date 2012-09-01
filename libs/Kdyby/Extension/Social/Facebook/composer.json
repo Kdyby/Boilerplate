@@ -8,7 +8,7 @@
     "authors": [
         {
             "name":"Filip Procházka",
-            "homepage":"http://hosiplan.com"
+            "homepage":"http://filip-prochazka.com"
         },
         {
             "name":"Facebook",
@@ -17,12 +17,13 @@
     ],
     "require": {
         "php": ">=5.2.0",
+        "nette/nette": "*",
         "ext-curl": "*",
         "ext-json": "*"
     },
     "minimum-stability":"dev",
     "support":{
-        "email":"hosiplan@kdyby.org",
+        "email":"filip@prochazka.su",
         "issues":"https://github.com/kdyby/framework/issues"
     },
     "autoload": {
