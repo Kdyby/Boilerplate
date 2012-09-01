@@ -8,19 +8,10 @@
  * For the full copyright and license information, please view the file license.txt that was distributed with this source code.
  */
 
-/**
- * Cloned RadioList from Nette Framework distribution. Instead of radios use
- * checkboxes.
- *
- * @copyright  Copyright (c) 2004, 2009 David Grudl
- * @license    http://nettephp.com/license  Nette license
- * @link       http://addons.nettephp.com/cs/checkboxlist
- * @package    Nette\Extras
- */
-
 namespace Kdyby\Forms\Controls;
 
 use Kdyby;
+use Nette\Forms\Container;
 use Nette;
 use Nette\Utils\Html;
 
@@ -35,13 +26,19 @@ use Nette\Utils\Html;
  */
 class CheckboxList extends Nette\Forms\Controls\BaseControl
 {
-	/** @var \Nette\Utils\Html  separator element template */
+	/**
+	 * @var \Nette\Utils\Html  separator element template
+	 */
 	protected $separator;
 
-	/** @var \Nette\Utils\Html  container element template */
+	/**
+	 * @var \Nette\Utils\Html  container element template
+	 */
 	protected $container;
 
-	/** @var array */
+	/**
+	 * @var array
+	 */
 	protected $items = array();
 
 
@@ -135,13 +132,12 @@ class CheckboxList extends Nette\Forms\Controls\BaseControl
 	 */
 	public function getControl($key = NULL)
 	{
-		if ($key === NULL) {
-			$container = clone $this->container;
-			$separator = (string) $this->separator;
-
-		} elseif (!isset($this->items[$key])) {
+		if ($key !== NULL && !isset($this->items[$key])) {
 			return NULL;
 		}
+
+		$container = clone $this->container;
+		$separator = (string)$this->separator;
 
 		$control = parent::getControl();
 		$control->name .= '[]';
@@ -210,8 +206,8 @@ class CheckboxList extends Nette\Forms\Controls\BaseControl
 	 */
 	public static function register($name = 'addCheckboxList')
 	{
-		Nette\Forms\Container::extensionMethod($name, function (Nette\Forms\Container $container, $name, $label = NULL, array $items = NULL) {
-			return $container[$name] = new Kdyby\Forms\Controls\CheckboxList($label, $items);
+		Container::extensionMethod($name, function (Container $container, $name, $label = NULL, array $items = NULL) {
+			return $container[$name] = new CheckboxList($label, $items);
 		});
 	}
 
