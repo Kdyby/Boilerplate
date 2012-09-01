@@ -69,6 +69,22 @@ class CheckboxList extends Nette\Forms\Controls\BaseControl
 	 */
 	public function getValue()
 	{
+		$checked = is_array($this->value) ? array_keys(array_filter($this->value)) : NULL;
+		if ($checked !== NULL) {
+			$checked = array_intersect(array_keys($this->items), $checked);
+		}
+		return $checked;
+	}
+
+
+
+	/**
+	 * Returns selected radio value. NULL means nothing have been checked.
+	 *
+	 * @return mixed
+	 */
+	public function getRawValues()
+	{
 		return is_array($this->value) ? array_keys(array_filter($this->value)) : NULL;
 	}
 
@@ -140,16 +156,17 @@ class CheckboxList extends Nette\Forms\Controls\BaseControl
 		$separator = (string)$this->separator;
 
 		$control = parent::getControl();
-		$control->name .= '[]';
 		$id = $control->id;
-		$counter = -1;
+		$name = $control->name;
 		$values = $this->value === NULL ? NULL : (array) $this->getValue();
 		$label = Html::el('label');
 
+		$counter = -1;
 		foreach ($this->items as $k => $val) {
 			$counter++;
 			if ($key !== NULL && $key != $k) continue; // intentionally ==
 
+			$control->name = $name . '[' . $k . ']';
 			$control->id = $label->for = $id . '-' . $counter;
 			$control->checked = (count($values) > 0) ? in_array($k, $values) : false;
 			$control->value = $k;
