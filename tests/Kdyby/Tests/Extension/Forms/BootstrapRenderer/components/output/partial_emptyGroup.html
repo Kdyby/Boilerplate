@@ -1,9 +1,16 @@
 <!DOCTYPE html>
 <html>
-<head><link href="bootstrap.min.css" rel="stylesheet" /></head>
+<head><link href="../../bootstrap.min.css" rel="stylesheet" /></head>
 <body>
 
     <div class="container">
+        <form action="" method="post" enctype="multipart/form-data" class="form-horizontal">
+
+        <input type="radio" class="radio" name="other[sexy]" id="frm-other-sexy-0" value="1" /><label for="frm-other-sexy-0">Ano</label><br /><input type="radio" class="radio" name="other[sexy]" id="frm-other-sexy-1" value="2" /><label for="frm-other-sexy-1">Ne</label><br />
+        <input type="password" class="text" name="other[heslo]" id="frm-other-heslo" />
+        <input type="submit" class="btn-warning button btn" name="other[pass]" id="frm-other-pass" value="Nastavit heslo" />
+
+
 
 
     <fieldset>
@@ -78,6 +85,42 @@
 
     </fieldset>
 
+
+
+            <div id="frm-photo-pair" class="control-group">
+
+
+<label class="control-label" for="frm-photo">Fotka</label>
+                    <div class="controls">
+                            <input type="file" class="text" name="photo" id="frm-photo" />
+
+                    </div>
+
+            </div>
+
+            <div class="form-actions">
+                <input type="submit" class="button btn" name="up" id="frm-up" value="Nahrát fotku" />
+                </div>
+
+            <div id="frm-desc-pair" class="control-group">
+
+
+<label class="control-label" for="frm-desc">Popis</label>
+                    <div class="controls">
+                            <textarea cols="40" rows="10" name="desc" id="frm-desc"></textarea>
+
+                    </div>
+
+            </div>
+
+            <div class="form-actions">
+                <input type="submit" class="btn-primary button btn" name="submit_" id="frm-submit" value="Uložit" />
+
+                <input type="submit" class="button btn" name="delete" id="frm-delete" value="Smazat" />
+                </div>
+
+
+        </form>
 
 	</div>
 

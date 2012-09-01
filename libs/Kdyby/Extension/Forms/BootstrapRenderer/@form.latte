@@ -54,7 +54,7 @@
 
                 {elseif $renderer->isCheckbox($control)}
 
-                    <div class="controls">
+                    <div class="controls" n:tag-if="!$renderer->controlHasClass($control, 'inline')">
                         {label $name}{input $name}{$renderer->getLabelBody($control)}{/label}{$error}{$description}
                     </div>
 

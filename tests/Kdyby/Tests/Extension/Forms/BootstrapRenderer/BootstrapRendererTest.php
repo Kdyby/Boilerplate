@@ -13,6 +13,7 @@ namespace Kdyby\Tests\Extension\Forms\BootstrapRenderer;
 use Kdyby;
 use Kdyby\Extension\Forms\BootstrapRenderer\BootstrapRenderer;
 use Nette;
+use Nette\Application\UI\Form;
 use Nette\Utils\Strings;
 
 
@@ -24,11 +25,11 @@ class BootstrapRendererTest extends Kdyby\Tests\TestCase
 {
 
 	/**
-	 * @return \Kdyby\Application\UI\Form
+	 * @return \Nette\Application\UI\Form
 	 */
-	protected function dataFormComponent()
+	protected function dataCreateRichForm()
 	{
-		$form = new Kdyby\Application\UI\Form();
+		$form = new Form();
 		$form->addError("General failure!");
 
 		$grouped = $form->addContainer('grouped');
@@ -66,23 +67,62 @@ class BootstrapRendererTest extends Kdyby\Tests\TestCase
 	}
 
 
-
 	/**
 	 * @return array
 	 */
-	public function dataRendering()
+	public function dataRenderingBasics()
 	{
-		return $this->findInputOutput('input/*.latte', 'output/*.html');
+		return $this->findInputOutput('basic/input/*.latte', 'basic/output/*.html');
 	}
 
 
 
 	/**
-	 * @dataProvider dataRendering
+	 * @dataProvider dataRenderingBasics
 	 *
-	 * @throws \Kdyby\NotImplementedException
+	 * @param string $latteFile
+	 * @param string $expectedOutput
 	 */
-	public function testRendering($latteFile, $expectedOutput)
+	public function testRenderingBasics($latteFile, $expectedOutput)
+	{
+		$form = $this->dataCreateRichForm();
+		$this->assertTemplateOutput($latteFile, $expectedOutput, $form);
+	}
+
+
+
+	/**
+	 * @return array
+	 */
+	public function dataRenderingComponents()
+	{
+		return $this->findInputOutput('components/input/*.latte', 'components/output/*.html');
+	}
+
+
+
+	/**
+	 * @dataProvider dataRenderingComponents
+	 *
+	 * @param string $latteFile
+	 * @param string $expectedOutput
+	 */
+	public function testRenderingComponents($latteFile, $expectedOutput)
+	{
+		// create form
+		$form = $this->dataCreateRichForm();
+		$this->assertTemplateOutput($latteFile, $expectedOutput, $form);
+	}
+
+
+
+	/**
+	 * @param $latteFile
+	 * @param $expectedOutput
+	 * @param \Nette\Application\UI\Form $form
+	 * @throws \Exception
+	 */
+	protected function assertTemplateOutput($latteFile, $expectedOutput, Form $form)
 	{
 		// create template
 		$container = $this->createContainer();
@@ -92,7 +132,6 @@ class BootstrapRendererTest extends Kdyby\Tests\TestCase
 		$template->setFile($latteFile);
 
 		// create form
-		$form = $this->dataFormComponent();
 		$form->setRenderer(new BootstrapRenderer(clone $template));
 		$template->setParameters(array('form' => $form, '_form' => $form));
 

@@ -486,4 +486,20 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 		return $label;
 	}
 
+
+
+	/**
+	 * @param \Nette\Forms\Controls\BaseControl $control
+	 * @param string $class
+	 * @return bool
+	 */
+	public static function controlHasClass(Controls\BaseControl $control, $class)
+	{
+		$classes = is_string($control->controlPrototype->class)
+			? explode(' ', $control->controlPrototype->class)
+			: $control->controlPrototype->class;
+
+		return in_array($class, $classes, TRUE);
+	}
+
 }
