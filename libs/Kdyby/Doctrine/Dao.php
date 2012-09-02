@@ -24,8 +24,6 @@ use Nette\ObjectMixin;
 
 /**
  * @author Filip Procházka <filip@prochazka.su>
- *
- * @method Mapping\ClassMetadata getClassMetadata() getClassMetadata()
  */
 class Dao extends Doctrine\ORM\EntityRepository implements Persistence\IDao, Persistence\IQueryExecutor, Persistence\IQueryable, Persistence\IObjectFactory
 {
@@ -79,6 +77,7 @@ class Dao extends Doctrine\ORM\EntityRepository implements Persistence\IDao, Per
 	 * Persists given entities, but does not flush.
 	 *
 	 * @param object|array|\Doctrine\Common\Collections\Collection $entity
+	 * @throws \Kdyby\InvalidArgumentException
 	 * @return object|array
 	 */
 	public function add($entity)
@@ -280,7 +279,8 @@ class Dao extends Doctrine\ORM\EntityRepository implements Persistence\IDao, Per
 
 
 	/**
-	 * @param callback $callback
+	 * @param callable $callback
+	 * @throws \Exception
 	 * @return mixed|boolean
 	 */
 	public function transactional($callback)
