@@ -26,7 +26,7 @@
             "Kdyby\\Extension\\Curl":""
         },
         "classmap":[
-            "exceptions.php"
+            "Kdyby/Extension/Curl/exceptions.php"
         ]
     },
     "target-dir":"Kdyby/Extension/Curl"
