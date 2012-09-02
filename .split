@@ -6,6 +6,10 @@ target = git@github.com:Kdyby/AssetsExtension.git
 branch = split/curl
 target = git@github.com:Kdyby/CurlExtension.git
 
+[libs/Kdyby/Extension/Browser]
+branch = split/browser
+target = git@github.com:Kdyby/BrowserExtension.git
+
 [libs/Kdyby/Extension/Redis]
 branch = split/redis
 target = git@github.com:Kdyby/RedisExtension.git
