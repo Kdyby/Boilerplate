@@ -36,7 +36,7 @@
             {/if}
 
             {block #control}
-            <div{!$control->getOption('pairContainer')->attributes()}>
+            <div{!$control->getOption('pairContainer')->attributes()} n:tag-if="$control->getOption('pairContainer')">
                 {var
                     $name = $renderer->getControlName($control),
                     $description = $renderer->getControlDescription($control),
