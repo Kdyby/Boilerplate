@@ -62,6 +62,11 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 		if ($template === NULL) {
 			$template = new FileTemplate();
 			$template->registerFilter(new Nette\Latte\Engine());
+
+		} else {
+			$template->setParameters(array_fill_keys(array(
+				'control', '_control', 'presenter', '_presenter'
+			), NULL));
 		}
 
 		$this->template = $template;
