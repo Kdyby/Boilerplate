@@ -28,10 +28,6 @@ class CurlExtension extends Nette\Config\CompilerExtension
 		$builder->addDefinition($this->prefix('curl'))
 			->setClass('Kdyby\Extension\Curl\CurlSender');
 
-		$builder->addDefinition($this->prefix('browser.panel'))
-			->setFactory('Kdyby\Extension\Browser\Diagnostics\Panel::register')
-			->addTag('run', TRUE);
-
 		$builder->addDefinition($this->prefix('curl.panel'))
 			->setFactory('Kdyby\Extension\Curl\Diagnostics\Panel::register')
 			->addTag('run', TRUE);
