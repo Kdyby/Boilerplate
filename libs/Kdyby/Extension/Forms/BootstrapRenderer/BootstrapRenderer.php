@@ -93,7 +93,7 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 			}
 
 			$formEl = $form->getElementPrototype();
-			if (!$formEl->class || stripos((string)$formEl->class, 'form-') === FALSE) {
+			if (!($classes = self::getClasses($formEl)) || stripos($classes, 'form-') === FALSE) {
 				$formEl->addClass('form-horizontal');
 			}
 		}
@@ -522,11 +522,19 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 	 */
 	public static function controlHasClass(Controls\BaseControl $control, $class)
 	{
-		$classes = is_string($control->controlPrototype->class)
-			? explode(' ', $control->controlPrototype->class)
-			: $control->controlPrototype->class;
-
+		$classes = explode(' ', self::getClasses($control->controlPrototype));
 		return in_array($class, $classes, TRUE);
+	}
+
+
+
+	/**
+	 * @param \Nette\Utils\Html $el
+	 * @return bool
+	 */
+	private static function getClasses(Html $el)
+	{
+		return is_array($el->class) ? implode(' ', $el->class) : $el->class;
 	}
 
 }
