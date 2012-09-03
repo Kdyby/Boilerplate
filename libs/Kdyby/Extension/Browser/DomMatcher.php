@@ -132,6 +132,11 @@ class DomMatcher extends Nette\Object
 	 */
 	public static function multi($basePath, $paths = null, $defaultExtractor = null)
 	{
+		if (is_callable($paths)) {
+			$defaultExtractor = $paths;
+			$paths = NULL;
+		}
+
 		return new DomMatcher(function (\DOMDocument $dom, \DOMNode $contextNode = null, $extractor = null) use ($basePath, $paths, $defaultExtractor) {
 			$xpath = new \DOMXpath($dom);
 			$extractor = DomMatcher::_getExtractor($defaultExtractor, $extractor);
