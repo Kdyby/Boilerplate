@@ -11,6 +11,7 @@
 namespace Kdyby\Extension\Browser;
 
 use Kdyby;
+use Nette\Utils\Strings;
 use Nette;
 use Symfony\Component\CssSelector\CssSelector;
 
@@ -52,11 +53,13 @@ class DomMatcher extends Nette\Object
 
 	/**
 	 * @param \DOMDocument $dom
+	 * @param \DOMNode $contextNode
+	 * @param callable $extractor
 	 * @return array|mixed|null
 	 */
-	public function processDom(\DOMDocument $dom)
+	public function processDom(\DOMDocument $dom, \DOMNode $contextNode = null, $extractor = null)
 	{
-		return $this($dom);
+		return $this($dom, $contextNode, $extractor);
 	}
 
 
@@ -139,7 +142,6 @@ class DomMatcher extends Nette\Object
 			$matches = $xpath->query($basePath, $contextNode);
 
 			$return = array();
-
 			if (!$paths) {
 				foreach ($matches as $m) {
 					$return[] = $extractor->invoke($m);
@@ -268,7 +270,7 @@ class DomMatcher extends Nette\Object
 	 */
 	public static function defaultExtractor($n)
 	{
-		return $n instanceof \DOMNode ? $n->nodeValue : $n;
+		return static::normalizeWhitespaces($n);
 	}
 
 
@@ -285,7 +287,7 @@ class DomMatcher extends Nette\Object
 		foreach ($n->childNodes as $child) {
 			$html .= $dom->saveXML($child);
 		}
-		return $html;
+		return static::normalizeWhitespaces($html);
 	}
 
 
@@ -296,9 +298,8 @@ class DomMatcher extends Nette\Object
 	 */
 	public static function normalizeWhitespaces($n)
 	{
-		return $n instanceof \DOMNode
-			? Nette\Utils\Strings::normalize($n->nodeValue)
-			: NULL;
+		$t = Strings::normalize($n instanceof \DOMNode ? $n->nodeValue : $n);
+		return trim(Strings::replace($t, array('~\xc2\xa0~' => ' ')));
 	}
 
 }
