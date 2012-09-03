@@ -263,20 +263,22 @@ class Request extends RequestOptions
 		$lastUrl = new Url($from);
 		$url = new Url($to);
 
-		if (empty($url->scheme)) { // scheme
-			if (empty($lastUrl->scheme)) {
-				throw new InvalidUrlException("Missing URL scheme!");
-			}
-
-			$url->scheme = $lastUrl->scheme;
+		if (!$to instanceof Url && $url->path[0] !== '/') { // relative
+			$url->path = substr($lastUrl->path, 0, strrpos($lastUrl->path, '/') + 1) . $url->path;
 		}
 
-		if (empty($url->host)) { // host
-			if (empty($lastUrl->host)) {
-				throw new InvalidUrlException("Missing URL host!");
-			}
+		foreach (array('scheme', 'host', 'port') as $copy) {
+			if (empty($url->{$copy})) {
+				if (empty($lastUrl->{$copy})) {
+					throw new InvalidUrlException("Missing URL $copy!");
+				}
 
-			$url->host = $lastUrl->host;
+				$url->{$copy} = $lastUrl->{$copy};
+			}
+		}
+
+		if (!$url->path || $url->path[0] !== '/') {
+			$url->path = '/' . $url->path;
 		}
 
 		return $url;
