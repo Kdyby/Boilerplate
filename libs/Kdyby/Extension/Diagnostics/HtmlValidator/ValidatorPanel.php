@@ -857,13 +857,16 @@ class ValidatorPanel extends Nette\Object implements Nette\Diagnostics\IBarPanel
 		$dom->strictErrorChecking = TRUE;
 		$dom->recover = TRUE;
 
-		Debugger::tryError();
+		set_error_handler(function($severity, $message) {
+		  restore_error_handler();
+		});
 		@$dom->loadHTML($this->html);
+		restore_error_handler();
+
 		$this->errors = array_filter(libxml_get_errors(), function (\LibXMLError $error) {
 			return !in_array((int)$error->code, ValidatorPanel::$ignoreErrors, TRUE);
 		});
 		libxml_clear_errors();
-		Debugger::catchError($error);
 	}
 
 }
