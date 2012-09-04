@@ -796,7 +796,7 @@ class ValidatorPanel extends Nette\Object implements Nette\Diagnostics\IBarPanel
 	{
 		$data = callback('Nette\Templating\Helpers::dataStream');
 		$img = Html::el('img')->src($data(file_get_contents(__DIR__ . '/icon.png')))->height('16px');
-		return $img . ($this->errors ? count($this->errors) . ' problems' : 'Validator OK');
+		return $img . ($this->errors ? '<strong style="color:red;font-weight:bold">' . count($this->errors) . ' problems</strong>' : 'Ok');
 	}
 
 
