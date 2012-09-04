@@ -31,7 +31,7 @@ class ValidatorExtension extends Nette\Config\CompilerExtension
 		}
 
 		$builder->addDefinition($this->prefix('panel'))
-			->setClass('Kdyby\Extension\Diagnostics\HtmlValidator')
+			->setClass('Kdyby\Extension\Diagnostics\HtmlValidator\ValidatorPanel')
 			->addSetup('Nette\Diagnostics\Debugger::$bar->addPanel(?)', array('@self'));
 
 		$builder->getDefinition('application')
