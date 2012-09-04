@@ -35,9 +35,9 @@ class ValidatorExtension extends Nette\Config\CompilerExtension
 			->addSetup('Nette\Diagnostics\Debugger::$bar->addPanel(?)', array('@self'));
 
 		$builder->getDefinition('application')
-			->addSetup('$service->onStartup[] = ?', array(array('@validatorPanel', 'startBuffering')))
-			->addSetup('$service->onShutdown[] = ?', array(array('@validatorPanel', 'validate')))
-			->addSetup('$service->onError[] = ?', array(array('@validatorPanel', 'stopBuffering')));
+			->addSetup('$service->onStartup[] = ?', array(array($this->prefix('@panel'), 'startBuffering')))
+			->addSetup('$service->onShutdown[] = ?', array(array($this->prefix('@panel'), 'validate')))
+			->addSetup('$service->onError[] = ?', array(array($this->prefix('@panel'), 'stopBuffering')));
 	}
 
 
