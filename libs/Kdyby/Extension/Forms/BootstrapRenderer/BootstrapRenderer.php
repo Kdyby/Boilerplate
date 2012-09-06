@@ -12,6 +12,7 @@ namespace Kdyby\Extension\Forms\BootstrapRenderer;
 
 use Nette;
 use Nette\Forms\Controls;
+use Nette\Iterators\Filter;
 use Nette\Latte\Macros\FormMacros;
 use Nette\Templating\FileTemplate;
 use Nette\Utils\Html;
@@ -258,22 +259,14 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 
 	/**
 	 * @param \Nette\Forms\Container $container
-	 * @return array
+	 * @return \Iterator
 	 */
 	public function findControls(Nette\Forms\Container $container = NULL)
 	{
 		$container = $container ?: $this->form;
-
-		$controls = array();
-		foreach ($container->getControls() as $control) {
-			/** @var \Nette\Forms\Controls\BaseControl $control */
-			if ($control->getOption('rendered')) {
-				continue;
-			}
-			$controls[] = $control;
-		}
-
-		return $controls;
+		return new Filter($container->getControls(), function (Controls\BaseControl $control) {
+			return !$control->getOption('rendered');
+		});
 	}
 
 
