@@ -1,9 +1,10 @@
 {
     "name":"kdyby/bootstrap-form-renderer",
+    "type":"library",
     "description":"Nette forms renderer with bootstrap",
     "keywords":["nette", "kdyby", "forms", "bootstrap"],
     "homepage":"http://kdyby.org",
-    "license":["BSD-3", "GPLv2", "GPLv3"],
+    "license":["BSD-3-Clause", "GPL-2.0", "GPL-3.0"],
     "authors":[
         {
             "name":"Filip Procházka",

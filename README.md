@@ -8,7 +8,7 @@ WARNING: This package is under active development, and shouldn't be used at prod
 Requirements
 ------------
 
-Kdyby Framework requires PHP 5.3.2 with PDO.
+Kdyby Framework requires PHP 5.3.2 with PDO or higher.
 
 - [Nette Framework 2.0.x](https://github.com/nette/nette)
 - [Doctrine ORM 2.2.x](https://github.com/doctrine/doctrine2)
@@ -19,8 +19,15 @@ Kdyby Framework requires PHP 5.3.2 with PDO.
 Installation
 ------------
 
-    $ git clone git://github.com/Kdyby/sandbox.git kdyby-sandbox
-    $ php ./prepare
+
+The best way to install Kdyby Framework is using  [Composer](http://getcomposer.org/):
+
+	curl -s http://getcomposer.org/installer | php
+	php composer.phar create-project kdyby/sandbox myApp
+	cd myApp
+
+Make directories `temp` and `log` writable. Navigate your browser
+to the `www` directory and you will see a welcome page.
 
 
 
