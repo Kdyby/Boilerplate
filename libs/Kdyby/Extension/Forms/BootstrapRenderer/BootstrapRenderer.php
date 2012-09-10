@@ -264,7 +264,8 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 	public function findControls(Nette\Forms\Container $container = NULL)
 	{
 		$container = $container ?: $this->form;
-		return new Filter($container->getControls(), function (Controls\BaseControl $control) {
+		return new Filter($container->getControls(), function ($control) {
+			$control = $control instanceof Filter ? $control->current() : $control;
 			return !$control->getOption('rendered');
 		});
 	}
