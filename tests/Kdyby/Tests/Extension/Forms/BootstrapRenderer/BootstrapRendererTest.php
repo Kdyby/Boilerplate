@@ -11,10 +11,10 @@
 namespace Kdyby\Tests\Extension\Forms\BootstrapRenderer;
 
 use Kdyby;
-use Nette\Utils\Html;
-use Kdyby\Extension\Forms\BootstrapRenderer\BootstrapRenderer;
+use Kdyby\Extension\Forms\BootstrapRenderer;
 use Nette;
 use Nette\Application\UI\Form;
+use Nette\Utils\Html;
 use Nette\Utils\Strings;
 
 
@@ -186,16 +186,26 @@ class BootstrapRendererTest extends Kdyby\Tests\TestCase
 	 */
 	protected function assertTemplateOutput($latteFile, $expectedOutput, Form $form)
 	{
+		$container = $this->createContainer(NULL, array(
+			new BootstrapRenderer\DI\RendererExtension()
+		));
+
 		// create template
-		$container = $this->createContainer();
 		$template = $container->nette->createTemplate();
 		/** @var \Nette\Templating\FileTemplate $template */
 		$template->setCacheStorage($container->nette->templateCacheStorage);
 		$template->setFile($latteFile);
 
 		// create form
-		$form->setRenderer(new BootstrapRenderer(clone $template));
-		$template->setParameters(array('form' => $form, '_form' => $form));
+		$form->setRenderer(new BootstrapRenderer\BootstrapRenderer(clone $template));
+
+		// params
+		$control = new ControlMock();
+		$control['foo'] = $form;
+		$template->setParameters(array(
+			'form' => $form, '_form' => $form,
+			'control' => $control, '_control' => $control
+		));
 
 		// render template
 		ob_start();
@@ -211,5 +221,15 @@ class BootstrapRendererTest extends Kdyby\Tests\TestCase
 		// assert
 		$this->assertSame($expected, $output);
 	}
+
+}
+
+
+
+/**
+ * @author Filip Procházka <filip@prochazka.su>
+ */
+class ControlMock extends \Nette\Application\UI\Control
+{
 
 }

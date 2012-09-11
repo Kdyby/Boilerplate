@@ -16,6 +16,21 @@ Kdyby/BootstrapRenderer requires PHP 5.3.2 or higher.
 - Install package <code>kdyby/bootstrap-form-renderer</code>
 
 
+## Macros
+
+If you wanna use the special macros, you have to register them into Latte Engine
+
+```php
+Kdyby\Extension\Forms\BootstrapRenderer\Latte\FormMacros::install($engine->compiler);
+```
+
+Or simply register the extension in `app/bootstrap.php` to allow them globally
+
+```php
+Kdyby\Extension\Forms\BootstrapRenderer\DI\RendererExtension::register($configurator);
+```
+
+
 ## Usage
 
 First you have to register the renderer to form.
@@ -31,33 +46,44 @@ For performance optimizations, you can provider your own template instance.
 All the usage cases expects you to have the form component in variable named <code>$form</code>
 
 
+
 ### Basic rendering
 
 Entire form
 
-    {control formName}
+```smarty
+{control formName} or {form formName /}
+```
 
 Beginning of the form
 
-    {$form->render('begin')}
+```smarty
+{$form->render('begin')} or {form $form} or {form formName}
+```
 
 Errors
 
 > Renders only errors, that have not associated form element.
 
-    {$form->render('errors')}
+```smarty
+{$form->render('errors')} or {form errors}
+```
 
 Body
 
 > Renders all controls and groups, that are not yet rendered.
 
-    {$form->render('body')}
+```smarty
+{$form->render('body')} or {form body}
+```
 
 End
 
 > Renders all hidden inputs, and then the closing tag of form.
 
-    {$form->render('end')}
+```smarty
+{$form->render('end')} or {/form}
+```
 
 
 ### Rendering of form components
@@ -66,20 +92,25 @@ Control
 
 > Renders the container div around the control, its label and input.
 
-    {$form->render($form['controlName'])}
+```smarty
+{$form->render($form['control-name'])} or {pair control-name}
+```
 
 Container
 
 > Renders all the inputs in container, that are not yet rendered.
 
-    {$form->render($form['containerName'])}
+```smarty
+{$form->render($form['container-name'])} or {container container-name}
+```
 
 Group
 
 > Renders fieldset, legend and all the controls in group, that are not yet rendered.
 
-    {$form->render($form->getGroup('Group name'))}
-
+```smarty
+{$form->render($form->getGroup('Group name'))} or {group "Group name"}
+```
 
 
 -----
