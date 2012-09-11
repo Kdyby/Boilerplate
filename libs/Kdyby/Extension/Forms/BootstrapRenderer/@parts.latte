@@ -21,7 +21,9 @@
     {include #controls, renderer => $renderer, controls => $renderer->findControls($mode)}
 
 {elseif $mode instanceof \Nette\Forms\ControlGroup}
-    {include #group, renderer => $renderer, group => $renderer->processGroup($mode)}
+    {if $mode->controls}
+        {include #group, renderer => $renderer, group => $renderer->processGroup($mode)}
+    {/if}
 
 {elseif $mode instanceof \Nette\Forms\IControl}
     {include #control, renderer => $renderer, control => $mode}

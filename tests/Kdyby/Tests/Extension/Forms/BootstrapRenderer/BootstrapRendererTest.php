@@ -11,6 +11,7 @@
 namespace Kdyby\Tests\Extension\Forms\BootstrapRenderer;
 
 use Kdyby;
+use Nette\Utils\Html;
 use Kdyby\Extension\Forms\BootstrapRenderer\BootstrapRenderer;
 use Nette;
 use Nette\Application\UI\Form;
@@ -135,6 +136,17 @@ class BootstrapRendererTest extends Kdyby\Tests\TestCase
 			2 => 'Severomoravský',
 			3 => 'Slezský',
 		));
+
+		$someGroup = $form->addGroup('Some Group', FALSE)
+			->setOption('id', 'nemam')
+			->setOption('class', 'beauty')
+			->setOption('data-custom', '{"this":"should work too"}');
+		$someGroup->add($form->addText('groupedName', 'Name'));
+
+		// the div here and fieldset in template is intentional
+		$containerGroup = $form->addGroup('Group with container', FALSE)
+			->setOption('container', Html::el('div')->id('mam')->class('yes')->data('magic', 'is real'));
+		$containerGroup->add($form->addText('containerGroupedName', 'Name'));
 
 		return $form;
 	}

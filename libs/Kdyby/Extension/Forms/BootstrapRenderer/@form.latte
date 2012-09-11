@@ -18,7 +18,7 @@
 {* controls with group *}
 {foreach $renderer->findGroups() as $group}{block #group}
 
-    <fieldset{if isset($group->id)} id="{$group->id}"{/if}>
+    <fieldset{!$group->attrs->attributes()}>
         <legend n:if="$group->label">{$group->label}</legend>
         <p n:if="$group->description">{$group->description}</p>
 
