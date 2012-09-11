@@ -46,6 +46,10 @@
                 {if $controlTemplate = $renderer->getControlTemplate($control)}
                     {include "$controlTemplate", name => $name, description => $description, error => $error, form => $form, _form => $form}
 
+                {elseif $renderer->isSubmitButton($control)}
+
+                    {input $renderer->getControlName($control)}
+
                 {elseif $renderer->isButton($control)}
 
                     <div class="controls">
