@@ -107,6 +107,10 @@ class FormMacros extends Latte\Macros\MacroSet
 	 */
 	public function macroPair(MacroNode $node, PhpWriter $writer)
 	{
+		if ($this->validateParent($node) === FALSE) {
+			return FALSE;
+		}
+
 		return $writer->write('$_form->render($_form[%node.word])');
 	}
 
@@ -118,6 +122,10 @@ class FormMacros extends Latte\Macros\MacroSet
 	 */
 	public function macroGroup(MacroNode $node, PhpWriter $writer)
 	{
+		if ($this->validateParent($node) === FALSE) {
+			return FALSE;
+		}
+
 		return $writer->write('$_form->render($_form->getGroup(%node.word))');
 	}
 
@@ -129,7 +137,29 @@ class FormMacros extends Latte\Macros\MacroSet
 	 */
 	public function macroContainer(MacroNode $node, PhpWriter $writer)
 	{
+		if ($this->validateParent($node) === FALSE) {
+			return FALSE;
+		}
+
 		return $writer->write('$_form->render($_form[%node.word])');
+	}
+
+
+
+	/**
+	 * @param \Nette\Latte\MacroNode $parent
+	 * @throws \Nette\Latte\CompileException
+	 * @return bool
+	 */
+	private function validateParent(MacroNode $parent)
+	{
+		while ($parent = $parent->parentNode) {
+			if ($parent->name === 'form') {
+				return TRUE;
+			}
+		}
+
+		return FALSE;
 	}
 
 
@@ -153,7 +183,7 @@ class FormMacros extends Latte\Macros\MacroSet
 		}
 
 		if (is_object($mode) || !in_array($mode, array('errors', 'body', 'controls'), TRUE)) {
-			Nette\Latte\Macros\FormMacros::renderFormBegin($form, $args);
+			$form->render('begin');
 
 		} else {
 			$form->render($mode);
