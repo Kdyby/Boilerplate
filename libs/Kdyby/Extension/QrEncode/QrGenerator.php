@@ -32,11 +32,28 @@ class QrGenerator extends QrOptions
 	{
 		$options = $this->buildOptions($qr);
 		$cmd = $this->buildCommand($options);
-
 		Debugger::log('$ ' . $cmd, 'shell');
-		exec($cmd . ' 2>&1', $output, $status);
-		if (0 !== $status) {
-			throw new ProcessException("Error occured while executing: `$cmd`\n\n" . implode("\n", $output));
+
+		$spec = array(
+		   0 => array("pipe", "r"),  // stdin is a pipe that the child will read from
+		   1 => array("pipe", "w"),  // stdout is a pipe that the child will write to
+		   2 => array("pipe", "w"),  // errors
+		);
+
+		$output = NULL;
+		if (is_resource($process = proc_open($cmd, $spec, $pipes))) {
+			fclose($pipes[0]);
+			stream_set_blocking($pipes[1], 1);
+			$output = stream_get_contents($pipes[1]);
+			fclose($pipes[1]);
+			@fclose($pipes[2]);
+
+			if (0 !== proc_close($process)) {
+				throw new ProcessException("Error occured while executing: `$cmd`\n\n" . implode("\n", $output));
+			}
+
+		} else {
+			throw new ProcessException("Could not execute: `$cmd`");
 		}
 
 		return $output;
@@ -52,7 +69,7 @@ class QrGenerator extends QrOptions
 	private function buildOptions(QrCode $qr)
 	{
 		return array(
-			'--output=-' => '',
+			'--output=-',
 			'--size' => $qr->getSize($this->getSize()),
 			'--level' => $qr->getErrorCorrection($this->getErrorCorrection()),
 			'--symversion' => $qr->getVersion($this->getVersion()),
@@ -82,7 +99,12 @@ class QrGenerator extends QrOptions
 
 		$cmd = 'qrencode';
 		foreach ($options as $opt => $val) {
-			$cmd .= ' ' . $opt . ($val !== NULL && !is_bool($val) ? ($opt ? '=' : '') . $val : NULL);
+			if (is_numeric($opt)) {
+				$cmd .= ' ' . substr($val, 1, -1);
+
+			} else {
+				$cmd .= ' ' . $opt . (!is_bool($val) && $val !== NULL ? ($opt ? '=' : '') . $val : NULL);
+			}
 		}
 
 		return $cmd;
