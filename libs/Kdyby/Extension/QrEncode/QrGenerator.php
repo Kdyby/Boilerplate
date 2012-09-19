@@ -88,9 +88,9 @@ class QrGenerator extends QrOptions
 			return $opt !== NULL;
 		}));
 
-		$cmd = 'qrencode ';
+		$cmd = 'qrencode';
 		foreach ($options as $opt => $val) {
-			$cmd .= $opt . ' ' . $val;
+			$cmd .= ' ' . $opt . (is_string($val) ? ' ' . $val : NULL);
 		}
 
 		return $cmd;
