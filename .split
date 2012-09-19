@@ -29,3 +29,7 @@ target = git@github.com:Kdyby/FacebookSDKExtension.git
 [libs/Kdyby/Extension/Diagnostics/HtmlValidator]
 branch = split/html-validator-panel
 target = git@github.com:Kdyby/HtmlValidatorPanel.git
+
+[libs/Kdyby/Extension/QrEncode]
+branch = split/qrencode
+target = git@github.com:Kdyby/QrEncodeExtension.git
