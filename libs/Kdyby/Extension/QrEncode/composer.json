@@ -25,7 +25,10 @@
     "autoload":{
         "psr-0":{
             "Kdyby\\Extension\\QrEncode":""
-        }
+        },
+        "classmap":[
+            "Kdyby/Extension/QrEncode/exceptions.php"
+        ]
     },
     "target-dir":"Kdyby/Extension/QrEncode"
 }

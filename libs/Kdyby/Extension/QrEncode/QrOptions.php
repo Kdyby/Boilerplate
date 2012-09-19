@@ -103,7 +103,7 @@ abstract class QrOptions extends Nette\Object
 	 */
 	public function getMargin($default = NULL)
 	{
-		return $this->margin ?: $default;
+		return is_int($this->margin) ? $this->margin : $default;
 	}
 
 
@@ -138,7 +138,7 @@ abstract class QrOptions extends Nette\Object
 	 */
 	public function getSize($default = NULL)
 	{
-		return $this->size ?: $default;
+		return is_int($this->size) ? $this->size : $default;
 	}
 
 
@@ -149,7 +149,7 @@ abstract class QrOptions extends Nette\Object
 	 */
 	public function getVersion($default = NULL)
 	{
-		return $this->version ?: $default;
+		return is_int($this->version) ? $this->version : $default;
 	}
 
 }

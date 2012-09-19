@@ -11,6 +11,7 @@
 namespace Kdyby\Extension\QrEncode;
 
 use Kdyby;
+use Nette\Diagnostics\Debugger;
 use Nette\Utils\Strings;
 use Nette;
 
@@ -24,43 +25,34 @@ class QrGenerator extends QrOptions
 
 	/**
 	 * @param QrCode $qr
-	 * @param string $tempDir
 	 * @throws ProcessException
 	 * @return string
 	 */
-	public function render(QrCode $qr, $tempDir = NULL)
+	public function render(QrCode $qr)
 	{
-		$options = $this->buildOptions($qr, $tempDir);
+		$options = $this->buildOptions($qr);
 		$cmd = $this->buildCommand($options);
 
+		Debugger::log('$ ' . $cmd, 'shell');
 		exec($cmd . ' 2>&1', $output, $status);
 		if (0 !== $status) {
 			throw new ProcessException("Error occured while executing: `$cmd`\n\n" . implode("\n", $output));
-
-		} elseif (!$data = @file_get_contents($tmpFile = $options['--output'])) {
-			throw new ProcessException("No QR Code was generated into $tmpFile.");
 		}
 
-		unlink($tmpFile);
-		return $data;
+		return $output;
 	}
 
 
 
 	/**
 	 * @param QrCode $qr
-	 * @param string $tempDir
 	 * @throws IOException
 	 * @return array
 	 */
-	private function buildOptions(QrCode $qr, $tempDir)
+	private function buildOptions(QrCode $qr)
 	{
-		if (!is_writable($tempDir = $tempDir ? : sys_get_temp_dir())) {
-			throw new IOException("Dir $tempDir is not writable, please provide a writable directory.");
-		}
-
 		return array(
-			'--output' => $tempDir . '/php-qrencode.' . Strings::random() . '.png',
+			'--output=-' => '',
 			'--size' => $qr->getSize($this->getSize()),
 			'--level' => $qr->getErrorCorrection($this->getErrorCorrection()),
 			'--symversion' => $qr->getVersion($this->getVersion()),
@@ -83,14 +75,14 @@ class QrGenerator extends QrOptions
 	private static function buildCommand(array $options)
 	{
 		$options = array_map(function ($opt) {
-			return escapeshellarg($opt);
+			return is_numeric($opt) ? $opt : escapeshellarg($opt);
 		}, array_filter($options, function ($opt) {
 			return $opt !== NULL;
 		}));
 
 		$cmd = 'qrencode';
 		foreach ($options as $opt => $val) {
-			$cmd .= ' ' . $opt . (is_string($val) ? ' ' . $val : NULL);
+			$cmd .= ' ' . $opt . ($val !== NULL && !is_bool($val) ? ($opt ? '=' : '') . $val : NULL);
 		}
 
 		return $cmd;

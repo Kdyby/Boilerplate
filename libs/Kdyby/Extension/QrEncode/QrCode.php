@@ -79,6 +79,7 @@ class QrCode extends QrOptions
 	/**
 	 * @param string $file
 	 * @param QrGenerator $generator
+	 * @return string
 	 * @throws IOException
 	 */
 	public function save($file, QrGenerator $generator = NULL)
@@ -86,6 +87,8 @@ class QrCode extends QrOptions
 		if (!@file_put_contents($file, $this->render($generator))) {
 			throw new IOException("Cannot write to $file.");
 		}
+
+		return $file;
 	}
 
 }
