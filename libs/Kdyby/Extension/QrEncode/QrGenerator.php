@@ -11,7 +11,6 @@
 namespace Kdyby\Extension\QrEncode;
 
 use Kdyby;
-use Nette\Diagnostics\Debugger;
 use Nette\Utils\Strings;
 use Nette;
 
@@ -30,33 +29,8 @@ class QrGenerator extends QrOptions
 	 */
 	public function render(QrCode $qr)
 	{
-		$options = $this->buildOptions($qr);
-		$cmd = $this->buildCommand($options);
-		Debugger::log('$ ' . $cmd, 'shell');
-
-		$spec = array(
-		   0 => array("pipe", "r"),  // stdin is a pipe that the child will read from
-		   1 => array("pipe", "w"),  // stdout is a pipe that the child will write to
-		   2 => array("pipe", "w"),  // errors
-		);
-
-		$output = NULL;
-		if (is_resource($process = proc_open($cmd, $spec, $pipes))) {
-			fclose($pipes[0]);
-			stream_set_blocking($pipes[1], 1);
-			$output = stream_get_contents($pipes[1]);
-			fclose($pipes[1]);
-			@fclose($pipes[2]);
-
-			if (0 !== proc_close($process)) {
-				throw new ProcessException("Error occured while executing: `$cmd`\n\n" . implode("\n", $output));
-			}
-
-		} else {
-			throw new ProcessException("Could not execute: `$cmd`");
-		}
-
-		return $output;
+		$process = new QrEncodeProcess($this->buildOptions($qr));
+		return $process->execute();
 	}
 
 
@@ -81,33 +55,6 @@ class QrGenerator extends QrOptions
 			'--8bit' => $qr->hasOption(QrCode::ENCODE_8BIT, $this->getOptions()) ? : NULL,
 			'' => $qr->getString()
 		);
-	}
-
-
-
-	/**
-	 * @param array $options
-	 * @return string
-	 */
-	private static function buildCommand(array $options)
-	{
-		$options = array_map(function ($opt) {
-			return is_numeric($opt) ? $opt : escapeshellarg($opt);
-		}, array_filter($options, function ($opt) {
-			return $opt !== NULL;
-		}));
-
-		$cmd = 'qrencode';
-		foreach ($options as $opt => $val) {
-			if (is_numeric($opt)) {
-				$cmd .= ' ' . substr($val, 1, -1);
-
-			} else {
-				$cmd .= ' ' . $opt . (!is_bool($val) && $val !== NULL ? ($opt ? '=' : '') . $val : NULL);
-			}
-		}
-
-		return $cmd;
 	}
 
 }

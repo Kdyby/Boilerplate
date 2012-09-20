@@ -126,7 +126,7 @@ abstract class QrOptions extends Nette\Object
 	 */
 	public function hasOption($option, $default = NULL)
 	{
-		$value = (int)($this->options ? : $default);
+		$value = (int)($this->options ?: $default);
 		return (bool)($value & $option);
 	}
 
