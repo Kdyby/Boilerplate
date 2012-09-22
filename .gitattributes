@@ -3,5 +3,5 @@
 .travis.yml export-ignore
 .split export-ignore
 phpunit.xml export-ignore
-docs/ export-ignore
-tests/ export-ignore
+docs export-ignore
+tests export-ignore
