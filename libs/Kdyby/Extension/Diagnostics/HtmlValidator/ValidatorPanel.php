@@ -836,7 +836,7 @@ class ValidatorPanel extends Nette\Object implements Nette\Diagnostics\IBarPanel
 	 */
 	public function stopBuffering()
 	{
-		ob_end_flush();
+		@ob_end_flush();
 	}
 
 
