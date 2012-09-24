@@ -24,13 +24,14 @@ class CurlExtension extends Nette\Config\CompilerExtension
 	public function loadConfiguration()
 	{
 		$builder = $this->getContainerBuilder();
-
 		$builder->addDefinition($this->prefix('curl'))
 			->setClass('Kdyby\Extension\Curl\CurlSender');
 
-		$builder->addDefinition($this->prefix('curl.panel'))
-			->setFactory('Kdyby\Extension\Curl\Diagnostics\Panel::register')
-			->addTag('run', TRUE);
+		if (!$builder->parameters['productionMode']) {
+			$builder->addDefinition($this->prefix('curl.panel'))
+				->setFactory('Kdyby\Extension\Curl\Diagnostics\Panel::register')
+				->addTag('run', TRUE);
+		}
 	}
 
 }

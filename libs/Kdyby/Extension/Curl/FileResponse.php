@@ -32,7 +32,7 @@ class FileResponse extends Response
 
 
 	/**
-	 * @param \Kdyby\Extension\Curl\CurlWrapper $curl
+	 * @param CurlWrapper $curl
 	 * @param array $headers
 	 */
 	public function __construct(CurlWrapper $curl, array $headers)
@@ -159,7 +159,7 @@ class FileResponse extends Response
 
 
 	/**
-	 * @param \Kdyby\Extension\Curl\CurlWrapper $curl
+	 * @param CurlWrapper $curl
 	 *
 	 * @throws CurlException
 	 * @throws InvalidStateException
@@ -189,11 +189,11 @@ class FileResponse extends Response
 
 
 	/**
-	 * @param \Kdyby\Extension\Curl\CurlWrapper $curl
+	 * @param CurlWrapper $curl
 	 * @param string $dir
 	 *
 	 * @throws FileNotWritableException
-	 * @return \Kdyby\Extension\Curl\CurlWrapper
+	 * @return CurlWrapper
 	 */
 	public static function prepareDownload(CurlWrapper $curl, $dir)
 	{

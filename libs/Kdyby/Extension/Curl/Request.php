@@ -34,12 +34,6 @@ class Request extends RequestOptions
 	const DOWNLOAD = 'DOWNLOAD';
 	/**#@- */
 
-	/**#@+ verify host for certificates */
-	const VERIFYHOST_NO = 0;
-	const VERIFYHOST_COMMON = 1;
-	const VERIFYHOST_MATCH = 2;
-	/**#@- */
-
 	/** @var \Nette\Http\UrlScript */
 	public $url;
 
@@ -58,7 +52,7 @@ class Request extends RequestOptions
 	/** @var array */
 	public $files = array();
 
-	/** @var \Kdyby\Extension\Curl\CurlSender */
+	/** @var CurlSender */
 	private $sender;
 
 
@@ -89,7 +83,7 @@ class Request extends RequestOptions
 
 
 	/**
-	 * @return \Kdyby\Extension\Curl\HttpCookies
+	 * @return HttpCookies
 	 */
 	public function getCookies()
 	{
@@ -110,9 +104,9 @@ class Request extends RequestOptions
 
 
 	/**
-	 * @param \Kdyby\Extension\Curl\CurlSender $sender
+	 * @param CurlSender $sender
 	 *
-	 * @return \Kdyby\Extension\Curl\Request
+	 * @return Request
 	 */
 	public function setSender(CurlSender $sender)
 	{
@@ -123,7 +117,7 @@ class Request extends RequestOptions
 
 
 	/**
-	 * @return \Kdyby\Extension\Curl\Response
+	 * @return Response
 	 */
 	public function send()
 	{
@@ -139,7 +133,7 @@ class Request extends RequestOptions
 	/**
 	 * @param array|string $query
 	 *
-	 * @return \Kdyby\Extension\Curl\Response
+	 * @return Response
 	 */
 	public function get($query = NULL)
 	{
@@ -155,7 +149,7 @@ class Request extends RequestOptions
 	 * @param array|string $post
 	 * @param array $files
 	 *
-	 * @return \Kdyby\Extension\Curl\Response
+	 * @return Response
 	 */
 	public function post($post = array(), array $files = NULL)
 	{
@@ -170,7 +164,7 @@ class Request extends RequestOptions
 	/**
 	 * @param array|string $post
 	 *
-	 * @return \Kdyby\Extension\Curl\Response
+	 * @return Response
 	 */
 	public function put($post = array())
 	{
@@ -183,7 +177,7 @@ class Request extends RequestOptions
 
 
 	/**
-	 * @return \Kdyby\Extension\Curl\Response
+	 * @return Response
 	 */
 	public function delete()
 	{
@@ -197,7 +191,7 @@ class Request extends RequestOptions
 	/**
 	 * @param array|string $post
 	 *
-	 * @return \Kdyby\Extension\Curl\Response
+	 * @return Response
 	 */
 	public function download($post = array())
 	{
@@ -210,9 +204,9 @@ class Request extends RequestOptions
 
 	/**
 	 * Creates new request that can follow requested location
-	 * @param \Kdyby\Extension\Curl\Response $response
+	 * @param Response $response
 	 *
-	 * @return \Kdyby\Extension\Curl\Request
+	 * @return Request
 	 */
 	final public function followRedirect(Response $response)
 	{

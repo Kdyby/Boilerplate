@@ -15,9 +15,6 @@ use Nette;
 
 
 
-// exceptions
-require_once __DIR__ . '/exceptions.php';
-
 /**
  * @author Filip Procházka <filip@prochazka.su>
  *
@@ -30,6 +27,12 @@ require_once __DIR__ . '/exceptions.php';
  */
 abstract class RequestOptions extends Nette\Object
 {
+	/**#@+ verify host for certificates */
+	const VERIFYHOST_NO = 0;
+	const VERIFYHOST_COMMON = 1;
+	const VERIFYHOST_MATCH = 2;
+	/**#@- */
+
 
 	/** @var array */
 	public $options = array(
@@ -44,7 +47,7 @@ abstract class RequestOptions extends Nette\Object
 	/**
 	 * @param int $timeout
 	 *
-	 * @return \Kdyby\Extension\Curl\RequestOptions
+	 * @return RequestOptions
 	 */
 	public function setTimeout($timeout)
 	{
@@ -57,7 +60,7 @@ abstract class RequestOptions extends Nette\Object
 	/**
 	 * @param string $referer
 	 *
-	 * @return \Kdyby\Extension\Curl\RequestOptions
+	 * @return RequestOptions
 	 */
 	public function setReferer($referer)
 	{
@@ -70,7 +73,7 @@ abstract class RequestOptions extends Nette\Object
 	/**
 	 * @param string $ua
 	 *
-	 * @return \Kdyby\Extension\Curl\RequestOptions
+	 * @return RequestOptions
 	 */
 	public function setUserAgent($ua)
 	{
@@ -83,7 +86,7 @@ abstract class RequestOptions extends Nette\Object
 	/**
 	 * @param boolean $yes
 	 *
-	 * @return \Kdyby\Extension\Curl\RequestOptions
+	 * @return RequestOptions
 	 */
 	public function setFollowRedirects($yes = TRUE)
 	{
@@ -96,7 +99,7 @@ abstract class RequestOptions extends Nette\Object
 	/**
 	 * @param int $count
 	 *
-	 * @return \Kdyby\Extension\Curl\RequestOptions
+	 * @return RequestOptions
 	 */
 	public function setMaximumRedirects($count)
 	{
@@ -109,7 +112,7 @@ abstract class RequestOptions extends Nette\Object
 	/**
 	 * @param boolean $yes
 	 *
-	 * @return \Kdyby\Extension\Curl\RequestOptions
+	 * @return RequestOptions
 	 */
 	public function setReturnTransfer($yes = TRUE)
 	{
@@ -124,7 +127,7 @@ abstract class RequestOptions extends Nette\Object
 	 *
 	 * @param boolean $yes
 	 *
-	 * @return \Kdyby\Extension\Curl\RequestOptions
+	 * @return RequestOptions
 	 */
 	public function setCertificationVerify($yes = TRUE)
 	{
@@ -148,7 +151,7 @@ abstract class RequestOptions extends Nette\Object
 	 *
 	 * @throws MissingCertificateException
 	 * @throws InvalidArgumentException
-	 * @return \Kdyby\Extension\Curl\RequestOptions
+	 * @return RequestOptions
 	 */
 	public function setTrustedCertificate($cert, $verifyHost = self::VERIFYHOST_MATCH)
 	{
@@ -184,7 +187,7 @@ abstract class RequestOptions extends Nette\Object
 	 *
 	 * @throws MissingCertificateException
 	 * @throws InvalidArgumentException
-	 * @return \Kdyby\Extension\Curl\RequestOptions
+	 * @return RequestOptions
 	 */
 	public function setTrustedCertificatesDirectory($dir, $verifyHost = 2)
 	{

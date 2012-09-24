@@ -34,16 +34,16 @@ class Response extends Nette\Object
 	/** @var array */
 	private $cookies = array();
 
-	/** @var \Kdyby\Extension\Curl\Response */
+	/** @var Response */
 	private $previous;
 
-	/** @var \Kdyby\Extension\Curl\CurlWrapper */
+	/** @var CurlWrapper */
 	protected $curl;
 
 
 
 	/**
-	 * @param \Kdyby\Extension\Curl\CurlWrapper $curl
+	 * @param CurlWrapper $curl
 	 * @param array $headers
 	 */
 	public function __construct(CurlWrapper $curl, array $headers)
@@ -60,9 +60,9 @@ class Response extends Nette\Object
 
 
 	/**
-	 * @param \Kdyby\Extension\Curl\Response $previous
+	 * @param Response $previous
 	 *
-	 * @return \Kdyby\Extension\Curl\Response
+	 * @return Response
 	 */
 	public function setPrevious(Response $previous = NULL)
 	{
@@ -73,7 +73,7 @@ class Response extends Nette\Object
 
 
 	/**
-	 * @return \Kdyby\Extension\Curl\Response|NULL
+	 * @return Response|NULL
 	 */
 	public function getPrevious()
 	{
@@ -133,7 +133,7 @@ class Response extends Nette\Object
 
 
 	/**
-	 * @param \Kdyby\Extension\Curl\CurlWrapper $curl
+	 * @param CurlWrapper $curl
 	 *
 	 * @throws CurlException
 	 * @return array

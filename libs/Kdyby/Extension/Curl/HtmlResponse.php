@@ -46,7 +46,7 @@ class HtmlResponse extends Response
 
 
 	/**
-	 * @param \Kdyby\Extension\Curl\CurlWrapper $curl
+	 * @param CurlWrapper $curl
 	 * @return string
 	 */
 	public static function convertEncoding(CurlWrapper $curl)

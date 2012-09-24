@@ -22,14 +22,14 @@ interface IRequestLogger
 {
 
 	/**
-	 * @param \Kdyby\Extension\Curl\Request $request
+	 * @param Request $request
 	 * @return string the id to pass to response
 	 */
 	function request(Request $request);
 
 
 	/**
-	 * @param \Kdyby\Extension\Curl\Response $response
+	 * @param Response $response
 	 * @param string $id
 	 */
 	function response(Response $response, $id);

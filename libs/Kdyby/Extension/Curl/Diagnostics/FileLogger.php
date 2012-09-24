@@ -11,6 +11,7 @@
 namespace Kdyby\Extension\Curl\Diagnostics;
 
 use Kdyby;
+use Kdyby\Extension\Curl;
 use Nette;
 use Nette\Utils\PhpGenerator as Code;
 
@@ -19,14 +20,14 @@ use Nette\Utils\PhpGenerator as Code;
 /**
  * @author Filip Procházka <filip@prochazka.su>
  */
-class FileLogger extends Nette\Object implements Kdyby\Extension\Curl\IRequestLogger
+class FileLogger extends Nette\Object implements Curl\IRequestLogger
 {
 
 	/** @var string */
 	private $logDir;
 
 	/** @var \Nette\Callback[] */
-	private $formaters = array();
+	private $formatters = array();
 
 
 
@@ -41,11 +42,11 @@ class FileLogger extends Nette\Object implements Kdyby\Extension\Curl\IRequestLo
 
 
 	/**
-	 * @param callback $callback
+	 * @param callable $callback
 	 */
-	public function addFormater($callback)
+	public function addFormatter($callback)
 	{
-		$this->formaters[] = callback($callback);
+		$this->formatters[] = callback($callback);
 	}
 
 
@@ -53,7 +54,7 @@ class FileLogger extends Nette\Object implements Kdyby\Extension\Curl\IRequestLo
 	/**
 	 * @param \Kdyby\Extension\Curl\Request $request
 	 */
-	public function request(Kdyby\Extension\Curl\Request $request)
+	public function request(Curl\Request $request)
 	{
 		$id = md5(serialize($request));
 
@@ -78,7 +79,7 @@ class FileLogger extends Nette\Object implements Kdyby\Extension\Curl\IRequestLo
 	 * @param \Kdyby\Extension\Curl\Response $response
 	 * @param string $id
 	 */
-	public function response(Kdyby\Extension\Curl\Response $response, $id)
+	public function response(Curl\Response $response, $id)
 	{
 		$content = array();
 		foreach ($response->getHeaders() as $name => $value) {
@@ -89,9 +90,9 @@ class FileLogger extends Nette\Object implements Kdyby\Extension\Curl\IRequestLo
 		$this->write($content . "\n\n", $id);
 
 		$body = $response->getResponse();
-		foreach ($this->formaters as $formater) {
-			if ($formated = $formater($body, $response)) {
-				$body = $formated;
+		foreach ($this->formatters as $formatter) {
+			if ($formatted = $formatter($body, $response)) {
+				$body = $formatted;
 			}
 		}
 		$this->write($body, $id);
