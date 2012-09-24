@@ -35,13 +35,17 @@ Kdyby\Extension\Forms\BootstrapRenderer\DI\RendererExtension::register($configur
 
 First you have to register the renderer to form.
 
-    use Kdyby\Extension\Forms\BootstrapRenderer\BootstrapRenderer;
-    $form->setRenderer(new BootstrapRenderer);
+```php
+use Kdyby\Extension\Forms\BootstrapRenderer\BootstrapRenderer;
+$form->setRenderer(new BootstrapRenderer);
+```
 
 For performance optimizations, you can provider your own template instance.
 
-    // $this instanceof Nette\Application\UI\Presenter
-    $form->setRenderer(new BootstrapRenderer($this->createTemplate()));
+```php
+// $this instanceof Nette\Application\UI\Presenter
+$form->setRenderer(new BootstrapRenderer($this->createTemplate()));
+```
 
 All the usage cases expects you to have the form component in variable named <code>$form</code>
 
