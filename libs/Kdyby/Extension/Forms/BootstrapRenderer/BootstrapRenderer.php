@@ -266,7 +266,7 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 		$container = $container ?: $this->form;
 		return new Filter($container->getControls(), function ($control) {
 			$control = $control instanceof Filter ? $control->current() : $control;
-			return !$control->getOption('rendered');
+			return !$control->getOption('rendered') && !$control instanceof Controls\HiddenField;
 		});
 	}
 

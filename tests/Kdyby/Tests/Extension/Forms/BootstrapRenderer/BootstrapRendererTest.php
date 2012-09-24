@@ -60,6 +60,9 @@ class BootstrapRendererTest extends Kdyby\Tests\TestCase
 
 		$form->addTextArea('desc', 'Popis');
 
+		$form->addProtection('nemam', 10);
+		$form[$form::PROTECTOR_ID]->__construct('ale mam');
+
 		$form->addSubmit('submit', 'Uložit')
 			->setAttribute('class', 'btn-primary');
 		$form->addSubmit('delete', 'Smazat');
