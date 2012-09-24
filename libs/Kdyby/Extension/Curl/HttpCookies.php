@@ -108,7 +108,7 @@ class HttpCookies extends Nette\ArrayHash
 	 */
 	public static function readCookie($cookie)
 	{
-		if (!$m = Strings::matchAll($cookie, '~(?P<name>[^;=\s]+)(?:=(?P<value>[^;]+))?~i')) {
+		if (!$m = Strings::matchAll($cookie, '~(?P<name>[^;=\s]+)(?:=(?P<value>[^;]*))?~i')) {
 			return NULL;
 		}
 
