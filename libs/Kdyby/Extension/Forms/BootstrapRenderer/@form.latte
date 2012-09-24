@@ -30,6 +30,7 @@
             {block #controls}
             {foreach $controls as $control}
             {if $renderer->isSubmitButton($control)}
+                {if $iterator->first}{!='<div class="form-actions">'}{/if}
                 {input $renderer->getControlName($control)}
                 {if !$renderer->isSubmitButton($iterator->nextValue)}{!="</div>"}{/if}
                 {?continue}
