@@ -90,7 +90,7 @@ class BootstrapRendererTest extends Kdyby\Tests\TestCase
 	public function testRenderingBasics($latteFile, $expectedOutput)
 	{
 		$form = $this->dataCreateRichForm();
-		$this->assertTemplateOutput($latteFile, $expectedOutput, $form);
+		$this->assertFormTemplateOutput($latteFile, $expectedOutput, $form);
 	}
 
 
@@ -115,7 +115,7 @@ class BootstrapRendererTest extends Kdyby\Tests\TestCase
 	{
 		// create form
 		$form = $this->dataCreateRichForm();
-		$this->assertTemplateOutput($latteFile, $expectedOutput, $form);
+		$this->assertFormTemplateOutput($latteFile, $expectedOutput, $form);
 	}
 
 
@@ -176,7 +176,32 @@ class BootstrapRendererTest extends Kdyby\Tests\TestCase
 	{
 		// create form
 		$form = $this->dataCreateForm();
-		$this->assertTemplateOutput($latteFile, $expectedOutput, $form);
+		$this->assertFormTemplateOutput($latteFile, $expectedOutput, $form);
+	}
+
+
+
+	public function testMultipleFormsInTemplate()
+	{
+		$control = new Nette\ComponentModel\Container();
+
+		$control->addComponent($a = new Form, 'a');
+		$a->addText('nemam', 'Nemam');
+		$a->setRenderer(new BootstrapRenderer\BootstrapRenderer());
+
+		$control->addComponent($b = new Form, 'b');
+		$b->addText('mam', 'Mam');
+		$b->setRenderer(new BootstrapRenderer\BootstrapRenderer());
+
+		$this->assertTemplateOutput(array(
+			'control' => $control, '_control' => $control
+		), __DIR__ . '/edge/input/multipleFormsInTemplate.latte',
+			__DIR__ . '/edge/output/multipleFormsInTemplate.html');
+
+		$this->assertTemplateOutput(array(
+				'control' => $control, '_control' => $control
+			), __DIR__ . '/edge/input/multipleFormsInTemplate_parts.latte',
+			__DIR__ . '/edge/output/multipleFormsInTemplate_parts.html');
 	}
 
 
@@ -187,7 +212,30 @@ class BootstrapRendererTest extends Kdyby\Tests\TestCase
 	 * @param \Nette\Application\UI\Form $form
 	 * @throws \Exception
 	 */
-	protected function assertTemplateOutput($latteFile, $expectedOutput, Form $form)
+	protected function assertFormTemplateOutput($latteFile, $expectedOutput, Form $form)
+	{
+		// create form
+		$form->setRenderer(new BootstrapRenderer\BootstrapRenderer());
+
+		// params
+		$control = new ControlMock();
+		$control['foo'] = $form;
+
+		$this->assertTemplateOutput(array(
+			'form' => $form, '_form' => $form,
+			'control' => $control, '_control' => $control
+		), $latteFile, $expectedOutput);
+	}
+
+
+
+	/**
+	 * @param array $params
+	 * @param string $latteFile
+	 * @param string $expectedOutput
+	 * @throws \Exception
+	 */
+	protected function assertTemplateOutput(array $params, $latteFile, $expectedOutput)
 	{
 		$container = $this->createContainer(NULL, array(
 			new BootstrapRenderer\DI\RendererExtension()
@@ -199,16 +247,10 @@ class BootstrapRendererTest extends Kdyby\Tests\TestCase
 		$template->setCacheStorage($container->nette->templateCacheStorage);
 		$template->setFile($latteFile);
 
-		// create form
-		$form->setRenderer(new BootstrapRenderer\BootstrapRenderer(clone $template));
-
 		// params
 		$control = new ControlMock();
-		$control['foo'] = $form;
-		$template->setParameters(array(
-			'form' => $form, '_form' => $form,
-			'control' => $control, '_control' => $control
-		));
+		$template->setParameters(array('control' => $control, '_control' => $control));
+		$template->setParameters($params);
 
 		// render template
 		ob_start();

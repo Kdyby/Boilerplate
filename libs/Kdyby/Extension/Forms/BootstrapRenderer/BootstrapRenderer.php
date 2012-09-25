@@ -102,6 +102,12 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 			if (!($classes = self::getClasses($formEl)) || stripos($classes, 'form-') === FALSE) {
 				$formEl->addClass('form-horizontal');
 			}
+
+		} elseif ($mode === 'begin') {
+			foreach ($this->form->getControls() as $control) {
+				/** @var \Nette\Forms\Controls\BaseControl $control */
+				$control->setOption('rendered', FALSE);
+			}
 		}
 
 		$this->template->setFile(__DIR__ . '/@form.latte');

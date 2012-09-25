@@ -78,7 +78,7 @@ class FormMacros extends Latte\Macros\MacroSet
 		if ($node->isEmpty = (substr($node->args, -1) === '/')) {
 			$node->setArgs(substr($node->args, 0, -1));
 
-			return $writer->write('$form = $_form = (is_object(%node.word) ? %node.word : $_control[%node.word]); $_form->render();');
+			return $writer->write('$form = $_form = (is_object(%node.word) ? %node.word : $_control->getComponent(%node.word)); $_form->render();');
 		}
 
 		$word = $node->tokenizer->fetchWord();
@@ -173,20 +173,20 @@ class FormMacros extends Latte\Macros\MacroSet
 	 */
 	public static function renderFormPart($mode, array $args, array $scope)
 	{
-		$form = is_object($mode) ? $mode : self::scopeVar($scope, 'form');
-		if (!$form instanceof Form && ($control = self::scopeVar($scope, 'control'))) {
-			$form = $control->getComponent($mode, FALSE);
-		}
+		if ($mode instanceof Form) {
+			$mode->render('begin');
+			return $mode;
 
-		if (!$form instanceof Form) {
-			throw new Nette\InvalidStateException('No instanceof Nette\Forms\Form found');
-		}
-
-		if (is_object($mode) || !in_array($mode, array('errors', 'body', 'controls'), TRUE)) {
+		} elseif (($control = self::scopeVar($scope, 'control')) && ($form = $control->getComponent($mode, FALSE)) instanceof Form) {
+			/** @var Form $form */
 			$form->render('begin');
+			return $form;
+
+		} elseif (($form = self::scopeVar($scope, 'form')) instanceof Form) {
+			$form->render($mode);
 
 		} else {
-			$form->render($mode);
+			throw new Nette\InvalidStateException('No instanceof Nette\Forms\Form found in local scope.');
 		}
 
 		return $form;
