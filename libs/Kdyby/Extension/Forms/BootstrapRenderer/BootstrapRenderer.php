@@ -80,10 +80,10 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 	 *
 	 * @param \Nette\Forms\Form $form
 	 * @param string $mode
-	 *
+	 * @param array $args
 	 * @return void
 	 */
-	public function render(Nette\Forms\Form $form, $mode = NULL)
+	public function render(Nette\Forms\Form $form, $mode = NULL, $args = NULL)
 	{
 		if ($this->form !== $form) {
 			$this->form = $form;
@@ -116,10 +116,13 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 		$this->template->renderer = $this;
 
 		if ($mode === NULL) {
+			if ($args) {
+				$this->form->getElementPrototype()->addAttributes($args);
+			}
 			$this->template->render();
 
 		} elseif ($mode === 'begin') {
-			FormMacros::renderFormBegin($this->form, array());
+			FormMacros::renderFormBegin($this->form, (array)$args);
 
 		} elseif ($mode === 'end') {
 			FormMacros::renderFormEnd($this->form);
