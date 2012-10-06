@@ -3,7 +3,6 @@
     "type":"library",
     "description": "Facebook PHP SDK for Nette Framework",
     "keywords": ["nette", "facebook", "sdk"],
-    "type": "library",
     "homepage":"http://kdyby.org",
     "license":["BSD-3-Clause", "GPL-2.0", "GPL-3.0"],
     "authors": [
