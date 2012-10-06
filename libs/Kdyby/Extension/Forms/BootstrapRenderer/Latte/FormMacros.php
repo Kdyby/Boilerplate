@@ -11,6 +11,7 @@
 namespace Kdyby\Extension\Forms\BootstrapRenderer\Latte;
 
 use Kdyby;
+use Kdyby\Extension\Forms\BootstrapRenderer\BootstrapRenderer;
 use Nette;
 use Nette\Forms\Form;
 use Nette\Latte;
@@ -174,12 +175,11 @@ class FormMacros extends Latte\Macros\MacroSet
 	public static function renderFormPart($mode, array $args, array $scope)
 	{
 		if ($mode instanceof Form) {
-			$mode->render('begin', $args);
+			self::renderFormBegin($mode, $args);
 			return $mode;
 
 		} elseif (($control = self::scopeVar($scope, 'control')) && ($form = $control->getComponent($mode, FALSE)) instanceof Form) {
-			/** @var Form $form */
-			$form->render('begin', $args);
+			self::renderFormBegin($form, $args);
 			return $form;
 
 		} elseif (($form = self::scopeVar($scope, 'form')) instanceof Form) {
@@ -190,6 +190,22 @@ class FormMacros extends Latte\Macros\MacroSet
 		}
 
 		return $form;
+	}
+
+
+
+	/**
+	 * @param Form $form
+	 * @param array $args
+	 */
+	private static function renderFormBegin(Form $form, array $args)
+	{
+		if ($form->getRenderer() instanceof BootstrapRenderer) {
+			$form->render('begin', $args);
+
+		} else {
+			Latte\Macros\FormMacros::renderFormBegin($form, $args);
+		}
 	}
 
 
