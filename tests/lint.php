@@ -45,10 +45,10 @@ HELP;
 		}
 	}
 
-	if (empty($options['files'])) $options['files'] = $_SERVER['PWD'];
+	if (empty($options['files'])) $options['files'][] = $_SERVER['PWD'];
 
-	foreach ($options['files'] as $file) {
-		if (realpath($file) !== false) continue;
+	foreach ($options['files'] as $i => $file) {
+		if (($options['files'][$i] = realpath($file)) !== false) continue;
 		echo "$file is not a file or directory.\n";
 		exit(1);
 	}
@@ -56,20 +56,15 @@ HELP;
 	return $options;
 };
 
-$context = $parseOptions();
-$context['filesCount'] = 0;
-$context['errors'] = array();
-
-// echo
-$echo = function () use ($context) {
+$echo = function () use (&$context) {
 	if ($context['quiet']) return;
 	foreach (func_get_args() as $arg) echo $arg;
 };
 
-$checkFile = function ($path) use (&$echo, &$context) {
+$lintFile = function ($path) use (&$echo, &$context) {
 	if (substr($path, -4) != '.php') return;
 
-	if (($context['filesCount'] % 63 == 0)) {
+	if ($context['filesCount'] % 63 == 0) {
 		$echo("\n");
 	}
 
@@ -84,14 +79,18 @@ $checkFile = function ($path) use (&$echo, &$context) {
 	$context['filesCount']++;
 };
 
-$check = function ($path) use (&$check, &$checkFile, &$context) {
-	if (!is_dir($path)) return $checkFile($path);
+$check = function ($path) use (&$check, &$lintFile, &$context) {
+	if (!is_dir($path)) return $lintFile($path);
 	foreach (scandir($path) as $item) {
 		if ($item == '.' || $item == '..') continue;
 		$check(rtrim($path, '/') . '/' . $item);
 	}
 };
 
+
+$context = $parseOptions();
+$context['filesCount'] = 0;
+$context['errors'] = array();
 foreach ($context['files'] as $file) $check($file);
 if ($context['errors']) {
 	$echo("\n\n", implode($context['errors']));
