@@ -59,7 +59,7 @@ class MethodAppendTest extends Kdyby\Tests\TestCase
 	 */
 	private function expected($name, $className)
 	{
-		$expected = file_get_contents(__DIR__ . "/Fixtures/MethodAppendTest.$name.expected.php");
+		$expected = file_get_contents(__DIR__ . "/Fixtures/MethodAppendTest.$name.expected");
 		return strtr($expected, array(
 			'<generated_class_name>' => $className
 		));
