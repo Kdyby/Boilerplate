@@ -69,7 +69,7 @@ $echo = function () use ($context) {
 $checkFile = function ($path) use (&$echo, &$context) {
 	if (substr($path, -4) != '.php') return;
 
-	if (($context['filesCount'] % 60 == 0)) {
+	if (($context['filesCount'] % 63 == 0)) {
 		$echo("\n");
 	}
 
