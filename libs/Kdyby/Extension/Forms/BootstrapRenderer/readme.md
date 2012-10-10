@@ -81,6 +81,22 @@ Body
 {$form->render('body')} or {form body}
 ```
 
+Controls
+
+> Renders all controls, except buttons, that are not yet rendered.
+
+```smarty
+{$form->render('controls')} or {form controls}
+```
+
+Buttons
+
+> Renders all buttons, that are not yet rendered.
+
+```smarty
+{$form->render('buttons')} or {form buttons}
+```
+
 End
 
 > Renders all hidden inputs, and then the closing tag of form.
