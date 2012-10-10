@@ -15,7 +15,10 @@
     {include #body, renderer => $renderer}
 
 {elseif $mode === "controls"}
-    {include #controls, controls => $renderer->findControls()}
+    {include #controls, controls => $renderer->findControls(NULL, FALSE)}
+
+{elseif $mode === "buttons"}
+    {include #controls, controls => $renderer->findControls(NULL, TRUE)}
 
 {elseif $mode instanceof \Nette\Forms\Container}
     {include #controls, renderer => $renderer, controls => $renderer->findControls($mode)}

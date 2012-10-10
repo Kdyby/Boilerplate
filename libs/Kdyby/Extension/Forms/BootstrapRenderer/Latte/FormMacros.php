@@ -26,6 +26,8 @@ use Nette\Latte\MacroNode;
  * {form name} as {$form->render('begin')}
  * {form errors} as {$form->render('errors')}
  * {form body} as {$form->render('body')}
+ * {form controls} as {$form->render('controls')}
+ * {form actions} as {$form->render('actions')}
  * {/form} as {$form->render('end')}
  * </code>
  *
@@ -83,7 +85,7 @@ class FormMacros extends Latte\Macros\MacroSet
 		}
 
 		$word = $node->tokenizer->fetchWord();
-		$node->isEmpty = in_array($word, array('errors', 'body', 'controls'));
+		$node->isEmpty = in_array($word, array('errors', 'body', 'controls', 'buttons'));
 		$node->tokenizer->reset();
 
 		return $writer->write('$form = $_form = ' . get_called_class() . '::renderFormPart(%node.word, %node.array, get_defined_vars())');
