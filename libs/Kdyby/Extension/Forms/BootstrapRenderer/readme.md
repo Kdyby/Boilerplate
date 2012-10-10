@@ -83,7 +83,7 @@ Body
 
 Controls
 
-> Renders all controls, except buttons, that are not yet rendered.
+> Renders all controls, that are not yet rendered. Doesn't render buttons.
 
 ```smarty
 {$form->render('controls')} or {form controls}
