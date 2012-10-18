@@ -1,0 +1,32 @@
+{
+    "name": "kdyby/paypal-express-extension",
+    "type":"library",
+    "description": "PayPal Express Checkout for Nette Framework",
+    "keywords": ["nette", "paypal", "pay", "checkout", "payment"],
+    "homepage":"http://kdyby.org",
+    "license":["BSD-3-Clause", "GPL-2.0", "GPL-3.0"],
+    "authors": [
+        {
+            "name":"Filip Procházka",
+            "homepage":"http://filip-prochazka.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.2.0",
+        "nette/nette": "*",
+        "kdyby/curl-extension": "*"
+    },
+    "support":{
+        "email":"filip@prochazka.su",
+        "issues":"https://github.com/kdyby/framework/issues"
+    },
+    "autoload": {
+        "psr-0":{
+            "Kdyby\\Extension\\Pay\\PayPalExpress":""
+        },
+        "classmap":[
+            "Kdyby/Extension/Pay/PayPalExpress/exceptions.php"
+        ]
+    },
+    "target-dir":"Kdyby/Extension/Pay/PayPalExpress"
+}
