@@ -139,15 +139,21 @@ class DomDocument extends \DOMDocument
 		$this->strictErrorChecking = FALSE;
 		$this->recover = TRUE;
 
-		Debugger::tryError();
-		@$this->loadHTML($html); // TODO: purify?
-		if (Debugger::catchError($error)) {
-			$exception = new DomException($error->getMessage(), NULL, $error);
-			$exception->setSource($html);
-			if ($m = Nette\Utils\Strings::match($error->getMessage(), '~line\:[^\d]+(?P<line>\d+)~i')) {
-				$exception->setDocumentLine((int)$m['line']);
+		set_error_handler(function ($severity, $message) {
+			restore_error_handler();
+			throw new DomException($message);
+		});
+
+		try {
+			@$this->loadHTML($html); // TODO: purify?
+			restore_error_handler();
+
+		} catch (DomException $e) {
+			$e->setSource($html);
+			if ($m = Nette\Utils\Strings::match($e->getMessage(), '~line\:[^\d]+(?P<line>\d+)~i')) {
+				$e->setDocumentLine((int)$m['line']);
 			}
-			throw $exception;
+			throw $e;
 		}
 
 		return $this;

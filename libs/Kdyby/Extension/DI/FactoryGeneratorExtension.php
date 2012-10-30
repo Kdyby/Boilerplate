@@ -15,7 +15,7 @@ use Nette;
 use Nette\DI\ServiceDefinition;
 use Nette\Caching\Cache;
 use Nette\Caching\Storages\PhpFileStorage;
-use Nette\Utils\PhpGenerator as Code;
+use Nette\PhpGenerator as Code;
 use Nette\Utils\Strings;
 
 
@@ -57,8 +57,8 @@ class FactoryGeneratorExtension extends Nette\Config\CompilerExtension
 				}
 			}
 
-			/** @var \Nette\Utils\PhpGenerator\ClassType $class */
-			/** @var \Nette\Utils\PhpGenerator\ClassType $interface */
+			/** @var Code\ClassType $class */
+			/** @var Code\ClassType $interface */
 			list($class, $interface) = $this->createServiceFactory($def, $name);
 
 			// only if class can be resolved
@@ -95,11 +95,11 @@ class FactoryGeneratorExtension extends Nette\Config\CompilerExtension
 
 
 	/**
-	 * @param \Nette\Utils\PhpGenerator\ClassType $class
+	 * @param Code\ClassType $class
 	 */
-	public function afterCompile(Nette\Utils\PhpGenerator\ClassType $class)
+	public function afterCompile(Code\ClassType $class)
 	{
-		/** @var \Nette\Utils\PhpGenerator\Method $init */
+		/** @var Code\Method $init */
 		$init = $class->methods['initialize'];
 		$init->addBody('include_once ?;', array($this->classesFile));
 	}
@@ -172,9 +172,9 @@ class FactoryGeneratorExtension extends Nette\Config\CompilerExtension
 	/**
 	 * @param string $returnType
 	 * @param \Nette\DI\ServiceDefinition $def
-	 * @param \Nette\Utils\PhpGenerator\ClassType $type
+	 * @param Code\ClassType $type
 	 *
-	 * @return \Nette\Utils\PhpGenerator\Method
+	 * @return Code\Method
 	 */
 	private static function generateCreateMethod($returnType, ServiceDefinition $def, Code\ClassType $type)
 	{
@@ -196,9 +196,9 @@ class FactoryGeneratorExtension extends Nette\Config\CompilerExtension
 
 
 	/**
-	 * @param array|\Nette\Utils\PhpGenerator\ClassType $classes
+	 * @param array|Code\ClassType $classes
 	 *
-	 * @return \Nette\Utils\PhpGenerator\ClassType
+	 * @return Code\ClassType
 	 */
 	private static function namespaceClasses(array $classes)
 	{
@@ -206,7 +206,7 @@ class FactoryGeneratorExtension extends Nette\Config\CompilerExtension
 		foreach ($classes as $type) {
 			$namespace = NULL;
 
-			/** @var \Nette\Utils\PhpGenerator\ClassType $type */
+			/** @var Code\ClassType $type */
 			if (($pos = strrpos($type->name, '\\')) !== FALSE) {
 				$namespace = substr($type->name, 0, $pos);
 				$type->setName(substr($type->name, $pos + 1));
@@ -222,7 +222,7 @@ class FactoryGeneratorExtension extends Nette\Config\CompilerExtension
 
 
 	/**
-	 * @param array|\Nette\Utils\PhpGenerator\ClassType $namespaced
+	 * @param array|Code\ClassType $namespaced
 	 * @return string
 	 */
 	private static function generateCode(array $namespaced)

@@ -14,7 +14,7 @@ use Kdyby;
 use Kdyby\Tools\MethodAppend;
 use Nette;
 use Nette\Reflection\ClassType;
-use Nette\Utils\PhpGenerator as Code;
+use Nette\PhpGenerator as Code;
 use Nette\Utils\Strings;
 
 

@@ -12,7 +12,7 @@ namespace Kdyby\Migrations\Tools;
 
 use Kdyby;
 use Nette;
-use Nette\Utils\PhpGenerator as Code;
+use Nette\PhpGenerator as Code;
 
 
 
@@ -22,7 +22,7 @@ use Nette\Utils\PhpGenerator as Code;
 class VersionClassBuilder extends Nette\Object
 {
 
-	/** @var \Nette\Utils\PhpGenerator\ClassType */
+	/** @var Code\ClassType */
 	private $class;
 
 	/** @var \Kdyby\Packages\Package */
@@ -54,7 +54,7 @@ class VersionClassBuilder extends Nette\Object
 	 */
 	public function addUpSql($sql, array $params = array())
 	{
-		/** @var \Nette\Utils\PhpGenerator\Method $up */
+		/** @var Code\Method $up */
 		$up = $this->class->methods['up'];
 		$up->addBody('$this->addSql(?,?)', array($sql, $params));
 	}
@@ -73,7 +73,7 @@ class VersionClassBuilder extends Nette\Object
 			$down->addBody("// this method was auto-generated, please modify it to your needs\n");
 		}
 
-		/** @var \Nette\Utils\PhpGenerator\Method $down */
+		/** @var Code\Method $down */
 		$down = $this->class->methods['down'];
 		$down->addBody('$this->addSql(?,?)', array($sql, $params));
 	}

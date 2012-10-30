@@ -13,6 +13,7 @@ namespace Kdyby\Package\DoctrinePackage\DI;
 use Kdyby;
 use Nette;
 use Nette\DI\ContainerBuilder;
+use Nette\PhpGenerator as Code;
 use Nette\Utils\Validators;
 
 
@@ -26,11 +27,11 @@ class AnnotationExtension extends Kdyby\Config\CompilerExtension
 {
 
 	/**
-	 * @param \Nette\Utils\PhpGenerator\ClassType $class
+	 * @param Code\ClassType $class
 	 */
-	public function afterCompile(Nette\Utils\PhpGenerator\ClassType $class)
+	public function afterCompile(Code\ClassType $class)
 	{
-		/** @var \Nette\Utils\PhpGenerator\Method $init */
+		/** @var Code\Method $init */
 		$init = $class->methods['initialize'];
 
 		// just look it up, mother fucker!

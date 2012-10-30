@@ -12,7 +12,7 @@ namespace Kdyby\Extension\Pay\PayPalExpress\DI;
 
 use Kdyby;
 use Nette;
-use Nette\Utils\PhpGenerator\ClassType;
+use Nette\PhpGenerator as Code;
 use Nette\Utils\Validators;
 
 
@@ -57,13 +57,13 @@ class PayPalExtension extends Nette\Config\CompilerExtension
 
 
 	/**
-	 * @param \Nette\Utils\PhpGenerator\ClassType $class
+	 * @param Code\ClassType $class
 	 */
-	public function afterCompile(ClassType $class)
+	public function afterCompile(Code\ClassType $class)
 	{
 		$container = $this->getContainerBuilder();
 		$init = $class->methods['initialize'];
-		/** @var \Nette\Utils\PhpGenerator\Method $init */
+		/** @var Code\Method $init */
 
 		$init->addBody($container->formatPhp(
 			'Nette\Diagnostics\Debugger::$blueScreen->addPanel(?);',

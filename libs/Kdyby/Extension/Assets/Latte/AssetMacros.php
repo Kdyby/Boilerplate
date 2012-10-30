@@ -16,7 +16,7 @@ use Kdyby\Extension\Assets;
 use Kdyby\Extension\Assets\LatteCompileException;
 use Kdyby\Templates\LatteHelpers;
 use Nette;
-use Nette\Utils\PhpGenerator as Code;
+use Nette\PhpGenerator as Code;
 use Nette\Latte;
 use Nette\Utils\Strings;
 

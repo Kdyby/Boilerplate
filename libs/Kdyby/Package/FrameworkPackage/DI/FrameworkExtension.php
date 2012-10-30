@@ -16,7 +16,7 @@ use Nette\DI\ContainerBuilder;
 use Nette\DI\ServiceDefinition;
 use Nette\Utils\Validators;
 use Nette\Reflection\ClassType;
-use Nette\Utils\PhpGenerator as Code;
+use Nette\PhpGenerator as Code;
 
 
 
@@ -157,12 +157,12 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 
 
 	/**
-	 * @param \Nette\Utils\PhpGenerator\ClassType $class
+	 * @param Code\ClassType $class
 	 */
 	public function afterCompile(Code\ClassType $class)
 	{
 		$this->compileConfigurator($class);
-		/** @var \Nette\Utils\PhpGenerator\Method $init */
+		/** @var Code\Method $init */
 		$init = $class->methods['initialize'];
 
 		$config = $this->getConfig();
@@ -176,7 +176,7 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 
 
 	/**
-	 * @param \Nette\Utils\PhpGenerator\ClassType $class
+	 * @param Code\ClassType $class
 	 */
 	protected function compileConfigurator(Code\ClassType $class)
 	{
@@ -191,7 +191,7 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 			if ($lines = Nette\Utils\Strings::split($createBody, '~;[\n\r]*~mi')) {
 				array_shift($lines); // naive: first line is creation
 
-				/** @var \Nette\Utils\PhpGenerator\Method $configure */
+				/** @var Code\Method $configure */
 				$configure = $class->addMethod('configure' . ucfirst(strtr($name, '.', '_')));
 				$configure->visibility = 'private';
 				$configure->addParameter('service')->typeHint = $def->class;
@@ -199,7 +199,7 @@ class FrameworkExtension extends Kdyby\Config\CompilerExtension
 			}
 		}
 
-		/** @var \Nette\Utils\PhpGenerator\Method $configure */
+		/** @var Code\Method $configure */
 		$configure = $class->addMethod('configureService');
 		$configure->addParameter('name');
 		$configure->addParameter('service');

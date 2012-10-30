@@ -14,7 +14,7 @@ use Assetic;
 use Kdyby;
 use Kdyby\Extension\Assets;
 use Nette;
-use Nette\Utils\PhpGenerator as Code;
+use Nette\PhpGenerator as Code;
 
 
 

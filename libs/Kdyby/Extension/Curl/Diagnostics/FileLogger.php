@@ -13,7 +13,7 @@ namespace Kdyby\Extension\Curl\Diagnostics;
 use Kdyby;
 use Kdyby\Extension\Curl;
 use Nette;
-use Nette\Utils\PhpGenerator as Code;
+use Nette\PhpGenerator as Code;
 
 
 

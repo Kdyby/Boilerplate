@@ -15,7 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Kdyby;
 use Nette;
 use Nette\Caching\Cache;
-use Nette\Utils\PhpGenerator as Code;
+use Nette\PhpGenerator as Code;
 
 
 
