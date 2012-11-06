@@ -346,7 +346,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 	 * @param int $jobs
 	 * @throws \PHPUnit_Framework_AssertionFailedError
 	 */
-	protected function concurrency(\Closure $closure, $repeat = 100, $jobs = 30)
+	protected function threadStress(\Closure $closure, $repeat = 100, $jobs = 30)
 	{
 		$scriptsDir = $this->getContext()->expand('%tempDir%/scripts');
 		Filesystem::mkDir($scriptsDir);
