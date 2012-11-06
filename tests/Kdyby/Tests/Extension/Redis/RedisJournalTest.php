@@ -8,7 +8,7 @@
  * For the full copyright and license information, please view the file license.md that was distributed with this source code.
  */
 
-namespace Kdyby\Tests;
+namespace Kdyby\Tests\Extension\Redis;
 
 use Kdyby;
 use Kdyby\Extension\Redis\RedisClient;
