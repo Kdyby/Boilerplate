@@ -11,9 +11,14 @@
 namespace Kdyby\Tests;
 
 use Kdyby;
+use Kdyby\Tests\Tools\ClosureExtractor;
+use Kdyby\Tests\Tools\ParallelRunner;
+use Kdyby\Tools\Filesystem;
+use Nette\Utils\Strings;
 use Nette;
 use Nette\Application\UI;
 use Nette\ObjectMixin;
+use Nette\PhpGenerator as Code;
 
 
 
@@ -311,6 +316,54 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 	{
 		return $this->getTempClassGenerator()->resolveFilename($class);
 	}
+
+
+	/********************* Utility *********************/
+
+
+	/**
+	 * @return string
+	 */
+	protected function tempDir()
+	{
+		$tempDir = $this->getContext()->expand('%tempDir%');
+		$tempDir .= '/dyn/' . Strings::random();
+
+		if (!file_exists($tempDir)) {
+			Filesystem::mkDir($tempDir);
+		} else {
+			Filesystem::cleanDir($tempDir);
+		}
+
+		return $tempDir;
+	}
+
+
+
+	/**
+	 * @param callable $closure
+	 * @param int $repeat
+	 * @param int $jobs
+	 * @throws \PHPUnit_Framework_AssertionFailedError
+	 */
+	protected function concurrency(\Closure $closure, $repeat = 100, $jobs = 30)
+	{
+		$scriptsDir = $this->getContext()->expand('%tempDir%/scripts');
+		Filesystem::mkDir($scriptsDir);
+		$scriptFile = $scriptsDir . '/' . md5($this->getName(TRUE)) . '.php';
+
+		$extractor = new ClosureExtractor($closure);
+		file_put_contents($scriptFile, $extractor->buildScript($this->getReflection()));
+
+		try {
+			$runner = new ParallelRunner($scriptFile);
+			$runner->run($repeat, $jobs);
+
+		} catch (Tools\ParallelExecutionException $e) {
+			throw new \PHPUnit_Framework_AssertionFailedError($e->getMessage(), 0, $e);
+		}
+	}
+
 
 
 	/********************* Exceptions handling *********************/

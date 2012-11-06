@@ -37,7 +37,6 @@ class FrameworkPackage extends Kdyby\Packages\Package
 		$compiler->addExtension('kdyby', new DI\FrameworkExtension());
 		$compiler->addExtension('migrations', new Kdyby\Migrations\DI\MigrationsExtension());
 		$compiler->addExtension('redis', new Kdyby\Extension\Redis\DI\RedisExtension());
-		$compiler->addExtension('dicFactories', new Kdyby\Extension\DI\FactoryGeneratorExtension());
 	}
 
 
