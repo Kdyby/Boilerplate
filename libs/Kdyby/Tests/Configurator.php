@@ -95,6 +95,8 @@ class Configurator extends Kdyby\Config\Configurator
 			Filesystem::cleanDir($params['tempDir'] . '/classes');
 			Filesystem::cleanDir($params['tempDir'] . '/entities');
 			Filesystem::cleanDir($params['tempDir'] . '/proxies');
+			Filesystem::cleanDir($params['tempDir'] . '/scripts');
+			Filesystem::cleanDir($params['tempDir'] . '/dyn');
 			Filesystem::rm($params['tempDir'] . '/btfj.dat', FALSE);
 		}
 
