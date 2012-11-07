@@ -137,3 +137,32 @@ function wc($level = 1, $return = FALSE, $fullTrace = FALSE) {
 	}
 	echo "<pre class='nette-dump'>" . nl2br($message) . "</pre>";
 }
+
+
+
+/**
+ * @param string $message
+ * @throws Kdyby\InvalidStateException
+ */
+function zmq_push($message)
+{
+	if (Debugger::$productionMode) { return; }
+	static $publisher, $id;
+	if ($publisher === NULL) {
+		$context = new ZMQContext();
+		$id = substr(md5(spl_object_hash($context) . microtime(true)), 0, 6);
+
+		$publisher = $context->getSocket(ZMQ::SOCKET_PUSH);
+		$publisher->connect("tcp://127.0.0.1:5556");
+//		$publisher->send($id . ' connected');
+//		register_shutdown_function(function () use ($publisher, $id) {
+//			$publisher->send($id . ' disconnected');
+//			sleep(0.1);
+//		});
+	}
+
+	$message = array_map(function ($message) {
+		return !is_scalar($message) ? Nette\Utils\Json::encode($message) : $message;
+	}, func_get_args());
+	$publisher->send($id . ' ' . implode(', ', $message));
+}
