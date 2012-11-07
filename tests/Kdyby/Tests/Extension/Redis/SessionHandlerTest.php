@@ -24,6 +24,35 @@ class SessionHandlerTest extends Kdyby\Tests\TestCase
 {
 
 	/**
+	 * @var \Kdyby\Extension\Redis\RedisClient
+	 */
+	private $client;
+
+
+
+	/***/
+	public function setUp()
+	{
+		$this->client = new RedisClient();
+		try {
+			$this->client->connect();
+
+		} catch (Kdyby\Extension\Redis\RedisClientException $e) {
+			$this->markTestSkipped($e->getMessage());
+		}
+
+		try {
+			$this->client->assertVersion();
+
+		} catch (Nette\Utils\AssertionException $e) {
+			$this->markTestSkipped($e->getMessage());
+		}
+
+		$this->client->flushDb();
+	}
+
+
+	/**
 	 * @group concurrency
 	 */
 	public function testConsistency()

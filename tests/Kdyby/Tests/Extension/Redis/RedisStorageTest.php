@@ -48,6 +48,13 @@ class RedisStorageTest extends Kdyby\Tests\TestCase
 			$this->markTestSkipped($e->getMessage());
 		}
 
+		try {
+			$this->client->assertVersion();
+
+		} catch (Nette\Utils\AssertionException $e) {
+			$this->markTestSkipped($e->getMessage());
+		}
+
 		$this->client->flushDb();
 	}
 

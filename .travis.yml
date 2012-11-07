@@ -7,6 +7,9 @@ php:
 env:
   - DB=sqlite
 
+services:
+  - redis-server
+
 before_script:
   - "sh -c 'curl -s http://getcomposer.org/installer | php'"
   - "sh -c 'php composer.phar install --quiet'"

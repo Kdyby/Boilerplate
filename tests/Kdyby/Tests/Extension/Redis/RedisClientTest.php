@@ -34,9 +34,11 @@ class RedisClientTest extends Kdyby\Tests\TestCase
 	private $ns;
 
 
+
 	protected function setUp()
 	{
 		$this->client = new RedisClient();
+		$this->client->flushDb();
 		try {
 			$this->client->connect();
 
@@ -44,6 +46,14 @@ class RedisClientTest extends Kdyby\Tests\TestCase
 			$this->markTestSkipped($e->getMessage());
 		}
 
+		try {
+			$this->client->assertVersion();
+
+		} catch (Nette\Utils\AssertionException $e) {
+			$this->markTestSkipped($e->getMessage());
+		}
+
+		$this->client->flushDb();
 		$this->ns = Nette\Utils\Strings::random();
 	}
 
