@@ -28,7 +28,6 @@ class SessionHandlerTest extends AbstractCase
 	 */
 	public function testConsistency()
 	{
-		// sleep(5);
 		$userId = md5(1);
 
 		$this->threadStress(function () use ($userId) {

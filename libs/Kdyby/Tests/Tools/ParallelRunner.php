@@ -114,7 +114,7 @@ class ParallelExecutionException extends \Exception
 {
 
 	/**
-	 * @var Process[]
+	 * @var ProcessException[]
 	 */
 	public $failed;
 
@@ -126,12 +126,23 @@ class ParallelExecutionException extends \Exception
 
 
 	/**
-	 * @param Process[] $failed
+	 * @param ProcessException[] $failed
 	 * @param Process[] $passed
 	 */
 	public function __construct(array $failed, array $passed)
 	{
-		parent::__construct("Concurrency: " . count($failed) . " processes failed");
+		$msg = array();
+		foreach ($failed as $exception) {
+			$headers = $exception->process->headers + array(
+				'X-Nette-Error-Type' => NULL,
+				'X-Nette-Error-Message' => NULL,
+			);
+
+			$msg[] = $headers['X-Nette-Error-Type'] . ': ' . $headers['X-Nette-Error-Message'];
+		}
+		$msg = array_unique($msg);
+		parent::__construct("Concurrency: " . count($failed) . " processes failed:\n\n - " . implode("\n - ", $msg));
+
 		$this->failed = $failed;
 		$this->passed = $passed;
 	}

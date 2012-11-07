@@ -18,6 +18,9 @@ use Nette;
 /**
  * @author David Grudl
  * @author Filip Procházka <filip@prochazka.su>
+ *
+ * @property array $headers
+ * @property-read array $headers
  */
 class Process extends Nette\Object
 {
@@ -238,7 +241,7 @@ class Process extends Nette\Object
 	/**
 	 * Returns output headers.
 	 *
-	 * @return string
+	 * @return array
 	 */
 	public function getHeaders()
 	{
