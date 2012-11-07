@@ -20,53 +20,19 @@ use Nette;
 /**
  * @author Filip Procházka <filip@prochazka.su>
  */
-class SessionHandlerTest extends Kdyby\Tests\TestCase
+class SessionHandlerTest extends AbstractCase
 {
-
-	/**
-	 * @var \Kdyby\Extension\Redis\RedisClient
-	 */
-	private $client;
-
-
-
-	public function setUp()
-	{
-		$this->client = new RedisClient();
-		try {
-			$this->client->connect();
-
-		} catch (Kdyby\Extension\Redis\RedisClientException $e) {
-			$this->markTestSkipped($e->getMessage());
-		}
-
-		try {
-			$this->client->assertVersion();
-
-		} catch (Nette\Utils\AssertionException $e) {
-			$this->markTestSkipped($e->getMessage());
-		}
-
-		$this->client->flushDb();
-	}
-
 
 	/**
 	 * @group concurrency
 	 */
 	public function testConsistency()
 	{
-		$this->markTestSkipped('Todo: implement session locking purely in redis.');
-
-		sleep(5);
-		$client = new RedisClient();
-		$tempDir = $this->tempDir();
+		// sleep(5);
 		$userId = md5(1);
 
-		$client->flushDb();
-
-		$this->threadStress(function () use ($tempDir, $userId) {
-			$handler = new RedisSessionHandler(new RedisClient(), $tempDir);
+		$this->threadStress(function () use ($userId) {
+			$handler = new RedisSessionHandler(new RedisClient());
 
 			// read
 			$handler->open('path', 'session_id');
@@ -83,7 +49,7 @@ class SessionHandlerTest extends Kdyby\Tests\TestCase
 			$handler->close();
 		});
 
-		$handler = new RedisSessionHandler($client);
+		$handler = new RedisSessionHandler($this->client);
 		$handler->open('path', 'session_id');
 
 		$data = $handler->read($userId);

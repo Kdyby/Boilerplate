@@ -22,13 +22,8 @@ use Nette\Caching\Cache;
 /**
  * @author Filip Procházka <filip@prochazka.su>
  */
-class RedisStorageTest extends Kdyby\Tests\TestCase
+class RedisStorageTest extends AbstractCase
 {
-
-	/**
-	 * @var \Kdyby\Extension\Redis\RedisClient
-	 */
-	private $client;
 
 	/**
 	 * @var \Kdyby\Extension\Redis\RedisStorage
@@ -39,23 +34,8 @@ class RedisStorageTest extends Kdyby\Tests\TestCase
 
 	protected function setUp()
 	{
-		$this->client = new RedisClient();
-		try {
-			$this->client->connect();
-			$this->storage = new RedisStorage($this->client);
-
-		} catch (Kdyby\Extension\Redis\RedisClientException $e) {
-			$this->markTestSkipped($e->getMessage());
-		}
-
-		try {
-			$this->client->assertVersion();
-
-		} catch (Nette\Utils\AssertionException $e) {
-			$this->markTestSkipped($e->getMessage());
-		}
-
-		$this->client->flushDb();
+		parent::setUp();
+		$this->storage = new RedisStorage($this->client);
 	}
 
 

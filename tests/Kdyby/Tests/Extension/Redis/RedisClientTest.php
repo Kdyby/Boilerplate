@@ -20,13 +20,8 @@ use Nette\Utils\Strings;
 /**
  * @author Filip Procházka <filip@prochazka.su>
  */
-class RedisClientTest extends Kdyby\Tests\TestCase
+class RedisClientTest extends AbstractCase
 {
-
-	/**
-	 * @var \Kdyby\Extension\Redis\RedisClient
-	 */
-	private $client;
 
 	/**
 	 * @var string
@@ -37,22 +32,7 @@ class RedisClientTest extends Kdyby\Tests\TestCase
 
 	protected function setUp()
 	{
-		$this->client = new RedisClient();
-		try {
-			$this->client->connect();
-
-		} catch (Kdyby\Extension\Redis\RedisClientException $e) {
-			$this->markTestSkipped($e->getMessage());
-		}
-
-		try {
-			$this->client->assertVersion();
-
-		} catch (Nette\Utils\AssertionException $e) {
-			$this->markTestSkipped($e->getMessage());
-		}
-
-		$this->client->flushDb();
+		parent::setUp();
 		$this->ns = Nette\Utils\Strings::random();
 	}
 
