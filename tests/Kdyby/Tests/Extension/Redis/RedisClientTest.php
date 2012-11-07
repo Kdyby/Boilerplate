@@ -38,7 +38,6 @@ class RedisClientTest extends Kdyby\Tests\TestCase
 	protected function setUp()
 	{
 		$this->client = new RedisClient();
-		$this->client->flushDb();
 		try {
 			$this->client->connect();
 
@@ -77,6 +76,59 @@ class RedisClientTest extends Kdyby\Tests\TestCase
 		$data = str_repeat('Kdyby', 1e6);
 		$this->client->set('large', $data);
 		$this->assertSame($data, $this->client->get('large'));
+	}
+
+
+
+	public function testNullReply()
+	{
+		$this->assertNull($this->client->get('nonexistingkey'));
+	}
+
+
+
+	public function testExec()
+	{
+		$this->assertEquals('1', $this->client->sadd('test:key', 'item1'));
+		$this->assertEquals('1', $this->client->sadd('test:key', 'item2'));
+
+		$this->assertEquals('OK', $this->client->multi());
+		$this->assertEquals('QUEUED', $this->client->sMembers('test:key'));
+		$this->assertEquals('QUEUED', $this->client->sMembers('test:key'));
+		$this->assertEquals(array(array('item1', 'item2'), array('item1', 'item2')), $this->client->exec());
+	}
+
+
+
+	public function testExecWithClosure()
+	{
+		$this->assertEquals('1', $this->client->sadd('test:key', 'item1'));
+		$this->assertEquals('1', $this->client->sadd('test:key', 'item2'));
+
+		$result = $this->client->multi(function (RedisClient $client) {
+			$client->sMembers('test:key');
+			$client->sMembers('test:key');
+		});
+
+		$this->assertEquals(array(array('item1', 'item2'), array('item1', 'item2')), $result);
+	}
+
+
+
+	/**
+	 * @expectedException Kdyby\Extension\Redis\TransactionException
+	 */
+	public function testExecException()
+	{
+		$other = new RedisClient();
+
+		$this->client->set('foo', 1);
+		$this->client->watch('foo');
+
+		$this->client->multi();
+		$other->del('foo');
+		$this->client->incr('foo');
+		$this->client->exec();
 	}
 
 

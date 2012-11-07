@@ -30,7 +30,6 @@ class SessionHandlerTest extends Kdyby\Tests\TestCase
 
 
 
-	/***/
 	public function setUp()
 	{
 		$this->client = new RedisClient();
