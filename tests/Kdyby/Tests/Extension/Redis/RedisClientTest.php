@@ -75,7 +75,12 @@ class RedisClientTest extends AbstractCase
 		$this->assertEquals('OK', $this->client->multi());
 		$this->assertEquals('QUEUED', $this->client->sMembers('test:key'));
 		$this->assertEquals('QUEUED', $this->client->sMembers('test:key'));
-		$this->assertEquals(array(array('item1', 'item2'), array('item1', 'item2')), $this->client->exec());
+
+		list($first, $second) = $this->client->exec();
+		sort($first);
+		sort($second);
+		$this->assertEquals(array('item1', 'item2'), $first);
+		$this->assertEquals(array('item1', 'item2'), $second);
 	}
 
 
@@ -85,12 +90,15 @@ class RedisClientTest extends AbstractCase
 		$this->assertEquals('1', $this->client->sadd('test:key', 'item1'));
 		$this->assertEquals('1', $this->client->sadd('test:key', 'item2'));
 
-		$result = $this->client->multi(function (RedisClient $client) {
+		list($first, $second) = $this->client->multi(function (RedisClient $client) {
 			$client->sMembers('test:key');
 			$client->sMembers('test:key');
 		});
 
-		$this->assertEquals(array(array('item1', 'item2'), array('item1', 'item2')), $result);
+		sort($first);
+		sort($second);
+		$this->assertEquals(array('item1', 'item2'), $first);
+		$this->assertEquals(array('item1', 'item2'), $second);
 	}
 
 
