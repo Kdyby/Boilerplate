@@ -12,7 +12,6 @@
         }
     ],
     "require":{
-        "php":">=5.3.2",
         "ext-curl":"*",
         "ext-json":"*",
         "nette/nette":"dev-devel",
