@@ -71,7 +71,9 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel
 
 		ob_start();
 		$esc = callback('Nette\Templating\Helpers::escapeHtml');
-		$click = callback('Nette\Diagnostics\Helpers::clickableDump');
+		$click = class_exists('Nette\Diagnostics\Dumper')
+			? function ($o, $c = FALSE) { return Nette\Diagnostics\Dumper::toHtml($o, array('collapse' => $c)); }
+			: callback('Nette\Diagnostics\Helpers::clickableDump');
 		$totalTime = $this->totalTime ? sprintf('%0.3f', $this->totalTime * 1000) . ' ms' : 'none';
 
 		require_once __DIR__ .'/panel.phtml';
