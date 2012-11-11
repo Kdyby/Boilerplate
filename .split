@@ -1,15 +1,3 @@
-[libs/Kdyby/Extension/Assets]
-branch = split/assets
-target = git@github.com:Kdyby/AssetsExtension.git
-
-[libs/Kdyby/Extension/Curl]
-branch = split/curl
-target = git@github.com:Kdyby/CurlExtension.git
-
-[libs/Kdyby/Extension/Browser]
-branch = split/browser
-target = git@github.com:Kdyby/BrowserExtension.git
-
 [libs/Kdyby/Extension/Redis]
 branch = split/redis
 target = git@github.com:Kdyby/RedisExtension.git
@@ -22,6 +10,10 @@ target = git@github.com:Kdyby/FormsBootstrapRendererExtension.git
 branch = split/forms-replicator
 target = git@github.com:Kdyby/ReplicatorExtension.git
 
+[libs/Kdyby/Extension/Curl]
+branch = split/curl
+target = git@github.com:Kdyby/CurlExtension.git
+
 [libs/Kdyby/Extension/Social/Facebook]
 branch = split/social-facebook
 target = git@github.com:Kdyby/FacebookSDKExtension.git
@@ -33,3 +25,7 @@ target = git@github.com:Kdyby/HtmlValidatorPanel.git
 [libs/Kdyby/Extension/QrEncode]
 branch = split/qrencode
 target = git@github.com:Kdyby/QrEncodeExtension.git
+
+[libs/Kdyby/Extension/Browser]
+branch = split/browser
+target = git@github.com:Kdyby/BrowserExtension.git
