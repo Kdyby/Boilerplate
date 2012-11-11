@@ -18,6 +18,10 @@ target = git@github.com:Kdyby/CurlExtension.git
 branch = split/social-facebook
 target = git@github.com:Kdyby/FacebookSDKExtension.git
 
+[libs/Kdyby/Extension/Pay/PayPalExpress]
+branch = split/paypal-express
+target = git@github.com:Kdyby/PayPalExpress.git
+
 [libs/Kdyby/Extension/Diagnostics/HtmlValidator]
 branch = split/html-validator-panel
 target = git@github.com:Kdyby/HtmlValidatorPanel.git
