@@ -11,7 +11,7 @@
 namespace Kdyby\Extension\Curl\Diagnostics;
 
 use Kdyby;
-use Kdyby\Extension\Curl\CurlException;
+use Kdyby\Extension\Curl;
 use Nette;
 
 
@@ -29,10 +29,20 @@ class Panel extends Nette\Object
 	 */
 	public function renderException($e)
 	{
-		if ($e instanceof CurlException && !$e instanceof Kdyby\Extension\Curl\FailedRequestException) {
+		$click = class_exists('Nette\Diagnostics\Dumper')
+			? function ($o, $c = TRUE) { return Nette\Diagnostics\Dumper::toHtml($o, array('collapse' => $c)); }
+			: callback('Nette\Diagnostics\Helpers::clickableDump');
+
+		if ($e instanceof Curl\FailedRequestException) {
 			return array(
 				'tab' => 'Curl',
-				'panel' => '<h3>Request</h3>' . Nette\Diagnostics\Helpers::clickableDump($e->getRequest(), TRUE) .
+				'panel' => '<h3>Info</h3>' . $click($e->getRequest(), TRUE)
+			);
+
+		} elseif ($e instanceof Curl\CurlException) {
+			return array(
+				'tab' => 'Curl',
+				'panel' => '<h3>Request</h3>' . $click($e->getRequest(), TRUE) .
 					($e->getResponse() ?
 						'<h3>Responses</h3>' . static::allResponses($e->getResponse())
 						: NULL
@@ -54,9 +64,13 @@ class Panel extends Nette\Object
 			return NULL;
 		}
 
-		$responses = array(Nette\Diagnostics\Helpers::clickableDump($response, TRUE));
+		$click = class_exists('Nette\Diagnostics\Dumper')
+			? function ($o, $c = TRUE) { return Nette\Diagnostics\Dumper::toHtml($o, array('collapse' => $c)); }
+			: callback('Nette\Diagnostics\Helpers::clickableDump');
+
+		$responses = array($click($response, TRUE));
 		while ($response = $response->getPrevious()) {
-			$responses[] = Nette\Diagnostics\Helpers::clickableDump($response, TRUE);
+			$responses[] = $click($response, TRUE);
 		}
 		return implode('', $responses);
 	}

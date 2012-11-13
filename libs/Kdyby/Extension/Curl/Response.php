@@ -28,6 +28,7 @@ use Nette\Utils\Strings;
  */
 class Response extends Nette\Object
 {
+
 	/** @var array */
 	private $headers;
 
