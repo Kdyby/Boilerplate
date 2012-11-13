@@ -21,6 +21,10 @@ use Kdyby\Extension\Social\Facebook;
 
 /**
  * @author Filip Procházka <filip@prochazka.su>
+ *
+ * @method onRequest($url, $params)
+ * @method onError(\Kdyby\Extension\Social\Facebook\Exception $e, array $info)
+ * @method onSuccess(array $result, array $info)
  */
 class CurlClient extends Nette\Object implements Facebook\ApiClient
 {
@@ -39,14 +43,24 @@ class CurlClient extends Nette\Object implements Facebook\ApiClient
 	);
 
 	/**
+	 * @var array of function($url, $params)
+	 */
+	public $onRequest = array();
+
+	/**
+	 * @var array of function(Facebook\Exception $e, array $info)
+	 */
+	public $onError = array();
+
+	/**
+	 * @var array of function(array $result, array $info)
+	 */
+	public $onSuccess = array();
+
+	/**
 	 * @var Facebook\Facebook
 	 */
 	private $fb;
-
-	/**
-	 * @var Facebook\Diagnostics\Panel
-	 */
-	private $panel;
 
 	/**
 	 * @var array
@@ -61,16 +75,6 @@ class CurlClient extends Nette\Object implements Facebook\ApiClient
 	public function injectFacebook(Facebook\Facebook $facebook)
 	{
 		$this->fb = $facebook;
-	}
-
-
-
-	/**
-	 * @param Facebook\Diagnostics\Panel $panel
-	 */
-	public function injectPanel(Facebook\Diagnostics\Panel $panel = NULL)
-	{
-		$this->panel = $panel;
 	}
 
 
@@ -124,35 +128,6 @@ class CurlClient extends Nette\Object implements Facebook\ApiClient
 
 
 	/**
-	 * Make a OAuth Request.
-	 *
-	 * @param string $url The path (required)
-	 * @param array $params The query/post data
-	 *
-	 * @return string The decoded response object
-	 * @throws Facebook\FacebookApiException
-	 */
-	public function oauth($url, array $params)
-	{
-		if (!isset($params['access_token'])) {
-			$params['access_token'] = $this->fb->getAccessToken();
-		}
-
-		// json_encode all params values that are not strings
-		$params = array_map(function ($value) {
-			if ($value instanceof UrlScript) {
-				return (string)$value;
-			}
-			return !is_string($value) ? Json::encode($value) : $value;
-		}, $params);
-
-		if ($this->panel) $this->panel->begin($url, $params);
-		return $this->makeRequest($url, $params);
-	}
-
-
-
-	/**
 	 * @param \Nette\Http\UrlScript $url
 	 * @param $params
 	 * @throws Facebook\FacebookApiException
@@ -175,6 +150,34 @@ class CurlClient extends Nette\Object implements Facebook\ApiClient
 
 
 	/**
+	 * Make a OAuth Request.
+	 *
+	 * @param string $url The path (required)
+	 * @param array $params The query/post data
+	 *
+	 * @return string The decoded response object
+	 * @throws Facebook\FacebookApiException
+	 */
+	public function oauth($url, array $params)
+	{
+		if (!isset($params['access_token'])) {
+			$params['access_token'] = $this->fb->getAccessToken();
+		}
+
+		// json_encode all params values that are not strings
+		$params = array_map(function ($value) {
+			if ($value instanceof UrlScript) {
+				return (string)$value;
+			}
+			return !is_string($value) ? Json::encode($value) : $value;
+		}, $params);
+
+		return $this->makeRequest($url, $params);
+	}
+
+
+
+	/**
 	 * Makes an HTTP request. This method can be overridden by subclasses if
 	 * developers want to do fancier things or use something other than curl to
 	 * make the request.
@@ -191,6 +194,8 @@ class CurlClient extends Nette\Object implements Facebook\ApiClient
 		if (isset($this->cache[$cacheKey = md5(serialize(array($url, $params)))])) {
 			return $this->cache[$cacheKey];
 		}
+
+		$this->onRequest($url, $params);
 
 		$ch = $ch ?: curl_init();
 
@@ -232,17 +237,15 @@ class CurlClient extends Nette\Object implements Facebook\ApiClient
 		}
 
 		$info = curl_getinfo($ch);
-		if (isset($info['request_header']) && $this->panel) {
-			$info['request_header'] = Strings::split(trim($info['request_header']), '~[\r\n]+~');
-		}
+		$info['request_header'] = Strings::split(trim($info['request_header']), '~[\r\n]+~');
 
 		if ($result === false) {
 			$e = new Facebook\FacebookApiException(array(
 				'error_code' => curl_errno($ch),
 				'error' => array('message' => curl_error($ch), 'type' => 'CurlException')
 			));
-			if ($this->panel) $this->panel->failure($e, $info);
 			curl_close($ch);
+			$this->onError($e, $info);
 			throw $e;
 		}
 
@@ -250,7 +253,7 @@ class CurlClient extends Nette\Object implements Facebook\ApiClient
 			$result = Json::encode(array('url' => $info['redirect_url']));
 		}
 
-		if ($this->panel) $this->panel->success($result, $info);
+		$this->onSuccess($result, $info);
 		curl_close($ch);
 		return $this->cache[$cacheKey] = $result;
 	}

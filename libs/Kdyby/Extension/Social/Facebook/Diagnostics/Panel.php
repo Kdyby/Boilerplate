@@ -11,6 +11,7 @@
 namespace Kdyby\Extension\Social\Facebook\Diagnostics;
 
 use Kdyby\Extension\Social\Facebook;
+use Kdyby\Extension\Social\Facebook\Api\CurlClient;
 use Nette;
 use Nette\Diagnostics\Debugger;
 use Nette\Utils\Html;
@@ -20,6 +21,10 @@ use Nette\Utils\Json;
 
 /**
  * @author Filip Procházka <filip@prochazka.su>
+ *
+ * @property callable $begin
+ * @property callable $failure
+ * @property callable $success
  */
 class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel
 {
@@ -151,6 +156,18 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel
 	public function register()
 	{
 		Debugger::$bar->addPanel($this);
+	}
+
+
+
+	/**
+	 * @param \Kdyby\Extension\Social\Facebook\Api\CurlClient $client
+	 */
+	public function listen(CurlClient $client)
+	{
+		$client->onRequest[] = $this->begin;
+		$client->onError[] = $this->failure;
+		$client->onSuccess[] = $this->success;
 	}
 
 
