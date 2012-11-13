@@ -39,12 +39,12 @@ class CurlClient extends Nette\Object implements Facebook\ApiClient
 	);
 
 	/**
-	 * @var \Facebook\Facebook
+	 * @var Facebook\Facebook
 	 */
 	private $fb;
 
 	/**
-	 * @var \Facebook\Diagnostics\Panel
+	 * @var Facebook\Diagnostics\Panel
 	 */
 	private $panel;
 
@@ -56,7 +56,7 @@ class CurlClient extends Nette\Object implements Facebook\ApiClient
 
 
 	/**
-	 * @param \Facebook\Facebook $facebook
+	 * @param Facebook\Facebook $facebook
 	 */
 	public function injectFacebook(Facebook\Facebook $facebook)
 	{
@@ -66,7 +66,7 @@ class CurlClient extends Nette\Object implements Facebook\ApiClient
 
 
 	/**
-	 * @param \Facebook\Diagnostics\Panel $panel
+	 * @param Facebook\Diagnostics\Panel $panel
 	 */
 	public function injectPanel(Facebook\Diagnostics\Panel $panel = NULL)
 	{
@@ -79,7 +79,7 @@ class CurlClient extends Nette\Object implements Facebook\ApiClient
 	 * Invoke the old restserver.php endpoint.
 	 *
 	 * @param array $params Method call object
-	 * @throws \Facebook\FacebookApiException
+	 * @throws Facebook\FacebookApiException
 	 * @return mixed The decoded response object
 	 */
 	public function restServer(array $params)
@@ -106,7 +106,7 @@ class CurlClient extends Nette\Object implements Facebook\ApiClient
 	 * @param string $path The path (required)
 	 * @param string $method The http method (default 'GET')
 	 * @param array $params The query/post data
-	 * @throws \Facebook\FacebookApiException
+	 * @throws Facebook\FacebookApiException
 	 * @return mixed The decoded response object
 	 */
 	public function graph($path, $method = NULL, array $params = array())
@@ -130,7 +130,7 @@ class CurlClient extends Nette\Object implements Facebook\ApiClient
 	 * @param array $params The query/post data
 	 *
 	 * @return string The decoded response object
-	 * @throws \Facebook\FacebookApiException
+	 * @throws Facebook\FacebookApiException
 	 */
 	public function oauth($url, array $params)
 	{
@@ -155,7 +155,7 @@ class CurlClient extends Nette\Object implements Facebook\ApiClient
 	/**
 	 * @param \Nette\Http\UrlScript $url
 	 * @param $params
-	 * @throws \Facebook\FacebookApiException
+	 * @throws Facebook\FacebookApiException
 	 * @return array|mixed
 	 */
 	protected function callOauth(UrlScript $url, $params)
@@ -183,7 +183,7 @@ class CurlClient extends Nette\Object implements Facebook\ApiClient
 	 * @param array $params The parameters to use for the POST body
 	 * @param resource $ch Initialized curl handle
 	 *
-	 * @throws \Facebook\FacebookApiException
+	 * @throws Facebook\FacebookApiException
 	 * @return string The response text
 	 */
 	protected function makeRequest($url, array $params, $ch = null)
@@ -263,7 +263,7 @@ class CurlClient extends Nette\Object implements Facebook\ApiClient
 	 * the case, then we destroy the session.
 	 *
 	 * @param $result array A record storing the error message returned by a failed API call.
-	 * @throws \Facebook\FacebookApiException
+	 * @throws Facebook\FacebookApiException
 	 */
 	protected function throwAPIException($result)
 	{

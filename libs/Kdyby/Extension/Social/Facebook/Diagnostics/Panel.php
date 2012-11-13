@@ -66,7 +66,7 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel
 	public function getPanel()
 	{
 		if (!$this->calls) {
-			return;
+			return NULL;
 		}
 
 		ob_start();
@@ -128,7 +128,7 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel
 
 
 	/**
-	 * @param \Facebook\FacebookApiException $exception
+	 * @param Facebook\FacebookApiException $exception
 	 * @param array $curlInfo
 	 */
 	public function failure(Facebook\FacebookApiException $exception, array $curlInfo)

@@ -122,7 +122,9 @@ class FacebookControl extends Nette\Application\UI\PresenterComponent
 	public function handleOpen($dialog)
 	{
 		try {
-			$this->presenter->redirectUrl($this[$dialog]->getUrl());
+			$component = $this[$dialog];
+			/** @var Dialog $component */
+			$this->presenter->redirectUrl($component->getUrl());
 
 		} catch (InvalidArgumentException $e) {
 			$this->presenter->error($e->getMessage());
