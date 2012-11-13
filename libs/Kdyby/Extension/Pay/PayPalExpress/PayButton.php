@@ -179,6 +179,19 @@ class PayButton extends Nette\Forms\Controls\SubmitButton implements ISignalRece
 
 
 	/**
+	 * @param string $event
+	 * @param callable $callback
+	 * @return PayButton
+	 */
+	public function on($event, $callback)
+	{
+		$this->{'on' . ucfirst($event)}[] = callback($callback);
+		return $this;
+	}
+
+
+
+	/**
 	 * @param string $method
 	 */
 	public static function register($method = 'addPayPalButton')
