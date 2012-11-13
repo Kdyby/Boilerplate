@@ -70,7 +70,7 @@ class PayButton extends Nette\Forms\Controls\SubmitButton implements ISignalRece
 
 		$this->onClick[] = function (PayButton $button) use ($payPal) {
 			try {
-				$button->onCheckout($button, $this->payPal);
+				$button->onCheckout($button, $payPal);
 
 			} catch (CheckoutRequestFailedException $e) {
 				if (!$button->onError) {
