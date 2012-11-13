@@ -19,6 +19,10 @@ use Kdyby\Extension\Curl;
  * @author Martin Maly - http://www.php-suit.com
  * @author Filip Procházka <filip@prochazka.su>
  * @see  http://www.php-suit.com/paypal
+ *
+ * @method onRequest(array $data)
+ * @method onError(\Kdyby\Extension\Curl\CurlException $e, array $info)
+ * @method onSuccess(array $result)
  */
 class PayPal extends Nette\Object
 {
@@ -30,7 +34,29 @@ class PayPal extends Nette\Object
 	const PP_HOST_SANDBOX = 'https://api-3t.sandbox.paypal.com/nvp';
 	const PP_GATE_SANDBOX = 'https://www.sandbox.paypal.com/cgi-bin/webscr?';
 
+	/**
+	 * @var array of function(array $data)
+	 */
+	public $onRequest = array();
+
+	/**
+	 * @var array of function(Curl\CurlException $e, array $info)
+	 */
+	public $onError = array();
+
+	/**
+	 * @var array of function(array $result)
+	 */
+	public $onSuccess = array();
+
+	/**
+	 * @var string
+	 */
 	private $host = self::PP_HOST_SANDBOX;
+
+	/**
+	 * @var string
+	 */
 	private $gate = self::PP_GATE_SANDBOX;
 
 	/**
@@ -215,6 +241,8 @@ class PayPal extends Nette\Object
 	 */
 	private function process($data)
 	{
+		$this->onRequest($data);
+
 		$data = array(
 			'USER' => $this->username,
 			'PWD' => $this->password,
@@ -225,10 +253,18 @@ class PayPal extends Nette\Object
 		$request = new Curl\Request($this->host, $data);
 		$request->setSender($this->curlSender);
 		try {
-			return self::parseNvp($request->post(http_build_query($data))->getResponse());
+			$response = $request->post(http_build_query($data));
+			$resultData = self::parseNvp($response->getResponse());
+			$this->onSuccess($resultData, $response->getInfo());
+			return $resultData;
+
+		} catch (Curl\FailedRequestException $e) {
+			$this->onError($e, $e->getInfo());
+			throw new CommunicationFailedException($e->getMessage(), 0, $e);
 
 		} catch (Curl\CurlException $e) {
-			throw new CommunicationFailedException("", 0, $e);
+			$this->onError($e, $e->getResponse() ? $e->getResponse()->info : array());
+			throw new CommunicationFailedException($e->getMessage(), 0, $e);
 		}
 	}
 
