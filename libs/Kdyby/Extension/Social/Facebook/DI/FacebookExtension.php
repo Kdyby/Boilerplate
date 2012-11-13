@@ -81,7 +81,6 @@ class FacebookExtension extends Nette\Config\CompilerExtension
 
 		$builder->addDefinition($this->prefix('client'))
 			->setClass('Kdyby\Extension\Social\Facebook\Facebook')
-			->addSetup('?->injectFacebook(?)', array($this->prefix('@apiClient'), '@self'))
 			->setInject(FALSE);
 	}
 
