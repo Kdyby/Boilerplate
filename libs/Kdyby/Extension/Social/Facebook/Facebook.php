@@ -11,6 +11,7 @@
 namespace Kdyby\Extension\Social\Facebook;
 
 use Nette;
+use Kdyby\Extension\Social\Facebook\Api\CurlClient;
 use Nette\Diagnostics\Debugger;
 use Nette\Utils\Strings;
 
@@ -109,7 +110,11 @@ class Facebook extends Nette\Object
 		$this->httpResponse = $httpResponse;
 		$this->httpRequest = $httpRequest;
 		$this->session = $session;
+
 		$this->apiClient = $client;
+		if ($client instanceof CurlClient) {
+			$client->setFacebook($this);
+		}
 	}
 
 

@@ -72,7 +72,7 @@ class CurlClient extends Nette\Object implements Facebook\ApiClient
 	/**
 	 * @param Facebook\Facebook $facebook
 	 */
-	public function injectFacebook(Facebook\Facebook $facebook)
+	public function setFacebook(Facebook\Facebook $facebook)
 	{
 		$this->fb = $facebook;
 	}
