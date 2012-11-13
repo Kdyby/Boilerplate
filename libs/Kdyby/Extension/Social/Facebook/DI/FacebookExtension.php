@@ -73,10 +73,10 @@ class FacebookExtension extends Nette\Config\CompilerExtension
 		if ($builder->parameters['debugMode']) {
 			$builder->addDefinition($this->prefix('panel'))
 				->setClass('Kdyby\Extension\Social\Facebook\Diagnostics\Panel')
-				->addSetup('listen', array($this->prefix('@apiClient')))
 				->setInternal(TRUE)
 				->setInject(FALSE);
-			$apiClient->addSetup($this->prefix('@panel') . '::register');
+
+			$apiClient->addSetup($this->prefix('@panel') . '::register', array('@self'));
 		}
 
 		$builder->addDefinition($this->prefix('client'))

@@ -151,23 +151,15 @@ class Panel extends Nette\Object implements Nette\Diagnostics\IBarPanel
 
 
 	/**
-	 * Register into BarPanel.
-	 */
-	public function register()
-	{
-		Debugger::$bar->addPanel($this);
-	}
-
-
-
-	/**
 	 * @param \Kdyby\Extension\Social\Facebook\Api\CurlClient $client
 	 */
-	public function listen(CurlClient $client)
+	public function register(CurlClient $client)
 	{
 		$client->onRequest[] = $this->begin;
 		$client->onError[] = $this->failure;
 		$client->onSuccess[] = $this->success;
+
+		Debugger::$bar->addPanel($this);
 	}
 
 
