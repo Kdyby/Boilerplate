@@ -68,7 +68,8 @@ class FacebookExtension extends Nette\Config\CompilerExtension
 		$apiClient = $builder->addDefinition($this->prefix('apiClient'))
 			->setFactory('Kdyby\Extension\Social\Facebook\Api\CurlClient')
 			->setClass('Kdyby\Extension\Social\Facebook\ApiClient')
-			->setInternal(TRUE);
+			->setInternal(TRUE)
+			->setInject(FALSE);
 
 		if ($builder->parameters['debugMode']) {
 			$builder->addDefinition($this->prefix('panel'))
