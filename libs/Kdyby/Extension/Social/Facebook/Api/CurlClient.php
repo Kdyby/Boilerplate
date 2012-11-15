@@ -195,7 +195,7 @@ class CurlClient extends Nette\Object implements Facebook\ApiClient
 			return $this->cache[$cacheKey];
 		}
 
-		$this->onRequest($url, $params);
+		$this->onRequest((string)$url, $params);
 
 		$ch = $ch ?: curl_init();
 
