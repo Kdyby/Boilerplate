@@ -60,16 +60,6 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 	 */
 	public function __construct(FileTemplate $template = NULL)
 	{
-		if ($template === NULL) {
-			$template = new FileTemplate();
-			$template->registerFilter(new Nette\Latte\Engine());
-
-		} else {
-			$template->setParameters(array_fill_keys(array(
-				'control', '_control', 'presenter', '_presenter'
-			), NULL));
-		}
-
 		$this->template = $template;
 	}
 
@@ -85,6 +75,17 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 	 */
 	public function render(Nette\Forms\Form $form, $mode = NULL, $args = NULL)
 	{
+		if ($this->template === NULL) {
+			if ($presenter = $form->lookup('Nette\Application\UI\Presenter', FALSE)) {
+				/** @var \Nette\Application\UI\Presenter $presenter */
+				$this->template = clone $presenter->getTemplate();
+
+			} else {
+				$this->template = new FileTemplate();
+				$this->template->registerFilter(new Nette\Latte\Engine());
+			}
+		}
+
 		if ($this->form !== $form) {
 			$this->form = $form;
 
@@ -111,9 +112,10 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 		}
 
 		$this->template->setFile(__DIR__ . '/@form.latte');
-		$this->template->form = $this->form;
-		$this->template->_form = $this->form;
-		$this->template->renderer = $this;
+		$this->template->setParameters(
+			array_fill_keys(array('control', '_control', 'presenter', '_presenter'), NULL) +
+			array('_form' => $this->form, 'form' => $this->form, 'renderer' => $this)
+		);
 
 		if ($mode === NULL) {
 			if ($args) {
