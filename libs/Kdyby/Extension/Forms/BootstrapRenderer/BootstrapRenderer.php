@@ -207,12 +207,31 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 	 */
 	public function findErrors()
 	{
-		if (!$formErrors = $this->form->getErrors()) {
+		$formErrors = method_exists($this->form, 'getAllErrors')
+			? $this->form->getAllErrors()
+			: $this->form->getErrors();
+
+		if (!$formErrors) {
 			return array();
 		}
 
+		$form = $this->form;
+		$translate = function ($errors) use ($form) {
+			if ($translator = $form->getTranslator()) { // If we have translator, translate!
+				foreach ($errors as $key => $val) {
+					$errors[$key] = $translator->translate($val);
+				}
+			}
+
+			return $errors;
+		};
+
 		if (!$this->errorsAtInputs) {
-			return $formErrors;
+			return $translate($formErrors);
+		}
+
+		if (method_exists($this->form, 'getAllErrors')) {
+			return $translate($this->form->getErrors());
 		}
 
 		foreach ($this->form->getControls() as $control) {
@@ -224,14 +243,7 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 			$formErrors = array_diff($formErrors, $control->getErrors());
 		}
 
-		// If we have translator, translate!
-		if ($translator = $this->form->getTranslator()) {
-			foreach ($formErrors as $key => $val) {
-				$formErrors[$key] = $translator->translate($val);
-			}
-		}
-
-		return $formErrors;
+		return $translate($formErrors);
 	}
 
 
