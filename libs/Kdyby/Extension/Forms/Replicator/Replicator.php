@@ -464,8 +464,8 @@ class Replicator extends Container
 			});
 		}
 
-		Container::extensionMethod($methodName, function (Container $_this, $name, $factory, $createDefault = 0) {
-			return $_this[$name] = new Replicator($factory, $createDefault);
+		Container::extensionMethod($methodName, function (Container $_this, $name, $factory, $createDefault = 0, $forceDefault = FALSE) {
+			return $_this[$name] = new Replicator($factory, $createDefault, $forceDefault);
 		});
 
 		if (self::$registered) {
