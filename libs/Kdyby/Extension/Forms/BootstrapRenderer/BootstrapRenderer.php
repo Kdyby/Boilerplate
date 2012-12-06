@@ -170,10 +170,7 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 		}
 
 		if ($control->controlPrototype->type === 'email') {
-			$email = Html::el('span', array('class' => 'add-on'))
-				->setText('@');
-
-			$control->setOption('input-prepend', $email);
+			$control->setOption('input-prepend', '@');
 		}
 
 		if ($control instanceof Nette\Forms\ISubmitterControl) {
@@ -196,6 +193,18 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 			}
 			if ($control->errors) {
 				$pair->addClass('error');
+			}
+
+			if ($prepend = $control->getOption('input-prepend')) {
+				$prepend = Html::el('span', array('class' => 'add-on'))
+					->{$prepend instanceof Html ? 'add' : 'setText'}($prepend);
+				$control->setOption('input-prepend', $prepend);
+			}
+
+			if ($append = $control->getOption('input-append')) {
+				$append = Html::el('span', array('class' => 'add-on'))
+					->{$append instanceof Html ? 'add' : 'setText'}($append);
+				$control->setOption('input-append', $append);
 			}
 		}
 	}
