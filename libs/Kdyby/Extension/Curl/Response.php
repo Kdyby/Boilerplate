@@ -56,6 +56,10 @@ class Response extends Nette\Object
 			// Set-Cookie is parsed in CurlWrapper to object
 			$this->cookies = (array)$headers['Set-Cookie'];
 		}
+
+		if (!isset($this->headers['Status-Code'])) {
+			$this->headers['Status-Code'] = $this->curl->info['http_code'];
+		}
 	}
 
 
