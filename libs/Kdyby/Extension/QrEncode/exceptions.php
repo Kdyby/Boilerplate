@@ -48,6 +48,16 @@ class InvalidArgumentException extends \InvalidArgumentException implements Exce
 /**
  * @author Filip Procházka <filip@prochazka.su>
  */
+class InvalidStateException extends \RuntimeException implements Exception
+{
+
+}
+
+
+
+/**
+ * @author Filip Procházka <filip@prochazka.su>
+ */
 class ProcessException extends \RuntimeException implements Exception
 {
 

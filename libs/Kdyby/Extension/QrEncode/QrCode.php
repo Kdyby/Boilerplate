@@ -12,6 +12,7 @@ namespace Kdyby\Extension\QrEncode;
 
 use Kdyby;
 use Nette;
+use Kdyby\Extension\QrEncode\DI\Configuration;
 
 
 
@@ -66,11 +67,12 @@ class QrCode extends QrOptions
 
 
 	/**
-	 * @param QrGenerator $generator
+	 * @param IGenerator $generator
+	 * @return string
 	 */
-	public function render(QrGenerator $generator = NULL)
+	public function render(IGenerator $generator = NULL)
 	{
-		$generator = $generator ?: new QrGenerator();
+		$generator = $generator ?: new QrGenerator(new Configuration());
 		return $generator->render($this);
 	}
 
@@ -78,11 +80,11 @@ class QrCode extends QrOptions
 
 	/**
 	 * @param string $file
-	 * @param QrGenerator $generator
+	 * @param IGenerator $generator
 	 * @return string
 	 * @throws IOException
 	 */
-	public function save($file, QrGenerator $generator = NULL)
+	public function save($file, IGenerator $generator = NULL)
 	{
 		if (!@file_put_contents($file, $this->render($generator))) {
 			throw new IOException("Cannot write to $file.");

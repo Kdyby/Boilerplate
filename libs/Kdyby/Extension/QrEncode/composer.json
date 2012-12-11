@@ -21,6 +21,9 @@
     "conflict":{
         "kdyby/framework":"self.version"
     },
+    "suggest": {
+        "kdyby/curl-extension": "It's required for using a remote QrCode encoder provider."
+    },
     "autoload":{
         "psr-0":{
             "Kdyby\\Extension\\QrEncode":""

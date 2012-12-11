@@ -19,8 +19,24 @@ use Nette;
 /**
  * @author Filip Procházka <filip@prochazka.su>
  */
-class QrGenerator extends QrOptions
+class QrGenerator extends QrOptions implements IGenerator
 {
+
+	/**
+	 * @param DI\Configuration $config
+	 */
+	public function __construct(DI\Configuration $config)
+	{
+		parent::__construct(
+			$config->size,
+			$config->errorCorrection,
+			$config->version,
+			$config->margin,
+			$config->options
+		);
+	}
+
+
 
 	/**
 	 * @param QrCode $qr
