@@ -152,16 +152,6 @@ class BootstrapRenderer extends Nette\Object implements Nette\Forms\IFormRendere
 		}
 
 		$el = $control->getControlPrototype();
-		if ($el->getName() === 'input') {
-			$el->class(strtr($el->type, array(
-				'password' => 'text',
-				'file' => 'text',
-				'submit' => 'button',
-				'button' => 'button btn',
-				'image' => 'imagebutton',
-			)), TRUE);
-		}
-
 		if ($placeholder = $control->getOption('placeholder')) {
 			if (!$placeholder instanceof Html && $translator) {
 				$placeholder = $translator->translate($placeholder);
