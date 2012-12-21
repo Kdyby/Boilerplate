@@ -16,7 +16,7 @@
         "issues":"https://github.com/kdyby/framework/issues"
     },
     "require":{
-        "nette/nette":"*"
+        "nette/nette":"2.0.*"
     },
     "conflict":{
         "kdyby/framework":"self.version"
