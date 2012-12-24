@@ -10,7 +10,6 @@
 
 namespace Kdyby\Forms\Controls;
 
-use Kdyby;
 use Nette\Forms\Container;
 use Nette;
 use Nette\Utils\Html;
