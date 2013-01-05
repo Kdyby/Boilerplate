@@ -30,6 +30,10 @@ target = git@github.com:Kdyby/HtmlValidatorPanel.git
 branch = split/qrencode
 target = git@github.com:Kdyby/QrEncodeExtension.git
 
+[libs/Kdyby/Extension/SvgRenderer]
+branch = split/svgrenderer
+target = git@github.com:Kdyby/SvgRendererExtension.git
+
 [libs/Kdyby/Extension/Browser]
 branch = split/browser
 target = git@github.com:Kdyby/BrowserExtension.git

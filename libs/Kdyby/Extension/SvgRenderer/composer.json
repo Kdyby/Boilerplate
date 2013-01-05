@@ -1,0 +1,36 @@
+{
+    "name":"kdyby/svgrenderer-extension",
+    "type":"library",
+    "description":"SvgRenderer is Inkscape wrapper for Nette Framework",
+    "keywords":["nette", "kdyby", "svg"],
+    "homepage":"http://kdyby.org",
+    "license":["BSD-3-Clause", "GPL-2.0", "GPL-3.0"],
+    "authors":[
+        {
+            "name":"Filip Procházka",
+            "homepage":"http://filip-prochazka.com"
+        }
+    ],
+    "support":{
+        "email":"filip@prochazka.su",
+        "issues":"https://github.com/kdyby/framework/issues"
+    },
+    "require":{
+        "nette/nette":"*"
+    },
+    "conflict":{
+        "kdyby/framework":"self.version"
+    },
+    "suggest": {
+        "kdyby/curl-extension": "It's required for using a remote SvnRenderer provider."
+    },
+    "autoload":{
+        "psr-0":{
+            "Kdyby\\Extension\\SvgRenderer":""
+        },
+        "classmap":[
+            "Kdyby/Extension/SvgRenderer/exceptions.php"
+        ]
+    },
+    "target-dir":"Kdyby/Extension/SvgRenderer"
+}
