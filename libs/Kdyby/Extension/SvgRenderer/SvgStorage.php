@@ -26,20 +26,27 @@ class SvgStorage extends Nette\Object
 	 */
 	private $cacheDir;
 
+	/**
+	 * @var array
+	 */
+	private $cleanup = array();
+
 
 
 	/**
 	 * @param string $cacheDir
 	 * @param string $namespace
 	 */
-	public function __construct($cacheDir, $namespace = 'Kdyby.Svg')
+	public function __construct($cacheDir, $namespace = '_Kdyby.Svg')
 	{
 		if (!is_dir($dir = $cacheDir . '/' . $namespace)) {
 			umask(0);
-			@mkdir($dir, 0777);
+			@mkdir($dir, 0775);
 		}
 
 		$this->cacheDir = $dir;
+
+		register_shutdown_function(callback($this, 'clean'));
 	}
 
 
@@ -58,22 +65,32 @@ class SvgStorage extends Nette\Object
 	 * @param string $filename
 	 * @param string $content
 	 */
-	public function save($content, $filename = NULL)
+	public function save($content, $filename)
 	{
 		file_put_contents($this->cacheDir . '/' . $filename, $content);
+		return $filename;
 	}
 
 
 
 	/**
+	 * @param string $contents
+	 * @param bool $autoRemove
 	 * @return string
 	 */
-	public function tempFile()
+	public function tempFile($contents = NULL, $autoRemove = TRUE)
 	{
 		$file = tempnam($this->cacheDir, 'tmp_image_');
-		register_shutdown_function(function () use ($file) {
-			@unlink($file);
-		});
+		@chmod($file, 0664);
+
+		if ($contents !== NULL) {
+			$this->save($contents, basename($file));
+		}
+
+		if ($autoRemove) {
+			$this->cleanup[] = $file;
+		}
+
 		return $file;
 	}
 
@@ -88,6 +105,18 @@ class SvgStorage extends Nette\Object
 	{
 		$results = iterator_to_array(Nette\Utils\Finder::findFiles($filename)->in($this->cacheDir));
 		return reset($results);
+	}
+
+
+
+	/**
+	 * @internal
+	 */
+	public function clean()
+	{
+		foreach ($this->cleanup as $file) {
+			@unlink($file);
+		}
 	}
 
 }

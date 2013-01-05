@@ -42,6 +42,9 @@ class SvgRendererExtension extends Nette\Config\CompilerExtension
 			->addSetup('$provider', array($config['provider']))
 			->addSetup('$apiKey', array($config['apiKey']));
 
+		$builder->addDefinition($this->prefix('storage'))
+			->setClass('Kdyby\Extension\SvgRenderer\SvgStorage', array('%tempDir%/cache'));
+
 		$generator = $builder->addDefinition($this->prefix('renderer'))
 			->setClass('Kdyby\Extension\SvgRenderer\IRenderer');
 

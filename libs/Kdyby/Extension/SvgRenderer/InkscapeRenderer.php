@@ -10,6 +10,7 @@
 
 namespace Kdyby\Extension\SvgRenderer;
 
+use DOMXPath;
 use Kdyby;
 use Nette;
 
@@ -22,24 +23,19 @@ class InkscapeRenderer extends Nette\Object implements IRenderer
 {
 
 	/**
-	 * @param DI\Configuration $config
+	 * @var SvgStorage
 	 */
-	public function __construct(DI\Configuration $config)
-	{
-		// pass
-	}
+	private $storage;
 
 
 
 	/**
-	 * @param SvgImage $svg
-	 * @throws ProcessException
-	 * @return string
+	 * @param DI\Configuration $config
+	 * @param SvgStorage $storage
 	 */
-	public function render(SvgImage $svg)
+	public function __construct(DI\Configuration $config, SvgStorage $storage)
 	{
-		$process = new InkscapeProcess($this->buildOptions($svg));
-		return $process->execute();
+		$this->storage = $storage;
 	}
 
 
@@ -47,13 +43,49 @@ class InkscapeRenderer extends Nette\Object implements IRenderer
 	/**
 	 * @param SvgImage $svg
 	 * @throws IOException
-	 * @return array
+	 * @return string
 	 */
-	private function buildOptions(SvgImage $svg)
+	public function render(SvgImage $svg)
 	{
-		return array(
-			'' => $svg->getString()
-		);
+		$dom = $svg->getDocument();
+
+		set_error_handler(function ($code, $message, $file, $line, array $context) {
+			throw new IOException($message, $code, new \ErrorException($message, 0, $code, $file, $line));
+		});
+
+		$path = new DOMXPath($dom);
+		foreach ($path->query('//*') as $node) {
+			/** @var \DOMElement $node */
+
+			if (strtolower($node->tagName) === 'image') {
+				try {
+					$href = $node->getAttribute('xlink:href');
+					if (strpos($href, 'http://') === 0 || strpos($href, 'https://') === 0) {
+						$image = file_get_contents($href);
+						$imagePath = $this->storage->save($image, md5($href) . '.' . strlen($image) . '.' . pathinfo(basename($href), PATHINFO_EXTENSION));
+						$node->setAttribute('xlink:href', $this->storage->getDir() . '/' . $imagePath);
+					}
+
+				} catch (IOException $e) {
+					// inkscape will render "image not found"
+					// $node->parentNode->removeChild($node);
+				}
+			}
+		}
+
+		restore_error_handler();
+
+		$source = $this->storage->tempFile($dom->saveXML(), FALSE);
+		$target = $this->storage->tempFile(NULL, FALSE);
+
+		$process = new InkscapeProcess(array(
+			'--file' => $source,
+			'--export-png' => $target,
+			'--without-gui'
+		));
+		$process->execute();
+
+		return file_get_contents($target);
 	}
 
 }

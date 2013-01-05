@@ -27,6 +27,7 @@ class SvgImage extends Nette\Object
 {
 
 	const XML_HTML_UNKNOWN_TAG = 801;
+	const XML_ERR_NO_DTD = 94;
 
 	/**
 	 * @var \DOMDocument
@@ -61,32 +62,32 @@ class SvgImage extends Nette\Object
 	 */
 	public function getString()
 	{
-		return $this->getDocument()->saveXML();
+		return $this->xml->saveXML();
 	}
 
 
 
 	/**
-	 * @param IRenderer $generator
+	 * @param IRenderer $renderer
+	 * @throws InvalidArgumentException
 	 * @return string
 	 */
-	public function render(IRenderer $generator = NULL)
+	public function render(IRenderer $renderer)
 	{
-		$generator = $generator ?: new InkscapeRenderer(new Configuration());
-		return $generator->render($this);
+		return $renderer->render($this);
 	}
 
 
 
 	/**
 	 * @param string $file
-	 * @param IRenderer $generator
-	 * @return string
+	 * @param IRenderer $renderer
 	 * @throws IOException
+	 * @return string
 	 */
-	public function save($file, IRenderer $generator = NULL)
+	public function save($file, IRenderer $renderer)
 	{
-		if (!@file_put_contents($file, $this->render($generator))) {
+		if (!@file_put_contents($file, $this->render($renderer))) {
 			throw new IOException("Cannot write to $file.");
 		}
 
@@ -117,6 +118,7 @@ class SvgImage extends Nette\Object
 		$errors = array_filter(libxml_get_errors(), function (\LibXMLError $error) {
 			return !in_array((int) $error->code, array(
 				SvgImage::XML_HTML_UNKNOWN_TAG,
+				SvgImage::XML_ERR_NO_DTD,
 			), TRUE);
 		});
 		libxml_clear_errors();
@@ -131,18 +133,27 @@ class SvgImage extends Nette\Object
 			if ($node->hasAttribute('style')) {
 				$node->removeAttribute('style');
 			}
-
-//			if (strtolower($node->tagName) === 'image') {
-//				try {
-//					$imagePath = $imageStorage->find(basename($node->getAttribute('xlink:href')));
-//					$node->setAttribute('xlink:href', $imagePath);
-//				} catch (FileNotFoundException $e) {
-//					$node->parentNode->removeChild($node);
-//				}
-//			}
 		}
 
 		return $dom;
+	}
+
+
+
+	/**
+	 * @return array
+	 */
+	public function __sleep()
+	{
+		$this->xml = $this->getString();
+		return array('xml');
+	}
+
+
+
+	public function __wakeup()
+	{
+		$this->xml = $this->createDom($this->xml);
 	}
 
 }

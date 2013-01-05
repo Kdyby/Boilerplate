@@ -12,8 +12,6 @@ namespace Kdyby\Extension\SvgRenderer;
 
 use Kdyby;
 use Nette;
-use Nette\Diagnostics\Debugger;
-use Kdyby\Extension\SvgRenderer\DI\Configuration;
 
 
 
@@ -26,23 +24,33 @@ class ImageResponse extends Nette\Object implements Nette\Application\IResponse
 	/**
 	 * @var SvgImage
 	 */
-	private $code;
+	private $image;
 
 	/**
-	 * @var IRenderer
+	 * @var string
 	 */
-	private $generator;
+	private $rendered;
 
 
 
 	/**
-	 * @param SvgImage $qrCode
-	 * @param IRenderer $generator
+	 * @param SvgImage $image
+	 * @param IRenderer $renderer
 	 */
-	public function __construct(SvgImage $qrCode, IRenderer $generator = NULL)
+	public function __construct(SvgImage $image, IRenderer $renderer)
 	{
-		$this->code = $qrCode;
-		$this->generator = $generator ?: new InkscapeRenderer(new Configuration());
+		$this->image = $image;
+		$this->rendered = $renderer->render($image);
+	}
+
+
+
+	/**
+	 * @return SvgImage
+	 */
+	public function getImage()
+	{
+		return $this->image;
 	}
 
 
@@ -53,17 +61,9 @@ class ImageResponse extends Nette\Object implements Nette\Application\IResponse
 	 */
 	public function send(Nette\Http\IRequest $httpRequest, Nette\Http\IResponse $httpResponse)
 	{
-		try {
-			$content = $this->generator->render($this->code);
-			$httpResponse->setHeader('Content-Type', 'image/png');
-			$httpResponse->setCode(200);
-			echo $content;
-
-		} catch (Exception $e) {
-			Debugger::log($e, 'svg');
-			$httpResponse->setCode(500);
-			echo "Internal server error";
-		}
+		$httpResponse->setHeader('Content-Type', 'image/png');
+		$httpResponse->setCode(200);
+		echo $this->rendered;
 	}
 
 }

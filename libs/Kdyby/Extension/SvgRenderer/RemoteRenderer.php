@@ -44,7 +44,8 @@ class RemoteRenderer extends Nette\Object implements IRenderer
 	public function __construct(DI\Configuration $config, CurlSender $curlSender = NULL)
 	{
 		$this->config = $config;
-		$this->curlSender = $curlSender ?: new CurlSender();
+		$this->curlSender = $curlSender ? clone $curlSender : new CurlSender();
+		$this->curlSender->setTimeout(15);
 	}
 
 
@@ -61,7 +62,7 @@ class RemoteRenderer extends Nette\Object implements IRenderer
 		$request->setSender($this->curlSender);
 
 		try {
-			$response = $request->post(array('message' => $svg->getString()));
+			$response = $request->post(array('xml' => $svg->getString()));
 			if ($response->headers['Content-Type'] === 'image/png') {
 				return $response->getResponse();
 			}
