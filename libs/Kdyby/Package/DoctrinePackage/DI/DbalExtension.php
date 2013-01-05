@@ -160,8 +160,7 @@ class DbalExtension extends Kdyby\Config\CompilerExtension
 
 		// connection factory
 		$container->addDefinition($connectionName . '.factory')
-			->setClass('Kdyby\Package\DoctrinePackage\ConnectionFactory', array('%doctrine.dbal.connectionFactory.types%'))
-			->setInternal(TRUE);
+			->setClass('Kdyby\Package\DoctrinePackage\ConnectionFactory', array('%doctrine.dbal.connectionFactory.types%'));
 
 		// connection
 		Validators::assertField($options, 'mappingTypes', 'array');
