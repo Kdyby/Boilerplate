@@ -11,7 +11,6 @@
 namespace Kdyby\Extension\QrEncode;
 
 use Kdyby;
-use Nette\Diagnostics\Debugger;
 use Nette;
 
 
