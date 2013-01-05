@@ -71,14 +71,21 @@ function l($message) {
  * @return mixed
  */
 function bd($var, $title = NULL) {
-	if ($title === NULL) {
-		$trace = debug_backtrace();
-		$title = (isset($trace[1]['class']) ? htmlspecialchars($trace[1]['class']) . "->" : NULL) .
-			htmlspecialchars($trace[1]['function']) . '()' .
-			':' . $trace[0]['line'];
+	if (Debugger::$productionMode) { return $var; }
+
+	$trace = debug_backtrace();
+	$traceTitle = (isset($trace[1]['class']) ? htmlspecialchars($trace[1]['class']) . "->" : NULL) .
+		htmlspecialchars($trace[1]['function']) . '()' .
+		':' . $trace[0]['line'];
+
+	if (!is_scalar($title) && $title !== NULL) {
+		foreach (func_get_args() as $arg) {
+			Nette\Diagnostics\Debugger::barDump($arg, $traceTitle);
+		}
+		return $var;
 	}
 
-	return Nette\Diagnostics\Debugger::barDump($var, $title);
+	return Nette\Diagnostics\Debugger::barDump($var, $title ?: $traceTitle);
 }
 
 
