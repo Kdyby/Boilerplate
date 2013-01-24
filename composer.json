@@ -16,12 +16,11 @@
 		"issues": "https://github.com/kdyby/boilerplate/issues"
 	},
 	"require": {
-		"nette/nette": "*"
+		"nette/nette": "@dev"
 	},
 	"require-dev": {
 		"nette/tester": "@dev"
 	},
-	"minimum-stability": "dev",
 	"autoload": {
 		"psr-0": {
 			"Kdyby\\": "src/"
